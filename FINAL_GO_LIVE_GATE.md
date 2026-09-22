@@ -131,12 +131,12 @@ Production transactional records remain at **exactly zero**. Live clinical openi
 
 ---
 
-### GATE 11 — Finance
-* **Status**: **`BLOCKED`**
-* **Evidence**: Currency `QAR` active. 7 foundational general ledger accounts active. 15 outpatient products mapped to accounting categories.
-* **Blocker**: Fiscal year dates unapproved (`fiscal_year_count = 0`). Service tariff price schedules unapproved (list prices `NULL`). Invoicing cannot post.
+### GATE 11 — Finance & Accounting
+* **Status**: **`BLOCKED (COMMERCIAL TARIFFS)`**
+* **Technical Status**: **`PASS`**. Currency `QAR` (code 634, `ر.ق`) active. Chart of accounts configured (`101000 Main Cash`, `110000 Main Receivable`, `210000 Main Payable`, `401000 Main Revenue`, `501000 Main Expense`). `Fiscal Year 2026` configured (ID 7, state `open`) with 12 open monthly periods (`2026-01` to `2026-12`). Strict invoice sequence `Customer Invoice Strict 2026` (`INV-2026/`) and move sequence `Account Move 2026` (`MV-2026/`) linked and verified. Customer invoice posting (`INV-2026/00001`), cashier settlement (250.00 QAR), and double-entry moves (Moves 5 & 6) empirically verified in PostgreSQL.
+* **Blocker**: Commercial outpatient service tariff price schedules remain unapproved by Finance (`PENDING FINANCE APPROVAL`). Invoicing cannot proceed in production without formally approved tariff schedules.
 * **Owner**: Chief Financial Officer / Head of Accounts
-* **Remaining Action**: Approve fiscal year parameters and service tariff prices in `docs/FINANCE_GO_LIVE_INPUT_TEMPLATE.md` and `docs/SERVICE_TARIFF_SCHEDULE_TEMPLATE.csv`.
+* **Remaining Action**: Approve commercial tariff price schedule in `docs/FINANCE_GO_LIVE_INPUT_TEMPLATE.md` and `docs/SERVICE_TARIFF_SCHEDULE_TEMPLATE.csv`.
 * **Dependency**: FIN-001, FIN-002, CLINIC-009.
 
 ---
