@@ -1,0 +1,172 @@
+# ==============================================================================
+# GNU HEALTH 5.0 — QATAR OUTPATIENT CLINIC MASTER CONFIGURATION SPECIFICATION
+# Master Single-Source Configuration File: clinic-config.yaml
+# Status: CONFIGURED (Baseline & Architecture Verified) / PENDING_CLINIC_INPUT
+# ==============================================================================
+
+clinic:
+  name: "<CLINIC_NAME>"
+  legal_name: "<LEGAL_CLINIC_NAME>"
+  country: "Qatar"
+  country_code: "QA"
+  phone_prefix: "+974"
+  currency: "QAR"
+  currency_symbol: "ر.ق"
+  timezone: "Asia/Qatar"
+  language:
+    primary: "en"
+    secondary: "ar"
+
+address:
+  zone: "<ZONE>"
+  street: "<STREET>"
+  building: "<BUILDING>"
+  city: "<CITY>"
+  country: "Qatar"
+  phone: "+974 <PHONE>"
+  email: "<EMAIL>"
+
+departments:
+  - code: "OPD"
+    name: "Outpatient Department"
+    type: "outpatient"
+    status: "configured"
+  - code: "NURS"
+    name: "Nursing / Triage"
+    type: "nursing"
+    status: "configured"
+  - code: "PHARM"
+    name: "Pharmacy"
+    type: "pharmacy"
+    status: "configured"
+  - code: "LAB"
+    name: "Laboratory"
+    type: "laboratory"
+    status: "configured"
+  - code: "RAD"
+    name: "Radiology"
+    type: "radiology"
+    status: "configured"
+  - code: "BILL"
+    name: "Billing / Accounts"
+    type: "billing"
+    status: "configured"
+  - code: "INS"
+    name: "Insurance"
+    type: "insurance"
+    status: "configured"
+  - code: "ADMIN"
+    name: "Administration"
+    type: "administration"
+    status: "configured"
+
+specialties:
+  - code: "GP"
+    name: "General Practitioner"
+    status: "preloaded"
+  - code: "INTERNAL"
+    name: "Internal Medicine"
+    status: "preloaded"
+  - code: "PEDIATRICS"
+    name: "Pediatrics"
+    status: "preloaded"
+  - code: "DS"
+    name: "Dermatology"
+    status: "preloaded"
+  - code: "CARDIO"
+    name: "Cardiology"
+    status: "preloaded"
+  - code: "ENT"
+    name: "Otolaryngology - ENT"
+    status: "preloaded"
+  - code: "ORTHOSURG"
+    name: "Orthopedic surgery"
+    status: "preloaded"
+  - code: "OBGYN"
+    name: "Obstetrics and gynecology"
+    status: "preloaded"
+  - code: "OPHTALMO"
+    name: "Ophthalmology"
+    status: "preloaded"
+  - code: "PRIMARY-ORAL"
+    name: "Oral Medicine (Primary Care)"
+    status: "preloaded"
+
+doctors: []  # Status: PENDING_CLINIC_INPUT (See master-data/doctors.yaml)
+
+users:
+  - role: "Receptionist"
+    groups: ["Health Front Desk", "Party Administration"]
+  - role: "Nurse"
+    groups: ["Health Nurse", "Health Nurse Administration"]
+  - role: "Doctor"
+    groups: ["Health Doctor", "Health Services Administration"]
+  - role: "Pharmacist"
+    groups: ["Health Back Office", "Product Administration"]
+  - role: "Radiology Staff"
+    groups: ["Health Imaging", "Health Imaging Administration"]
+  - role: "Laboratory Staff"
+    groups: ["Health Lab", "Health lab Administration"]
+  - role: "Billing Officer"
+    groups: ["Account", "Account Administration", "Health Back Office"]
+  - role: "Clinic Manager"
+    groups: ["Health Administration", "Company Administration"]
+  - role: "Administrator"
+    groups: ["Administration"]
+
+services:
+  - code: "OPD-GEN"
+    name: "Outpatient General Consultation"
+    department: "OPD"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+  - code: "OPD-SPEC"
+    name: "Outpatient Specialist Consultation"
+    department: "OPD"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+  - code: "NURS-PROC"
+    name: "Nursing Ambulatory Dressing & Triage"
+    department: "NURS"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+
+medicines: []  # Status: PENDING_CLINIC_INPUT (See master-data/medicines.yaml)
+
+laboratory_tests:
+  - code: "LAB-CBC"
+    name: "Complete Blood Count"
+    category: "CBC"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+  - code: "LAB-LFT"
+    name: "Liver Function Test"
+    category: "LFT"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+  - code: "LAB-RFT"
+    name: "Renal Function Test"
+    category: "RFT"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+  - code: "LAB-UA"
+    name: "Urine Analysis"
+    category: "UA"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+
+radiology_services:
+  - code: "RAD-CXR-PA"
+    name: "Chest X-Ray"
+    modality: "XR"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+  - code: "RAD-US-ABD"
+    name: "Ultrasound Abdomen"
+    modality: "US"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+
+insurance_providers: []  # Status: PENDING_CLINIC_INPUT (See master-data/insurance.yaml)
+
+working_hours:
+  schedule: "Sunday to Thursday"
+  hours: "<PENDING_CLINIC_INPUT>"
+  template: "WORKING_HOURS_TEMPLATE.md"
+
+accounting:
+  status: "PENDING_ACCOUNTING_APPROVAL"
+  currency: "QAR"
+  journals_configured: ["REV", "EXP", "CASH", "STO", "MISC", "EXC"]
+  chart_of_accounts: "Pending Qatar clinic accounting confirmation"

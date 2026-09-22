@@ -1,0 +1,949 @@
+{
+  "timestamp": "2026-09-22T16:38:22.617038Z",
+  "phases": {
+    "model_integrity": {
+      "native_models_verified": {
+        "gnuhealth.patient": true,
+        "gnuhealth.appointment": true,
+        "gnuhealth.patient.evaluation": true,
+        "gnuhealth.patient.disease": true,
+        "gnuhealth.prescription.order": true,
+        "gnuhealth.lab": true,
+        "gnuhealth.imaging.test.request": true,
+        "gnuhealth.imaging.test.result": true,
+        "gnuhealth.health_service": true,
+        "account.invoice": true,
+        "account.move": true,
+        "account.move.line": true,
+        "account.move.reconciliation": true,
+        "res.user": true,
+        "res.group": true,
+        "party.party": true,
+        "company.company": true,
+        "account.fiscalyear": true
+      },
+      "all_native_models_present": true,
+      "shadow_tables_found": [],
+      "shadow_tables_count": 0,
+      "status": "PASS"
+    },
+    "orphan_checks": {
+      "counts": {
+        "patients_without_parties": 0,
+        "appointments_without_patients": 0,
+        "appointments_without_physicians": 0,
+        "evaluations_without_patients": 0,
+        "evaluations_without_physicians": 0,
+        "prescriptions_without_patients": 0,
+        "lab_records_without_patients": 0,
+        "radiology_records_without_patients": 0,
+        "health_services_without_patients": 0,
+        "invoices_without_customer": 0,
+        "posted_invoices_without_moves": 0,
+        "reconciliations_without_lines": 0
+      },
+      "all_zero": true,
+      "status": "PASS"
+    },
+    "clinical_trace": {
+      "trace_patient_52": {
+        "patient_id": 52,
+        "party_id": 204,
+        "appointments": [
+          {
+            "id": 55,
+            "state": "confirmed",
+            "doctor_id": 71
+          },
+          {
+            "id": 51,
+            "state": "confirmed",
+            "doctor_id": 71
+          },
+          {
+            "id": 54,
+            "state": "done",
+            "doctor_id": 71
+          },
+          {
+            "id": 50,
+            "state": "done",
+            "doctor_id": 71
+          }
+        ],
+        "evaluations": [
+          {
+            "id": 34,
+            "state": "in_progress",
+            "doctor_id": 71
+          },
+          {
+            "id": 33,
+            "state": "in_progress",
+            "doctor_id": 71
+          },
+          {
+            "id": 31,
+            "state": "signed",
+            "doctor_id": 71
+          },
+          {
+            "id": 29,
+            "state": "signed",
+            "doctor_id": 71
+          }
+        ],
+        "prescriptions": [
+          {
+            "id": 30,
+            "state": "done"
+          },
+          {
+            "id": 28,
+            "state": "done"
+          }
+        ],
+        "labs": [
+          {
+            "id": 25,
+            "state": "validated"
+          },
+          {
+            "id": 23,
+            "state": "validated"
+          }
+        ],
+        "imaging": [
+          {
+            "id": 25,
+            "state": "done"
+          },
+          {
+            "id": 23,
+            "state": "done"
+          }
+        ],
+        "health_services": [
+          {
+            "id": 20
+          },
+          {
+            "id": 18
+          }
+        ],
+        "invoices": [
+          {
+            "id": 22,
+            "number": "INV-2026/00004",
+            "state": "posted",
+            "amount": "475.00",
+            "move_id": 24
+          },
+          {
+            "id": 20,
+            "number": "INV-2026/00002",
+            "state": "posted",
+            "amount": "475.00",
+            "move_id": 17
+          }
+        ]
+      },
+      "status": "PASS"
+    },
+    "signed_evaluation_immutability": {
+      "results": {
+        "frontdesk_write": {
+          "user_id": 151,
+          "operation": "write",
+          "denied": true,
+          "reason": "AccessError: You are not allowed to access \"Patient Evaluation\". - ",
+          "status": "PASS"
+        },
+        "cashier_write": {
+          "user_id": 152,
+          "operation": "write",
+          "denied": true,
+          "reason": "AccessError: You are not allowed to access \"Patient Evaluation\". - ",
+          "status": "PASS"
+        },
+        "doctor_delete": {
+          "user_id": 146,
+          "operation": "delete",
+          "denied": true,
+          "reason": "AccessError: You are not allowed to access \"Patient Evaluation\". - ",
+          "status": "PASS"
+        },
+        "doctor_view_immutability": {
+          "enforcement_mechanism": "Field.states['readonly'] on evaluation fields when state == 'signed'",
+          "states_rule_present": true,
+          "status": "PASS"
+        }
+      },
+      "status": "PASS"
+    },
+    "posted_invoice_immutability": {
+      "results": {
+        "cashier_delete_posted_invoice": {
+          "user_id": 152,
+          "target_id": 22,
+          "operation": "delete_invoice",
+          "denied": true,
+          "reason": "AccessError: You cannot modify invoice \"INV-2026/00004\" because it is posted, paid or cancelled. - ",
+          "status": "PASS"
+        },
+        "doctor_delete_posted_invoice": {
+          "user_id": 146,
+          "target_id": 22,
+          "operation": "delete_invoice",
+          "denied": true,
+          "reason": "AccessError: You cannot modify invoice \"INV-2026/00004\" because it is posted, paid or cancelled. - ",
+          "status": "PASS"
+        },
+        "cashier_delete_posted_move": {
+          "user_id": 152,
+          "target_id": 24,
+          "operation": "delete_move",
+          "denied": true,
+          "reason": "AccessError: You cannot modify posted move \"24\". - ",
+          "status": "PASS"
+        },
+        "doctor_delete_posted_move": {
+          "user_id": 146,
+          "target_id": 24,
+          "operation": "delete_move",
+          "denied": true,
+          "reason": "AccessError: You cannot modify posted move \"24\". - ",
+          "status": "PASS"
+        }
+      },
+      "all_denied": true,
+      "status": "PASS"
+    },
+    "admin_isolation": {
+      "admin_group_members": [
+        {
+          "id": 1,
+          "login": "admin"
+        },
+        {
+          "id": 153,
+          "login": "demo_admin1"
+        }
+      ],
+      "demo_admins": [
+        {
+          "id": 153,
+          "login": "demo_admin1"
+        }
+      ],
+      "only_one_demo_admin": true,
+      "escalation_tests": {
+        "physician_escalate_admin": {
+          "user_id": 146,
+          "escalation_denied": true,
+          "reason": "AccessError: You are not allowed to access \"User\". - ",
+          "status": "PASS"
+        },
+        "cashier_escalate_admin": {
+          "user_id": 152,
+          "escalation_denied": true,
+          "reason": "AccessError: You are not allowed to access \"User\". - ",
+          "status": "PASS"
+        },
+        "frontdesk_escalate_admin": {
+          "user_id": 151,
+          "escalation_denied": true,
+          "reason": "AccessError: You are not allowed to access \"User\". - ",
+          "status": "PASS"
+        },
+        "nurse_escalate_admin": {
+          "user_id": 148,
+          "escalation_denied": true,
+          "reason": "AccessError: You are not allowed to access \"User\". - ",
+          "status": "PASS"
+        }
+      },
+      "all_escalations_denied": true,
+      "status": "PASS"
+    },
+    "password_security": {
+      "users": [
+        {
+          "id": 2,
+          "login": "demo_nurses",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 3,
+          "login": "demo_frontdesk",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 4,
+          "login": "demo_doctor",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 5,
+          "login": "demo_social_worker",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 6,
+          "login": "demo_back_office",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 7,
+          "login": "demo_imaging",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 8,
+          "login": "demo_lab",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 146,
+          "login": "demo_dr1",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 147,
+          "login": "demo_dr2",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 148,
+          "login": "demo_nurse1",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 149,
+          "login": "demo_lab1",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 150,
+          "login": "demo_rad1",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 151,
+          "login": "demo_frontdesk1",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 152,
+          "login": "demo_cashier1",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        },
+        {
+          "id": 153,
+          "login": "demo_admin1",
+          "has_hash": true,
+          "hash_algorithm": "scrypt",
+          "is_securely_hashed": true
+        }
+      ],
+      "all_securely_hashed": true,
+      "status": "PASS"
+    },
+    "rbac_matrix": {
+      "matrix": {
+        "demo_frontdesk1": {
+          "role": "Front Desk",
+          "user_id": 151,
+          "permissions": {
+            "Patient": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "DENY"
+            },
+            "Appointment": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "ALLOW"
+            },
+            "Evaluation": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Prescription": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Lab": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Radiology": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "HealthService": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Invoice": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "PaymentMove": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "FiscalYear": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            }
+          }
+        },
+        "demo_nurse1": {
+          "role": "Nurse",
+          "user_id": 148,
+          "permissions": {
+            "Patient": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Appointment": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Evaluation": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "DENY"
+            },
+            "Prescription": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Lab": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Radiology": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "HealthService": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Invoice": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "PaymentMove": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "FiscalYear": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            }
+          }
+        },
+        "demo_dr1": {
+          "role": "Physician 01",
+          "user_id": 146,
+          "permissions": {
+            "Patient": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "DENY"
+            },
+            "Appointment": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "ALLOW"
+            },
+            "Evaluation": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "DENY"
+            },
+            "Prescription": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "DENY"
+            },
+            "Lab": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Radiology": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "ALLOW"
+            },
+            "HealthService": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "ALLOW"
+            },
+            "Invoice": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "PaymentMove": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "FiscalYear": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            }
+          }
+        },
+        "demo_dr2": {
+          "role": "Physician 02",
+          "user_id": 147,
+          "permissions": {
+            "Patient": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "DENY"
+            },
+            "Appointment": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "ALLOW"
+            },
+            "Evaluation": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "DENY"
+            },
+            "Prescription": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "DENY"
+            },
+            "Lab": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Radiology": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "ALLOW"
+            },
+            "HealthService": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "ALLOW"
+            },
+            "Invoice": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "PaymentMove": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "FiscalYear": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            }
+          }
+        },
+        "demo_lab1": {
+          "role": "Lab Tech",
+          "user_id": 149,
+          "permissions": {
+            "Patient": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Appointment": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Evaluation": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Prescription": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Lab": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "DENY"
+            },
+            "Radiology": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "HealthService": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Invoice": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "PaymentMove": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "FiscalYear": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            }
+          }
+        },
+        "demo_rad1": {
+          "role": "Rad Tech",
+          "user_id": 150,
+          "permissions": {
+            "Patient": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Appointment": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Evaluation": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Prescription": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Lab": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Radiology": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "ALLOW"
+            },
+            "HealthService": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Invoice": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "PaymentMove": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "FiscalYear": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            }
+          }
+        },
+        "demo_cashier1": {
+          "role": "Cashier",
+          "user_id": 152,
+          "permissions": {
+            "Patient": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Appointment": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Evaluation": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Prescription": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Lab": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Radiology": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "HealthService": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Invoice": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "ALLOW"
+            },
+            "PaymentMove": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "DENY"
+            },
+            "FiscalYear": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            }
+          }
+        },
+        "demo_admin1": {
+          "role": "Admin",
+          "user_id": 153,
+          "permissions": {
+            "Patient": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "ALLOW"
+            },
+            "Appointment": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "ALLOW"
+            },
+            "Evaluation": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "DENY"
+            },
+            "Prescription": {
+              "read": "ALLOW",
+              "create": "ALLOW",
+              "write": "ALLOW",
+              "delete": "ALLOW"
+            },
+            "Lab": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Radiology": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "HealthService": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "Invoice": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "PaymentMove": {
+              "read": "DENY",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            },
+            "FiscalYear": {
+              "read": "ALLOW",
+              "create": "DENY",
+              "write": "DENY",
+              "delete": "DENY"
+            }
+          }
+        }
+      },
+      "key_rules_passed": true,
+      "status": "PASS"
+    },
+    "native_api_validation": {
+      "records_created": {
+        "patient_id": 59,
+        "party_id": 214,
+        "puid": "FINAL-VAL-QID-1790095104",
+        "appointment_id": 62,
+        "evaluation_id": 37,
+        "prescription_id": 33,
+        "lab_id": 28,
+        "imaging_req_id": 28,
+        "imaging_res_id": 23,
+        "health_service_id": 23,
+        "invoice_id": 25,
+        "invoice_number": "INV-2026/00007",
+        "invoice_move_id": 30,
+        "payment_move_id": 31,
+        "reconciliation_id": 12,
+        "customer_net_ar": "0.00",
+        "total_debit": "950.00",
+        "total_credit": "950.00",
+        "gl_balanced": true
+      },
+      "status": "PASS"
+    },
+    "database_hardening": {
+      "database_name": "gnuhealth",
+      "connection_user": "gnuhealth",
+      "is_superuser": false,
+      "database_size": "124 MB",
+      "public_tables_count": 306,
+      "listen_addresses": "localhost",
+      "status": "PASS"
+    }
+  },
+  "errors": []
+}

@@ -1,0 +1,54 @@
+# ==============================================================================
+# GNU HEALTH 5.0 — QATAR OUTPATIENT CLINIC RADIOLOGY SERVICE TEMPLATE
+# Status: PENDING_CLINIC_INPUT
+# Instructions: Map verified imaging procedures to installed modalities.
+# ==============================================================================
+
+services:
+  - code: "RAD-CXR-PA"
+    name: "Chest X-Ray (PA View)"
+    modality: "XR"  # X-ray (gnuhealth.imaging.test.type ID 1)
+    department: "Radiology"
+    body_part: "Chest"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+    active: false
+
+  - code: "RAD-XR-EXTR"
+    name: "Extremity X-Ray"
+    modality: "XR"
+    department: "Radiology"
+    body_part: "Extremity"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+    active: false
+
+  - code: "RAD-US-ABD"
+    name: "Ultrasound Whole Abdomen"
+    modality: "US"  # Ultrasound (gnuhealth.imaging.test.type ID 2)
+    department: "Radiology"
+    body_part: "Abdomen"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+    active: false
+
+  - code: "RAD-US-PELV"
+    name: "Ultrasound Pelvis"
+    modality: "US"
+    department: "Radiology"
+    body_part: "Pelvis"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+    active: false
+
+  - code: "RAD-CT-SCAN"
+    name: "Computed Tomography (CT)"
+    modality: "CT"  # CT (gnuhealth.imaging.test.type ID 7)
+    department: "Radiology"
+    body_part: "<PENDING_CLINIC_INPUT>"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+    active: false
+
+  - code: "RAD-MRI"
+    name: "Magnetic Resonance Imaging (MRI)"
+    modality: "MR"  # MR (gnuhealth.imaging.test.type ID 3)
+    department: "Radiology"
+    body_part: "<PENDING_CLINIC_INPUT>"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+    active: false
