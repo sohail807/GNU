@@ -537,33 +537,58 @@ sudo systemctl start gnuhealth
 FINAL SYSTEM READINESS CLASSIFICATION
 ====================================================================
 
-TECHNICAL BACKEND STATUS:
-TECHNICALLY IMPLEMENTED AND VALIDATED
+TECHNICAL BACKEND:
+PASS — TECHNICALLY IMPLEMENTED AND VALIDATED
 
-BUSINESS GO-LIVE STATUS:
-BLOCKED — REQUIRED CLINIC INPUTS / APPROVALS PENDING
+TECHNICAL SECURITY:
+PASS / CONDITIONAL — Host OS, sandboxing, and loopback sockets verified; SSH global network restriction review pending institutional handover
 
-TECHNICAL VERIFICATION:
-PASS — for the defined scenarios actually executed
+DATABASE:
+PASS — PostgreSQL 15.19 localhost only; 306 public tables; clean operational census (0 records)
 
-PRODUCTION TLS:
-BLOCKED
+BACKUP:
+PASS — LOCAL BACKUP VERIFIED (Automated daily 02:00 UTC snapshot active)
+
+RESTORE:
+PASS — ISOLATED RESTORE VERIFIED (Isolated database drill completed in ~10s)
+
+OFF-HOST DISASTER RECOVERY:
+NOT VERIFIED (Local backup verified; off-host cloud replication not configured)
+
+NETWORK:
+PASS — Application (8000) and database (5432) private ports not externally reachable
+
+HTTPS/TLS:
+BLOCKED — OFFICIAL FQDN/CERTIFICATE REQUIRED
+
+RBAC:
+PASS — MODEL VALIDATED (6 roles validated with zero privilege leakage)
 
 PRODUCTION USERS:
-BLOCKED
+BLOCKED — OFFICIAL STAFF DATA REQUIRED
 
-PRODUCTION TARIFFS:
-PENDING
+MASTER DATA:
+PARTIAL — Technical ontologies configured (14,416 ICD-10, 73 specialties); clinic-specific master data pending
+
+ACCOUNTING:
+PASS TECHNICALLY — FINANCE APPROVAL PENDING (Configured in QAR with FY2026; CFO adoption pending)
 
 BUSINESS UAT:
-PENDING
+PENDING — Executive execution of BUSINESS_UAT_SIGNOFF.md pending
 
 EXECUTIVE RELEASE:
-PENDING
+PENDING — Board release authorization pending
 
-TECHNICAL BLOCKERS:
-NO REMAINING TECHNICAL TASKS IDENTIFIED WITHIN THE CURRENTLY AVAILABLE INFORMATION AND CONFIGURATION.
-(Note: This classification does not imply that the system can now go live. Live clinical operations remain strictly blocked on external business inputs, official domain delegation, and executive governance approvals.)
+OVERALL BUSINESS GO-LIVE:
+BLOCKED
 
 ====================================================================
+STATEMENT ON READINESS:
+Technical backend implementation and defined verification scenarios have
+been completed under the tested conditions. Business go-live remains
+blocked pending clinic inputs, TLS activation, production staff
+provisioning, financial approvals, business UAT, and executive release
+authorization.
+====================================================================
 ```
+
