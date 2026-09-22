@@ -574,7 +574,7 @@ The following authoritative matrix synthesizes the empirical status and verifica
 
 ## 36. Authoritative Deliverable Index
 
-The complete suite of 16 authoritative implementation deliverables has been compiled and synchronized in the project workspace:
+The complete suite of 17 authoritative implementation deliverables has been compiled and synchronized in the project workspace:
 
 1. [`GNU_HEALTH_BACKEND_ARCHITECTURE.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/GNU_HEALTH_BACKEND_ARCHITECTURE.md)
 2. [`GNU_HEALTH_NATIVE_CAPABILITY_MATRIX.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/GNU_HEALTH_NATIVE_CAPABILITY_MATRIX.md)
@@ -585,11 +585,12 @@ The complete suite of 16 authoritative implementation deliverables has been comp
 7. [`CLINICAL_WORKFLOW_VALIDATION.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/CLINICAL_WORKFLOW_VALIDATION.md)
 8. [`END_TO_END_TRANSACTION_EVIDENCE.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/END_TO_END_TRANSACTION_EVIDENCE.md)
 9. [`DATABASE_TRANSACTION_VERIFICATION.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/DATABASE_TRANSACTION_VERIFICATION.md)
-10. [`SECURITY_VALIDATION.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/SECURITY_VALIDATION.md)
-11. [`BACKUP_RESTORE_VALIDATION.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/BACKUP_RESTORE_VALIDATION.md)
-12. [`API_INTEGRATION_CONTRACT.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/API_INTEGRATION_CONTRACT.md)
-13. [`PRODUCTION_OPERATIONS_RUNBOOK.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/PRODUCTION_OPERATIONS_RUNBOOK.md)
-14. [`BUSINESS_UAT_SIGNOFF.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/BUSINESS_UAT_SIGNOFF.md)
-15. [`FINAL_GO_LIVE_GATE.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/FINAL_GO_LIVE_GATE.md)
-16. [`FINAL_IMPLEMENTATION_REPORT.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/FINAL_IMPLEMENTATION_REPORT.md)
+10. [`TRANSACTION_ROLLBACK_VALIDATION.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/TRANSACTION_ROLLBACK_VALIDATION.md)
+11. [`SECURITY_VALIDATION.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/SECURITY_VALIDATION.md)
+12. [`BACKUP_RESTORE_VALIDATION.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/BACKUP_RESTORE_VALIDATION.md)
+13. [`API_INTEGRATION_CONTRACT.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/API_INTEGRATION_CONTRACT.md)
+14. [`PRODUCTION_OPERATIONS_RUNBOOK.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/PRODUCTION_OPERATIONS_RUNBOOK.md)
+15. [`BUSINESS_UAT_SIGNOFF.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/BUSINESS_UAT_SIGNOFF.md)
+16. [`FINAL_GO_LIVE_GATE.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/FINAL_GO_LIVE_GATE.md)
+17. [`FINAL_IMPLEMENTATION_REPORT.md`](file:///c:/Users/MohammedSohail/OneDrive%20-%20IRISSTAR%20TECHNOLOGIES/GNU%20Health/FINAL_IMPLEMENTATION_REPORT.md)
 
