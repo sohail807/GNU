@@ -1,0 +1,224 @@
+{
+  "timestamp": "2026-09-22T15:24:27.293219Z",
+  "phases": {
+    "clinic_config": {
+      "company_id": 2,
+      "clinic_name": "DEMO HEALTH CLINIC",
+      "institution_id": 2,
+      "institution_code": "DEMO-HC",
+      "currency": "QAR",
+      "status": "PASS"
+    },
+    "rbac_and_professionals": {
+      "physician_01": {
+        "user_id": 146,
+        "hp_id": 71,
+        "specialty": "Family Medicine"
+      },
+      "physician_02": {
+        "user_id": 147,
+        "hp_id": 72,
+        "specialty": "Internal Medicine"
+      },
+      "nurse_01": {
+        "user_id": 148,
+        "hp_id": 73
+      },
+      "lab_tech_01": {
+        "user_id": 149,
+        "hp_id": 74
+      },
+      "rad_tech_01": {
+        "user_id": 150,
+        "hp_id": 75
+      },
+      "frontdesk_user": {
+        "user_id": 151
+      },
+      "cashier_user": {
+        "user_id": 152
+      },
+      "admin_user": {
+        "user_id": 153
+      },
+      "status": "PASS"
+    },
+    "tariffs": {
+      "OPD-EVAL": {
+        "id": 15,
+        "price": "250.0"
+      },
+      "LAB-CBC": {
+        "id": 7,
+        "price": "75.0"
+      },
+      "RAD-XR": {
+        "id": 3,
+        "price": "150.0"
+      },
+      "status": "PASS"
+    },
+    "patients": {
+      "pat1": {
+        "id": 52,
+        "name": "DEMO PATIENT 001",
+        "puid": "DEMO-QID-000001"
+      },
+      "pat2": {
+        "id": 53,
+        "name": "DEMO PATIENT 002",
+        "puid": "DEMO-QID-000002"
+      },
+      "pat3": {
+        "id": 54,
+        "name": "DEMO PATIENT 003",
+        "puid": "DEMO-QID-000003"
+      },
+      "status": "PASS"
+    },
+    "lifecycle_pat1": {
+      "appointment_id": 54,
+      "appointment_state": "done",
+      "evaluation_id": 31,
+      "evaluation_state": "signed",
+      "vitals": {
+        "bp": "120/80",
+        "hr": 72,
+        "temp": "37.0",
+        "spo2": "98%",
+        "bmi": "22.86"
+      },
+      "prescription_id": 30,
+      "prescription_state": "done",
+      "lab_id": 25,
+      "lab_state": "validated",
+      "imaging_req_id": 25,
+      "imaging_result_id": 20,
+      "followup_appointment_id": 55,
+      "health_service_id": 20,
+      "invoice_id": 22,
+      "invoice_number": "INV-2026/00004",
+      "invoice_state": "posted",
+      "invoice_amount": "475.00",
+      "invoice_move_id": 24,
+      "payment_move_id": 25,
+      "reconciliation_id": 9,
+      "reconciliation_balance": "0.00",
+      "gl_moves_balanced": true,
+      "status": "PASS"
+    },
+    "lifecycle_pat2": {
+      "appointment_id": 56,
+      "appointment_state": "done",
+      "evaluation_id": 32,
+      "evaluation_state": "signed",
+      "prescription_id": 31,
+      "lab_id": 26,
+      "imaging_req_id": 26,
+      "imaging_result_id": 21,
+      "followup_appointment_id": 57,
+      "health_service_id": 21,
+      "invoice_id": 23,
+      "invoice_number": "INV-2026/00005",
+      "invoice_state": "posted",
+      "invoice_amount": "475.00",
+      "reconciliation_id": 10,
+      "gl_moves_balanced": true,
+      "status": "PASS"
+    },
+    "audit_verification": {
+      "evaluation": {
+        "id": 31,
+        "create_uid": "admin",
+        "create_date": "2026-09-22T15:24:27.293479",
+        "write_uid": null,
+        "write_date": null,
+        "state": "signed"
+      },
+      "invoice": {
+        "id": 22,
+        "number": "INV-2026/00004",
+        "create_uid": "admin",
+        "create_date": "2026-09-22T15:24:27.293479",
+        "state": "posted"
+      },
+      "status": "PASS"
+    },
+    "accounting_balance": {
+      "total_debit": "1900.00",
+      "total_credit": "1900.00",
+      "is_balanced": true,
+      "status": "PASS"
+    },
+    "negative_rbac_tests": {
+      "tests": [
+        {
+          "test": "frontdesk_create_evaluation",
+          "role": "Front Desk",
+          "result": "DENIED_AS_EXPECTED",
+          "denial_reason": "AccessError",
+          "status": "PASS"
+        },
+        {
+          "test": "frontdesk_create_prescription",
+          "role": "Front Desk",
+          "result": "DENIED_AS_EXPECTED",
+          "denial_reason": "AccessError",
+          "status": "PASS"
+        },
+        {
+          "test": "frontdesk_modify_gl",
+          "role": "Front Desk",
+          "result": "DENIED_AS_EXPECTED",
+          "denial_reason": "AccessError",
+          "status": "PASS"
+        },
+        {
+          "test": "physician_modify_accounting",
+          "role": "Physician",
+          "result": "DENIED_AS_EXPECTED",
+          "denial_reason": "AccessError",
+          "status": "PASS"
+        },
+        {
+          "test": "physician_delete_posted_invoice",
+          "role": "Physician",
+          "result": "DENIED_AS_EXPECTED",
+          "denial_reason": "AccessError",
+          "status": "PASS"
+        },
+        {
+          "test": "cashier_create_evaluation",
+          "role": "Cashier",
+          "result": "DENIED_AS_EXPECTED",
+          "denial_reason": "AccessError",
+          "status": "PASS"
+        },
+        {
+          "test": "cashier_create_prescription",
+          "role": "Cashier",
+          "result": "DENIED_AS_EXPECTED",
+          "denial_reason": "AccessError",
+          "status": "PASS"
+        },
+        {
+          "test": "lab_modify_financial",
+          "role": "Laboratory",
+          "result": "DENIED_AS_EXPECTED",
+          "denial_reason": "AccessError",
+          "status": "PASS"
+        },
+        {
+          "test": "radiology_modify_accounting",
+          "role": "Radiology",
+          "result": "DENIED_AS_EXPECTED",
+          "denial_reason": "AccessError",
+          "status": "PASS"
+        }
+      ],
+      "status": "PASS"
+    }
+  },
+  "records_created": {},
+  "errors": []
+}

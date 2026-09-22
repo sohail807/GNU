@@ -127,7 +127,50 @@ Inspection of `/var/backups/gnuhealth/` confirms the following verified backup s
 
 | Snapshot File Name | File Size | Timestamp | Purpose / Classification |
 | :--- | :---: | :---: | :--- |
-| **`gnuhealth_clean_baseline_20260922.dump`** | `7.3 MB` | 2026-09-22 12:59 UTC | **Clean Post-Purge Production Baseline (Census = 0)** |
+| **`gnuhealth_db_20260922_153056.dump`** | `7.6 MB` | 2026-09-22 15:30 UTC | **Post-DEMO/UAT Implementation Snapshot (SHA-256: `2e4ba65e62a6e47c17d2197ec105819aeffb93ee9d73abf6e0d5366c730a30f8`)** |
+| **`gnuhealth_clean_baseline_20260922.dump`** | `7.3 MB` | 2026-09-22 12:59 UTC | **Clean Pre-Implementation Production Baseline (Census = 0)** |
 | **`gnuhealth_uat_backup_20260922.dump`** | `7.3 MB` | 2026-09-22 12:44 UTC | Forensic UAT Execution Snapshot |
 | **`gnuhealth_baseline_20260922_pre_uat.dump`** | `7.3 MB` | 2026-09-22 11:53 UTC | Pre-UAT Safety Snapshot |
 | **`gnuhealth_pre_hardening_20260922_100206.dump`**| `7.3 MB` | 2026-09-22 10:02 UTC | Pre-Hardening Baseline |
+
+---
+
+## 6. Post-Implementation Empirical Restore Drill (`gnuhealth_isolated_demo_restore`)
+
+Following the execution of the full DEMO/UAT backend implementation, an isolated restore drill was executed directly from `/var/backups/gnuhealth/gnuhealth_db_20260922_153056.dump`:
+
+1. **Target Isolated Database**: `gnuhealth_isolated_demo_restore`
+2. **Restoration Command**: `pg_restore --no-owner --no-acl -d gnuhealth_isolated_demo_restore ...`
+3. **Forensic Inspection Results**:
+   * **Public Tables**: 306/306 tables verified intact.
+   * **Patient Master**: 3 synthetic patients verified (`DEMO PATIENT 001`, `002`, `003`).
+   * **Appointments**: 8 appointments verified across workflow states.
+   * **Evaluations**: 4 signed SOAP clinical evaluations verified.
+   * **Prescriptions**: 4 electronic prescriptions verified in `done` state.
+   * **Laboratory Results**: 4 CBC laboratory tests verified in `validated` state.
+   * **Invoicing**: 4 customer invoices verified in `posted` state totaling 1,900.00 QAR (`INV-2026/00004`, `INV-2026/00005`, etc.).
+   * **General Ledger Balance**: 24 move lines verified with $\sum \text{Debit} = \sum \text{Credit} = 3,800.00 \text{ QAR}$.
+4. **Teardown & Isolation Verification**:
+   * `gnuhealth_isolated_demo_restore` was dropped cleanly with zero remaining orphaned processes.
+   * Production database `gnuhealth` confirmed completely unaffected and fully operational.
+
+---
+
+## 7. DEMO/UAT BACKEND IMPLEMENTATION STATUS
+
+### TECHNICALLY IMPLEMENTED
+* Automated daily backup service and timer active (`gnuhealth-backup.timer` at 02:00 UTC).
+* On-demand cryptographic snapshot generation with SHA-256 tamper-evident digests.
+* Deterministic isolated database restoration procedure.
+
+### DEMO/UAT VERIFIED
+* Post-implementation backup `/var/backups/gnuhealth/gnuhealth_db_20260922_153056.dump` (7,645,819 bytes) verified.
+* Restoration into `gnuhealth_isolated_demo_restore` successfully restored 306 public tables, 3 patients, 8 appointments, 4 evaluations, 4 prescriptions, 4 lab tests, 4 posted invoices, and balanced GL moves ($\sum \text{Dr} = \sum \text{Cr} = 3,800.00 \text{ QAR}$).
+* Clean teardown verified without affecting live production database.
+
+### PRODUCTION INPUT PENDING
+* Institutional off-host cloud storage bucket destination (e.g. Google Cloud Storage or secondary regional repository) for off-site disaster recovery replication.
+
+### BUSINESS APPROVAL PENDING
+* Formal CFO / IT Steering Committee approval of target RPO (< 24 hours) and RTO (< 2 hours) policies.
+

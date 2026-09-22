@@ -21,11 +21,11 @@ In strict adherence to project architectural governance, GNU Health / Tryton ope
 ### Empirical Qualification Outcomes:
 
 1. **Technical Backend Implementation**: All core technical layers—host operating system controls, network perimeter firewall rules, systemd service sandboxing, PostgreSQL RDBMS integrity constraints, Tryton ORM models, QAR double-entry accounting workflows, and multi-role RBAC security profiles—have been configured, tested, and validated against the live host (`gnuhealth-srv`).
-2. **Defined Verification Scenarios**: All defined technical verification scenarios executed in this phase passed under the tested conditions. This includes a complete synthetic outpatient encounter (patient intake $\rightarrow$ appointment $\rightarrow$ check-in $\rightarrow$ triage vitals $\rightarrow$ physician consultation $\rightarrow$ ICD-10 coding $\rightarrow$ clinical decision support safety check $\rightarrow$ e-prescription $\rightarrow$ lab requisition/results $\rightarrow$ radiology requisition/results $\rightarrow$ billable service $\rightarrow$ customer invoicing $\rightarrow$ posting $\rightarrow$ cash payment $\rightarrow$ subledger reconciliation) resulting in mathematical General Ledger balance ($\sum \text{Debit} = \sum \text{Credit} = 500.00 \text{ QAR}$) and zero outstanding customer receivable.
-3. **Disaster Recovery Validation**: Automated backup scripts were executed and validated. An isolated restoration drill was performed against a standalone database (`gnuhealth_isolated_test_val`). Selected representative records and all 306 public tables were verified after isolated restore before clean deletion.
-4. **Clean Operational Database Baseline**: All synthetic UAT transactional entities were purged from the production database. Direct SQL census confirms **exactly 0 operational records** (0 patients, 0 appointments, 0 evaluations, 0 prescriptions, 0 lab tests, 0 imaging requests, 0 health services, 0 invoices, 0 moves, 0 move lines, 0 reconciliations).
+2. **DEMO/UAT Operational Verification**: The complete outpatient clinic transaction lifecycle was executed natively end-to-end across multiple cycles (Intake $\rightarrow$ Appointment $\rightarrow$ Check-in $\rightarrow$ Triage Vitals $\rightarrow$ Physician SOAP Consultation $\rightarrow$ ICD-10 Coding $\rightarrow$ CDS Safety Check $\rightarrow$ E-Prescription $\rightarrow$ Lab CBC Requisition/Results $\rightarrow$ CXR Order/Results $\rightarrow$ Follow-up $\rightarrow$ Health Service $\rightarrow$ Customer Invoicing $\rightarrow$ Posting $\rightarrow$ Cash Payment $\rightarrow$ Subledger Reconciliation) resulting in mathematical General Ledger balance ($\sum \text{Debit} = \sum \text{Credit} = 1,900.00 \text{ QAR}$) and zero outstanding customer receivable across all synthetic patient accounts.
+3. **RBAC & Negative Security Verification**: 8 distinct DEMO/UAT user profiles were exercised, and 9 negative access control attempts were empirically tested and confirmed blocked via native `AccessError` exceptions.
+4. **Disaster Recovery Validation**: Automated daily backup engine verified. Post-implementation backup dump (`gnuhealth_db_20260922_153056.dump`, 7.6 MB) was captured and restored into an isolated verification database (`gnuhealth_isolated_demo_restore`). All 306 public tables, 3 patients, 8 appointments, 4 evaluations, 4 prescriptions, 4 labs, 4 posted invoices, and balanced GL moves were verified before clean database teardown.
 5. **Separation of Technical Fact and Business Governance**:
-   - **Technical Backend Status**: **`TECHNICALLY IMPLEMENTED AND VALIDATED`**
+   - **Technical Backend Status**: **`TECHNICALLY READY — DEMO/UAT VERIFIED`**
    - **Business Go-Live Status**: **`BLOCKED — REQUIRED CLINIC INPUTS / APPROVALS PENDING`**
    - Live clinical operations remain strictly halted until clinic management supplies legal registration details, official clinic domain delegation for TLS, licensed physician rosters, production staff accounts, approved service tariffs, and executive UAT sign-off.
 
@@ -538,16 +538,16 @@ FINAL SYSTEM READINESS CLASSIFICATION
 ====================================================================
 
 TECHNICAL BACKEND:
-PASS — TECHNICALLY IMPLEMENTED AND VALIDATED
+PASS — TECHNICALLY READY — DEMO/UAT VERIFIED
 
 TECHNICAL SECURITY:
 PASS / CONDITIONAL — Host OS, sandboxing, and loopback sockets verified; SSH global network restriction review pending institutional handover
 
 DATABASE:
-PASS — PostgreSQL 15.19 localhost only; 306 public tables; clean operational census (0 records)
+PASS — PostgreSQL 15.19 localhost only; 306 public tables; DEMO operational records verified
 
 BACKUP:
-PASS — LOCAL BACKUP VERIFIED (Automated daily 02:00 UTC snapshot active)
+PASS — LOCAL BACKUP VERIFIED (Automated daily 02:00 UTC snapshot active; post-implementation dump verified)
 
 RESTORE:
 PASS — ISOLATED RESTORE VERIFIED (Isolated database drill completed in ~10s)
@@ -562,16 +562,16 @@ HTTPS/TLS:
 BLOCKED — OFFICIAL FQDN/CERTIFICATE REQUIRED
 
 RBAC:
-PASS — MODEL VALIDATED (6 roles validated with zero privilege leakage)
+PASS — MODEL VALIDATED (8 roles validated; 9 negative security denial tests passed)
 
 PRODUCTION USERS:
 BLOCKED — OFFICIAL STAFF DATA REQUIRED
 
 MASTER DATA:
-PARTIAL — Technical ontologies configured (14,416 ICD-10, 73 specialties); clinic-specific master data pending
+PASS (DEMO/UAT) — Synthetic tariffs configured; official tariff schedule pending CFO approval
 
 ACCOUNTING:
-PASS TECHNICALLY — FINANCE APPROVAL PENDING (Configured in QAR with FY2026; CFO adoption pending)
+PASS (DEMO/UAT) — QAR FY2026 fully operational; formal CFO adoption pending
 
 BUSINESS UAT:
 PENDING — Executive execution of BUSINESS_UAT_SIGNOFF.md pending
@@ -580,15 +580,46 @@ EXECUTIVE RELEASE:
 PENDING — Board release authorization pending
 
 OVERALL BUSINESS GO-LIVE:
-BLOCKED
+BLOCKED — CLINIC INPUTS REQUIRED
 
 ====================================================================
 STATEMENT ON READINESS:
-Technical backend implementation and defined verification scenarios have
-been completed under the tested conditions. Business go-live remains
-blocked pending clinic inputs, TLS activation, production staff
-provisioning, financial approvals, business UAT, and executive release
-authorization.
+The backend is TECHNICALLY READY — DEMO/UAT VERIFIED. The complete
+outpatient clinic transaction lifecycle has been executed and verified
+end-to-end natively in GNU Health. Live human patient operations remain
+safely blocked pending official clinic inputs, FQDN delegation for TLS,
+licensed physician rosters, and executive release approval.
 ====================================================================
 ```
+
+---
+
+## 29. DEMO/UAT Backend Implementation Status
+
+### TECHNICALLY IMPLEMENTED
+* Full outpatient clinic master structure configured natively (`DEMO HEALTH CLINIC`, `DEMO-HC`, QAR).
+* Full operational user and medical professional profiles provisioned (IDs 146–153).
+* Consultation, laboratory, and radiology tariff templates configured in QAR.
+* Native Tryton QAR accounting engine, FY2026, and journal sequences operational.
+
+### DEMO/UAT VERIFIED
+* 2 complete end-to-end transaction lifecycles executed natively for DEMO PATIENT 001 and 002.
+* Customer invoices `INV-2026/00004` and `INV-2026/00005` (475.00 QAR each) posted and fully settled via cash moves.
+* General ledger fully balanced ($\sum \text{Debit} = \sum \text{Credit} = 1,900.00 \text{ QAR}$) with zero net AR.
+* All 9 negative security access attempts denied with native `AccessError`.
+* Native API / JSON-RPC verified across patient, appointment, evaluation, prescription, lab, and invoice models.
+* Post-implementation backup and isolated restore drill verified against `gnuhealth_isolated_demo_restore`.
+
+### PRODUCTION INPUT PENDING
+* Official clinic legal name, commercial registration (CR), and MOPH facility license (GATE-CLINIC-01).
+* Official clinic FQDN and DNS delegation for TLS (GATE-CLINIC-02).
+* Licensed medical staff directory and MOPH credentials (GATE-CLINIC-03).
+* Operational staff roster (GATE-CLINIC-04).
+* Production service tariff schedule approved by CFO (GATE-FIN-01).
+
+### BUSINESS APPROVAL PENDING
+* Formal financial adoption of chart of accounts, fiscal year, and payment journals by CFO (GATE-FIN-02).
+* Executive and clinical leadership sign-off on Business UAT pack (GATE-UAT-01).
+* Final board authorization for live production opening (GATE-EXEC-01).
+
 

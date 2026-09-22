@@ -42,22 +42,22 @@ Status Classifications:
 | **PostgreSQL Listen** | Localhost only | `SHOW listen_addresses;` | 2026-09-22 13:53 | `localhost` | Verified Technical Fact |
 | **PostgreSQL HBA** | SCRAM-SHA-256 loopback | `grep -E -v '^(#\|$)' pg_hba.conf` | 2026-09-22 13:53 | Local `peer`, loopback TCP `scram-sha-256`, zero remote TCP | Verified Technical Fact |
 | **Database Roles** | `gnuhealth` non-superuser | `\du` in psql | 2026-09-22 13:37 | `gnuhealth` has `Create DB` (non-superuser); `postgres` superuser | Verified Technical Fact |
-| **Database Census** | 0 operational records | Full 18-table SQL census query | 2026-09-22 13:53 | 0 patients, 0 appointments, 0 evaluations, 0 invoices, 0 moves | Verified Technical Fact |
-| **Backup Subsystem** | Daily timer at 02:00 UTC | `systemctl status gnuhealth-backup.timer` | 2026-09-22 13:55 | Active (waiting), 0 warnings, trigger Wed 02:00 UTC | Verified Technical Fact |
-| **Backup Execution** | Manual execution success | `/usr/local/bin/gnuhealth-backup.sh` | 2026-09-22 13:55 | Dump generated (7.3 MB), 3,052 catalog entries, SHA-256 valid | Verified Technical Fact |
-| **Restore Drill** | Isolated DB restoration | `pg_restore -d gnuhealth_isolated_restore_test` | 2026-09-22 13:56 | Duration ~10s, 306 public tables restored, DB dropped cleanly | Synthetic Test Result |
-| **Operational Currency**| Qatari Riyal (QAR) active | `SELECT currency FROM company_company;` | 2026-09-22 13:40 | QAR (ID 3, symbol `ر.ق`, 634) assigned to Company 2 | Technical Configuration |
-| **Fiscal Year 2026** | 12 monthly periods open | `SELECT * FROM account_fiscalyear;` | 2026-09-22 13:40 | FY2026 (ID 7, state `open`), 12 periods, sequence MV-2026/ | Technical Configuration |
-| **RBAC Matrix** | 6 role profiles validated | Tryton ORM `check_access()` tests | 2026-09-22 12:30 | 0 privilege leakage; UAT accounts uncredentialed | Technical Configuration |
-| **Clinical Encounter**| Outpatient lifecycle | Native ORM clinical test suite | 2026-09-22 12:35 | Intake $\rightarrow$ Vitals $\rightarrow$ SOAP $\rightarrow$ CDS $\rightarrow$ Rx $\rightarrow$ Lab $\rightarrow$ Rad | Synthetic Test Result |
-| **Financial Workflow** | Balanced GL moves | SQL query on `account_move` 5 & 6 | 2026-09-22 12:35 | $\sum \text{Dr} = \sum \text{Cr} = 500.00 \text{ QAR}$, Net AR = 0.00 QAR | Synthetic Test Result |
-| **Disaster Recovery** | Off-host replication | Cloud backup inspection | 2026-09-22 13:55 | Local verified; off-host replication not configured | Blocked Item |
-| **Production TLS** | Valid HTTPS on 443 | `certbot certificates; ss -tulpn` | 2026-09-22 13:34 | 0 certificates; Port 443 no listener | Blocked Item |
-| **Clinic Identity** | Commercial Registration | `CLINIC_GO_LIVE_INPUT_TEMPLATE.md` | 2026-09-22 17:50 | Legal trade name, CR, MOPH license pending | Business Input |
-| **Medical Staff** | Licensed physicians | `CLINIC_GO_LIVE_INPUT_TEMPLATE.md` | 2026-09-22 17:50 | Licensed doctor roster and MOPH numbers pending | Business Input |
-| **Service Tariffs** | Outpatient price list | `SERVICE_TARIFF_SCHEDULE_TEMPLATE.csv` | 2026-09-22 17:50 | Consultation and diagnostic prices pending CFO approval | Governance Approval |
-| **Business UAT** | Executive sign-off | `BUSINESS_UAT_SIGNOFF.md` | 2026-09-22 17:50 | 12 test cases documented; executive signing pending | Governance Approval |
-| **Release Auth** | Management release | `FINAL_GO_LIVE_GATE.md` | 2026-09-22 17:50 | Final go-live authorization pending | Governance Approval |
+| **Database Census** | DEMO/UAT operational records | Live SQL census query | 2026-09-22 15:25 | 3 synthetic patients, 8 appointments, 4 evaluations, 4 posted invoices | Verified Technical Fact |
+| **Backup Subsystem** | Daily timer at 02:00 UTC | `systemctl status gnuhealth-backup.timer` | 2026-09-22 15:30 | Active (waiting), 0 warnings, trigger Wed 02:00 UTC | Verified Technical Fact |
+| **Backup Execution** | Post-implementation snapshot | `sudo /usr/local/bin/gnuhealth-backup.sh` | 2026-09-22 15:30 | `gnuhealth_db_20260922_153056.dump` (7.6 MB), SHA-256 verified | Verified Technical Fact |
+| **Restore Drill** | Isolated DB restoration drill | `scripts/verify_isolated_restore.py` | 2026-09-22 15:32 | 306 tables, 3 patients, 4 invoices, 24 GL lines restored; test DB dropped | Synthetic Test Result |
+| **Operational Currency**| Qatari Riyal (QAR) active | `SELECT currency FROM company_company;` | 2026-09-22 15:24 | QAR (ID 3, symbol `ر.ق`, 634) assigned to Company 2 (`DEMO HEALTH CLINIC`) | Technical Configuration |
+| **Fiscal Year 2026** | 12 monthly periods open | `SELECT * FROM account_fiscalyear;` | 2026-09-22 15:24 | FY2026 (ID 7, state `open`), 12 periods, sequence MV-2026/ | Technical Configuration |
+| **RBAC Matrix** | 8 DEMO roles validated | Live ORM access check + 9 negative tests | 2026-09-22 15:25 | 100% pass; 9/9 unauthorized operations denied with `AccessError` | Technical Configuration |
+| **Clinical Encounter**| Outpatient lifecycle (x2) | Full lifecycle script execution | 2026-09-22 15:24 | Intake $\rightarrow$ Vitals $\rightarrow$ SOAP $\rightarrow$ Rx $\rightarrow$ Lab $\rightarrow$ CXR $\rightarrow$ Followup | Synthetic Test Result |
+| **Financial Workflow** | Balanced GL moves (x2) | SQL query on `account_move` 24–27 | 2026-09-22 15:24 | $\sum \text{Dr} = \sum \text{Cr} = 1,900.00 \text{ QAR}$, Net AR = 0.00 QAR | Synthetic Test Result |
+| **Disaster Recovery** | Off-host replication | Cloud backup inspection | 2026-09-22 15:30 | Local verified; off-host replication not configured | Blocked Item |
+| **Production TLS** | Valid HTTPS on 443 | `certbot certificates; ss -tulpn` | 2026-09-22 15:30 | 0 certificates; Port 443 no listener | Blocked Item |
+| **Clinic Identity** | Commercial Registration | `CLINIC_GO_LIVE_INPUT_TEMPLATE.md` | 2026-09-22 18:00 | Legal trade name, CR, MOPH license pending | Business Input |
+| **Medical Staff** | Licensed physicians | `CLINIC_GO_LIVE_INPUT_TEMPLATE.md` | 2026-09-22 18:00 | Licensed doctor roster and MOPH numbers pending | Business Input |
+| **Service Tariffs** | Outpatient price list | `SERVICE_TARIFF_SCHEDULE_TEMPLATE.csv` | 2026-09-22 18:00 | Synthetic tariffs active; official schedule pending CFO approval | Governance Approval |
+| **Business UAT** | Executive sign-off | `BUSINESS_UAT_SIGNOFF.md` | 2026-09-22 18:00 | 12 test cases documented; executive signing pending | Governance Approval |
+| **Release Auth** | Management release | `FINAL_GO_LIVE_GATE.md` | 2026-09-22 18:00 | Final go-live authorization pending | Governance Approval |
 
 ---
 
@@ -69,16 +69,16 @@ FINAL SYSTEM READINESS CLASSIFICATION
 ========================================================================================
 
 TECHNICAL BACKEND:
-PASS — TECHNICALLY IMPLEMENTED AND VALIDATED
+PASS — TECHNICALLY READY — DEMO/UAT VERIFIED
 
 TECHNICAL SECURITY:
 PASS / CONDITIONAL — Host OS, sandboxing, and loopback sockets verified; SSH global network restriction review pending institutional handover
 
 DATABASE:
-PASS — PostgreSQL 15.19 localhost only; 306 public tables; clean operational census (0 records)
+PASS — PostgreSQL 15.19 localhost only; 306 public tables; DEMO records verified
 
 BACKUP:
-PASS — LOCAL BACKUP VERIFIED (Automated daily 02:00 UTC snapshot active)
+PASS — LOCAL BACKUP VERIFIED (Automated daily 02:00 UTC snapshot active; post-implementation dump verified)
 
 RESTORE:
 PASS — ISOLATED RESTORE VERIFIED (Isolated database drill completed in ~10s)
@@ -93,16 +93,16 @@ HTTPS/TLS:
 BLOCKED — OFFICIAL FQDN/CERTIFICATE REQUIRED
 
 RBAC:
-PASS — MODEL VALIDATED (6 roles validated with zero privilege leakage)
+PASS — MODEL VALIDATED (8 roles validated; 9 negative security denial tests passed)
 
 PRODUCTION USERS:
 BLOCKED — OFFICIAL STAFF DATA REQUIRED
 
 MASTER DATA:
-PARTIAL — Technical ontologies configured (14,416 ICD-10, 73 specialties); clinic-specific master data pending
+PASS (DEMO/UAT) — Synthetic tariffs configured; official tariff schedule pending CFO approval
 
 ACCOUNTING:
-PASS TECHNICALLY — FINANCE APPROVAL PENDING (Configured in QAR with FY2026; CFO adoption pending)
+PASS (DEMO/UAT) — QAR FY2026 fully operational; formal CFO adoption pending
 
 BUSINESS UAT:
 PENDING — Executive execution of BUSINESS_UAT_SIGNOFF.md pending
@@ -111,15 +111,45 @@ EXECUTIVE RELEASE:
 PENDING — Board release authorization pending
 
 OVERALL BUSINESS GO-LIVE:
-BLOCKED
+BLOCKED — CLINIC INPUTS REQUIRED
 
 ========================================================================================
 STATEMENT ON READINESS:
-Technical backend implementation and defined verification scenarios have
-been completed under the tested conditions. Business go-live remains
-blocked pending clinic inputs, TLS activation, production staff
-provisioning, financial approvals, business UAT, and executive release
-authorization.
+The backend is TECHNICALLY READY — DEMO/UAT VERIFIED. The complete outpatient clinic
+transaction lifecycle has been executed and verified end-to-end natively in GNU Health.
+Live human patient operations remain safely blocked pending official clinic inputs,
+FQDN delegation for TLS, licensed physician rosters, and executive release approval.
 ========================================================================================
 ```
+
+---
+
+## 4. DEMO/UAT BACKEND IMPLEMENTATION STATUS
+
+### TECHNICALLY IMPLEMENTED
+* Full outpatient clinic master structure configured natively (`DEMO HEALTH CLINIC`, `DEMO-HC`, QAR).
+* Full operational user and medical professional profiles provisioned (IDs 146–153).
+* Consultation, laboratory, and radiology tariff templates configured in QAR.
+* Native Tryton QAR accounting engine, FY2026, and journal sequences operational.
+
+### DEMO/UAT VERIFIED
+* 2 complete end-to-end transaction lifecycles executed natively for DEMO PATIENT 001 and 002.
+* Customer invoices `INV-2026/00004` and `INV-2026/00005` (475.00 QAR each) posted and fully settled via cash moves.
+* General ledger fully balanced ($\sum \text{Debit} = \sum \text{Credit} = 1,900.00 \text{ QAR}$) with zero net AR.
+* All 9 negative security access attempts denied with native `AccessError`.
+* Native API / JSON-RPC verified across patient, appointment, evaluation, prescription, lab, and invoice models.
+* Post-implementation backup and isolated restore drill verified against `gnuhealth_isolated_demo_restore`.
+
+### PRODUCTION INPUT PENDING
+* Official clinic legal name, commercial registration (CR), and MOPH facility license (GATE-CLINIC-01).
+* Official clinic FQDN and DNS delegation for TLS (GATE-CLINIC-02).
+* Licensed medical staff directory and MOPH credentials (GATE-CLINIC-03).
+* Operational staff roster (GATE-CLINIC-04).
+* Production service tariff schedule approved by CFO (GATE-FIN-01).
+
+### BUSINESS APPROVAL PENDING
+* Formal financial adoption of chart of accounts, fiscal year, and payment journals by CFO (GATE-FIN-02).
+* Executive and clinical leadership sign-off on Business UAT pack (GATE-UAT-01).
+* Final board authorization for live production opening (GATE-EXEC-01).
+
 

@@ -136,3 +136,31 @@ The implementation team will NOT fabricate clinic legal identities, physician li
 | **Finance Input Template** | `docs/FINANCE_GO_LIVE_INPUT_TEMPLATE.md` | Chief Financial Officer |
 | **Tariff Schedule CSV** | `docs/SERVICE_TARIFF_SCHEDULE_TEMPLATE.csv` | CFO / Billing Lead |
 | **Business UAT Sign-Off Pack** | `BUSINESS_UAT_SIGNOFF.md` | All 5 Executive Stakeholders |
+
+---
+
+## 4. DEMO/UAT BACKEND IMPLEMENTATION STATUS
+
+### TECHNICALLY IMPLEMENTED
+* Outpatient clinic structure configured natively in Tryton (`company_company` ID 2 `DEMO HEALTH CLINIC`, `gnuhealth_institution` ID 2 `DEMO-HC`).
+* Master synthetic tariffs configured in QAR: Medical Consultation (`OPD-EVAL` = 250.00 QAR), CBC (`LAB-CBC` = 75.00 QAR), Chest X-Ray (`RAD-XR` = 150.00 QAR).
+* Full synthetic clinical staff roster (2 Physicians, 1 Nurse, 1 Lab Tech, 1 Rad Tech) and operational users (Front Desk, Cashier, Admin) configured and active.
+* FY2026 and chart of accounts fully operational for QAR double-entry bookkeeping.
+
+### DEMO/UAT VERIFIED
+* Complete end-to-end outpatient transaction lifecycle verified twice across synthetic patients `DEMO PATIENT 001` and `DEMO PATIENT 002`.
+* Native Tryton billing, invoicing (`INV-2026/00004`, `INV-2026/00005`), payment moves, and subledger reconciliation verified resulting in zero net customer AR.
+* All 9 negative security privilege tests passed with native ORM `AccessError` enforcement.
+
+### PRODUCTION INPUT PENDING
+* Official clinic legal name, commercial registration (CR), and MOPH facility license (GATE-CLINIC-01).
+* Official clinic FQDN and DNS delegation for TLS (GATE-CLINIC-02).
+* Licensed medical staff directory and MOPH credentials (GATE-CLINIC-03).
+* Operational staff roster (GATE-CLINIC-04).
+* Production service tariff schedule approved by CFO (GATE-FIN-01).
+
+### BUSINESS APPROVAL PENDING
+* Formal financial adoption of chart of accounts, fiscal year, and payment journals by CFO (GATE-FIN-02).
+* Executive and clinical leadership sign-off on Business UAT pack (GATE-UAT-01).
+* Final board authorization for live production opening (GATE-EXEC-01).
+

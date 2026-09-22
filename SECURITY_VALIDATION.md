@@ -82,6 +82,19 @@ The native Tryton RBAC security matrix was empirically tested by switching execu
 ### 4.1 Non-Repudiation & Clinical Immutability
 Once an Attending Physician signs a clinical evaluation (`state = 'signed'`), Tryton's state machine revokes write permissions on the evaluation record. Signed medical notes cannot be edited, altered, or deleted by any user (including system administrators), ensuring legal non-repudiation and medico-legal audit defense.
 
+### 4.2 Negative Security Test Suite & Empirical Denial Evidence
+During live DEMO/UAT verification, 9 distinct unauthorized operations were tested under non-admin user contexts with `_check_access: True`. All 9 were denied by the Tryton ORM kernel with native `AccessError`:
+
+1. **Front Desk (`demo_frontdesk1`) $\rightarrow$ Create Evaluation**: Denied (`AccessError`)
+2. **Front Desk (`demo_frontdesk1`) $\rightarrow$ Create Prescription**: Denied (`AccessError`)
+3. **Front Desk (`demo_frontdesk1`) $\rightarrow$ Modify General Ledger**: Denied (`AccessError`)
+4. **Physician (`demo_dr1`) $\rightarrow$ Modify Fiscal Year**: Denied (`AccessError`)
+5. **Physician (`demo_dr1`) $\rightarrow$ Delete Posted Invoice**: Denied (`AccessError`)
+6. **Cashier (`demo_cashier1`) $\rightarrow$ Create Evaluation**: Denied (`AccessError`)
+7. **Cashier (`demo_cashier1`) $\rightarrow$ Create Prescription**: Denied (`AccessError`)
+8. **Laboratory (`demo_lab1`) $\rightarrow$ Modify Financial Transactions**: Denied (`AccessError`)
+9. **Radiology (`demo_rad1`) $\rightarrow$ Modify Accounting Moves**: Denied (`AccessError`)
+
 ---
 
 ## 5. TLS / HTTPS Staged Activation Protocol
@@ -95,3 +108,24 @@ sudo systemctl reload nginx
 ```
 Until this delegation is executed by clinic leadership, the system remains strictly classified as:  
 **`TLS = PENDING APPROVED FQDN`**.
+
+---
+
+## 6. DEMO/UAT BACKEND IMPLEMENTATION STATUS
+
+### TECHNICALLY IMPLEMENTED
+* Multi-tier network isolation: PostgreSQL (5432) and Tryton WSGI (8000) bound strictly to localhost (`127.0.0.1`).
+* Host security controls: systemd sandboxing (`NoNewPrivileges=true`, `PrivateTmp=true`, `ProtectSystem=full`), key-only SSH authentication, SCRAM-SHA-256 database authentication.
+* Model-level RBAC enforcing least privilege across administrative, clinical, and financial domains.
+
+### DEMO/UAT VERIFIED
+* 9 independent negative security tests empirically executed on live host and confirmed blocked via native `AccessError`.
+* Non-repudiation verified on signed evaluations (Evaluation ID 31 and 32).
+* Native JSON-RPC API authenticated and verified for multi-model read operations without exposing unauthenticated endpoints.
+
+### PRODUCTION INPUT PENDING
+* Official clinic production domain (FQDN) and DNS A-record delegation pointing to `34.7.237.8` for automated Let's Encrypt TLS issuance on Port 443.
+
+### BUSINESS APPROVAL PENDING
+* Information Security / Compliance approval of host SSH restricted ingress subnet policies.
+

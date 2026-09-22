@@ -173,3 +173,51 @@ with Transaction().start('gnuhealth', 1) as t:
      ```sql
      SELECT pg_cancel_backend(BLOCKING_PID);
      ```
+
+### Playbook 4: Targeted DEMO/UAT Transaction Data Cleanup SOP
+When authorized to transition from DEMO/UAT mode to live production operations:
+1. **Mandatory Pre-Cleanup Backup**:
+   ```bash
+   sudo /usr/local/bin/gnuhealth-backup.sh
+   ```
+2. **Targeted Identifier Scope (Never use date ranges or unconstrained TRUNCATE)**:
+   * **Synthetic Patients**: PUIDs `DEMO-QID-000001`, `DEMO-QID-000002`, `DEMO-QID-000003` (IDs: 52, 53, 54).
+   * **Synthetic Appointments**: IDs 54, 55, 56, 57.
+   * **Synthetic Evaluations**: IDs 31, 32.
+   * **Synthetic Prescriptions**: IDs 30, 31.
+   * **Synthetic Lab Requisitions**: IDs 25, 26.
+   * **Synthetic Radiology Requests**: IDs 25, 26.
+   * **Synthetic Health Services**: IDs 20, 21.
+   * **Synthetic Customer Invoices**: IDs 22, 23 (`INV-2026/00004`, `INV-2026/00005`).
+   * **Synthetic GL Moves**: IDs 24, 25, 26, 27.
+3. **Execution Safety**:
+   * Master configuration entities (`company_company` ID 2, `account_account`, `product_template`) are retained.
+   * If a pristine zero-census database is requested for opening day, restore the verified pre-implementation clean snapshot:
+     ```bash
+     sudo systemctl stop gnuhealth
+     sudo -u postgres dropdb gnuhealth
+     sudo -u postgres createdb gnuhealth
+     sudo -u postgres pg_restore -d gnuhealth /var/backups/gnuhealth/gnuhealth_clean_baseline_20260922.dump
+     sudo systemctl start gnuhealth
+     ```
+
+---
+
+## 6. DEMO/UAT BACKEND IMPLEMENTATION STATUS
+
+### TECHNICALLY IMPLEMENTED
+* Automated systemd service management (`gnuhealth.service`, `gnuhealth-backup.timer`).
+* Database backup engine with automated cryptographic digest logging.
+* Multi-user configuration and maintenance procedures established.
+
+### DEMO/UAT VERIFIED
+* Operational recovery drills and playbooks validated against live host.
+* Targeted DEMO data cataloging and cleanup SOP defined with explicit entity IDs.
+* Subledger reconciliation, accounting integrity, and rollback mechanics fully operational.
+
+### PRODUCTION INPUT PENDING
+* Official clinic contact details, domain DNS delegation, and licensed staff roster.
+
+### BUSINESS APPROVAL PENDING
+* Formal approval of operational runbook and maintenance escalation paths by Operations / IT Committee.
+

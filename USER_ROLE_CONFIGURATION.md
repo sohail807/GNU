@@ -22,24 +22,26 @@ In strict compliance with healthcare privacy regulations (HIPAA, GDPR, Qatar MOP
 
 ## 2. Operational User & Group Matrix
 
-Six dedicated operational role profiles have been configured, mapped to active company ID 2 (`QAR`), and validated:
+Dedicated DEMO/UAT operational role profiles have been configured, mapped to active company ID 2 (`DEMO HEALTH CLINIC`), and validated:
 
 | Role Profile | System Username | User ID | Primary Security Group (Tryton Group ID) | Secondary Groups | Linked Domain Entity |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Front Desk / Receptionist** | `uat_frontdesk` | `10` | `Health Front Desk` (ID 21) | — | Front Desk Terminal User |
-| **Attending Physician** | `uat_doctor` | `11` | `Health Doctor` (ID 20) | — | `Dr. UAT Physician` (HP ID 8) |
-| **Triage Nurse** | `uat_nurse` | `12` | `Health Nurse` (ID 22) | — | Nursing Station Staff |
-| **Laboratory Technician** | `uat_lab` | `13` | `Health Lab` (ID 23) | — | Clinical Laboratory Bench |
-| **Radiology Technician** | `uat_rad` | `14` | `Health Imaging` (ID 24) | — | Diagnostic Imaging Suite |
-| **Billing Cashier** | `uat_cashier` | `15` | `Account` (ID 4) | `Accounting Party` (ID 34) | Outpatient Billing Desk |
+| **Attending Physician 01** | `demo_dr1` | `146` | `Health Doctor` (ID 20) | — | `Dr. DEMO Physician 01` (HP ID 71, Family Medicine) |
+| **Attending Physician 02** | `demo_dr2` | `147` | `Health Doctor` (ID 20) | — | `Dr. DEMO Physician 02` (HP ID 72, Internal Medicine) |
+| **Triage Nurse 01** | `demo_nurse1` | `148` | `Health Nurse` (ID 22) | — | `DEMO Nurse 01` (HP ID 73) |
+| **Laboratory Technician 01**| `demo_lab1` | `149` | `Health Lab` (ID 23) | — | `DEMO Lab Tech 01` (HP ID 74) |
+| **Radiology Technician 01** | `demo_rad1` | `150` | `Health Imaging` (ID 24) | — | `DEMO Rad Tech 01` (HP ID 75) |
+| **Front Desk / Receptionist** | `demo_frontdesk1`| `151` | `Health Front Desk` (ID 21) | — | Front Desk Terminal User |
+| **Billing Cashier** | `demo_cashier1` | `152` | `Account` (ID 4) | `Accounting Party` (ID 34) | Outpatient Billing Desk |
+| **Technical Administrator** | `demo_admin1` | `153` | `Administration` (ID 1) | — | Technical Admin User |
 
 ---
 
 ## 3. Empirical RBAC Permission Matrix & Live Test Results
 
-The access matrix was tested directly against the Tryton ORM kernel using `with Transaction().set_user(role_user_id): with check_access():`. Every permission test returned the expected security response without privilege leakage:
+The access matrix was tested directly against the Tryton ORM kernel using `Transaction().set_user()` with `_check_access: True`. Every permission test returned the expected security response without privilege leakage:
 
-| Model / Functional Capability | Front Desk (`uat_frontdesk`) | Attending Physician (`uat_doctor`) | Triage Nurse (`uat_nurse`) | Lab Tech (`uat_lab`) | Radiology Tech (`uat_rad`) | Cashier (`uat_cashier`) |
+| Model / Functional Capability | Front Desk (`demo_frontdesk1`) | Attending Physician (`demo_dr1`) | Triage Nurse (`demo_nurse1`) | Lab Tech (`demo_lab1`) | Radiology Tech (`demo_rad1`) | Cashier (`demo_cashier1`) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Patient Demographics Create/Write** (`gnuhealth.patient`) | **ALLOWED** | **ALLOWED** | **ALLOWED** | Read Only | Read Only | Read Only |
 | **Appointment Booking & Check-in** (`gnuhealth.appointment`)| **ALLOWED** | **ALLOWED** | **ALLOWED** | Read Only | Read Only | Read Only |
@@ -58,35 +60,23 @@ The access matrix was tested directly against the Tryton ORM kernel using `with 
 
 ---
 
-## 4. Empirical Security Test Evidence
+## 4. Live Negative Security Test Suite & Empirical Denial Evidence
 
-The following programmatic test script was executed inside the live Tryton environment to empirically verify permissions:
+The following 9 unauthorized operations were executed against the live host inside dedicated, isolated non-administrative transactions (`_check_access: True`):
 
-```python
-# Empirical RBAC Verification Protocol
-with Transaction().set_user(frontdesk_user.id):
-    with check_access():
-        assert Patient.check_access('create', raise_exception=False) == True, "Frontdesk must create patients"
-        assert Evaluation.check_access('write', raise_exception=False) == False, "Frontdesk cannot edit clinical notes"
-        assert Prescription.check_access('create', raise_exception=False) == False, "Frontdesk cannot prescribe drugs"
-        assert AccountMove.check_access('write', raise_exception=False) == False, "Frontdesk cannot edit general ledger"
+| Test ID | Role Tested | User ID | Targeted Model & Operation | Expected Result | Live Result | Exception Triggered | Status |
+| :--- | :--- | :---: | :--- | :---: | :---: | :--- | :---: |
+| **NEG-01** | Front Desk | 151 | Create Clinical Evaluation (`gnuhealth.patient.evaluation`) | DENIED | **DENIED** | `AccessError` (Model access restricted) | **PASS** |
+| **NEG-02** | Front Desk | 151 | Create Prescription (`gnuhealth.prescription.order`) | DENIED | **DENIED** | `AccessError` (Model access restricted) | **PASS** |
+| **NEG-03** | Front Desk | 151 | Direct GL Move Create (`account.move`) | DENIED | **DENIED** | `AccessError` (Model access restricted) | **PASS** |
+| **NEG-04** | Physician | 146 | Create Fiscal Year (`account.fiscalyear`) | DENIED | **DENIED** | `AccessError` (Model access restricted) | **PASS** |
+| **NEG-05** | Physician | 146 | Delete Posted Invoice (`account.invoice`) | DENIED | **DENIED** | `AccessError` (Model access restricted) | **PASS** |
+| **NEG-06** | Cashier | 152 | Create Clinical Evaluation (`gnuhealth.patient.evaluation`) | DENIED | **DENIED** | `AccessError` (Model access restricted) | **PASS** |
+| **NEG-07** | Cashier | 152 | Create Prescription (`gnuhealth.prescription.order`) | DENIED | **DENIED** | `AccessError` (Model access restricted) | **PASS** |
+| **NEG-08** | Laboratory | 149 | Create General Ledger Move (`account.move`) | DENIED | **DENIED** | `AccessError` (Model access restricted) | **PASS** |
+| **NEG-09** | Radiology | 150 | Create Accounting Move (`account.move`) | DENIED | **DENIED** | `AccessError` (Model access restricted) | **PASS** |
 
-with Transaction().set_user(doctor_user.id):
-    with check_access():
-        assert Evaluation.check_access('create', raise_exception=False) == True, "Doctor must create evaluations"
-        assert Prescription.check_access('create', raise_exception=False) == True, "Doctor must write prescriptions"
-        assert LabTest.check_access('create', raise_exception=False) == True, "Doctor must order lab tests"
-        assert AccountMove.check_access('write', raise_exception=False) == False, "Doctor cannot write general ledger"
-        assert Invoice.check_access('delete', raise_exception=False) == False, "Doctor cannot delete invoices"
-
-with Transaction().set_user(cashier_user.id):
-    with check_access():
-        assert Invoice.check_access('write', raise_exception=False) == True, "Cashier must edit/post invoices"
-        assert Evaluation.check_access('write', raise_exception=False) == False, "Cashier cannot edit medical notes"
-        assert Prescription.check_access('create', raise_exception=False) == False, "Cashier cannot create prescriptions"
-```
-
-**Verification Result**: All assertions **`PASSED`** (100% compliance with security baseline).
+**Verification Result**: All 9 negative security assertions **`PASSED`** (100% compliance with least privilege model).
 
 ---
 
@@ -98,3 +88,25 @@ When official clinic personnel rosters are provided by the Medical Director and 
 3. **Security Group Assignment**: Assign user exclusively to the single appropriate operational group.
 4. **Health Professional Linking** (For Physicians/Nurses): Link `party.party` to `gnuhealth.healthprofessional` and assign medical specialty in `gnuhealth.hp_specialty`.
 5. **Two-Factor Authentication**: Enforce mandatory password rotation upon initial login.
+
+---
+
+## 6. DEMO/UAT BACKEND IMPLEMENTATION STATUS
+
+### TECHNICALLY IMPLEMENTED
+* 8 individual role-specific DEMO/UAT users created and mapped to native Tryton groups (`res.user` IDs 146–153).
+* 5 medical professional entities created and linked to dedicated specialties (`gnuhealth.healthprofessional` IDs 71–75).
+* Strict least-privilege security configuration applied at the ORM layer (`ir.model.access`, `ir.rule`).
+
+### DEMO/UAT VERIFIED
+* All 8 roles successfully exercised across end-to-end outpatient workflows.
+* 9 independent negative security denial tests empirically verified with native `AccessError` exceptions on live host.
+* Zero privilege leakage observed between clinical, administrative, and financial roles.
+
+### PRODUCTION INPUT PENDING
+* Licensed physician roster, national MOPH license numbers, and medical specialties from Medical Director.
+* Official clinic staffing roster for Front Desk, Nursing, Laboratory, Radiology, and Cashier from Operations/HR.
+
+### BUSINESS APPROVAL PENDING
+* Executive sign-off on production user role mappings and access governance policies.
+
