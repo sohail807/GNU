@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-09-22T18:47:04.362725Z",
+  "drill_status": "PASS",
+  "backup_artifact": {
+    "db_dump": "/var/backups/gnuhealth/gnuhealth_db_e2e_post_20260922_184552.dump",
+    "db_size_bytes": "7654261",
+    "db_sha256": "e1ef0af36066d02cb3f726cc764cf793978cb5beaa5a4fcfac68e666e86d3dd5",
+    "attach_tar": "/var/backups/gnuhealth/gnuhealth_attach_e2e_post_20260922_184552.tar.gz",
+    "attach_sha256": "219bb77316daec985e1f5e79d168f3d88e14fbac56f81c8073ae97a2827f046a",
+    "catalog_entries": 3052
+  },
+  "restore_execution": {
+    "isolated_db": "gnuhealth_isolated_e2e_restore",
+    "duration_seconds": 10,
+    "restore_status": "SUCCESS"
+  },
+  "verified_entities": {
+    "public_tables": 306,
+    "patients": 11,
+    "e2e_parties": 5,
+    "appointments": 16,
+    "evaluations": 15,
+    "prescriptions": 12,
+    "labs": 12,
+    "imaging_requests": 12,
+    "health_services": 12,
+    "posted_invoices": 12,
+    "posted_moves": 24,
+    "reconciliations": 12,
+    "icd10_pathologies": 14416,
+    "medicaments": 1
+  },
+  "accounting_verification": {
+    "total_debit": "11400.00",
+    "total_credit": "11400.00",
+    "gl_difference": "0.00",
+    "is_balanced": true
+  },
+  "attachment_verification": {
+    "tar_extracted": true,
+    "status": "PASS"
+  },
+  "cleanup_verification": {
+    "isolated_db_destroyed": true,
+    "live_database_untouched": true
+  }
+}

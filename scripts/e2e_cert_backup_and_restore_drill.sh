@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eo pipefail
 
-TIMESTAMP="20260922_182401"
+TIMESTAMP="${1:-20260922_184552}"
 BACKUP_DIR="/var/backups/gnuhealth"
 DB_NAME="gnuhealth"
 RESTORE_DB="gnuhealth_isolated_e2e_restore"

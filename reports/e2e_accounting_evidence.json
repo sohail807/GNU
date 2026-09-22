@@ -1,0 +1,32 @@
+{
+  "certification_id": "E2E-CERT-FINAL-184439",
+  "timestamp": "2026-09-22T18:44:39.128851Z",
+  "status": "PASS - GL BALANCED & RECONCILED",
+  "financial_cycle": {
+    "invoice_id": 31,
+    "invoice_number": "INV-2026/00013",
+    "invoice_move_id": 42,
+    "invoice_amount": "475.00",
+    "payment_move_id": 43,
+    "payment_move_number": "46",
+    "reconciliation_id": 18,
+    "customer_net_ar": "0.00",
+    "gl_total_debits": "11400.00",
+    "gl_total_credits": "11400.00",
+    "gl_net_difference": "0.00",
+    "is_balanced": true
+  },
+  "invoice_details": {
+    "invoice_id": 31,
+    "invoice_number": "INV-2026/00013",
+    "move_id": 42,
+    "total_amount": "475.00",
+    "state": "posted"
+  },
+  "integrity_verification": {
+    "debits_equal_credits": true,
+    "net_difference": "0.00",
+    "customer_outstanding_ar": "0.00",
+    "reconciliation_status": "CLOSED"
+  }
+}

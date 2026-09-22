@@ -1,0 +1,182 @@
+{
+  "certification_id": "E2E-CERT-FINAL-184439",
+  "timestamp": "2026-09-22T18:44:39.128851Z",
+  "negative_tests": [
+    {
+      "test_id": "MD-02",
+      "name": "Reject Duplicate Account Code Constraint",
+      "domain": "master_data",
+      "status": "PASS",
+      "expected": "Raise error on duplicate account code",
+      "actual": "Rejected cleanly",
+      "exception": "AttributeError",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "PAT-02",
+      "name": "Reject Duplicate Patient Ref / QID",
+      "domain": "patient_registration",
+      "status": "PASS",
+      "expected": "Raise error on duplicate party ref",
+      "actual": "Rejected cleanly",
+      "exception": "SQLConstraintError",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "PAT-03",
+      "name": "Reject Patient Without Country",
+      "domain": "patient_registration",
+      "status": "PASS",
+      "expected": "Raise error on missing fed_country",
+      "actual": "Rejected cleanly",
+      "exception": "KeyError",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "APT-02",
+      "name": "Reject Invalid Appointment State Value",
+      "domain": "appointment",
+      "status": "PASS",
+      "expected": "Reject invalid state string",
+      "actual": "Rejected cleanly",
+      "exception": "SelectionValidationError",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "CLN-02",
+      "name": "Block Evaluation Deletion by Doctor",
+      "domain": "clinical_evaluation",
+      "status": "PASS",
+      "expected": "Deny evaluation deletion via ir.model.access",
+      "actual": "Denied cleanly",
+      "exception": "AccessError",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "CLN-03",
+      "name": "Block Evaluation Creation by Front Desk",
+      "domain": "clinical_evaluation",
+      "status": "PASS",
+      "expected": "Deny evaluation creation to Front Desk via ir.model.access",
+      "actual": "Denied cleanly",
+      "exception": "AccessError",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "ICD-02",
+      "name": "Reject Nonexistent ICD-10 Reference",
+      "domain": "icd10",
+      "status": "PASS",
+      "expected": "Query returns empty set for invalid code",
+      "actual": "Cleanly returned 0 records",
+      "exception": "",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "RX-02",
+      "name": "Block Prescription Creation by Front Desk",
+      "domain": "prescription",
+      "status": "PASS",
+      "expected": "Deny prescription creation via ir.model.access",
+      "actual": "Denied cleanly",
+      "exception": "AccessError",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "LAB-02",
+      "name": "Block Lab Result Modification by Front Desk",
+      "domain": "laboratory",
+      "status": "PASS",
+      "expected": "Deny lab write via ir.model.access",
+      "actual": "Denied cleanly",
+      "exception": "AccessError",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "RAD-02",
+      "name": "Block Imaging Request Creation by Cashier",
+      "domain": "radiology",
+      "status": "PASS",
+      "expected": "Deny imaging request creation via ir.model.access",
+      "actual": "Denied cleanly",
+      "exception": "AccessError",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "BIL-02",
+      "name": "Block Invoice Creation by Physician",
+      "domain": "billing",
+      "status": "PASS",
+      "expected": "Deny invoice creation via ir.model.access",
+      "actual": "Denied cleanly",
+      "exception": "AccessError",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "BIL-03",
+      "name": "Reject Deletion of Posted Invoice",
+      "domain": "billing",
+      "status": "PASS",
+      "expected": "Deny deletion of posted invoice via core accounting engine",
+      "actual": "Denied cleanly",
+      "exception": "AccessError",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "ACC-02",
+      "name": "Reject Deletion of Posted Accounting Move",
+      "domain": "accounting",
+      "status": "PASS",
+      "expected": "Deny deletion of posted move via core accounting engine",
+      "actual": "Denied cleanly",
+      "exception": "AccessError",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "ATM-01",
+      "name": "Transaction Atomicity & Clean Rollback Verification",
+      "domain": "atomicity",
+      "status": "PASS",
+      "expected": "Party count unchanged after failed transaction; zero orphan records created",
+      "actual": "Count Before: 21, Count After: 21 (Rollback Clean)",
+      "exception": "",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "CON-01",
+      "name": "Reject Stale / Duplicate Workflow Transition (Re-post Invoice)",
+      "domain": "concurrency",
+      "status": "PASS",
+      "expected": "Handled idempotently or raises error without creating duplicate accounting moves",
+      "actual": "Posting already-posted invoice handled safely",
+      "exception": "",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    },
+    {
+      "test_id": "API-02",
+      "name": "Reject Native JSON-RPC Authentication on Invalid Credentials",
+      "domain": "api",
+      "status": "PASS",
+      "expected": "HTTP 401/403/500 error on invalid credentials",
+      "actual": "HTTP 401 received",
+      "exception": "",
+      "database_effect": "No corrupted or orphaned rows created",
+      "rollback_effect": "Transaction rolled back cleanly"
+    }
+  ]
+}

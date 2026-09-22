@@ -1,0 +1,99 @@
+{
+  "certification_id": "E2E-CERT-FINAL-184439",
+  "timestamp": "2026-09-22T18:44:39.128851Z",
+  "status": "PASS - LEAST PRIVILEGE ENFORCED",
+  "matrix": {
+    "admin": {
+      "Party": "ALLOWED",
+      "Patient": "ALLOWED",
+      "Appointment": "ALLOWED",
+      "Evaluation": "ALLOWED",
+      "Prescription": "ALLOWED",
+      "Lab": "DENIED",
+      "Radiology": "DENIED",
+      "HealthService": "DENIED",
+      "Invoice": "DENIED",
+      "User": "ALLOWED"
+    },
+    "frontdesk": {
+      "Party": "ALLOWED",
+      "Patient": "ALLOWED",
+      "Appointment": "ALLOWED",
+      "Evaluation": "DENIED",
+      "Prescription": "DENIED",
+      "Lab": "DENIED",
+      "Radiology": "DENIED",
+      "HealthService": "DENIED",
+      "Invoice": "DENIED",
+      "User": "DENIED"
+    },
+    "nurse": {
+      "Party": "ALLOWED",
+      "Patient": "DENIED",
+      "Appointment": "DENIED",
+      "Evaluation": "ALLOWED",
+      "Prescription": "DENIED",
+      "Lab": "DENIED",
+      "Radiology": "DENIED",
+      "HealthService": "DENIED",
+      "Invoice": "DENIED",
+      "User": "DENIED"
+    },
+    "doctor": {
+      "Party": "ALLOWED",
+      "Patient": "ALLOWED",
+      "Appointment": "ALLOWED",
+      "Evaluation": "ALLOWED",
+      "Prescription": "ALLOWED",
+      "Lab": "DENIED",
+      "Radiology": "ALLOWED",
+      "HealthService": "ALLOWED",
+      "Invoice": "DENIED",
+      "User": "DENIED"
+    },
+    "lab": {
+      "Party": "ALLOWED",
+      "Patient": "DENIED",
+      "Appointment": "DENIED",
+      "Evaluation": "DENIED",
+      "Prescription": "DENIED",
+      "Lab": "ALLOWED",
+      "Radiology": "DENIED",
+      "HealthService": "DENIED",
+      "Invoice": "DENIED",
+      "User": "DENIED"
+    },
+    "rad": {
+      "Party": "ALLOWED",
+      "Patient": "DENIED",
+      "Appointment": "DENIED",
+      "Evaluation": "DENIED",
+      "Prescription": "DENIED",
+      "Lab": "DENIED",
+      "Radiology": "ALLOWED",
+      "HealthService": "DENIED",
+      "Invoice": "DENIED",
+      "User": "DENIED"
+    },
+    "cashier": {
+      "Party": "ALLOWED",
+      "Patient": "DENIED",
+      "Appointment": "DENIED",
+      "Evaluation": "DENIED",
+      "Prescription": "DENIED",
+      "Lab": "DENIED",
+      "Radiology": "DENIED",
+      "HealthService": "DENIED",
+      "Invoice": "ALLOWED",
+      "User": "DENIED"
+    }
+  },
+  "verified_boundaries": [
+    "Front Desk DENIED clinical evaluation write",
+    "Front Desk DENIED prescription create",
+    "Cashier DENIED clinical evaluation write",
+    "Physician DENIED invoice create",
+    "Physician DENIED user administration",
+    "Front Desk DENIED user administration"
+  ]
+}

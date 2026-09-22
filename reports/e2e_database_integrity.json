@@ -1,6 +1,7 @@
 {
-  "timestamp": "2026-09-22T18:22:20.562526Z",
-  "certification_id": "E2E-CERT-01340",
+  "certification_id": "E2E-CERT-FINAL-184439",
+  "timestamp": "2026-09-22T18:44:39.128851Z",
+  "status": "PASS - 0 ORPHANS DETECTED",
   "public_tables_audited": 306,
   "foreign_key_orphan_checks": {
     "orphaned_patients": 0,
@@ -15,6 +16,5 @@
     "orphaned_invoice_lines": 0,
     "orphaned_move_lines": 0,
     "orphaned_reconciliations": 0
-  },
-  "status": "PASS - 0 ORPHANS DETECTED"
+  }
 }

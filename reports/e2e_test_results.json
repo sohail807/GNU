@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-09-22T18:22:20.562526Z",
-  "cert_id": "E2E-CERT-01340",
+  "timestamp": "2026-09-22T18:44:39.128851Z",
+  "cert_id": "E2E-CERT-FINAL-184439",
   "summary": {
-    "total": 32,
-    "passed": 32,
+    "total": 33,
+    "passed": 33,
     "failed": 0,
     "blocked": 0
   },
@@ -34,7 +34,7 @@
         "name": "Positive Patient Registration",
         "status": "PASS",
         "expected": "Create party, address, identifier, and gnuhealth.patient",
-        "actual": "Patient created successfully: ID 63, PUID E2E-CERT-QID-01340",
+        "actual": "Patient created successfully: ID 65, PUID E2E-CERT-FINAL-QID-184439",
         "exception": "",
         "notes": ""
       },
@@ -63,7 +63,7 @@
         "name": "Positive Appointment Lifecycle (free->confirmed->checked_in)",
         "status": "PASS",
         "expected": "Valid state transition sequence",
-        "actual": "Appointment 66 state: checked_in",
+        "actual": "Appointment 68 state: checked_in",
         "exception": "",
         "notes": ""
       },
@@ -83,7 +83,7 @@
         "name": "Positive Nursing Triage & Vitals Recording",
         "status": "PASS",
         "expected": "Record vital signs in evaluation",
-        "actual": "Evaluation 42 vitals recorded (BP 118/78, T 37.1C, HR 74, SpO2 99%)",
+        "actual": "Evaluation 44 vitals recorded (BP 118/78, T 37.1C, HR 74, SpO2 99%)",
         "exception": "",
         "notes": ""
       }
@@ -94,7 +94,7 @@
         "name": "Physician Consultation & Evaluation Signing",
         "status": "PASS",
         "expected": "Consultation documented, signed, and appointment marked done",
-        "actual": "Evaluation 42 signed; Disease 6 recorded; Appt 66 done",
+        "actual": "Evaluation 44 signed; Disease 8 recorded; Appt 68 done",
         "exception": "",
         "notes": ""
       },
@@ -143,7 +143,7 @@
         "name": "Physician Prescription Order & Line Creation",
         "status": "PASS",
         "expected": "Create prescription order and line with complete dosage parameters",
-        "actual": "Prescription 37 created with Line 28 (Amoxicillin 500mg, 15 caps)",
+        "actual": "Prescription 39 created with Line 30 (Amoxicillin 500mg, 15 caps)",
         "exception": "",
         "notes": ""
       },
@@ -163,7 +163,7 @@
         "name": "Laboratory Order, Result Entry & Validation",
         "status": "PASS",
         "expected": "Create and validate lab test result",
-        "actual": "Lab order 32 created and validated (State: validated)",
+        "actual": "Lab order 34 created and validated (State: validated)",
         "exception": "",
         "notes": ""
       },
@@ -183,7 +183,7 @@
         "name": "Radiology Request, Examination & Result Entry",
         "status": "PASS",
         "expected": "Imaging request completed with diagnostic result interpretation",
-        "actual": "Radiology Request 32 completed with Result 27",
+        "actual": "Radiology Request 34 completed with Result 29",
         "exception": "",
         "notes": ""
       },
@@ -203,7 +203,7 @@
         "name": "Compile Billable Outpatient Health Services",
         "status": "PASS",
         "expected": "Compile encounter charges (Consultation, CBC, CXR)",
-        "actual": "Health Service 27 created with 3 service lines",
+        "actual": "Health Service 29 created with 3 service lines",
         "exception": "",
         "notes": ""
       }
@@ -214,7 +214,7 @@
         "name": "Create, Validate and Post Outpatient Invoice",
         "status": "PASS",
         "expected": "Invoice validated, posted, sequence assigned, and GL move posted",
-        "actual": "Invoice 29 (INV-2026/00011) posted for 475.00 QAR, Move 38",
+        "actual": "Invoice 31 (INV-2026/00013) posted for 475.00 QAR, Move 42",
         "exception": "",
         "notes": ""
       },
@@ -243,7 +243,7 @@
         "name": "Full Cash Settlement & Receivables Reconciliation",
         "status": "PASS",
         "expected": "Payment posted, AR reconciled to 0.00 QAR, Total Debits = Total Credits",
-        "actual": "Payment Move 39, Rec 16, Customer AR 0.00 QAR, GL Balanced (9500.00 QAR)",
+        "actual": "Payment Move 43, Rec 18, Customer AR 0.00 QAR, GL Balanced (11400.00 QAR)",
         "exception": "",
         "notes": ""
       },
@@ -263,7 +263,7 @@
         "name": "Transaction Atomicity & Clean Rollback Verification",
         "status": "PASS",
         "expected": "Party count unchanged after failed transaction; zero orphan records created",
-        "actual": "Count Before: 19, Count After: 19 (Rollback Clean)",
+        "actual": "Count Before: 21, Count After: 21 (Rollback Clean)",
         "exception": "",
         "notes": ""
       }
@@ -285,7 +285,7 @@
         "name": "Audit Metadata & End-to-End Transaction Traceability",
         "status": "PASS",
         "expected": "Immutable timestamps and user identities captured across patient, eval, invoice, and payment",
-        "actual": "PUID E2E-CERT-QID-01340 fully traceable to Invoice INV-2026/00011 and GL Move 39",
+        "actual": "PUID E2E-CERT-FINAL-QID-184439 fully traceable to Invoice INV-2026/00013 and GL Move 43",
         "exception": "",
         "notes": ""
       }
@@ -318,7 +318,16 @@
         "name": "Native JSON-RPC Authentication & Model Dispatch",
         "status": "PASS",
         "expected": "common.db.login returns valid session token; model.gnuhealth.patient.search_read retrieves patient",
-        "actual": "Authenticated User 153, retrieved patient record E2E-CERT PATIENT 01340 via JSON-RPC",
+        "actual": "Authenticated User 153, retrieved patient record E2E-CERT-FINAL PATIENT 184439 via JSON-RPC",
+        "exception": "",
+        "notes": ""
+      },
+      {
+        "test_id": "API-02",
+        "name": "Reject Native JSON-RPC Authentication on Invalid Credentials",
+        "status": "PASS",
+        "expected": "HTTP 401/403/500 error on invalid credentials",
+        "actual": "HTTP 401 received",
         "exception": "",
         "notes": ""
       }
@@ -329,7 +338,7 @@
         "name": "Transaction & Query Latency Baseline",
         "status": "PASS",
         "expected": "Queries execute within normal operational thresholds (< 500ms)",
-        "actual": "Patient Search: 5.55ms, Appt Search: 1.48ms, Invoice Search: 1.72ms",
+        "actual": "PatSearch: 3.67ms, PatSearchRead: 7.0ms, ApptSearch: 1.12ms, InvSearch: 1.42ms",
         "exception": "",
         "notes": ""
       }
@@ -337,74 +346,80 @@
   },
   "evidence": {
     "patient": {
-      "patient_id": 63,
-      "puid": "E2E-CERT-QID-01340",
-      "party_id": 222,
-      "qid": "E2E-CERT-QID-01340",
-      "name": "E2E-CERT PATIENT 01340"
+      "patient_id": 65,
+      "puid": "E2E-CERT-FINAL-QID-184439",
+      "party_id": 228,
+      "qid": "E2E-CERT-FINAL-QID-184439",
+      "name": "E2E-CERT-FINAL PATIENT 184439"
     },
     "appointment": {
-      "appointment_id": 66,
+      "appointment_id": 68,
       "state": "checked_in"
     },
     "triage_evaluation": {
-      "evaluation_id": 42,
+      "evaluation_id": 44,
       "state": "in_progress",
       "bp": "118/78",
       "temp": "37.1",
       "hr": 74
     },
     "consultation": {
-      "evaluation_id": 42,
+      "evaluation_id": 44,
       "state": "signed",
       "diagnosis_code": "J06.9",
-      "disease_id": 6,
+      "disease_id": 8,
       "appointment_state": "done"
     },
     "prescription": {
-      "prescription_id": 37,
-      "line_id": 28,
+      "prescription_id": 39,
+      "line_id": 30,
       "medicament_id": 2,
       "state": "done"
     },
     "lab": {
-      "lab_id": 32,
+      "lab_id": 34,
       "state": "validated",
       "test_id": 1
     },
     "radiology": {
-      "request_id": 32,
-      "result_id": 27,
+      "request_id": 34,
+      "result_id": 29,
       "state": "done"
     },
     "health_service": {
-      "service_id": 27,
+      "service_id": 29,
       "line_count": 3
     },
     "invoice": {
-      "invoice_id": 29,
-      "invoice_number": "INV-2026/00011",
-      "move_id": 38,
+      "invoice_id": 31,
+      "invoice_number": "INV-2026/00013",
+      "move_id": 42,
       "total_amount": "475.00",
       "state": "posted"
     },
     "accounting": {
-      "payment_move_id": 39,
-      "reconciliation_id": 16,
+      "invoice_id": 31,
+      "invoice_number": "INV-2026/00013",
+      "invoice_move_id": 42,
+      "invoice_amount": "475.00",
+      "payment_move_id": 43,
+      "payment_move_number": "46",
+      "reconciliation_id": 18,
       "customer_net_ar": "0.00",
-      "gl_total_debits": "9500.00",
-      "gl_total_credits": "9500.00",
-      "gl_net_difference": "0.00"
+      "gl_total_debits": "11400.00",
+      "gl_total_credits": "11400.00",
+      "gl_net_difference": "0.00",
+      "is_balanced": true
     },
     "audit_trace": {
-      "patient_create_date": "2026-09-22 18:22:20.599640",
+      "patient_create_date": "2026-09-22 18:44:39.163645",
       "patient_create_uid": 1,
-      "evaluation_create_date": "2026-09-22 18:22:21.098858",
+      "evaluation_create_date": "2026-09-22 18:44:39.629970",
       "evaluation_state": "signed",
-      "invoice_number": "INV-2026/00011",
+      "invoice_number": "INV-2026/00013",
       "invoice_state": "posted",
-      "invoice_move_id": 38,
-      "payment_move_id": 39,
+      "invoice_move_id": 42,
+      "payment_move_id": 43,
       "payment_state": "posted"
     }
   },
@@ -510,9 +525,42 @@
     }
   },
   "performance_baseline": {
-    "patient_search_ms": 5.55,
-    "appointment_search_ms": 1.48,
-    "invoice_search_ms": 1.72
+    "patient_search": {
+      "samples": 5,
+      "min_ms": 3.17,
+      "avg_ms": 3.67,
+      "max_ms": 4.99
+    },
+    "patient_search_read": {
+      "samples": 5,
+      "min_ms": 5.48,
+      "avg_ms": 7.0,
+      "max_ms": 11.35
+    },
+    "appointment_search": {
+      "samples": 5,
+      "min_ms": 1.04,
+      "avg_ms": 1.12,
+      "max_ms": 1.24
+    },
+    "evaluation_retrieval": {
+      "samples": 5,
+      "min_ms": 2.12,
+      "avg_ms": 2.2,
+      "max_ms": 2.34
+    },
+    "invoice_search": {
+      "samples": 5,
+      "min_ms": 1.34,
+      "avg_ms": 1.42,
+      "max_ms": 1.58
+    },
+    "accounting_retrieval": {
+      "samples": 5,
+      "min_ms": 4.73,
+      "avg_ms": 5.09,
+      "max_ms": 6.17
+    }
   },
   "overall_status": "TECHNICALLY CERTIFIED \u2014 DEMO/UAT END-TO-END VERIFIED"
 }
