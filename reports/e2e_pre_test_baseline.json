@@ -1,0 +1,43 @@
+{
+  "collected_at": "2026-09-22T17:56:54.932339Z",
+  "census": {
+    "db_size": "124 MB",
+    "table_count": 306,
+    "party_count": 16,
+    "patient_count": 6,
+    "appointment_count": 11,
+    "evaluation_count": 9,
+    "prescription_count": 7,
+    "lab_count": 7,
+    "imaging_req_count": 7,
+    "imaging_res_count": 7,
+    "health_service_count": 7,
+    "invoice_count": 7,
+    "move_count": 17,
+    "reconciliation_count": 7,
+    "active_users": 15
+  },
+  "accounting": {
+    "gl_debits": "6650.00",
+    "gl_credits": "6650.00",
+    "net_difference": 0.0,
+    "is_balanced": true
+  },
+  "backup": {
+    "db_dump": "/var/backups/gnuhealth/gnuhealth_db_e2e_pre_20260922_175653.dump",
+    "attach_tar": "/var/backups/gnuhealth/gnuhealth_attach_e2e_pre_20260922_175653.tar.gz",
+    "db_sha": "b91c551d0cf415f964dffc1fd388ad528952dae8d27525e1b5a38552c4b1059e",
+    "attach_sha": "219bb77316daec985e1f5e79d168f3d88e14fbac56f81c8073ae97a2827f046a",
+    "db_size_bytes": "7649561",
+    "attach_size_bytes": "119",
+    "timestamp": "20260922_175653"
+  },
+  "system": {
+    "vm": "gnuhealth-srv",
+    "ip": "34.7.237.8",
+    "database": "gnuhealth",
+    "db_engine": "PostgreSQL 15.19",
+    "gnuhealth_version": "5.0.6",
+    "tryton_version": "7.0.57"
+  }
+}

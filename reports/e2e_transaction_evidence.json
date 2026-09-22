@@ -1,0 +1,93 @@
+{
+  "certification_id": "E2E-CERT-01340",
+  "timestamp": "2026-09-22T18:22:20.562526Z",
+  "evidence": {
+    "patient": {
+      "patient_id": 63,
+      "puid": "E2E-CERT-QID-01340",
+      "party_id": 222,
+      "qid": "E2E-CERT-QID-01340",
+      "name": "E2E-CERT PATIENT 01340"
+    },
+    "appointment": {
+      "appointment_id": 66,
+      "state": "checked_in"
+    },
+    "triage_evaluation": {
+      "evaluation_id": 42,
+      "state": "in_progress",
+      "bp": "118/78",
+      "temp": "37.1",
+      "hr": 74
+    },
+    "consultation": {
+      "evaluation_id": 42,
+      "state": "signed",
+      "diagnosis_code": "J06.9",
+      "disease_id": 6,
+      "appointment_state": "done"
+    },
+    "prescription": {
+      "prescription_id": 37,
+      "line_id": 28,
+      "medicament_id": 2,
+      "state": "done"
+    },
+    "lab": {
+      "lab_id": 32,
+      "state": "validated",
+      "test_id": 1
+    },
+    "radiology": {
+      "request_id": 32,
+      "result_id": 27,
+      "state": "done"
+    },
+    "health_service": {
+      "service_id": 27,
+      "line_count": 3
+    },
+    "invoice": {
+      "invoice_id": 29,
+      "invoice_number": "INV-2026/00011",
+      "move_id": 38,
+      "total_amount": "475.00",
+      "state": "posted"
+    },
+    "accounting": {
+      "payment_move_id": 39,
+      "reconciliation_id": 16,
+      "customer_net_ar": "0.00",
+      "gl_total_debits": "9500.00",
+      "gl_total_credits": "9500.00",
+      "gl_net_difference": "0.00"
+    },
+    "audit_trace": {
+      "patient_create_date": "2026-09-22 18:22:20.599640",
+      "patient_create_uid": 1,
+      "evaluation_create_date": "2026-09-22 18:22:21.098858",
+      "evaluation_state": "signed",
+      "invoice_number": "INV-2026/00011",
+      "invoice_state": "posted",
+      "invoice_move_id": 38,
+      "payment_move_id": 39,
+      "payment_state": "posted"
+    }
+  },
+  "audit_trace": {
+    "patient_create_date": "2026-09-22 18:22:20.599640",
+    "patient_create_uid": 1,
+    "evaluation_create_date": "2026-09-22 18:22:21.098858",
+    "evaluation_state": "signed",
+    "invoice_number": "INV-2026/00011",
+    "invoice_state": "posted",
+    "invoice_move_id": 38,
+    "payment_move_id": 39,
+    "payment_state": "posted"
+  },
+  "performance": {
+    "patient_search_ms": 5.55,
+    "appointment_search_ms": 1.48,
+    "invoice_search_ms": 1.72
+  }
+}
