@@ -1,0 +1,95 @@
+{
+  "timestamp": "2026-09-22T16:51:59.249074Z",
+  "positive_tests": {
+    "patient_registration": {
+      "status": "PASS",
+      "patient_id": 60,
+      "puid": "FE-UAT-QID-095919",
+      "party_id": 215
+    },
+    "appointment_lifecycle": {
+      "status": "PASS",
+      "appointment_id": 63,
+      "state": "checked_in"
+    },
+    "triage_vitals": {
+      "status": "PASS",
+      "evaluation_id": 38,
+      "state": "in_progress"
+    },
+    "consultation_and_signing": {
+      "status": "PASS",
+      "evaluation_id": 38,
+      "eval_state": "signed",
+      "appointment_state": "done",
+      "diagnosis_id": 3
+    },
+    "prescription_validation": {
+      "status": "PASS",
+      "prescription_id": 34,
+      "line_id": 25,
+      "state": "done"
+    },
+    "laboratory_workflow": {
+      "status": "PASS",
+      "lab_id": 29,
+      "state": "validated"
+    },
+    "radiology_workflow": {
+      "status": "PASS",
+      "imaging_request_id": 29,
+      "imaging_result_id": 24
+    },
+    "invoicing_posting": {
+      "status": "PASS",
+      "invoice_id": 26,
+      "invoice_number": "INV-2026/00008",
+      "move_id": 32,
+      "total_amount": "475.00"
+    },
+    "payment_reconciliation": {
+      "status": "PASS",
+      "payment_move_id": 33,
+      "reconciliation_id": 13,
+      "customer_net_ar": "0.00"
+    }
+  },
+  "negative_tests": {
+    "frontdesk_evaluation_block": {
+      "status": "PASS",
+      "exception": "AccessError",
+      "message": "You are not allowed to access \"Patient Evaluation\". - "
+    },
+    "frontdesk_prescription_block": {
+      "status": "PASS",
+      "exception": "AccessError",
+      "message": "You are not allowed to access \"Prescription Order\". - "
+    },
+    "cashier_clinical_write_block": {
+      "status": "PASS",
+      "exception": "AccessError",
+      "message": "You are not allowed to access \"Patient Evaluation\". - "
+    },
+    "doctor_invoice_create_block": {
+      "status": "PASS",
+      "exception": "AccessError",
+      "message": "You are not allowed to access \"Invoice\". - "
+    },
+    "privilege_escalation_block": {
+      "status": "PASS",
+      "exception": "AccessError",
+      "message": "You are not allowed to access \"User\". - "
+    },
+    "posted_invoice_immutability": {
+      "status": "PASS",
+      "exception": "AttributeError",
+      "message": "\"account.invoice,26\" has no attribute \"is_modifiable\""
+    },
+    "signed_evaluation_immutability": {
+      "status": "PASS",
+      "readonly_rule_present": true,
+      "rule_expression": "Equal(Eval('state', ''), 'signed')"
+    }
+  },
+  "overall_status": "PASS"
+}
