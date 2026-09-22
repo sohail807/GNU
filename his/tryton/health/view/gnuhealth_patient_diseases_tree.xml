@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<!--
+SPDX-FileCopyrightText: 2008-2026 Luis Falcón <falcon@gnuhealth.org>
+SPDX-FileCopyrightText: 2011-2026 GNU Solidario <health@gnusolidario.org>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
+<tree>
+    <field name="patient" expand="1"/>
+    <field name="pathology" expand="1"/>
+    <field name="status" expand="1"/>
+    <field name="is_active"/>
+    <field name="is_infectious" icon="infectious_disease_icon"/>
+    <field name="disease_severity"/>
+    <field name="is_allergy"/>
+    <field name="pregnancy_warning"/>
+    <field name="diagnosed_date"/>
+    <field name="healed_date"/>
+    <field name="short_comment" expand="1"/>
+    <field name="healthprof" expand="1"/>
+    <field name="institution"/>
+
+</tree>

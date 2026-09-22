@@ -1,0 +1,65 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:gnuhealth.lab,digest_current:"
+msgid "Current Hash"
+msgstr "当前哈希值"
+
+msgctxt "field:gnuhealth.lab,digest_status:"
+msgid "Altered"
+msgstr "已更改"
+
+msgctxt "field:gnuhealth.lab,digital_signature:"
+msgid "Digital Signature"
+msgstr "数字签名"
+
+msgctxt "field:gnuhealth.lab,document_digest:"
+msgid "Digest"
+msgstr "数字摘要"
+
+msgctxt "field:gnuhealth.lab,serializer:"
+msgid "Doc String"
+msgstr "文档字符串"
+
+msgctxt "field:gnuhealth.lab,serializer_current:"
+msgid "Current Doc"
+msgstr "当前文档"
+
+msgctxt "help:gnuhealth.lab,digest_status:"
+msgid ""
+"This field will be set whenever parts of the main original document has been"
+" changed. Please note that the verification is done only on selected fields."
+msgstr "原始文档某些部分被更改时，系统会自动设置这个字段，需要注意的是，系统只验证事先选择的部分字段。"
+
+msgctxt "help:gnuhealth.lab,document_digest:"
+msgid "Original Document Digest"
+msgstr "原始文档生成的数字摘要"
+
+msgctxt "model:ir.model.button,string:labtest_sign_button"
+msgid "Validate"
+msgstr "验证"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Are you sure to sign this lab results ?"
+msgstr "你确定要为这个检验结果签名吗？"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Digital Signature"
+msgstr "数字签名"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Document validation"
+msgstr "文档验证"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Validate"
+msgstr "验证"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Validate and Sign the lab test"
+msgstr "验证此实验室检验项目并签名"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Validation"
+msgstr "验证"

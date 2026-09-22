@@ -1,0 +1,27 @@
+# ==============================================================================
+# GNU HEALTH 5.0 — QATAR OUTPATIENT CLINIC DOCTOR MASTER DATA TEMPLATE
+# Status: PENDING_CLINIC_INPUT
+# Instructions: Fill in verified physician details from Qatar Council for 
+#               Healthcare Practitioners (QCHP) licenses before importing.
+# ==============================================================================
+
+doctors:
+  - name: "<PENDING_CLINIC_INPUT>"
+    title: "Dr."
+    qchp_license_number: "<PENDING_CLINIC_INPUT>"
+    specialty_code: "GP"  # Mapped from SPECIALTY_MASTER_MAPPING.md (e.g., GP, INTERNAL, PEDIATRICS)
+    department_code: "OPD"
+    consultation_room: "<PENDING_CLINIC_INPUT>"  # e.g., Room 1, Clinic A
+    phone: "+974 <PENDING_CLINIC_INPUT>"
+    email: "<PENDING_CLINIC_INPUT>"
+    working_days:
+      - Sunday
+      - Monday
+      - Tuesday
+      - Wednesday
+      - Thursday
+    working_hours:
+      start_time: "<PENDING_CLINIC_INPUT>"  # e.g., 08:00
+      end_time: "<PENDING_CLINIC_INPUT>"    # e.g., 16:00
+    appointment_duration_minutes: 20
+    is_active: false  # Kept inactive until credentials and roster are verified

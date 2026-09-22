@@ -1,0 +1,611 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:gnuhealth.epidemics.report.open.start,demographics:"
+msgid "Demographics"
+msgstr "التركيبة السكانية"
+
+msgctxt "field:gnuhealth.epidemics.report.open.start,end_date:"
+msgid "End"
+msgstr "انهاء"
+
+msgctxt "field:gnuhealth.epidemics.report.open.start,health_condition:"
+msgid "Condition"
+msgstr "المرض"
+
+msgctxt "field:gnuhealth.epidemics.report.open.start,start_date:"
+msgid "Start"
+msgstr "بدء"
+
+msgctxt "field:gnuhealth.evaluations.open.start,end_date:"
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+msgctxt "field:gnuhealth.evaluations.open.start,group_by:"
+msgid "Group By"
+msgstr "تجميع حسب"
+
+msgctxt "field:gnuhealth.evaluations.open.start,start_date:"
+msgid "Start Date"
+msgstr "بدء التسجيل"
+
+msgctxt "field:gnuhealth.evaluations_doctor,doctor:"
+msgid "Doctor"
+msgstr "طبيب"
+
+msgctxt "field:gnuhealth.evaluations_doctor,evaluations:"
+msgid "Evaluations"
+msgstr "تقييمات"
+
+msgctxt "field:gnuhealth.evaluations_sector,evaluations:"
+msgid "Evaluations"
+msgstr "عمليات التقييم"
+
+msgctxt "field:gnuhealth.evaluations_sector,sector:"
+msgid "Sector"
+msgstr "قطاع"
+
+msgctxt "field:gnuhealth.evaluations_specialty,evaluations:"
+msgid "Evaluations"
+msgstr "عمليات التقييم"
+
+msgctxt "field:gnuhealth.evaluations_specialty,specialty:"
+msgid "Specialty"
+msgstr "التخصص"
+
+msgctxt "field:gnuhealth.summary.report.open.start,demographics:"
+msgid "Demographics"
+msgstr "التركيبة السكانية"
+
+msgctxt "field:gnuhealth.summary.report.open.start,end_date:"
+msgid "End"
+msgstr "انهاء"
+
+msgctxt "field:gnuhealth.summary.report.open.start,institution:"
+msgid "Institution"
+msgstr "مؤسسة"
+
+msgctxt "field:gnuhealth.summary.report.open.start,patient_evaluations:"
+msgid "Evaluations"
+msgstr "التقييمات"
+
+msgctxt "field:gnuhealth.summary.report.open.start,start_date:"
+msgid "Start"
+msgstr "بدء"
+
+msgctxt "field:gnuhealth.top_diseases,cases:"
+msgid "Cases"
+msgstr "حالات"
+
+msgctxt "field:gnuhealth.top_diseases,disease:"
+msgid "Disease"
+msgstr "المرض"
+
+msgctxt "field:gnuhealth.top_diseases.open.start,end_date:"
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+msgctxt "field:gnuhealth.top_diseases.open.start,group:"
+msgid "Disease Group"
+msgstr "مجموعة الأمراض"
+
+msgctxt "field:gnuhealth.top_diseases.open.start,number_records:"
+msgid "Number of Records"
+msgstr "عدد السجلات"
+
+msgctxt "field:gnuhealth.top_diseases.open.start,start_date:"
+msgid "Start Date"
+msgstr "تاريخ البدء"
+
+msgctxt "model:gnuhealth.epidemics.report.open.start,name:"
+msgid "Epidemics Report Start"
+msgstr "بداية تقرير الأوبئة"
+
+msgctxt "model:gnuhealth.evaluations.open.start,name:"
+msgid "Open Evaluations"
+msgstr "فتح التقييمات"
+
+msgctxt "model:gnuhealth.evaluations_doctor,name:"
+msgid "Evaluations per Doctor"
+msgstr "تقييم بالطبيب"
+
+msgctxt "model:gnuhealth.evaluations_sector,name:"
+msgid "Evaluations per Sector"
+msgstr "التقييم بالقطاع"
+
+msgctxt "model:gnuhealth.evaluations_specialty,name:"
+msgid "Evaluations per Specialty"
+msgstr "تقييم لكل تخصص"
+
+msgctxt "model:gnuhealth.summary.report.open.start,name:"
+msgid "Summary Report Start"
+msgstr "بدء التقرير"
+
+msgctxt "model:gnuhealth.top_diseases,name:"
+msgid "Top Diseases"
+msgstr "أكثر الأمراض"
+
+msgctxt "model:gnuhealth.top_diseases.open.start,name:"
+msgid "Open Top Diseases"
+msgstr "أكثر الأمراض المفتوحة"
+
+msgctxt "model:ir.action,name:act_evaluations_doctor"
+msgid "Evaluations per Doctor"
+msgstr "تقييم بالطبيب"
+
+msgctxt "model:ir.action,name:act_evaluations_open"
+msgid "Evaluations Report"
+msgstr "تقرير التقييمات"
+
+msgctxt "model:ir.action,name:act_evaluations_sector"
+msgid "Evaluations per Sector"
+msgstr "التقييم بالقطاع"
+
+msgctxt "model:ir.action,name:act_evaluations_specialty"
+msgid "Evaluations per Specialty"
+msgstr "تقييم لكل تخصص"
+
+msgctxt "model:ir.action,name:act_top_diseases_form"
+msgid "Top Diseases"
+msgstr "أكثر الأمراض"
+
+msgctxt "model:ir.action,name:act_top_diseases_open"
+msgid "Top Diseases"
+msgstr "أكثر الأمراض"
+
+msgctxt "model:ir.action,name:act_wizard_epidemics_report"
+msgid "Epidemiological Surveillance"
+msgstr "المراقبة الوبائية"
+
+msgctxt "model:ir.action,name:act_wizard_summary_report"
+msgid "Summary Report"
+msgstr "تقرير نهائي"
+
+msgctxt "model:ir.action,name:report_epidemics_information"
+msgid "Epidemiological Surveillance"
+msgstr "المراقبة الوبائية"
+
+msgctxt "model:ir.action,name:report_summary_information"
+msgid "Summary Report"
+msgstr "تقرير نهائي"
+
+msgctxt "model:ir.message,text:msg_plot_label_immediate_cause_str"
+msgid "Immediate cause"
+msgstr "السبب المباشر"
+
+msgctxt "model:ir.message,text:msg_plot_label_underlying_condition_str"
+msgid "Underlying condition"
+msgstr "الحالة الخفية"
+
+msgctxt "model:ir.ui.menu,name:menu_evaluations_open"
+msgid "Evaluations Report"
+msgstr "تقرير التقييمات"
+
+msgctxt "model:ir.ui.menu,name:menu_institution_epidemics_report"
+msgid "Epidemiological Surveillance"
+msgstr "المراقبة الوبائية"
+
+msgctxt "model:ir.ui.menu,name:menu_institution_summary_report"
+msgid "Summary Report"
+msgstr "تقرير نهائي"
+
+msgctxt "model:ir.ui.menu,name:menu_top_diseases_open"
+msgid "Top Diseases"
+msgstr "أكثر الأمراض"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "("
+msgstr ")"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid ")"
+msgstr "("
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "-"
+msgstr "-"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "15 – 45"
+msgstr "15 – 45"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "15-44"
+msgstr "15-44"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "45 – 60"
+msgstr "45 – 60"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "45-60"
+msgstr "45-60"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "5 – 14"
+msgstr "5 – 14"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "5-14"
+msgstr "5-14"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "< 5"
+msgstr "< 5"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "<5"
+msgstr "<5"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "> 60"
+msgstr "> 60"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid ">60"
+msgstr ">60"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Age group"
+msgstr "مجموعة العمر"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Birth certs"
+msgstr "بيانات الولادة"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Cases by age group"
+msgstr "الحالات في المجموعات العمرية"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Cases by ethnic group:"
+msgstr "الحالات حسب المجموعة العرقية:"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Cases by socioeconomic group:"
+msgstr "الحالات حسب المجموعة الاجتماعية والاقتصادية:"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Confirmed cases"
+msgstr "الحالات المؤكَّدة"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Death certs"
+msgstr "بيانات الوفاة"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Deaths"
+msgstr "الوفيات"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Distribution by Ethnic group"
+msgstr "التوزيع حسب المجموعة العرقية"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Distribution by Socioeconomic Status"
+msgstr "التوزيع حسب الحالة الاجتماعية والاقتصادية"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Epidemiological Surveillance"
+msgstr "المراقبة الوبائية"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Female"
+msgstr "انثى"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "In health system"
+msgstr "في النظام الصحي"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "In this period"
+msgstr "في هذه الفترة"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Living Population"
+msgstr "السكان الأحياء"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Male"
+msgstr "ذكر"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "New cases by days:"
+msgstr "الحالات الجديدة حسب الأيام:"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "New deaths by day:"
+msgstr "الوفيات الجديدة حسب اليوم:"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "No Age"
+msgstr "بدون عمر"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "No DoB"
+msgstr "لا يوجد تاريخ ميلاد"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Registrations"
+msgstr "التسجيلات"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Total"
+msgstr "الاجمالي"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "chart"
+msgstr "جدول"
+
+msgctxt "report:gnuhealth.epidemics.report:"
+msgid "Σ"
+msgstr "Σ"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "("
+msgstr ")"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid ")"
+msgstr "("
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "-"
+msgstr "-"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "0-4"
+msgstr "0-4"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "10-14"
+msgstr "10-14"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "100-104"
+msgstr "100-104"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "105+ years old"
+msgstr "فوق 105 سنة"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "15 – 45"
+msgstr "15 – 45"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "15-19"
+msgstr "15-19"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "20-24"
+msgstr "20-24"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "25-29"
+msgstr "25-29"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "30-34"
+msgstr "30-34"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "35-39"
+msgstr "35-39"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "40-44"
+msgstr "40-44"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "45 – 60"
+msgstr "45 – 60"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "45-49"
+msgstr "45-49"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "5 – 14"
+msgstr "5 – 14"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "5-9"
+msgstr "5-9"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "50-54"
+msgstr "50-54"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "55-59"
+msgstr "55-59"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "60-64"
+msgstr "60-64"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "65-69"
+msgstr "65-69"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "70-74"
+msgstr "70-74"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "75-79"
+msgstr "75-79"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "80-84"
+msgstr "80-84"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "85-89"
+msgstr "85-89"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "90-94"
+msgstr "90-94"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "95-99"
+msgstr "95-99"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "< 5"
+msgstr "< 5"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "> 60"
+msgstr "> 60"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Age Group"
+msgstr "الفئة العمرية"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Age range"
+msgstr "معدل العمر"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Birth certs"
+msgstr "بيانات الولادة"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Death certs"
+msgstr "بيانات الوفاة"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Diagnostics"
+msgstr "التشخيصات"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Evaluations Diagnostics"
+msgstr "تشخيص التقييمات"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Female"
+msgstr "انثى"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "GNU Health Summary Report"
+msgstr "تقرير ملخص الصحة GNU"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "In health system"
+msgstr "في النظام الصحي"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "In this period"
+msgstr "في هذه الفترة"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Living Population"
+msgstr "السكان الأحياء"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Male"
+msgstr "ذكر"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Male stacked"
+msgstr "ذكر مكدس"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "New"
+msgstr "جديد"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "No Age"
+msgstr "لا عمر"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "No DoB"
+msgstr "لا يوجد تاريخ ميلاد"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Non-Dx"
+msgstr "لا يوجد صور اشعة"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Population Pyramid"
+msgstr "الهرم السكاني"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Printed Date:"
+msgstr "تاريخ الطباعة:"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Registrations"
+msgstr "التسجيلات"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "chart"
+msgstr "جدول"
+
+msgctxt "report:gnuhealth.summary.report:"
+msgid "Σ"
+msgstr "Σ"
+
+msgctxt "selection:gnuhealth.evaluations.open.start,group_by:"
+msgid "Doctor"
+msgstr "طبيب"
+
+msgctxt "selection:gnuhealth.evaluations.open.start,group_by:"
+msgid "Sector"
+msgstr "قطاع"
+
+msgctxt "selection:gnuhealth.evaluations.open.start,group_by:"
+msgid "Specialty"
+msgstr "التخصص"
+
+msgctxt "view:gnuhealth.epidemics.report.open.start:"
+msgid "Main"
+msgstr "الاساسيات"
+
+msgctxt "view:gnuhealth.epidemics.report.open.start:"
+msgid "Sections"
+msgstr "الأقسام"
+
+msgctxt "view:gnuhealth.summary.report.open.start:"
+msgid "Main"
+msgstr "الاساسيات"
+
+msgctxt "view:gnuhealth.summary.report.open.start:"
+msgid "Sections"
+msgstr "الأقسام"
+
+msgctxt "wizard_button:gnuhealth.epidemics.report.open,start,end:"
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgctxt "wizard_button:gnuhealth.epidemics.report.open,start,open_:"
+msgid "Open"
+msgstr "مفتوح"
+
+msgctxt "wizard_button:gnuhealth.evaluations.open,start,end:"
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgctxt "wizard_button:gnuhealth.evaluations.open,start,select:"
+msgid "Open"
+msgstr "فتح"
+
+msgctxt "wizard_button:gnuhealth.summary.report.open,start,end:"
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgctxt "wizard_button:gnuhealth.summary.report.open,start,open_:"
+msgid "Open"
+msgstr "فتح"
+
+msgctxt "wizard_button:gnuhealth.top_diseases.open,start,end:"
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgctxt "wizard_button:gnuhealth.top_diseases.open,start,open_:"
+msgid "Open"
+msgstr "فتح"

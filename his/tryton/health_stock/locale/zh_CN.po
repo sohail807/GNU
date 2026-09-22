@@ -1,0 +1,115 @@
+#
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-04-20 01:21+0000\n"
+"Last-Translator: tumashu <tumashu@noreply.codeberg.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://translate.codeberg.org/projects/gnuhealth/health_stock/zh_Hans/>\n"
+"Language: zh_CN\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.10.2\n"
+
+msgctxt "field:gnuhealth.prescription.order,moves:"
+msgid "Moves"
+msgstr "库存调拨"
+
+msgctxt "field:gnuhealth.vaccination,location:"
+msgid "Stock Location"
+msgstr "库位"
+
+msgctxt "field:gnuhealth.vaccination,lot:"
+msgid "Lot"
+msgstr "批号"
+
+msgctxt "field:gnuhealth.vaccination,moves:"
+msgid "Moves"
+msgstr "库存调拨"
+
+msgctxt "field:gnuhealth.vaccination,product:"
+msgid "Product"
+msgstr "产品"
+
+msgctxt "field:party.party,warehouse:"
+msgid "Warehouse"
+msgstr "仓库"
+
+msgctxt "field:stock.lot,expiration_date:"
+msgid "Expiration Date"
+msgstr "过期日期"
+
+msgctxt "help:gnuhealth.vaccination,lot:"
+msgid "This field includes the lot number and expiration date"
+msgstr "此字段包含批号和过期时间"
+
+msgctxt "model:gnuhealth.prescription.stock.move.init,name:"
+msgid "Create Prescription Stock Move Init"
+msgstr "创建处方库存调拨初始化"
+
+msgctxt "model:gnuhealth.vaccination.stock.move.init,name:"
+msgid "Create Vaccination Stock Move Init"
+msgstr "创建疫苗库存调拨初始化"
+
+msgctxt "model:ir.action,name:act_create_prescription_stock_move"
+msgid "Create Prescription Stock Move"
+msgstr "创建处方库存调拨"
+
+msgctxt "model:ir.action,name:act_create_vaccination_stock_move"
+msgid "Create Vaccination Stock Move"
+msgstr "创建疫苗库存调拨"
+
+msgctxt "model:ir.action,name:act_prescription_move_form1"
+msgid "Stock Moves [readonly]"
+msgstr "库存调拨[只读]"
+
+msgctxt "model:ir.action,name:act_vaccination_move_form1"
+msgid "Stock Moves [readonly]"
+msgstr "库存调拨[只读]"
+
+msgctxt "model:ir.message,text:msg_expired_vaccine"
+msgid ""
+"EXPIRED VACCINE. PLEASE INFORM THE LOCAL HEALTH AUTHORITIES AND DO NOT USE "
+"IT !!!"
+msgstr "过期的疫苗。请通知当地卫生部门，不要使用!!!"
+
+msgctxt "model:ir.message,text:msg_no_location_origin"
+msgid "You need to select a stock location"
+msgstr "您需要选择一个库存位置"
+
+msgctxt "model:ir.message,text:msg_no_pharmacy"
+msgid "You need to select a pharmacy"
+msgstr "您需要选择一个药房"
+
+msgctxt "model:ir.message,text:msg_stock_move_exists"
+msgid "Stock move already exists"
+msgstr "库存调拨已存在"
+
+msgctxt "view:gnuhealth.prescription.stock.move.init:"
+msgid "Create Stock Move?"
+msgstr "创建库存调拨？"
+
+msgctxt "view:gnuhealth.vaccination.stock.move.init:"
+msgid "Create Stock Move?"
+msgstr "创建库存调拨?"
+
+msgctxt "view:gnuhealth.vaccination:"
+msgid "Stock"
+msgstr "库存"
+
+msgctxt ""
+"wizard_button:gnuhealth.prescription.stock.move.create,start,create_stock_move:"
+msgid "Create Stock Move"
+msgstr "创建库存调拨"
+
+msgctxt "wizard_button:gnuhealth.prescription.stock.move.create,start,end:"
+msgid "Cancel"
+msgstr "取消"
+
+msgctxt ""
+"wizard_button:gnuhealth.vaccination.stock.move.create,start,create_stock_move:"
+msgid "Create Stock Move"
+msgstr "创建库存调拨"
+
+msgctxt "wizard_button:gnuhealth.vaccination.stock.move.create,start,end:"
+msgid "Cancel"
+msgstr "取消"

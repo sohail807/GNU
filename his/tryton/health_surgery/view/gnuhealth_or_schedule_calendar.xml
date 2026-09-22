@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!--
+SPDX-FileCopyrightText: 2008-2026 Luis Falcón <falcon@gnuhealth.org>
+SPDX-FileCopyrightText: 2011-2026 GNU Solidario <health@gnusolidario.org>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
+<calendar dtstart="reserve_from" dtend="reserve_to">
+    <field name="oproom"/>
+    <field name="health_condition"/>
+    <field name="patient"/>
+</calendar>
+

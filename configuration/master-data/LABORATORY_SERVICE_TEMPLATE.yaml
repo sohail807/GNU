@@ -1,0 +1,67 @@
+# ==============================================================================
+# GNU HEALTH 5.0 — QATAR OUTPATIENT CLINIC LABORATORY SERVICE TEMPLATE
+# Status: PENDING_CLINIC_INPUT
+# Instructions: Map diagnostic tests to installed lab categories. Reference 
+#               ranges must be supplied by the accredited clinical laboratory.
+# ==============================================================================
+
+tests:
+  - code: "LAB-CBC"
+    name: "Complete Blood Count (CBC)"
+    category: "CBC"  # COMPLETE BLOOD COUNT (gnuhealth.lab.test_type ID 2)
+    sample_type: "Whole Blood (EDTA)"
+    unit: "<PER_ANALYTE>"
+    reference_range: "<PENDING_LABORATORY_APPROVAL>"
+    department: "Laboratory"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+    active: false
+
+  - code: "LAB-LFT"
+    name: "Liver Function Test (LFT)"
+    category: "LFT"  # LIVER FUNCTION TEST (gnuhealth.lab.test_type ID 3)
+    sample_type: "Serum / Heparin Plasma"
+    unit: "<PER_ANALYTE>"
+    reference_range: "<PENDING_LABORATORY_APPROVAL>"
+    department: "Laboratory"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+    active: false
+
+  - code: "LAB-RFT"
+    name: "Renal Function Test (RFT / Urea & Creatinine)"
+    category: "RFT"  # RENAL FUNCTION TEST (gnuhealth.lab.test_type ID 5)
+    sample_type: "Serum / Plasma"
+    unit: "<PER_ANALYTE>"
+    reference_range: "<PENDING_LABORATORY_APPROVAL>"
+    department: "Laboratory"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+    active: false
+
+  - code: "LAB-UA"
+    name: "Routine Urine Analysis"
+    category: "UA"  # URINE ANALYSIS (gnuhealth.lab.test_type ID 8)
+    sample_type: "Midstream Urine"
+    unit: "<SEMI_QUANTITATIVE>"
+    reference_range: "<PENDING_LABORATORY_APPROVAL>"
+    department: "Laboratory"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+    active: false
+
+  - code: "LAB-STOOL"
+    name: "Stool Routine Examination"
+    category: "SE"  # STOOL EXAMINATION (gnuhealth.lab.test_type ID 4)
+    sample_type: "Stool Specimen"
+    unit: "<MICROSCOPIC>"
+    reference_range: "<PENDING_LABORATORY_APPROVAL>"
+    department: "Laboratory"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+    active: false
+
+  - code: "LAB-ENDOCRINO"
+    name: "Endocrine Hormone Panel (e.g. Thyroid TSH/FT4)"
+    category: "EGY"  # ENDOCRINOLOGY (gnuhealth.lab.test_type ID 9)
+    sample_type: "Serum"
+    unit: "<PER_ANALYTE>"
+    reference_range: "<PENDING_LABORATORY_APPROVAL>"
+    department: "Laboratory"
+    price_qar: "<PENDING_CLINIC_INPUT>"
+    active: false

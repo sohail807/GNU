@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<!--
+SPDX-FileCopyrightText: 2008-2026 Luis Falcón <falcon@gnuhealth.org>
+SPDX-FileCopyrightText: 2011-2026 GNU Solidario <health@gnusolidario.org>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
+<tree>
+    <field name="product" expand="1"/>
+    <field name="quantity" expand="1"/>
+    <field name="lot" expand="1"/>
+</tree>

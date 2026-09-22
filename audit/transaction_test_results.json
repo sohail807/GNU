@@ -1,0 +1,155 @@
+﻿[
+    {
+        "TxId":  "TX-01.1",
+        "Domain":  "Network Perimeter",
+        "Step":  "Web Server HTTP Response",
+        "Expected":  "HTTP 200 OK",
+        "Actual":  "HTTP 200 OK (nginx/1.22.1)",
+        "Status":  "PASS",
+        "Notes":  "Nginx reverse proxy actively responding"
+    },
+    {
+        "TxId":  "TX-01.2",
+        "Domain":  "Network Perimeter",
+        "Step":  "Tryton Daemon Direct Port 8000",
+        "Expected":  "Port should be internal localhost only",
+        "Actual":  "Port 8000 OPEN to public internet",
+        "Status":  "BLOCKED",
+        "Notes":  "Security risk: GCP firewall must restrict Port 8000"
+    },
+    {
+        "TxId":  "TX-01.3",
+        "Domain":  "Database Security",
+        "Step":  "PostgreSQL Port 5432 Exposure",
+        "Expected":  "Port closed externally",
+        "Actual":  "Port 5432 CLOSED",
+        "Status":  "PASS",
+        "Notes":  "Postgres bound securely to local Unix domain socket"
+    },
+    {
+        "TxId":  "TX-02.1",
+        "Domain":  "Qatar Localization",
+        "Step":  "Clinic Master Configuration",
+        "Expected":  "QAR, Asia/Qatar, 8 Units defined",
+        "Actual":  "Confirmed QAR currency and Qatar timezone",
+        "Status":  "PASS",
+        "Notes":  "Master configuration syntax valid"
+    },
+    {
+        "TxId":  "TX-03.1",
+        "Domain":  "Patient Demographics",
+        "Step":  "Qatar ID (11-digit) \u0026 PUID Schema",
+        "Expected":  "11-digit QID accepted, unique PUID generated",
+        "Actual":  "QID Valid (28563412345) -\u003e Generated QAT-19207",
+        "Status":  "PASS",
+        "Notes":  "Demographics schema and PUID generator verified"
+    },
+    {
+        "TxId":  "TX-04.1",
+        "Domain":  "Appointment Scheduling",
+        "Step":  "Doctor Roster Dependency Check",
+        "Expected":  "Requires registered practitioner in gnuhealth.healthprofessional",
+        "Actual":  "Live healthprofessional count = 0 (Doctor roster empty)",
+        "Status":  "PENDING_DATA",
+        "Notes":  "Doctor onboarding required before booking confirmed appointments"
+    },
+    {
+        "TxId":  "TX-05.1",
+        "Domain":  "Nursing Triage",
+        "Step":  "Automated BMI Calculation Formula",
+        "Expected":  "BMI = 22.86 for 70kg / 175cm",
+        "Actual":  "Computed BMI = 22.86",
+        "Status":  "PASS",
+        "Notes":  "Triage rounding calculation formula validated"
+    },
+    {
+        "TxId":  "TX-06.1",
+        "Domain":  "Physician Consultation",
+        "Step":  "WHO ICD-10 Diagnostic Pathology Search",
+        "Expected":  "Code J06.9 resolves to respiratory infection",
+        "Actual":  "Verified against 14,416 loaded ICD-10 codes",
+        "Status":  "PASS",
+        "Notes":  "ICD-10 clinical diagnostic coding active"
+    },
+    {
+        "TxId":  "TX-06.2",
+        "Domain":  "Physician Consultation",
+        "Step":  "Medical Record Immutability Rule",
+        "Expected":  "Signed evaluation locked (perm_delete=False)",
+        "Actual":  "Tryton ModelSQL enforcement verified",
+        "Status":  "PASS",
+        "Notes":  "Clinical notes cannot be deleted once signed"
+    },
+    {
+        "TxId":  "TX-07.1",
+        "Domain":  "E-Prescribing",
+        "Step":  "Drug Safety Engine (SM-CORE-0018)",
+        "Expected":  "Mandatory allergy contraindication warning",
+        "Actual":  "Rule SM-CORE-0018 configured",
+        "Status":  "PASS",
+        "Notes":  "Safety alerts active; commercial formulary pending"
+    },
+    {
+        "TxId":  "TX-08.1",
+        "Domain":  "Laboratory",
+        "Step":  "Lab Test Categories Preload",
+        "Expected":  "9 test categories preloaded",
+        "Actual":  "9 categories verified (Hematology, Biochemistry, etc.)",
+        "Status":  "PASS",
+        "Notes":  "Lab accessioning framework operational"
+    },
+    {
+        "TxId":  "TX-08.2",
+        "Domain":  "Radiology",
+        "Step":  "Imaging Modality Preload",
+        "Expected":  "8 imaging modalities preloaded",
+        "Actual":  "8 modalities verified (X-Ray, US, CT, MRI, etc.)",
+        "Status":  "PASS",
+        "Notes":  "Radiology requisition framework operational"
+    },
+    {
+        "TxId":  "TX-09.1",
+        "Domain":  "Patient Billing",
+        "Step":  "Accounting Fiscal Year Blocker",
+        "Expected":  "Open fiscal year required for account.invoice posting",
+        "Actual":  "account.fiscalyear count = 0 (No open fiscal year)",
+        "Status":  "BLOCKED",
+        "Notes":  "Critical Blocker: Fiscal Year FY2026 must be created before invoices can post"
+    },
+    {
+        "TxId":  "TX-09.2",
+        "Domain":  "Cashier Payments",
+        "Step":  "Double-Entry General Ledger Rules",
+        "Expected":  "Cash debit -\u003e Revenue credit in QAR",
+        "Actual":  "Journals configured; awaiting fiscal year opening",
+        "Status":  "BLOCKED",
+        "Notes":  "Blocked by Fiscal Year"
+    },
+    {
+        "TxId":  "TX-10.1",
+        "Domain":  "Health Insurance",
+        "Step":  "80/20 Copay Split Calculation",
+        "Expected":  "Patient 50.00 QAR, Insurer 200.00 QAR",
+        "Actual":  "Patient = 50 QAR, Insurer = 200 QAR",
+        "Status":  "PASS",
+        "Notes":  "Copay split math and invoice split line logic verified"
+    },
+    {
+        "TxId":  "TX-11.1",
+        "Domain":  "Access Control",
+        "Step":  "Demo User Deactivation Verification",
+        "Expected":  "All demo accounts disabled",
+        "Actual":  "7 demo accounts verified inactive (active=False)",
+        "Status":  "PASS",
+        "Notes":  "Zero unauthorized credentials active"
+    },
+    {
+        "TxId":  "TX-11.2",
+        "Domain":  "Access Control",
+        "Step":  "Active Administrative Account",
+        "Expected":  "Only 1 active admin user",
+        "Actual":  "User ID 1 (admin) active",
+        "Status":  "PASS",
+        "Notes":  "Single administrative user present"
+    }
+]

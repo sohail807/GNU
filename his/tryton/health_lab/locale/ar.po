@@ -1,0 +1,2032 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:gnuhealth.lab,analytes_summary:"
+msgid "Summary"
+msgstr "ملخص"
+
+msgctxt "field:gnuhealth.lab,critearea:"
+msgid "Analytes criteria"
+msgstr ""
+
+msgctxt "field:gnuhealth.lab,date_analysis:"
+msgid "Analysis Date"
+msgstr "تاريخ التحليل"
+
+msgctxt "field:gnuhealth.lab,date_requested:"
+msgid "Request Date"
+msgstr "تاريخ الطلب"
+
+msgctxt "field:gnuhealth.lab,diagnosis:"
+msgid "Diagnosis"
+msgstr "تشخيص"
+
+msgctxt "field:gnuhealth.lab,done_by:"
+msgid "Done by"
+msgstr ""
+
+msgctxt "field:gnuhealth.lab,done_date:"
+msgid "Finished on"
+msgstr ""
+
+msgctxt "field:gnuhealth.lab,historize:"
+msgid "Historize"
+msgstr ""
+
+msgctxt "field:gnuhealth.lab,images:"
+msgid "Images"
+msgstr "الصور"
+
+msgctxt "field:gnuhealth.lab,name:"
+msgid "ID"
+msgstr "الهوية"
+
+msgctxt "field:gnuhealth.lab,other_source:"
+msgid "Other"
+msgstr "أخرى"
+
+msgctxt "field:gnuhealth.lab,pathologist:"
+msgid "Pathologist"
+msgstr "أخصائي علم الأمراض"
+
+msgctxt "field:gnuhealth.lab,pathology:"
+msgid "Pathology"
+msgstr "علم الأمراض"
+
+msgctxt "field:gnuhealth.lab,patient:"
+msgid "Patient"
+msgstr "المريض"
+
+msgctxt "field:gnuhealth.lab,request_order:"
+msgid "Order"
+msgstr "الترتيب"
+
+msgctxt "field:gnuhealth.lab,requestor:"
+msgid "Health Prof"
+msgstr "بروفسور صحي"
+
+msgctxt "field:gnuhealth.lab,results:"
+msgid "Results"
+msgstr "النتائج"
+
+msgctxt "field:gnuhealth.lab,source_name:"
+msgid "Source name"
+msgstr "اسم المصدر"
+
+msgctxt "field:gnuhealth.lab,source_type:"
+msgid "Source"
+msgstr "المصدر"
+
+msgctxt "field:gnuhealth.lab,specimen_type:"
+msgid "Specimen"
+msgstr ""
+
+#, fuzzy
+msgctxt "field:gnuhealth.lab,state:"
+msgid "State"
+msgstr "حالة"
+
+msgctxt "field:gnuhealth.lab,test:"
+msgid "Test type"
+msgstr "نوع الإختبار"
+
+msgctxt "field:gnuhealth.lab,validated_by:"
+msgid "Validated by"
+msgstr ""
+
+msgctxt "field:gnuhealth.lab,validation_date:"
+msgid "Validated on"
+msgstr ""
+
+msgctxt "field:gnuhealth.lab.test.critearea,code:"
+msgid "Code"
+msgstr "رمز"
+
+msgctxt "field:gnuhealth.lab.test.critearea,excluded:"
+msgid "Excluded"
+msgstr "مستبعد"
+
+msgctxt "field:gnuhealth.lab.test.critearea,gnuhealth_lab_id:"
+msgid "Test Cases"
+msgstr "حالات الإختبار"
+
+msgctxt "field:gnuhealth.lab.test.critearea,lab_warning_icon:"
+msgid "Lab Warning Icon"
+msgstr "رمز تحذير المختبر"
+
+msgctxt "field:gnuhealth.lab.test.critearea,limits_verified:"
+msgid "Limits verified"
+msgstr "تم التحقق من الحدود"
+
+msgctxt "field:gnuhealth.lab.test.critearea,lower_limit:"
+msgid "Lower Limit"
+msgstr "الحد الأدنى"
+
+msgctxt "field:gnuhealth.lab.test.critearea,name:"
+msgid "Analyte"
+msgstr "المادة المحللّة"
+
+msgctxt "field:gnuhealth.lab.test.critearea,normal_range:"
+msgid "Reference"
+msgstr "المرجع"
+
+msgctxt "field:gnuhealth.lab.test.critearea,remarks:"
+msgid "Remarks"
+msgstr "ملاحظات"
+
+msgctxt "field:gnuhealth.lab.test.critearea,result:"
+msgid "Value"
+msgstr "القيمة"
+
+msgctxt "field:gnuhealth.lab.test.critearea,result_text:"
+msgid "Qualitative"
+msgstr ""
+
+msgctxt "field:gnuhealth.lab.test.critearea,sequence:"
+msgid "Sequence"
+msgstr "تسلسل"
+
+#, fuzzy
+msgctxt "field:gnuhealth.lab.test.critearea,test_method:"
+msgid "Method"
+msgstr "طريقة"
+
+msgctxt "field:gnuhealth.lab.test.critearea,test_type_id:"
+msgid "Test type"
+msgstr "نوع الإختبار"
+
+msgctxt "field:gnuhealth.lab.test.critearea,to_integer:"
+msgid "To integer"
+msgstr "إلى عدد صحيح"
+
+msgctxt "field:gnuhealth.lab.test.critearea,units:"
+msgid "Units"
+msgstr "الوحدات"
+
+msgctxt "field:gnuhealth.lab.test.critearea,upper_limit:"
+msgid "Upper Limit"
+msgstr "الحد الأقصى"
+
+msgctxt "field:gnuhealth.lab.test.critearea,warning:"
+msgid "Warn"
+msgstr "تحذير"
+
+msgctxt "field:gnuhealth.lab.test.units,code:"
+msgid "Code"
+msgstr "الرمز"
+
+msgctxt "field:gnuhealth.lab.test.units,name:"
+msgid "Unit"
+msgstr "الوحدة"
+
+msgctxt "field:gnuhealth.lab.test_type,active:"
+msgid "Active"
+msgstr "نشيط"
+
+msgctxt "field:gnuhealth.lab.test_type,age_range:"
+msgid "Age range"
+msgstr "الفئة العمرية"
+
+msgctxt "field:gnuhealth.lab.test_type,category:"
+msgid "Category"
+msgstr "الفئة"
+
+msgctxt "field:gnuhealth.lab.test_type,code:"
+msgid "Code"
+msgstr "الرمز"
+
+msgctxt "field:gnuhealth.lab.test_type,critearea:"
+msgid "Test Cases"
+msgstr "حالات الاختبار"
+
+msgctxt "field:gnuhealth.lab.test_type,gender:"
+msgid "Gender"
+msgstr "الجنس"
+
+msgctxt "field:gnuhealth.lab.test_type,info:"
+msgid "Description"
+msgstr "الوصف"
+
+msgctxt "field:gnuhealth.lab.test_type,max_age:"
+msgid "Max age"
+msgstr "الحد الأقصى للعمر"
+
+msgctxt "field:gnuhealth.lab.test_type,min_age:"
+msgid "Min age"
+msgstr "عمري"
+
+msgctxt "field:gnuhealth.lab.test_type,name:"
+msgid "Test"
+msgstr "الاختبار"
+
+msgctxt "field:gnuhealth.lab.test_type,product_id:"
+msgid "Service"
+msgstr "الخدمة"
+
+msgctxt "field:gnuhealth.lab.test_type,report_style:"
+msgid "Report style"
+msgstr "أسلوب التقرير"
+
+msgctxt "field:gnuhealth.lab.test_type,specimen_type:"
+msgid "Specimen"
+msgstr ""
+
+msgctxt "field:gnuhealth.lab.test_type,tags:"
+msgid "Tags"
+msgstr "العلامات"
+
+msgctxt "field:gnuhealth.patient,lab_test_ids:"
+msgid "Lab Tests Required"
+msgstr "الفحوصات المخبرية المطلوبة"
+
+msgctxt "field:gnuhealth.patient.disease,lab_confirmed:"
+msgid "Lab Confirmed"
+msgstr "تم تأكيد المختبر"
+
+msgctxt "field:gnuhealth.patient.disease,lab_test:"
+msgid "Lab Test"
+msgstr "إختبار معملي"
+
+msgctxt "field:gnuhealth.patient.lab.test,age_num:"
+msgid "Age Num"
+msgstr ""
+
+msgctxt "field:gnuhealth.patient.lab.test,comment:"
+msgid "Additional Information"
+msgstr "معلومات اضافية"
+
+msgctxt "field:gnuhealth.patient.lab.test,context:"
+msgid "Context"
+msgstr "Context"
+
+msgctxt "field:gnuhealth.patient.lab.test,date:"
+msgid "Date"
+msgstr "تأريخ"
+
+msgctxt "field:gnuhealth.patient.lab.test,doctor_id:"
+msgid "Health Prof"
+msgstr "بروفسور صحي"
+
+#, fuzzy
+msgctxt "field:gnuhealth.patient.lab.test,gender_str:"
+msgid "Gender"
+msgstr "الجنس"
+
+msgctxt "field:gnuhealth.patient.lab.test,other_source:"
+msgid "Other"
+msgstr "أخرى"
+
+msgctxt "field:gnuhealth.patient.lab.test,patient_id:"
+msgid "Patient"
+msgstr "المريض"
+
+msgctxt "field:gnuhealth.patient.lab.test,request:"
+msgid "Order"
+msgstr "الترتيب"
+
+msgctxt "field:gnuhealth.patient.lab.test,source_name:"
+msgid "Source name"
+msgstr "اسم المصدر"
+
+msgctxt "field:gnuhealth.patient.lab.test,source_type:"
+msgid "Source"
+msgstr "المصدر"
+
+msgctxt "field:gnuhealth.patient.lab.test,specimen_type:"
+msgid "Specimen"
+msgstr ""
+
+msgctxt "field:gnuhealth.patient.lab.test,state:"
+msgid "State"
+msgstr "حالة"
+
+#, fuzzy
+msgctxt "field:gnuhealth.patient.lab.test,test_type:"
+msgid "Test Type"
+msgstr "نوع الاختبار"
+
+msgctxt "field:gnuhealth.patient.lab.test,urgent:"
+msgid "Urgent"
+msgstr "مٌستعجل"
+
+msgctxt "field:gnuhealth.patient.lab.test.request.start,age_num:"
+msgid "Age Num"
+msgstr ""
+
+msgctxt "field:gnuhealth.patient.lab.test.request.start,context:"
+msgid "Context"
+msgstr "الحالة"
+
+msgctxt "field:gnuhealth.patient.lab.test.request.start,date:"
+msgid "Date"
+msgstr "تاريخ"
+
+msgctxt "field:gnuhealth.patient.lab.test.request.start,doctor:"
+msgid "Health Prof"
+msgstr "بروفسور صحي"
+
+#, fuzzy
+msgctxt "field:gnuhealth.patient.lab.test.request.start,gender_str:"
+msgid "Gender"
+msgstr "الجنس"
+
+msgctxt "field:gnuhealth.patient.lab.test.request.start,other_source:"
+msgid "Other"
+msgstr "أخرى"
+
+msgctxt "field:gnuhealth.patient.lab.test.request.start,patient:"
+msgid "Patient"
+msgstr "المريض"
+
+msgctxt "field:gnuhealth.patient.lab.test.request.start,source_type:"
+msgid "Source"
+msgstr "المصدر"
+
+msgctxt "field:gnuhealth.patient.lab.test.request.start,tests:"
+msgid "Tests"
+msgstr "الاختبار"
+
+msgctxt "field:gnuhealth.patient.lab.test.request.start,urgent:"
+msgid "Urgent"
+msgstr "مٌستعجل"
+
+msgctxt "field:gnuhealth.request-test,request:"
+msgid "Request"
+msgstr "طلب"
+
+msgctxt "field:gnuhealth.request-test,test:"
+msgid "Test"
+msgstr "الاختبار"
+
+msgctxt "field:gnuhealth.sequences,lab_request_sequence:"
+msgid "Lab request sequence"
+msgstr "تسلسل طلب المختبر"
+
+msgctxt "field:gnuhealth.sequences,lab_test_sequence:"
+msgid "Lab test sequence"
+msgstr "تسلسل الاختبارات المعملية"
+
+msgctxt "field:gnuhealth.sequences.lab_request_sequence,lab_request_sequence:"
+msgid "Lab request sequence"
+msgstr "تسلسل طلب المختبر"
+
+msgctxt "field:gnuhealth.sequences.lab_test_sequence,lab_test_sequence:"
+msgid "Lab test sequence"
+msgstr "تسلسل الاختبارات المعملية"
+
+#, fuzzy
+msgctxt "help:gnuhealth.lab,done_by:"
+msgid "Professional who processes this lab test"
+msgstr "المهني الصحي الذي يطلب الفحص المعملي."
+
+msgctxt "help:gnuhealth.lab,historize:"
+msgid ""
+"If this flag is set the a new health condition will be added to the patient "
+"history. Unset it if this lab test is in the context of a pre-existing "
+"condition of the patient. The condition will be created when the lab test is"
+" confirmed and validated"
+msgstr ""
+
+msgctxt "help:gnuhealth.lab,name:"
+msgid "Lab result ID"
+msgstr "رقم نتيجة الإختبار"
+
+msgctxt "help:gnuhealth.lab,other_source:"
+msgid "Other sample source."
+msgstr "مصدر عينة أخرى."
+
+msgctxt "help:gnuhealth.lab,pathologist:"
+msgid "Pathologist"
+msgstr "أخصائي في علم الأمراض"
+
+msgctxt "help:gnuhealth.lab,pathology:"
+msgid "Pathology confirmed / associated to this lab test."
+msgstr "تم تأكيد علم الأمراض / المرتبط بهذا الاختبار المعملي."
+
+msgctxt "help:gnuhealth.lab,patient:"
+msgid "Patient"
+msgstr "رقم المريض"
+
+msgctxt "help:gnuhealth.lab,requestor:"
+msgid "Doctor who requested the test"
+msgstr "الطبيب الذي طلب اختبار"
+
+msgctxt "help:gnuhealth.lab,source_type:"
+msgid "Sample source type."
+msgstr "نوع مصدر العينة."
+
+msgctxt "help:gnuhealth.lab,specimen_type:"
+msgid "Specimen type, for example: whole blood, plasma, urine or feces ..."
+msgstr ""
+
+msgctxt "help:gnuhealth.lab,test:"
+msgid "Lab test type"
+msgstr "نوع التحليل المخبري"
+
+#, fuzzy
+msgctxt "help:gnuhealth.lab,validated_by:"
+msgid "Professional who validates this lab test"
+msgstr "المهني الصحي الذي يطلب الفحص المعملي."
+
+msgctxt "help:gnuhealth.lab.test.critearea,code:"
+msgid "Lab test critearea code, mainly used by lab interface script."
+msgstr ""
+"رمز منطقة معايير الاختبار المعملي، يُستخدم بشكل أساسي من خلال البرنامج النصي"
+" لواجهة المعمل."
+
+msgctxt "help:gnuhealth.lab.test.critearea,excluded:"
+msgid "Select this option when this analyte is excluded from the test"
+msgstr "حدد هذا الخيار عندما يتم استبعاد هذا التحليل من الاختبار"
+
+msgctxt "help:gnuhealth.lab.test.critearea,limits_verified:"
+msgid ""
+"The upper and lower limits have been verified again, sometimes limits will "
+"depend on other indicators of the patient, such as: age, pregnancy status, "
+"etc, so it is very important to verify them, because warning status depend "
+"on limits values."
+msgstr ""
+
+msgctxt "help:gnuhealth.lab.test.critearea,result_text:"
+msgid ""
+"Non-numeric results. For example qualitative values, morphological, colors "
+"..."
+msgstr "نتائج غير رقمية. على سبيل المثال القيم النوعية والشكلية والألوان ..."
+
+msgctxt "help:gnuhealth.lab.test.critearea,test_method:"
+msgid "Test method, for example: Real-time PCR ..."
+msgstr ""
+
+msgctxt "help:gnuhealth.lab.test.critearea,to_integer:"
+msgid "Convert result value to interger in report."
+msgstr "تحويل قيمة النتيجة إلى عدد صحيح في التقرير."
+
+msgctxt "help:gnuhealth.lab.test.critearea,warning:"
+msgid ""
+"Warns the patient about this  analyte result It is useful to contextualize "
+"the result to each patient status  like age, sex, comorbidities, ..."
+msgstr ""
+"يحذر المريض عن هذه النتيجة الحليلة ومن المفيد لتأطير النتيجة إلى كل حالة "
+"المريض مثل العمر والجنس والأمراض المصاحبة، ..."
+
+msgctxt "help:gnuhealth.lab.test_type,code:"
+msgid "Short name - code for the test"
+msgstr "الاسم القصير - كود الاختبار"
+
+msgctxt "help:gnuhealth.lab.test_type,max_age:"
+msgid "Max age year, (years x 365 + months x 30.5 + days) / 365"
+msgstr "الحد الأقصى للعمر (السنوات × 365 + الأشهر × 30.5 + الأيام) / 365"
+
+msgctxt "help:gnuhealth.lab.test_type,min_age:"
+msgid "Min age year, (years x 365 + months x 30.5 + days) / 365"
+msgstr "الحد الأدنى للعمر (سنوات × 365 + أشهر × 30.5 + أيام) / 365"
+
+msgctxt "help:gnuhealth.lab.test_type,name:"
+msgid "Test type, eg X-Ray, hemogram,biopsy..."
+msgstr "نوع الاختبار، مثل الأشعة السينية، الصيغة الدموية، خزعة ..."
+
+msgctxt "help:gnuhealth.lab.test_type,specimen_type:"
+msgid "Specimen type, for example: whole blood, plasma, urine or feces ..."
+msgstr ""
+
+msgctxt "help:gnuhealth.lab.test_type,tags:"
+msgid ""
+"Tags of test type, which can be used in if directive of report template "
+"file, tags use letters and numbers, separated by colon."
+msgstr ""
+"علامات نوع الاختبار، والتي يمكن استخدامها في حالة توجيه ملف قالب التقرير، "
+"تستخدم العلامات أحرفًا وأرقامًا، مفصولة بنقطتين."
+
+msgctxt "help:gnuhealth.patient.disease,lab_confirmed:"
+msgid "Confirmed by laboratory test"
+msgstr "تم تأكيده بواسطة الاختبار المعملي"
+
+msgctxt "help:gnuhealth.patient.disease,lab_test:"
+msgid "Lab test that confirmed the condition"
+msgstr "الاختبار المعملي الذي أكد الحالة"
+
+msgctxt "help:gnuhealth.patient.lab.test,age_num:"
+msgid "Age year number, (years x 365 + months x 30.5 + days) / 365"
+msgstr ""
+
+msgctxt "help:gnuhealth.patient.lab.test,context:"
+msgid ""
+"Health context for this order. It can be a suspected or existing health "
+"condition, a regular health checkup, ..."
+msgstr ""
+"السياق الصحي لهذا الطلب. يمكن أن تكون حالة صحية مشتبه بها أو موجودة، أو فحص "
+"طبي منتظم، ..."
+
+msgctxt "help:gnuhealth.patient.lab.test,doctor_id:"
+msgid "Health professional who requests the lab test."
+msgstr "المهني الصحي الذي يطلب الفحص المعملي."
+
+msgctxt "help:gnuhealth.patient.lab.test,other_source:"
+msgid "Other sample source."
+msgstr "مصدر عينة أخرى."
+
+msgctxt "help:gnuhealth.patient.lab.test,source_type:"
+msgid "Sample source type."
+msgstr "نوع مصدر العينة"
+
+msgctxt "help:gnuhealth.patient.lab.test,specimen_type:"
+msgid "Specimen type, for example: whole blood, plasma, urine or feces ..."
+msgstr ""
+
+msgctxt "help:gnuhealth.patient.lab.test.request.start,age_num:"
+msgid "Age year number, (years x 365 + months x 30.5 + days) / 365"
+msgstr ""
+
+msgctxt "help:gnuhealth.patient.lab.test.request.start,context:"
+msgid ""
+"Health context for this order. It can be a suspected or existing health "
+"condition, a regular health checkup, ..."
+msgstr ""
+"السياق الصحي لهذا الطلب. يمكن أن تكون حالة صحية مشتبه بها أو موجودة، أو فحص "
+"طبي منتظم، ..."
+
+msgctxt "help:gnuhealth.patient.lab.test.request.start,doctor:"
+msgid "Health professional who ordered the lab tests."
+msgstr "أخصائي الصحة الذي أمر الاختبارات المعملية."
+
+msgctxt "help:gnuhealth.patient.lab.test.request.start,other_source:"
+msgid "Other sample source."
+msgstr "مصدر عينة أخرى."
+
+msgctxt "help:gnuhealth.patient.lab.test.request.start,source_type:"
+msgid "Sample source type."
+msgstr "نوع مصدر العينة"
+
+msgctxt "model:gnuhealth.lab,name:"
+msgid "Patient Lab Test Results"
+msgstr "نتائج اختبار مختبر المريض"
+
+msgctxt "model:gnuhealth.lab.test.create.init,name:"
+msgid "Create Test Report Init"
+msgstr "إنشاء تقرير اختبار أولي"
+
+msgctxt "model:gnuhealth.lab.test.critearea,name:"
+msgid "Lab Test Critearea"
+msgstr "معايير الفحص المخبري"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_agratio0"
+msgid "AG Ratio"
+msgstr "نسبة AG"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_albumin0"
+msgid "Albumin"
+msgstr "الزلال"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_alkalinephosphatase0"
+msgid "Alkaline Phosphatase"
+msgstr "الفوسفاتيز القلوية"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_bacteria0"
+msgid "Bacteria"
+msgstr "بكتيريا"
+
+msgctxt "model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_bas"
+msgid "BAS"
+msgstr "BAS"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_bas0"
+msgid "BAS%"
+msgstr "-BAS٪-"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_bilirubin0"
+msgid "Bilirubin"
+msgstr "البيلروبين"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_blood0"
+msgid "Blood"
+msgstr "دم"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_blood1"
+msgid "Blood"
+msgstr "دم"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_bloodgrouprh0"
+msgid "Blood Group & RH"
+msgstr "فصيلة الدم والصحة الإنجابية"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_casts0"
+msgid "Casts"
+msgstr "القوالب"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_chemicalexamination0"
+msgid "Chemical Examination"
+msgstr "الفحص الكيميائي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_clarityappearance0"
+msgid "Clarity/ Appearance"
+msgstr "الوضوح / المظهر"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_color0"
+msgid "Color"
+msgstr "لون"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_color1"
+msgid "Color"
+msgstr "لون"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_color2"
+msgid "Color"
+msgstr "لون"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_consistency0"
+msgid "Consistency"
+msgstr "تناسق"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_creatinine0"
+msgid "Creatinine"
+msgstr "الكرياتينين"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_crystals0"
+msgid "Crystals"
+msgstr "بلورات"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_directbilirubin0"
+msgid "Direct Bilirubin"
+msgstr "البيليروبين المباشر"
+
+msgctxt "model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_eo"
+msgid "EO"
+msgstr "EO"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_eos0"
+msgid "EO%"
+msgstr "EO%"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_epithelialcells0"
+msgid "Epithelial Cells"
+msgstr "الخلايا الظهارية"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_epithelialcells1"
+msgid "Epithelial Cells"
+msgstr "الخلايا الظهارية"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_esr0"
+msgid "ESR"
+msgstr "-ESR-"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_fsh0"
+msgid "FSH"
+msgstr "-FSH-"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_gammagt0"
+msgid "Gamma GT"
+msgstr "جاما جي تي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_globulin0"
+msgid "Globulin"
+msgstr "الجلوبيولين"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_glucose0"
+msgid "Glucose"
+msgstr "الجلوكوز"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_gra0"
+msgid "GRA#"
+msgstr "-GRA#-"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_haemoglobin0"
+msgid "HGB"
+msgstr "الهيموغلوبين"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_hct0"
+msgid "HCT"
+msgstr "-HCT-"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_indirectbilirubin0"
+msgid "Indirect Bilirubin"
+msgstr "البيليروبين غير المباشر"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_ketonebodies0"
+msgid "Ketone Bodies"
+msgstr "أجسام خلونية"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_leucocytes0"
+msgid "Leucocytes"
+msgstr "الكريات البيض"
+
+msgctxt "model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_lh0"
+msgid "LH"
+msgstr "-LH-"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_liquefactiontime0"
+msgid "Liquefaction Time"
+msgstr "وقت التسييل"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_lym0"
+msgid "LYM%"
+msgstr "اللمفاويات%"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_lym1"
+msgid "LYM"
+msgstr "لمفاويات#"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_mch0"
+msgid "MCH"
+msgstr "MCH"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_mchc0"
+msgid "MCHC"
+msgstr "MCHC"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_mcv0"
+msgid "MCV"
+msgstr "MCV"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_microscopicexamination0"
+msgid "Microscopic Examination"
+msgstr "الفحص المجهري"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_microscopicexamination1"
+msgid "Microscopic Examination"
+msgstr "الفحص المجهري"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_microscopicexamination2"
+msgid "Microscopic Examination"
+msgstr "الفحص المجهري"
+
+msgctxt "model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_mon"
+msgid "MON"
+msgstr "MON"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_mon0"
+msgid "MON%"
+msgstr "MON%"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_morphology0"
+msgid "Morphology"
+msgstr "علم التشكل المورفولوجيا"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_motility0"
+msgid "Motility"
+msgstr "الحركة"
+
+msgctxt "model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_mpv"
+msgid "MPV"
+msgstr "MPV"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_mucus0"
+msgid "Mucus"
+msgstr "مخاط"
+
+msgctxt "model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_neu"
+msgid "NEU"
+msgstr "NEU"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_neu0"
+msgid "NEU%"
+msgstr "NEU%"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_nitrites0"
+msgid "Nitrites"
+msgstr "النتريت"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_nonmotile0"
+msgid "Non Motile"
+msgstr "غير متحرك"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_nonprogressive0"
+msgid "Non Progressive"
+msgstr "غير تقدمية"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_others0"
+msgid "Others"
+msgstr "الغير"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_ovacyst0"
+msgid "Ova/Cyst"
+msgstr "البيض / كيس"
+
+msgctxt "model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_pct"
+msgid "PCT"
+msgstr "PCT"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_pdwcv"
+msgid "PDWcv"
+msgstr "PDWcv"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_pdwsd"
+msgid "PDWsd"
+msgstr "PDWsd"
+
+msgctxt "model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_ph0"
+msgid "pH"
+msgstr ""
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_physicalexamination0"
+msgid "Physical Examination"
+msgstr "الفحص البدني"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_physicalexamination1"
+msgid "Physical Examination"
+msgstr "الفحص البدني"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_physicalexamination2"
+msgid "Physical Examination"
+msgstr "الفحص البدني"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_platelets0"
+msgid "Platelets"
+msgstr "الصفائح"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_plt0"
+msgid "PLT"
+msgstr "PLT"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_progressive0"
+msgid "Progressive"
+msgstr "تدريجي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_prolactin0"
+msgid "PROLACTIN"
+msgstr "برولاكتين"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_protein0"
+msgid "Protein"
+msgstr "بروتين"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_puscells0"
+msgid "Pus cells"
+msgstr "خلايا صديد"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_puscells1"
+msgid "Pus cells"
+msgstr "خلايا صديد"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_puscells2"
+msgid "Pus Cells"
+msgstr "خلايا صديد"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_rbc0"
+msgid "RBC"
+msgstr "RBC"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_rbcs0"
+msgid "RBCs"
+msgstr "كرات الدم الحمراء"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_rbcs1"
+msgid "RBCs"
+msgstr "كرات الدم الحمراء"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_rbcs2"
+msgid "RBCs"
+msgstr "كرات الدم الحمراء"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_rbcs3"
+msgid "RBC's"
+msgstr "كرات الدم الحمراء"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_rdwcv0"
+msgid "RDWcv"
+msgstr "RDW-CV"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_rdwsd0"
+msgid "RDWsd"
+msgstr "RDW-SD"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_reaction0"
+msgid "Reaction"
+msgstr "رد فعل"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_report0"
+msgid "REPORT"
+msgstr "تقرير"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_sgot0"
+msgid "SGOT"
+msgstr "SGOT"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_sgpt0"
+msgid "SGPT"
+msgstr "SGPT"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_specificgravity0"
+msgid "Specific Gravity"
+msgstr "جاذبية معينة"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_spermatogoniccells0"
+msgid "Spermatogonic Cells"
+msgstr "الخلايا المنوية"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_testosterone0"
+msgid "TESTOSTERONE"
+msgstr "التستوستيرون"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_totalbilirubin0"
+msgid "Total Bilirubin"
+msgstr "البيليروبين الكلي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_totalcount0"
+msgid "Total count"
+msgstr "العدد الإجمالي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_totalprotein0"
+msgid "Total Protein"
+msgstr "البروتين الكلي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_tsh0"
+msgid "TSH"
+msgstr "TSH"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_undigestedmatter0"
+msgid "Un digested matter"
+msgstr "مادة غير مهضومة"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_urea0"
+msgid "Urea"
+msgstr "اليوريا"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_uricacid0"
+msgid "Uric Acid"
+msgstr "حمض اليوريك"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_urobilinogen0"
+msgid "Urobilinogen"
+msgstr "اليوروبيلينوجين"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_viscosity0"
+msgid "Viscosity"
+msgstr "اللزوجة"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_volume0"
+msgid "Volume"
+msgstr "مقدار"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_wbc0"
+msgid "WBC"
+msgstr "كرات الدم البيضاء"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,name:gnuhealth_test_critearea_wbcs0"
+msgid "WBCs"
+msgstr "كرات الدم البيضاء"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_agratio0"
+msgid "1.5:1-2.5:1"
+msgstr "1.5:1-2.5:1"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_albumin0"
+msgid "3.5-5.5"
+msgstr "3.5-5.5"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_alkalinephosphatase0"
+msgid "<270"
+msgstr "<270"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_bas"
+msgid "0-0.15"
+msgstr "0-0.15"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_bas0"
+msgid "0-2"
+msgstr "0-2"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_bilirubin0"
+msgid "Negative"
+msgstr "سلبي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_blood0"
+msgid "Negative"
+msgstr "سلبي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_blood1"
+msgid "Negative"
+msgstr "سلبي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_clarityappearance0"
+msgid "Clear"
+msgstr "واضح"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_color1"
+msgid "Yellow"
+msgstr "أصفر"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_color2"
+msgid "Brown"
+msgstr "بني"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_consistency0"
+msgid "Well formed"
+msgstr "شكلت بشكل جيد"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_creatinine0"
+msgid "0.8-1.3"
+msgstr "0.8-1.3"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_directbilirubin0"
+msgid "<0.2"
+msgstr "<0.2"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_eo"
+msgid "0-0.5"
+msgstr "0-0.5"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_eos0"
+msgid "1-6"
+msgstr "1-6"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_esr0"
+msgid "Up to 15"
+msgstr "ما يصل الى 15"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_fsh0"
+msgid ""
+"Follicular Phase: 3.0-12.0; \n"
+"Midcycle: 8.0-22.0; \n"
+"Luteal phase: 2.0-12.0; \n"
+"Post menopausal: 35.0-151;"
+msgstr ""
+"المرحلة الجريبية: 3.0-12.0؛\n"
+"الدورة المتوسطة: 8.0-22.0؛\n"
+"المرحلة الأصفرية: 2.0-12.0؛\n"
+"بعد انقطاع الطمث: 35.0-151؛"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_gammagt0"
+msgid "<55"
+msgstr "<55"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_globulin0"
+msgid "1.5-3.5"
+msgstr "1.5-3.5"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_glucose0"
+msgid "Negative"
+msgstr "سلبي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_gra0"
+msgid "2.0-7.5"
+msgstr "2.0-7.5"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_haemoglobin0"
+msgid "11-16.0"
+msgstr "11-16.0"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_hct0"
+msgid "37.0-50"
+msgstr "37.0-50"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_indirectbilirubin0"
+msgid "Up to 0.8"
+msgstr "ما يصل إلى 0.8"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_ketonebodies0"
+msgid "Negative"
+msgstr "سلبي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_leucocytes0"
+msgid "Negative"
+msgstr "سلبي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_lh0"
+msgid ""
+"Follicular Phase: 0.8-10.5; \n"
+"Midcycle: 18.4-61.2; \n"
+"Luteal phase: 0.8-10.5; \n"
+"Post menopausal: 8.2-40.8;"
+msgstr ""
+"المرحلة الجريبية: 0.8-10.5؛\n"
+"الدورة المتوسطة: 18.4-61.2؛\n"
+"المرحلة الأصفرية: 0.8-10.5؛\n"
+"بعد انقطاع الطمث: 8.2-40.8؛"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_lym0"
+msgid "20-45"
+msgstr "20-45"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_lym1"
+msgid "1.5-4.0"
+msgstr "1.5-4.0"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_mch0"
+msgid "27-31"
+msgstr "27-31"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_mchc0"
+msgid "32.0-36.0"
+msgstr "32.0-36.0"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_mcv0"
+msgid "82-95"
+msgstr "82-95"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_mon"
+msgid "0.15-0.70"
+msgstr "0.15-0.70"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_mon0"
+msgid "2-10"
+msgstr "2-10"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_mpv"
+msgid "6.3-15.0"
+msgstr "6.3-15.0"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_mucus0"
+msgid "Negative"
+msgstr "سلبي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_neu"
+msgid "2-7"
+msgstr "2-7"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_neu0"
+msgid "45-70"
+msgstr "45-70"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_nitrites0"
+msgid "Negative"
+msgstr "سلبي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_ovacyst0"
+msgid "Absent"
+msgstr "غائب"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_pct"
+msgid "0.13-0.43"
+msgstr "0.13-0.43"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_ph0"
+msgid "4.5-7.5"
+msgstr ""
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_plt0"
+msgid "150-450"
+msgstr "150-450"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_prolactin0"
+msgid ""
+"Women, non pregnant: 1.2-19.5; \n"
+"Postmenopausal: 1.5-18.5;"
+msgstr ""
+"النساء غير الحوامل: 1.2-19.5؛\n"
+"بعد انقطاع الطمث: 1.5-18.5؛"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_protein0"
+msgid "Negative"
+msgstr "سلبي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_puscells0"
+msgid "0-1"
+msgstr "0-1"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_puscells2"
+msgid "1-2"
+msgstr "1-2"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_rbc0"
+msgid "3.5-5.50"
+msgstr "3.5-5.50"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_rbcs1"
+msgid "0-1"
+msgstr "0-1"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_rbcs3"
+msgid "0-2"
+msgstr "0-2"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_rdwcv0"
+msgid "11.5-14.5"
+msgstr "11.5-14.5"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_rdwsd0"
+msgid "35-56"
+msgstr "35-56"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_sgot0"
+msgid "<40"
+msgstr "<40"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_sgpt0"
+msgid "<40"
+msgstr "<40"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_specificgravity0"
+msgid "103-130"
+msgstr "103-130"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_testosterone0"
+msgid ""
+"Sexually mature women: 0.6; \n"
+"Postmenopause: 0.8;"
+msgstr ""
+"النساء الناضجات جنسياً: 0.6؛\n"
+"بعد انقطاع الطمث: 0.8؛"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_totalbilirubin0"
+msgid "0.3-1.2"
+msgstr "0.3-1.2"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_totalcount0"
+msgid "60-150"
+msgstr "60-150"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_totalprotein0"
+msgid "6.4-8.3"
+msgstr "6.4-8.3"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_tsh0"
+msgid "0.3-6.2"
+msgstr "0.3-6.2"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_urea0"
+msgid "13-43"
+msgstr "13-43"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_uricacid0"
+msgid "3.5-7.2"
+msgstr "3.5-7.2"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_urobilinogen0"
+msgid "Negative"
+msgstr "سلبي"
+
+msgctxt ""
+"model:gnuhealth.lab.test.critearea,normal_range:gnuhealth_test_critearea_wbc0"
+msgid "4.5-11"
+msgstr "4.5-11"
+
+msgctxt "model:gnuhealth.lab.test.units,name:"
+msgid "Lab Test Units"
+msgstr "وحدات التحليل المخبري"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_0"
+msgid "%"
+msgstr "%"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_Tera_L"
+msgid "10^12/L"
+msgstr "10^12/L"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_aTU_ml"
+msgid "aTU/ml"
+msgstr "aTU/ml"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_fl0"
+msgid "fl"
+msgstr "fl"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_g_L"
+msgid "g/L"
+msgstr "g/L"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_giga_L"
+msgid "10^9/L"
+msgstr "10^9/L"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_gmdl0"
+msgid "g/dL"
+msgstr "g/dL"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_hpf0"
+msgid "/hpf"
+msgstr "/hpf"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_iul0"
+msgid "IU/l"
+msgstr "IU/l"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_mgdl0"
+msgid "mg/dl"
+msgstr "mg/dl"
+
+msgctxt ""
+"model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_millionscc0"
+msgid "Millions/cc"
+msgstr "مليون/سم مكعب"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_miul0"
+msgid "mIU/l"
+msgstr "mIU/l"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_mmhr0"
+msgid "mm/hr"
+msgstr "mm/hr"
+
+msgctxt ""
+"model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_mmol_24h"
+msgid "mmol/24h"
+msgstr "mmol/24h"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_mmol_L"
+msgid "mmol/L"
+msgstr "mmol/L"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_ngml0"
+msgid "ng/ml"
+msgstr "ng/ml"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_pg0"
+msgid "pg"
+msgstr "pg"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_pgml0"
+msgid "pg/ml"
+msgstr "pg/ml"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_ul0"
+msgid "10^6/uL"
+msgstr "10^6/uL"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_ul1"
+msgid "10^3/uL"
+msgstr "10^3/uL"
+
+msgctxt "model:gnuhealth.lab.test.units,name:gnuhealth_lab_test_units_ul2"
+msgid "U/L"
+msgstr "U/L"
+
+msgctxt "model:gnuhealth.lab.test_type,name:"
+msgid "Type of Lab test"
+msgstr "نوع من اختبار المعمل"
+
+msgctxt ""
+"model:gnuhealth.lab.test_type,name:gnuhealth_test_completebloodcount0"
+msgid "COMPLETE BLOOD COUNT"
+msgstr "فحص دم شامل"
+
+msgctxt "model:gnuhealth.lab.test_type,name:gnuhealth_test_endocrinology0"
+msgid "ENDOCRINOLOGY"
+msgstr "الغدد الصماء"
+
+msgctxt "model:gnuhealth.lab.test_type,name:gnuhealth_test_haematology0"
+msgid "HAEMATOLOGY"
+msgstr "علم الدم"
+
+msgctxt "model:gnuhealth.lab.test_type,name:gnuhealth_test_liverfunctiontest0"
+msgid "LIVER FUNCTION TEST"
+msgstr "اختبار وظيفة الكبد"
+
+msgctxt ""
+"model:gnuhealth.lab.test_type,name:gnuhealth_test_peripheralsmearexamination0"
+msgid "PERIPHERAL SMEAR EXAMINATION"
+msgstr "الفحص المحيطي للذكاء الاصطناعي"
+
+msgctxt "model:gnuhealth.lab.test_type,name:gnuhealth_test_renalfunctiontest0"
+msgid "RENAL FUNCTION TEST"
+msgstr "اختبار وظائف الكلى"
+
+msgctxt "model:gnuhealth.lab.test_type,name:gnuhealth_test_semenanalysis0"
+msgid "SEMEN ANALYSIS"
+msgstr "تحليل سيمين"
+
+msgctxt "model:gnuhealth.lab.test_type,name:gnuhealth_test_stoolexamination0"
+msgid "STOOL EXAMINATION"
+msgstr "فحص البراز"
+
+msgctxt "model:gnuhealth.lab.test_type,name:gnuhealth_test_urineanalysis0"
+msgid "URINE ANALYSIS"
+msgstr "تحليل بول"
+
+msgctxt "model:gnuhealth.patient.lab.test,name:"
+msgid "Lab Test Request"
+msgstr "مريض إختبار معملي"
+
+msgctxt "model:gnuhealth.patient.lab.test.request.start,name:"
+msgid "Request Patient Lab Test Start"
+msgstr "طلب بدء إجراء فحص المريض"
+
+msgctxt "model:gnuhealth.request-test,name:"
+msgid "Request - Test"
+msgstr "طلب - اختبار"
+
+msgctxt "model:gnuhealth.sequences.lab_request_sequence,name:"
+msgid "Lab Request Sequence setup"
+msgstr "إعداد تسلسل طلب المختبر"
+
+msgctxt "model:gnuhealth.sequences.lab_test_sequence,name:"
+msgid "Lab Test Sequence setup"
+msgstr "إعداد تسلسل الاختبارات المعملية"
+
+msgctxt "model:ir.action,name:act_create_lab_test"
+msgid "Lab: Create test"
+msgstr "إنشاء فحص مختبر"
+
+msgctxt "model:ir.action,name:act_patient_lab_history_form1"
+msgid "Lab: Results"
+msgstr "تقارير مختبر"
+
+msgctxt "model:ir.action,name:gnuhealth_action_lab_test_request"
+msgid "Lab Test Requests"
+msgstr "طلب إجراء إختبار"
+
+msgctxt "model:ir.action,name:gnuhealth_action_lab_unit"
+msgid "Lab Test Units"
+msgstr "وحدات التحليل المخبري"
+
+msgctxt "model:ir.action,name:gnuhealth_action_list_test"
+msgid "Lab Test Types"
+msgstr "أنواع التحليل المخبري"
+
+msgctxt "model:ir.action,name:gnuhealth_action_tree_lab"
+msgid "Lab Results"
+msgstr "نتائج التحليل المخبري"
+
+msgctxt "model:ir.action,name:patient_lab_test_request"
+msgid "Lab: New order"
+msgstr "طلب فحص مختبر"
+
+msgctxt "model:ir.action,name:report_patient_labtest_report"
+msgid "Lab Report"
+msgstr "تقرير مختبر"
+
+msgctxt "model:ir.model.button,string:complete_criteareas_button"
+msgid "Load analytes criteria"
+msgstr ""
+
+msgctxt "model:ir.model.button,string:labtest_generate_button"
+msgid "Done"
+msgstr ""
+
+#, fuzzy
+msgctxt "model:ir.model.button,string:labtest_setdraft_button"
+msgid "Draft"
+msgstr "مسودة"
+
+msgctxt "model:ir.sequence,name:seq_gnuhealth_lab_request"
+msgid "Lab Request"
+msgstr "طلب معملي"
+
+msgctxt "model:ir.sequence,name:seq_gnuhealth_lab_test"
+msgid "Lab Test"
+msgstr "إختبار معملي"
+
+msgctxt "model:ir.sequence.type,name:seq_type_gnuhealth_lab_request"
+msgid "Lab Request"
+msgstr "طلب مختبر"
+
+msgctxt "model:ir.sequence.type,name:seq_type_gnuhealth_lab_test"
+msgid "Lab Test"
+msgstr "إختبار معملي"
+
+msgctxt "model:ir.ui.menu,name:gnuhealth_action_lab_tree"
+msgid "Lab Results"
+msgstr "نتائج الفحوصات المعملية"
+
+msgctxt "model:ir.ui.menu,name:gnuhealth_conf_laboratory"
+msgid "Laboratory"
+msgstr "مختبر"
+
+msgctxt "model:ir.ui.menu,name:gnuhealth_laboratory_menu"
+msgid "Laboratory"
+msgstr "مختبر"
+
+msgctxt "model:ir.ui.menu,name:gnuhealth_labtest_request"
+msgid "Lab Test Requests"
+msgstr "طلب إجراء إختبار"
+
+msgctxt "model:ir.ui.menu,name:gnuhealth_labtest_unit"
+msgid "Lab Test Units"
+msgstr "وحدات التحليل المخبري"
+
+msgctxt "model:ir.ui.menu,name:menu_gnuhealth_action_list_test"
+msgid "Lab Test Types"
+msgstr "أنواع التحليل المخبري"
+
+msgctxt "model:ir.ui.menu,name:menu_patient_lab_test_request"
+msgid "Lab: New order"
+msgstr "طلب فحص مختبر"
+
+msgctxt "model:product.category,name:product_category_labservices0"
+msgid "Lab Services"
+msgstr "خدمات المختبر"
+
+msgctxt "model:product.template,name:product_template_bloodcounttestcharges0"
+msgid "Complete Blood Count"
+msgstr ""
+
+msgctxt "model:product.template,name:product_template_endocrinology0"
+msgid "Endocrinology"
+msgstr "علم الغدد"
+
+#, fuzzy
+msgctxt "model:product.template,name:product_template_haematologycharges0"
+msgid "Haematology"
+msgstr "رسوم أمراض الدم"
+
+#, fuzzy
+msgctxt ""
+"model:product.template,name:product_template_liverfunctiontestcharges0"
+msgid "Liver Function"
+msgstr "رسوم اختبار وظائف الكبد"
+
+#, fuzzy
+msgctxt ""
+"model:product.template,name:product_template_peripheralsmearexaminationcharges0"
+msgid "Peripheral Smear Examination"
+msgstr "رسوم الدراسة المسحية الطرفية"
+
+#, fuzzy
+msgctxt ""
+"model:product.template,name:product_template_renalfunctiontestcharges0"
+msgid "Renal Function"
+msgstr "رد فعل"
+
+#, fuzzy
+msgctxt "model:product.template,name:product_template_semenanalysischarges0"
+msgid "Semen Analysis"
+msgstr "رسوم تحليل السائل المنوي"
+
+#, fuzzy
+msgctxt ""
+"model:product.template,name:product_template_stoolexaminationcharges0"
+msgid "Stool Examination"
+msgstr "رسوم فحص البراز"
+
+#, fuzzy
+msgctxt "model:product.template,name:product_template_urineanalysischarges0"
+msgid "Urine Analysis"
+msgstr "رسوم تحليل البول"
+
+msgctxt "model:res.group,name:group_health_lab"
+msgid "Health Lab"
+msgstr "المختبر الصحي"
+
+msgctxt "model:res.group,name:group_health_lab_admin"
+msgid "Health lab Administration"
+msgstr "الإدارة الصحية للمختبر"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Age:"
+msgstr "العمر:"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Analyte"
+msgstr "المادة المحللّة"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Comment"
+msgstr "تعليق"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Diagnosis:"
+msgstr "تشخيص:"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Gender:"
+msgstr "الجنس:"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Hosp. Unit:"
+msgstr ""
+
+msgctxt "report:patient.labtest.report:"
+msgid "Image"
+msgstr "صورة"
+
+msgctxt "report:patient.labtest.report:"
+msgid "LABORATORY REPORT"
+msgstr "تقرير المختبر"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Name:"
+msgstr "الاسم:"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Order Date:"
+msgstr ""
+
+msgctxt "report:patient.labtest.report:"
+msgid "Order:"
+msgstr "امر:"
+
+msgctxt "report:patient.labtest.report:"
+msgid "PUID:"
+msgstr "رقم المريض:"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Pathologist:"
+msgstr "أخصائي علم الأمراض:"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Reference"
+msgstr "المرجع"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Remarks"
+msgstr "ملاحظات"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Req. by:"
+msgstr ""
+
+msgctxt "report:patient.labtest.report:"
+msgid "Results"
+msgstr "النتائج"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Results:"
+msgstr "نتائج:"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Signature:"
+msgstr "إمضاء:"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Source:"
+msgstr "المصدر:"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Test Date:"
+msgstr ""
+
+msgctxt "report:patient.labtest.report:"
+msgid "Test:"
+msgstr "التحليل:"
+
+msgctxt "report:patient.labtest.report:"
+msgid "Unit"
+msgstr "وحدة"
+
+msgctxt "selection:gnuhealth.lab,source_type:"
+msgid "Other"
+msgstr "أخرى"
+
+msgctxt "selection:gnuhealth.lab,source_type:"
+msgid "Patient"
+msgstr "المريض"
+
+msgctxt "selection:gnuhealth.lab,state:"
+msgid "Done"
+msgstr ""
+
+#, fuzzy
+msgctxt "selection:gnuhealth.lab,state:"
+msgid "Draft"
+msgstr "مسودة"
+
+msgctxt "selection:gnuhealth.lab,state:"
+msgid "Validated"
+msgstr ""
+
+msgctxt "selection:gnuhealth.lab.test_type,category:"
+msgid "Biochemical Testing"
+msgstr "اختبار الكيمياء الحيوية"
+
+msgctxt "selection:gnuhealth.lab.test_type,category:"
+msgid "Body Fluid and Excreta Examination"
+msgstr "فحص سوائل الجسم والفضلات"
+
+msgctxt "selection:gnuhealth.lab.test_type,category:"
+msgid "Chromosome and Genetic Disease Detection"
+msgstr "الكشف عن الأمراض الكروموسومية والوراثية"
+
+msgctxt "selection:gnuhealth.lab.test_type,category:"
+msgid "Hematology Testing"
+msgstr "اختبار أمراض الدم"
+
+msgctxt "selection:gnuhealth.lab.test_type,category:"
+msgid "Immunological Testing"
+msgstr "الاختبارات المناعية"
+
+msgctxt "selection:gnuhealth.lab.test_type,category:"
+msgid "Microbiological Testing"
+msgstr "الاختبارات الميكروبيولوجية"
+
+msgctxt "selection:gnuhealth.lab.test_type,category:"
+msgid "Molecular Biology Testing"
+msgstr "اختبار البيولوجيا الجزيئية"
+
+msgctxt "selection:gnuhealth.lab.test_type,category:"
+msgid "Others"
+msgstr "الغير"
+
+msgctxt "selection:gnuhealth.lab.test_type,gender:"
+msgid "Female"
+msgstr "انثى"
+
+msgctxt "selection:gnuhealth.lab.test_type,gender:"
+msgid "Male"
+msgstr "ذكر"
+
+msgctxt "selection:gnuhealth.lab.test_type,report_style:"
+msgid "Do not show in report"
+msgstr "لا تظهر في التقرير"
+
+msgctxt "selection:gnuhealth.lab.test_type,report_style:"
+msgid "Do not use table"
+msgstr "لا تستخدم الجدول"
+
+msgctxt "selection:gnuhealth.lab.test_type,report_style:"
+msgid "Table with result and normal_range columns"
+msgstr "جدول يحتوي على أعمدة النتيجة وnormal_range"
+
+msgctxt "selection:gnuhealth.lab.test_type,report_style:"
+msgid "Table with result column"
+msgstr "الجدول مع عمود النتيجة"
+
+msgctxt "selection:gnuhealth.lab.test_type,report_style:"
+msgid "Table with result column (no header)"
+msgstr "جدول بعمود النتيجة (بدون رأس)"
+
+msgctxt "selection:gnuhealth.lab.test_type,report_style:"
+msgid "Table with result column and inline images (no header)"
+msgstr "جدول يحتوي على عمود النتيجة والصور المضمنة (بدون رأس)"
+
+msgctxt "selection:gnuhealth.lab.test_type,report_style:"
+msgid "Table with result, unit and normal_range columns"
+msgstr "جدول يحتوي على أعمدة النتيجة والوحدة والنطاق العادي"
+
+msgctxt "selection:gnuhealth.patient.lab.test,source_type:"
+msgid "Other"
+msgstr "أخرى"
+
+msgctxt "selection:gnuhealth.patient.lab.test,source_type:"
+msgid "Patient"
+msgstr "المريض"
+
+msgctxt "selection:gnuhealth.patient.lab.test,state:"
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgctxt "selection:gnuhealth.patient.lab.test,state:"
+msgid "Draft"
+msgstr "مسودة"
+
+msgctxt "selection:gnuhealth.patient.lab.test,state:"
+msgid "Ordered"
+msgstr "طلب"
+
+msgctxt "selection:gnuhealth.patient.lab.test,state:"
+msgid "Tested"
+msgstr "اختبرت"
+
+msgctxt "selection:gnuhealth.patient.lab.test.request.start,source_type:"
+msgid "Other"
+msgstr "أخرى"
+
+msgctxt "selection:gnuhealth.patient.lab.test.request.start,source_type:"
+msgid "Patient"
+msgstr "المريض"
+
+msgctxt "view:gnuhealth.lab.test.create.init:"
+msgid "Create Tests"
+msgstr "إنشاء الاختبارات"
+
+msgctxt "view:gnuhealth.lab.test.create.init:"
+msgid "Do you want to generate the test(s) ?"
+msgstr "هل تريد إنشاء الاختبار (الاختبارات)؟"
+
+msgctxt "view:gnuhealth.lab.test.critearea:"
+msgid "Excl"
+msgstr ""
+
+msgctxt "view:gnuhealth.lab.test.critearea:"
+msgid "Reference Value / Range"
+msgstr "القيمة المرجعية/النطاق"
+
+msgctxt "view:gnuhealth.lab.test_type:"
+msgid "Age range:"
+msgstr "الفئة العمرية:"
+
+msgctxt "view:gnuhealth.lab.test_type:"
+msgid "Extra Info"
+msgstr "معلومات اضافيه"
+
+msgctxt "view:gnuhealth.lab.test_type:"
+msgid "Main Info"
+msgstr "المعلومات الاساسيه"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Are the results ready ?"
+msgstr ""
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Diagnosis"
+msgstr "تشخيص"
+
+#, fuzzy
+msgctxt "view:gnuhealth.lab:"
+msgid ""
+"Do your want to fill in the analytes criteria with this test type template?"
+msgstr "هل تريد إكمال المجالات المعيارية لنوع الاختبار الحالي؟"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Done"
+msgstr ""
+
+#, fuzzy
+msgctxt "view:gnuhealth.lab:"
+msgid "Draft"
+msgstr "مسودة"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Extra Info"
+msgstr "معلومات اضافيه"
+
+#, fuzzy
+msgctxt "view:gnuhealth.lab:"
+msgid "Fill the criteria for current test type analytes"
+msgstr "المجالات المعيارية الكاملة لنوع الاختبار الحالي."
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Images"
+msgstr "الصور"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Load analytes criteria"
+msgstr ""
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Main Info"
+msgstr "المعلومات الاساسيه"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Notes"
+msgstr "ملاحظات"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Reverse the document to draft state."
+msgstr ""
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Set to Draft ?"
+msgstr ""
+
+#, fuzzy
+msgctxt "view:gnuhealth.lab:"
+msgid "Signatures"
+msgstr "إمضاء:"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "The lab test is done and results are waiting to be validated"
+msgstr ""
+
+msgctxt "view:gnuhealth.patient.disease:"
+msgid "Laboratory"
+msgstr "مختبر"
+
+msgctxt "wizard_button:gnuhealth.lab.test.create,start,create_lab_test:"
+msgid "Create Test Order"
+msgstr "إنشاء طلب فحص"
+
+msgctxt "wizard_button:gnuhealth.lab.test.create,start,end:"
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgctxt "wizard_button:gnuhealth.patient.lab.test.request,start,end:"
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgctxt "wizard_button:gnuhealth.patient.lab.test.request,start,request:"
+msgid "Request"
+msgstr "طلب"

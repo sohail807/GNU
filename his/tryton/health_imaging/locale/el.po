@@ -1,0 +1,540 @@
+#
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-11-09 20:42+0000\n"
+"Last-Translator: iosifidis <iosifidis@noreply.codeberg.org>\n"
+"Language-Team: Greek <https://translate.codeberg.org/projects/gnuhealth/health_imaging/el/>\n"
+"Language: el\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14\n"
+
+msgctxt "field:gnuhealth.imaging.test,active:"
+msgid "Active"
+msgstr "Ενεργό"
+
+msgctxt "field:gnuhealth.imaging.test,code:"
+msgid "Code"
+msgstr "Κωδικός"
+
+msgctxt "field:gnuhealth.imaging.test,name:"
+msgid "Name"
+msgstr "Όνομα"
+
+msgctxt "field:gnuhealth.imaging.test,product:"
+msgid "Product"
+msgstr "Προϊόν"
+
+msgctxt "field:gnuhealth.imaging.test,test_type:"
+msgid "Type"
+msgstr "Τύπος"
+
+msgctxt "field:gnuhealth.imaging.test.request,comment:"
+msgid "Additional Information"
+msgstr "Πρόσθετες Πληροφορίες"
+
+msgctxt "field:gnuhealth.imaging.test.request,context:"
+msgid "Context"
+msgstr "Πλαίσιο"
+
+msgctxt "field:gnuhealth.imaging.test.request,date:"
+msgid "Date"
+msgstr "Ημερομηνία"
+
+msgctxt "field:gnuhealth.imaging.test.request,doctor:"
+msgid "Health Prof"
+msgstr "Επαγγ. Υγείας"
+
+msgctxt "field:gnuhealth.imaging.test.request,patient:"
+msgid "Patient"
+msgstr "Ασθενής"
+
+msgctxt "field:gnuhealth.imaging.test.request,request:"
+msgid "Order"
+msgstr "Παραγγελία"
+
+msgctxt "field:gnuhealth.imaging.test.request,request_line:"
+msgid "Order line"
+msgstr "Γραμμή παραγγελίας"
+
+msgctxt "field:gnuhealth.imaging.test.request,requested_test:"
+msgid "Study"
+msgstr "Μελέτη"
+
+msgctxt "field:gnuhealth.imaging.test.request,state:"
+msgid "State"
+msgstr "Κατάσταση"
+
+msgctxt "field:gnuhealth.imaging.test.request,urgent:"
+msgid "Urgent"
+msgstr "Επείγον"
+
+msgctxt "field:gnuhealth.imaging.test.result,comment:"
+msgid "Additional Information"
+msgstr "Πρόσθετες Πληροφορίες"
+
+msgctxt "field:gnuhealth.imaging.test.result,computed_age:"
+msgid "Age"
+msgstr "Ηλικία"
+
+msgctxt "field:gnuhealth.imaging.test.result,date:"
+msgid "Date"
+msgstr "Ημερομηνία"
+
+msgctxt "field:gnuhealth.imaging.test.result,doctor:"
+msgid "Evaluated by"
+msgstr "Αξιολογήθηκε από"
+
+msgctxt "field:gnuhealth.imaging.test.result,images:"
+msgid "Images"
+msgstr "Εικόνες"
+
+msgctxt "field:gnuhealth.imaging.test.result,number:"
+msgid "Number"
+msgstr "Αριθμός"
+
+msgctxt "field:gnuhealth.imaging.test.result,order:"
+msgid "Order"
+msgstr "Παραγγελία"
+
+msgctxt "field:gnuhealth.imaging.test.result,patient:"
+msgid "Patient"
+msgstr "Ασθενής"
+
+msgctxt "field:gnuhealth.imaging.test.result,report_style:"
+msgid "Report Style"
+msgstr "Στυλ Αναφοράς"
+
+msgctxt "field:gnuhealth.imaging.test.result,request:"
+msgid "Request Info"
+msgstr "Πληροφορίες Αιτήματος"
+
+msgctxt "field:gnuhealth.imaging.test.result,request_date:"
+msgid "Request Date"
+msgstr "Ημερομηνία Αιτήματος"
+
+msgctxt "field:gnuhealth.imaging.test.result,requested_test:"
+msgid "Study"
+msgstr "Μελέτη"
+
+msgctxt "field:gnuhealth.imaging.test.type,code:"
+msgid "Code"
+msgstr "Κωδικός"
+
+msgctxt "field:gnuhealth.imaging.test.type,name:"
+msgid "Name"
+msgstr "Όνομα"
+
+msgctxt "field:gnuhealth.patient.imaging.test.request.start,context:"
+msgid "Context"
+msgstr "Πλαίσιο"
+
+msgctxt "field:gnuhealth.patient.imaging.test.request.start,date:"
+msgid "Date"
+msgstr "Ημερομηνία"
+
+msgctxt "field:gnuhealth.patient.imaging.test.request.start,doctor:"
+msgid "Health Prof"
+msgstr "Επαγγ. Υγείας"
+
+msgctxt "field:gnuhealth.patient.imaging.test.request.start,patient:"
+msgid "Patient"
+msgstr "Ασθενής"
+
+msgctxt "field:gnuhealth.patient.imaging.test.request.start,tests:"
+msgid "Tests"
+msgstr "Εξετάσεις"
+
+msgctxt "field:gnuhealth.patient.imaging.test.request.start,urgent:"
+msgid "Urgent"
+msgstr "Επείγον"
+
+msgctxt "field:gnuhealth.request-imaging-test,request:"
+msgid "Request"
+msgstr "Αίτημα"
+
+msgctxt "field:gnuhealth.request-imaging-test,test:"
+msgid "Study"
+msgstr "Μελέτη"
+
+msgctxt "field:gnuhealth.sequences,imaging_req_seq:"
+msgid "Imaging Request Sequence"
+msgstr "Ακολουθία Αιτήματος Απεικόνισης"
+
+msgctxt "field:gnuhealth.sequences,imaging_test_sequence:"
+msgid "Imaging Sequence"
+msgstr "Ακολουθία Απεικόνισης"
+
+msgctxt "field:gnuhealth.sequences.imaging_req_seq,imaging_req_seq:"
+msgid "Imaging Request Sequence"
+msgstr "Ακολουθία Αιτήματος Απεικόνισης"
+
+msgctxt ""
+"field:gnuhealth.sequences.imaging_test_sequence,imaging_test_sequence:"
+msgid "Imaging Sequence"
+msgstr "Ακολουθία Απεικόνισης"
+
+msgctxt "help:gnuhealth.imaging.test.request,context:"
+msgid ""
+"Health context for this order. It can be a suspected or existing health "
+"condition, a regular health checkup, ..."
+msgstr ""
+"Πλαίσιο υγείας για αυτήν την παραγγελία. Μπορεί να είναι μια ύποπτη ή "
+"υπάρχουσα πάθηση, ένας τακτικός έλεγχος υγείας, ..."
+
+msgctxt "help:gnuhealth.imaging.test.result,computed_age:"
+msgid "Computed patient age at the moment of the evaluation"
+msgstr "Υπολογισμένη ηλικία ασθενούς κατά τη στιγμή της αξιολόγησης"
+
+msgctxt "help:gnuhealth.imaging.test.result,order:"
+msgid "The order ID containing this particular imaging study"
+msgstr ""
+"Το αναγνωριστικό της παραγγελίας που περιέχει αυτή τη συγκεκριμένη "
+"απεικονιστική μελέτη"
+
+msgctxt "help:gnuhealth.imaging.test.type,code:"
+msgid "Suggest use values of DICOM Modality (0008,0060) tag."
+msgstr "Προτείνεται η χρήση τιμών της ετικέτας DICOM Modality (0008,0060)."
+
+msgctxt "help:gnuhealth.imaging.test.type,name:"
+msgid "Suggest use descriptions of DICOM Modality (0008,0060) tag."
+msgstr ""
+"Προτείνεται η χρήση περιγραφών της ετικέτας DICOM Modality (0008,0060)."
+
+msgctxt "help:gnuhealth.patient.imaging.test.request.start,context:"
+msgid ""
+"Health context for this order. It can be a suspected or existing health "
+"condition, a regular health checkup, ..."
+msgstr ""
+"Πλαίσιο υγείας για αυτήν την παραγγελία. Μπορεί να είναι μια ύποπτη ή "
+"υπάρχουσα πάθηση, ένας τακτικός έλεγχος υγείας, ..."
+
+msgctxt "help:gnuhealth.patient.imaging.test.request.start,doctor:"
+msgid "Health professionalwho requests the study."
+msgstr "Επαγγελματίας υγείας που ζητά τη μελέτη."
+
+msgctxt "model:gnuhealth.imaging.test,name:"
+msgid "Medical Imaging Study"
+msgstr "Ιατρική Απεικονιστική Μελέτη"
+
+msgctxt "model:gnuhealth.imaging.test.request,name:"
+msgid "Medical Imaging Study Request"
+msgstr "Αίτημα Ιατρικής Απεικονιστικής Μελέτης"
+
+msgctxt "model:gnuhealth.imaging.test.result,name:"
+msgid "Medical Imaging Study Result"
+msgstr "Αποτέλεσμα Ιατρικής Απεικονιστικής Μελέτης"
+
+msgctxt "model:gnuhealth.imaging.test.type,name:"
+msgid "Medical Imaging Study Type"
+msgstr "Τύπος Ιατρικής Απεικονιστικής Μελέτης"
+
+msgctxt "model:gnuhealth.imaging.test.type,name:gnuhealth_test_type_cr"
+msgid "Computed Radiography"
+msgstr "Υπολογιστική Ακτινογραφία"
+
+msgctxt "model:gnuhealth.imaging.test.type,name:gnuhealth_test_type_ctscan"
+msgid "Computed Tomography"
+msgstr "Αξονική Τομογραφία"
+
+msgctxt "model:gnuhealth.imaging.test.type,name:gnuhealth_test_type_dx"
+msgid "Digital Radiography"
+msgstr "Ψηφιακή Ακτινογραφία"
+
+msgctxt "model:gnuhealth.imaging.test.type,name:gnuhealth_test_type_mri"
+msgid "Magnetic Resonance"
+msgstr "Μαγνητικός Συντονισμός"
+
+msgctxt "model:gnuhealth.imaging.test.type,name:gnuhealth_test_type_petscan"
+msgid "Positron emission tomography (PET)"
+msgstr "Τομογραφία εκπομπής ποζιτρονίων (PET)"
+
+msgctxt ""
+"model:gnuhealth.imaging.test.type,name:gnuhealth_test_type_ultrasound"
+msgid "Ultrasound"
+msgstr "Υπερηχογράφημα"
+
+msgctxt "model:gnuhealth.imaging.test.type,name:gnuhealth_test_type_xa"
+msgid "X-Ray Angiography"
+msgstr "Αγγειογραφία με ακτίνες Χ"
+
+msgctxt "model:gnuhealth.imaging.test.type,name:gnuhealth_test_type_xray"
+msgid "X-ray"
+msgstr "Ακτινογραφία"
+
+msgctxt "model:gnuhealth.patient.imaging.test.request.start,name:"
+msgid "Request Patient Imaging Test Start"
+msgstr "Έναρξη Αιτήματος Απεικονιστικής Εξέτασης Ασθενούς"
+
+msgctxt "model:gnuhealth.request-imaging-test,name:"
+msgid "Request - Test"
+msgstr "Αίτημα - Εξέταση"
+
+msgctxt "model:gnuhealth.sequences.imaging_req_seq,name:"
+msgid "Imaging Request Sequence setup"
+msgstr "Ρύθμιση Ακολουθίας Αιτήματος Απεικόνισης"
+
+msgctxt "model:gnuhealth.sequences.imaging_test_sequence,name:"
+msgid "Imaging Test Sequence setup"
+msgstr "Ρύθμιση Ακολουθίας Εξέτασης Απεικόνισης"
+
+msgctxt "model:ir.action,name:act_imaging_test_request_view"
+msgid "Medical Imaging Requests"
+msgstr "Αιτήματα Ιατρικής Απεικόνισης"
+
+msgctxt "model:ir.action,name:act_imaging_test_request_view2"
+msgid "Medical Imaging Requests"
+msgstr "Αιτήματα Ιατρικής Απεικόνισης"
+
+msgctxt "model:ir.action,name:act_imaging_test_result_view"
+msgid "Medical Imaging Results"
+msgstr "Αποτελέσματα Ιατρικής Απεικόνισης"
+
+msgctxt "model:ir.action,name:act_imaging_test_result_view2"
+msgid "Medical Imaging Results"
+msgstr "Αποτελέσματα Ιατρικής Απεικόνισης"
+
+msgctxt "model:ir.action,name:act_imaging_test_type_view"
+msgid "Medical Imaging Types"
+msgstr "Τύποι Ιατρικής Απεικόνισης"
+
+msgctxt "model:ir.action,name:act_imaging_test_view"
+msgid "Medical Imaging Studies"
+msgstr "Ιατρικές Απεικονιστικές Μελέτες"
+
+msgctxt "model:ir.action,name:imaging_result_report"
+msgid "Medical Imaging Study"
+msgstr "Ιατρική Απεικονιστική Μελέτη"
+
+msgctxt "model:ir.action,name:patient_imaging_test_request"
+msgid "Medical Imaging - New order"
+msgstr "Ιατρική Απεικόνιση - Νέα παραγγελία"
+
+msgctxt "model:ir.action,name:wizard_generate_result"
+msgid "Medical Imaging - Generate Result"
+msgstr "Ιατρική Απεικόνιση - Δημιουργία Αποτελέσματος"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_imaging_test_request_domain_all"
+msgid "All"
+msgstr "Όλα"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_imaging_test_request_domain_done"
+msgid "Done"
+msgstr "Ολοκληρωμένα"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_imaging_test_request_domain_draft"
+msgid "Draft"
+msgstr "Πρόχειρα"
+
+msgctxt ""
+"model:ir.action.act_window.domain,name:act_imaging_test_request_domain_requested"
+msgid "Requested"
+msgstr "Αιτηθέντα"
+
+msgctxt "model:ir.model.button,string:image_generateresults_button"
+msgid "Generate Results"
+msgstr "Δημιουργία Αποτελεσμάτων"
+
+msgctxt "model:ir.model.button,string:image_request_button"
+msgid "Request"
+msgstr "Αίτημα"
+
+msgctxt "model:ir.sequence,name:seq_gnuhealth_imaging_test"
+msgid "Imaging Test"
+msgstr "Απεικονιστική Εξέταση"
+
+msgctxt "model:ir.sequence,name:seq_gnuhealth_imaging_test_request"
+msgid "Imaging Test Request"
+msgstr "Αίτημα Απεικονιστικής Εξέτασης"
+
+msgctxt "model:ir.sequence.type,name:seq_type_gnuhealth_imaging_test"
+msgid "Imaging Test"
+msgstr "Απεικονιστική Εξέταση"
+
+msgctxt "model:ir.sequence.type,name:seq_type_gnuhealth_imaging_test_request"
+msgid "Imaging Test Request"
+msgstr "Αίτημα Απεικονιστικής Εξέτασης"
+
+msgctxt "model:ir.ui.menu,name:menu_imaging"
+msgid "Medical Imaging"
+msgstr "Ιατρική Απεικόνιση"
+
+msgctxt "model:ir.ui.menu,name:menu_imaging_test_parent"
+msgid "Medical Imaging"
+msgstr "Ιατρική Απεικόνιση"
+
+msgctxt "model:ir.ui.menu,name:menu_imaging_test_request_view"
+msgid "Medical Imaging Requests"
+msgstr "Αιτήματα Ιατρικής Απεικόνισης"
+
+msgctxt "model:ir.ui.menu,name:menu_imaging_test_result_view"
+msgid "Medical Imaging Results"
+msgstr "Αποτελέσματα Ιατρικής Απεικόνισης"
+
+msgctxt "model:ir.ui.menu,name:menu_imaging_test_type"
+msgid "Medical Imaging Types"
+msgstr "Τύποι Ιατρικής Απεικόνισης"
+
+msgctxt "model:ir.ui.menu,name:menu_imaging_test_view"
+msgid "Medical Imaging Studies"
+msgstr "Ιατρικές Απεικονιστικές Μελέτες"
+
+msgctxt "model:ir.ui.menu,name:menu_patient_imaging_test_request"
+msgid "Medical Imaging - New order"
+msgstr "Ιατρική Απεικόνιση - Νέα παραγγελία"
+
+msgctxt "model:product.category,name:product_category_imagingservices"
+msgid "Imaging Services"
+msgstr "Υπηρεσίες Απεικόνισης"
+
+msgctxt "model:product.template,name:product_template_ctscancharges"
+msgid "CT Scan charges"
+msgstr "Χρεώσεις Αξονικής Τομογραφίας"
+
+msgctxt "model:product.template,name:product_template_mricharges"
+msgid "MRI charges"
+msgstr "Χρεώσεις Μαγνητικής Τομογραφίας"
+
+msgctxt "model:product.template,name:product_template_petscancharges"
+msgid "PET Scan charges"
+msgstr "Χρεώσεις PET Scan"
+
+msgctxt "model:product.template,name:product_template_ultrasoundcharges"
+msgid "Ultrasound charges"
+msgstr "Χρεώσεις Υπερήχου"
+
+msgctxt "model:product.template,name:product_template_xraycharges"
+msgid "X-ray charges"
+msgstr "Χρεώσεις Ακτινογραφίας"
+
+msgctxt "model:res.group,name:group_health_imaging"
+msgid "Health Imaging"
+msgstr "Απεικόνιση Υγείας"
+
+msgctxt "model:res.group,name:group_health_imaging_admin"
+msgid "Health Imaging Administration"
+msgstr "Διαχείριση Απεικόνισης Υγείας"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Age:"
+msgstr "Ηλικία:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Comment"
+msgstr "Σχόλιο"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Context:"
+msgstr "Πλαίσιο:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Date:"
+msgstr "Ημερομηνία:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "DoB:"
+msgstr "Ημ. Γέν.:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Evaluated by:"
+msgstr "Αξιολογήθηκε από:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Gender:"
+msgstr "Φύλο:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Image"
+msgstr "Εικόνα"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Imaging Study Report"
+msgstr "Αναφορά Απεικονιστικής Μελέτης"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Interpretation:"
+msgstr "Ερμηνεία:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Order:"
+msgstr "Παραγγελία:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "PUID:"
+msgstr "PUID:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Patient:"
+msgstr "Ασθενής:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Print Date:"
+msgstr "Ημερομηνία Εκτύπωσης:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Requested by:"
+msgstr "Αίτηση από:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Resources:"
+msgstr "Πόροι:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Study ID:"
+msgstr "Αναγν. Μελέτης:"
+
+msgctxt "report:patient.imaging_report_results:"
+msgid "Study:"
+msgstr "Μελέτη:"
+
+msgctxt "selection:gnuhealth.imaging.test.request,state:"
+msgid "Done"
+msgstr "Ολοκληρωμένο"
+
+msgctxt "selection:gnuhealth.imaging.test.request,state:"
+msgid "Draft"
+msgstr "Πρόχειρο"
+
+msgctxt "selection:gnuhealth.imaging.test.request,state:"
+msgid "Requested"
+msgstr "Αιτηθέν"
+
+msgctxt "selection:gnuhealth.imaging.test.result,report_style:"
+msgid "Default"
+msgstr "Προεπιλογή"
+
+msgctxt "selection:gnuhealth.imaging.test.result,report_style:"
+msgid "No Image Comments"
+msgstr "Χωρίς Σχόλια Εικόνας"
+
+msgctxt "selection:gnuhealth.imaging.test.result,report_style:"
+msgid "No Images"
+msgstr "Χωρίς Εικόνες"
+
+msgctxt "view:gnuhealth.imaging.test.request:"
+msgid "Generate Results"
+msgstr "Δημιουργία Αποτελεσμάτων"
+
+msgctxt "view:gnuhealth.imaging.test.request:"
+msgid "Request"
+msgstr "Αίτημα"
+
+msgctxt "view:gnuhealth.imaging.test.result:"
+msgid "Images"
+msgstr "Εικόνες"
+
+msgctxt "view:gnuhealth.imaging.test.result:"
+msgid "Interpretation / Report"
+msgstr "Ερμηνεία / Αναφορά"
+
+msgctxt "wizard_button:gnuhealth.patient.imaging.test.request,start,end:"
+msgid "Cancel"
+msgstr "Ακύρωση"
+
+msgctxt "wizard_button:gnuhealth.patient.imaging.test.request,start,request:"
+msgid "Request"
+msgstr "Αίτημα"

@@ -1,0 +1,335 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "model:ir.action,name:report_patient_evaluation"
+msgid "Patient Evaluation and History"
+msgstr "تقييم المريض والتاريخ"
+
+msgctxt "report:patient.evaluation:"
+msgid "(Sys / dias)"
+msgstr "نظام / تشخيص"
+
+msgctxt "report:patient.evaluation:"
+msgid ","
+msgstr ","
+
+msgctxt "report:patient.evaluation:"
+msgid "/"
+msgstr "/"
+
+msgctxt "report:patient.evaluation:"
+msgid "/ 15"
+msgstr "/ 15"
+
+msgctxt "report:patient.evaluation:"
+msgid "/ 4"
+msgstr "/ 4"
+
+msgctxt "report:patient.evaluation:"
+msgid "/ 5"
+msgstr "/ 5"
+
+msgctxt "report:patient.evaluation:"
+msgid "/ 6"
+msgstr "/ 6"
+
+msgctxt "report:patient.evaluation:"
+msgid "Active"
+msgstr "نشيط"
+
+msgctxt "report:patient.evaluation:"
+msgid "Age:"
+msgstr "العمر:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Anthropometry"
+msgstr "القياسات البشرية"
+
+msgctxt "report:patient.evaluation:"
+msgid "BMI:"
+msgstr "مؤشر كتلة الجسم:"
+
+msgctxt "report:patient.evaluation:"
+msgid "BP"
+msgstr "BP"
+
+msgctxt "report:patient.evaluation:"
+msgid "Care Plan"
+msgstr "خطة العلاج"
+
+msgctxt "report:patient.evaluation:"
+msgid "Chief Complaint"
+msgstr "الشكوى الرئيسية"
+
+msgctxt "report:patient.evaluation:"
+msgid "Clinical and Physical examination"
+msgstr "الفحص السريري والبدني"
+
+msgctxt "report:patient.evaluation:"
+msgid "Clinical finding"
+msgstr "النتائج السريرية"
+
+msgctxt "report:patient.evaluation:"
+msgid "Code:"
+msgstr "الرمز:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Comments"
+msgstr "مذكره"
+
+#, fuzzy
+msgctxt "report:patient.evaluation:"
+msgid "Critical information"
+msgstr "معلومات العائلة"
+
+msgctxt "report:patient.evaluation:"
+msgid "Date"
+msgstr "تاريخ"
+
+msgctxt "report:patient.evaluation:"
+msgid "Date:"
+msgstr "التاريخ:"
+
+#, fuzzy
+msgctxt "report:patient.evaluation:"
+msgid "Digital Signature"
+msgstr "تقييم التوقيع الرقمي"
+
+msgctxt "report:patient.evaluation:"
+msgid "Discharge Reason"
+msgstr "سبب الخروج"
+
+#, fuzzy
+msgctxt "report:patient.evaluation:"
+msgid "Disease"
+msgstr "امراض"
+
+msgctxt "report:patient.evaluation:"
+msgid "Diseases"
+msgstr "امراض"
+
+msgctxt "report:patient.evaluation:"
+msgid "DoB:"
+msgstr "تاريخ الميلاد:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Dose"
+msgstr "الجرعة"
+
+msgctxt "report:patient.evaluation:"
+msgid "Dx date or estimated age"
+msgstr ""
+
+msgctxt "report:patient.evaluation:"
+msgid "Educational Level:"
+msgstr "درجة التعلم:"
+
+msgctxt "report:patient.evaluation:"
+msgid "End"
+msgstr "انهاء"
+
+msgctxt "report:patient.evaluation:"
+msgid "Ethnicity:"
+msgstr "عِرق:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Eyes"
+msgstr "عيون"
+
+#, fuzzy
+msgctxt "report:patient.evaluation:"
+msgid "Family History"
+msgstr "التاريخ الشخصي"
+
+msgctxt "report:patient.evaluation:"
+msgid "Gender:"
+msgstr "الجنس:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Genetics"
+msgstr ""
+
+msgctxt "report:patient.evaluation:"
+msgid "Heart Rate"
+msgstr "معدل نبضات القلب"
+
+msgctxt "report:patient.evaluation:"
+msgid "Height:"
+msgstr "الطول:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Hip:"
+msgstr "الورك:"
+
+msgctxt "report:patient.evaluation:"
+msgid "History of Present Illness"
+msgstr "تاريخ المرض الحالي"
+
+msgctxt "report:patient.evaluation:"
+msgid "Housing conditions:"
+msgstr "الحالة المنزلية:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Immunizations"
+msgstr "اللقاحات"
+
+msgctxt "report:patient.evaluation:"
+msgid "Indication"
+msgstr "مؤشرات"
+
+msgctxt "report:patient.evaluation:"
+msgid "Information Source:"
+msgstr "مصدر المعلومات:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Information about the Diagnosis"
+msgstr "معلومات حول التشخيص"
+
+msgctxt "report:patient.evaluation:"
+msgid "Initiated by:"
+msgstr "منشأ من قبل:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Level of Conciousness / Glasgow Scale"
+msgstr "مستوى الوعي / مقياس جلاسكو"
+
+msgctxt "report:patient.evaluation:"
+msgid "Lifestyle"
+msgstr "نمط الحياة"
+
+msgctxt "report:patient.evaluation:"
+msgid "Marital Status:"
+msgstr "الحالة الاجتماعية:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Medicament"
+msgstr "دواء"
+
+msgctxt "report:patient.evaluation:"
+msgid "Medication History"
+msgstr "التاريخ الدوائي"
+
+msgctxt "report:patient.evaluation:"
+msgid "Motor"
+msgstr "المحركات"
+
+msgctxt "report:patient.evaluation:"
+msgid "Next Dose"
+msgstr "الجرعة التالية"
+
+msgctxt "report:patient.evaluation:"
+msgid "OSAT"
+msgstr "-OSAT-"
+
+msgctxt "report:patient.evaluation:"
+msgid "Observations"
+msgstr "ملاحظات"
+
+#, fuzzy
+msgctxt "report:patient.evaluation:"
+msgid "Occupation"
+msgstr "الوظيفة:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Onset:"
+msgstr ""
+
+msgctxt "report:patient.evaluation:"
+msgid "Other Hypotheses / DDx"
+msgstr "فرضيات أخرى / DDx"
+
+msgctxt "report:patient.evaluation:"
+msgid "PUID:"
+msgstr "رقم المريض:"
+
+#, fuzzy
+msgctxt "report:patient.evaluation:"
+msgid "Patient Evaluation & History"
+msgstr "تقييم المريض والتاريخ"
+
+msgctxt "report:patient.evaluation:"
+msgid "Patient:"
+msgstr "المريض:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Presumptive Diagnosis"
+msgstr "التشخيص الظني"
+
+msgctxt "report:patient.evaluation:"
+msgid "Print Date:"
+msgstr "تاريخ الطباعة:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Reliability:"
+msgstr "الاعتمادية:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Remarks"
+msgstr "ملاحظات"
+
+msgctxt "report:patient.evaluation:"
+msgid "Resp Rate"
+msgstr "معدل الاستجابة"
+
+#, fuzzy
+msgctxt "report:patient.evaluation:"
+msgid "Severity:"
+msgstr "خطورة"
+
+msgctxt "report:patient.evaluation:"
+msgid "Signs and Symptoms"
+msgstr "العلامات والأعراض"
+
+msgctxt "report:patient.evaluation:"
+msgid "Socioeconomics"
+msgstr "علم الاجتماع"
+
+msgctxt "report:patient.evaluation:"
+msgid "Start"
+msgstr "بدء"
+
+#, fuzzy
+msgctxt "report:patient.evaluation:"
+msgid "Status:"
+msgstr "الوضع"
+
+msgctxt "report:patient.evaluation:"
+msgid "Surgeries"
+msgstr "العمليات الجراحية"
+
+msgctxt "report:patient.evaluation:"
+msgid "Temperature"
+msgstr "درجة الحرارة"
+
+msgctxt "report:patient.evaluation:"
+msgid "Total Glasgow"
+msgstr "إجمالي غلاسكو"
+
+msgctxt "report:patient.evaluation:"
+msgid "Type"
+msgstr "نوع"
+
+msgctxt "report:patient.evaluation:"
+msgid "Vaccine"
+msgstr "لقاح"
+
+msgctxt "report:patient.evaluation:"
+msgid "Verbal"
+msgstr "شفهية او اللفظية"
+
+msgctxt "report:patient.evaluation:"
+msgid "Vital Signs"
+msgstr "المؤشرات الحيويه"
+
+msgctxt "report:patient.evaluation:"
+msgid "WHR:"
+msgstr "حقوق الموارد البشرية:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Waist:"
+msgstr "الخصر:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Weight:"
+msgstr "الوزن:"

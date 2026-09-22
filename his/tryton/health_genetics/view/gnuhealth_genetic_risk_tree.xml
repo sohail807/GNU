@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<!--
+SPDX-FileCopyrightText: 2008-2026 Luis Falcón <falcon@gnuhealth.org>
+SPDX-FileCopyrightText: 2011-2026 GNU Solidario <health@gnusolidario.org>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
+<tree editable="1">
+    <field name="patient"/>
+    <field name="disease_gene" expand="1"/>
+    <field name="natural_variant" expand="1"/>
+    <field name="zygosity" expand="1"/>
+    <field name="variant_phenotype" expand="1"/>
+    <field name="onset" expand="1"/>
+    <field name="notes" expand="1"/>
+    <field name="healthprof" tree_invisible="1"/>
+    <field name="institution" tree_invisible="1"/>    
+</tree>

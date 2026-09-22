@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<!--
+SPDX-FileCopyrightText: 2008-2026 Luis Falcón <falcon@gnuhealth.org>
+SPDX-FileCopyrightText: 2011-2026 GNU Solidario <health@gnusolidario.org>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
+<tryton>
+    <data>
+    <!-- Add Tab with the Serialized information about the prescription -->
+
+        <record model="ir.ui.view" id="view_lab_form">
+            <field name="model">gnuhealth.lab</field>
+            <field name="inherit" ref="health_lab.gnuhealth_lab_view"/>
+            <field name="name">gnuhealth_lab_form</field>
+        </record>
+
+
+        <record model="ir.model.button" id="labtest_sign_button">
+            <field name="name">sign_document</field>
+            <field name="string">Validate</field>
+            <field name="model" search="[('model', '=', 'gnuhealth.lab')]"/>
+        </record>
+
+    </data>
+</tryton>

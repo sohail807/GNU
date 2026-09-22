@@ -1,0 +1,191 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:gnuhealth.appointment,barcode:"
+msgid "Code39"
+msgstr "الرمز39"
+
+msgctxt "field:gnuhealth.appointment,qr:"
+msgid "QR Code"
+msgstr "رمز QR"
+
+msgctxt "field:gnuhealth.lab,bar:"
+msgid "Bar Code39"
+msgstr "باركود39"
+
+msgctxt "field:gnuhealth.lab,qr:"
+msgid "QR Code"
+msgstr "رمز QR"
+
+msgctxt "field:gnuhealth.newborn,qr:"
+msgid "QR Code"
+msgstr "رمز QR"
+
+msgctxt "field:gnuhealth.patient,barcode:"
+msgid "Code39"
+msgstr "الرمز39"
+
+msgctxt "field:gnuhealth.patient,qr:"
+msgid "QR Code"
+msgstr "رمز QR"
+
+msgctxt "field:party.party,barcode:"
+msgid "Code39"
+msgstr "الرمز39"
+
+msgctxt "model:ir.action,name:report_appointment_qrcode"
+msgid "Appointment QRCODE"
+msgstr "رمز QR للموعد"
+
+msgctxt "model:ir.action,name:report_labtest_barcode39"
+msgid "Code39 barcode label"
+msgstr "عنوان رمز باركود39"
+
+msgctxt "model:ir.action,name:report_labtest_qrcode"
+msgid "Test Labels"
+msgstr "عناوين الفحوصات"
+
+msgctxt "model:ir.action,name:report_newborn_qrcard"
+msgid "Newborn ID - QR"
+msgstr "معرف المولود - QR"
+
+msgctxt "model:ir.action,name:report_party_wristband"
+msgid "Wristbands"
+msgstr "السوارات اليدوية"
+
+msgctxt "model:ir.action,name:report_patient_qrcard"
+msgid "ID Cards - QR"
+msgstr "بطاقات الهوية - QR"
+
+msgctxt "model:ir.action,name:report_patient_wristband"
+msgid "Wristbands"
+msgstr "السوارات اليدوية"
+
+msgctxt "report:appointment.qrcodel:"
+msgid "APPT ID:"
+msgstr "رقم الموعد:"
+
+msgctxt "report:appointment.qrcodel:"
+msgid "Appointment Receipt"
+msgstr "إيصال الموعد"
+
+msgctxt "report:appointment.qrcodel:"
+msgid "Date:"
+msgstr "التاريخ:"
+
+msgctxt "report:appointment.qrcodel:"
+msgid "Extra Info:"
+msgstr "معلومات اضافية:"
+
+msgctxt "report:appointment.qrcodel:"
+msgid "Health Prof:"
+msgstr "الطبيب المختص:"
+
+msgctxt "report:appointment.qrcodel:"
+msgid "Institution:"
+msgstr "المؤسسة:"
+
+msgctxt "report:appointment.qrcodel:"
+msgid "PUID:"
+msgstr "رقم المريض:"
+
+msgctxt "report:appointment.qrcodel:"
+msgid "Patient:"
+msgstr "المريض:"
+
+msgctxt "report:appointment.qrcodel:"
+msgid "Specialty:"
+msgstr "الاختصاص:"
+
+msgctxt "report:appointment.qrcodel:"
+msgid "You must present this receipt and your PUID"
+msgstr "يجب تقديم هذا الايصال ورقم المريض"
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Cap label"
+msgstr "عنوان Cap"
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Extraction date:"
+msgstr "تاريخ الاستخراج:"
+
+msgctxt "report:labtest.qrlabel:"
+msgid "ID:"
+msgstr "الرقم:"
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Req by:"
+msgstr "طلب من قبل:"
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Source:"
+msgstr "المصدر:"
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Test:"
+msgstr "التحليل:"
+
+msgctxt "report:newborn.qrcard:"
+msgid "DoB:"
+msgstr "تاريخ الميلاد:"
+
+msgctxt "report:newborn.qrcard:"
+msgid "Ht / Wt:"
+msgstr "الطول/الوزن:"
+
+msgctxt "report:newborn.qrcard:"
+msgid "Mother ID:"
+msgstr "رقم الام:"
+
+msgctxt "report:newborn.qrcard:"
+msgid "Mother:"
+msgstr "الام:"
+
+msgctxt "report:newborn.qrcard:"
+msgid "Name:"
+msgstr "الاسم:"
+
+msgctxt "report:newborn.qrcard:"
+msgid "PUID:"
+msgstr "رقم المريض:"
+
+msgctxt "report:newborn.qrcard:"
+msgid "Sex:"
+msgstr "الجنس:"
+
+msgctxt "report:newborn.qrcard:"
+msgid "photo"
+msgstr "الصورة"
+
+msgctxt "report:party.wristband:"
+msgid ","
+msgstr ","
+
+msgctxt "report:patient.qrcard:"
+msgid "Blood Type:"
+msgstr "زمرة الدم:"
+
+msgctxt "report:patient.qrcard:"
+msgid "DoB:"
+msgstr "تاريخ الميلاد:"
+
+msgctxt "report:patient.qrcard:"
+msgid "Gender:"
+msgstr "الجنس:"
+
+msgctxt "report:patient.qrcard:"
+msgid "Name:"
+msgstr "الاسم:"
+
+msgctxt "report:patient.qrcard:"
+msgid "PUID:"
+msgstr "رقم المريض:"
+
+msgctxt "report:patient.qrcard:"
+msgid "photo"
+msgstr "الصورة"
+
+msgctxt "report:patient.wristband:"
+msgid ","
+msgstr ","

@@ -1,0 +1,76 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+#, fuzzy
+msgctxt "field:gnuhealth.lab,digest_current:"
+msgid "Current Hash"
+msgstr "現在のハッシュ値"
+
+#, fuzzy
+msgctxt "field:gnuhealth.lab,digest_status:"
+msgid "Altered"
+msgstr "変更"
+
+#, fuzzy
+msgctxt "field:gnuhealth.lab,digital_signature:"
+msgid "Digital Signature"
+msgstr "電子署名"
+
+#, fuzzy
+msgctxt "field:gnuhealth.lab,document_digest:"
+msgid "Digest"
+msgstr "ダイジェスト"
+
+#, fuzzy
+msgctxt "field:gnuhealth.lab,serializer:"
+msgid "Doc String"
+msgstr "文書の文字列"
+
+#, fuzzy
+msgctxt "field:gnuhealth.lab,serializer_current:"
+msgid "Current Doc"
+msgstr "現在の文書"
+
+#, fuzzy
+msgctxt "help:gnuhealth.lab,digest_status:"
+msgid ""
+"This field will be set whenever parts of the main original document has been"
+" changed. Please note that the verification is done only on selected fields."
+msgstr ""
+"メインとなるオリジナル文書の一部分が変更される度に、このフィールドが設定されます。検証は選択されたフィールド上でのみ行われますのでご注意ください。"
+
+#, fuzzy
+msgctxt "help:gnuhealth.lab,document_digest:"
+msgid "Original Document Digest"
+msgstr "元のドキュメントのダイジェスト"
+
+msgctxt "model:ir.model.button,string:labtest_sign_button"
+msgid "Validate"
+msgstr ""
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Are you sure to sign this lab results ?"
+msgstr ""
+
+#, fuzzy
+msgctxt "view:gnuhealth.lab:"
+msgid "Digital Signature"
+msgstr "電子署名"
+
+#, fuzzy
+msgctxt "view:gnuhealth.lab:"
+msgid "Document validation"
+msgstr "ドキュメントの確認"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Validate"
+msgstr ""
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Validate and Sign the lab test"
+msgstr ""
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Validation"
+msgstr ""

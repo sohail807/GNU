@@ -1,0 +1,1950 @@
+#
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-11-09 20:42+0000\n"
+"Last-Translator: iosifidis <iosifidis@noreply.codeberg.org>\n"
+"Language-Team: Greek <https://translate.codeberg.org/projects/gnuhealth/health_disability/el/>\n"
+"Language: el\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14\n"
+
+msgctxt "field:gnuhealth.activity.assessment,activity_and_participation:"
+msgid "Activity"
+msgstr "Δραστηριότητα και Συμμετοχή"
+
+msgctxt "field:gnuhealth.activity.assessment,assessment:"
+msgid "Assessment"
+msgstr "Αξιολόγηση"
+
+msgctxt "field:gnuhealth.activity.assessment,qualifier1:"
+msgid "Performance"
+msgstr "Επιδόσεις"
+
+msgctxt "field:gnuhealth.activity.assessment,qualifier2:"
+msgid "Capacity"
+msgstr "Ικανότητα"
+
+msgctxt "field:gnuhealth.activity_and_participation,category:"
+msgid "Category"
+msgstr "Κατηγορία"
+
+msgctxt "field:gnuhealth.activity_and_participation,code:"
+msgid "code"
+msgstr "κωδικός"
+
+msgctxt "field:gnuhealth.activity_and_participation,name:"
+msgid "A & P"
+msgstr "Δ & Σ"
+
+msgctxt "field:gnuhealth.activity_and_participation.category,code:"
+msgid "code"
+msgstr "κωδικός"
+
+msgctxt "field:gnuhealth.activity_and_participation.category,name:"
+msgid "Name"
+msgstr "Όνομα"
+
+msgctxt "field:gnuhealth.body_function,category:"
+msgid "Category"
+msgstr "Κατηγορία"
+
+msgctxt "field:gnuhealth.body_function,code:"
+msgid "code"
+msgstr "κωδικός"
+
+msgctxt "field:gnuhealth.body_function,name:"
+msgid "Function"
+msgstr "Λειτουργία"
+
+msgctxt "field:gnuhealth.body_function.assessment,assessment:"
+msgid "Assessment"
+msgstr "Αξιολόγηση"
+
+msgctxt "field:gnuhealth.body_function.assessment,body_function:"
+msgid "Body Function"
+msgstr "Λειτουργία Σώματος"
+
+msgctxt "field:gnuhealth.body_function.assessment,qualifier:"
+msgid "Qualifier"
+msgstr "Προσδιοριστής"
+
+msgctxt "field:gnuhealth.body_function.category,code:"
+msgid "code"
+msgstr "κωδικός"
+
+msgctxt "field:gnuhealth.body_function.category,name:"
+msgid "Name"
+msgstr "Όνομα"
+
+msgctxt "field:gnuhealth.body_structure,category:"
+msgid "Category"
+msgstr "Κατηγορία"
+
+msgctxt "field:gnuhealth.body_structure,code:"
+msgid "code"
+msgstr "κωδικός"
+
+msgctxt "field:gnuhealth.body_structure,name:"
+msgid "Structure"
+msgstr "Δομή"
+
+msgctxt "field:gnuhealth.body_structure.assessment,assessment:"
+msgid "Assessment"
+msgstr "Αξιολόγηση"
+
+msgctxt "field:gnuhealth.body_structure.assessment,body_side:"
+msgid "Side"
+msgstr "Πλευρά"
+
+msgctxt "field:gnuhealth.body_structure.assessment,body_structure:"
+msgid "Body Structure"
+msgstr "Δομή Σώματος"
+
+msgctxt "field:gnuhealth.body_structure.assessment,qualifier1:"
+msgid "Extent"
+msgstr "Έκταση"
+
+msgctxt "field:gnuhealth.body_structure.assessment,qualifier2:"
+msgid "Nature"
+msgstr "Φύση"
+
+msgctxt "field:gnuhealth.body_structure.category,code:"
+msgid "code"
+msgstr "κωδικός"
+
+msgctxt "field:gnuhealth.body_structure.category,name:"
+msgid "Name"
+msgstr "Όνομα"
+
+msgctxt "field:gnuhealth.environment.assessment,assessment:"
+msgid "Assessment"
+msgstr "Αξιολόγηση"
+
+msgctxt "field:gnuhealth.environment.assessment,environmental_factor:"
+msgid "Environment"
+msgstr "Περιβάλλον"
+
+msgctxt "field:gnuhealth.environment.assessment,qualifier:"
+msgid "Barriers"
+msgstr "Εμπόδια"
+
+msgctxt "field:gnuhealth.environmental_factor,category:"
+msgid "Category"
+msgstr "Κατηγορία"
+
+msgctxt "field:gnuhealth.environmental_factor,code:"
+msgid "code"
+msgstr "κωδικός"
+
+msgctxt "field:gnuhealth.environmental_factor,name:"
+msgid "Environment"
+msgstr "Περιβάλλον"
+
+msgctxt "field:gnuhealth.environmental_factor.category,code:"
+msgid "code"
+msgstr "κωδικός"
+
+msgctxt "field:gnuhealth.environmental_factor.category,name:"
+msgid "Name"
+msgstr "Όνομα"
+
+msgctxt "field:gnuhealth.patient,amputations:"
+msgid "Amputations"
+msgstr "Ακρωτηριασμοί"
+
+msgctxt "field:gnuhealth.patient,amputee:"
+msgid "Amputee"
+msgstr "Ακρωτηριασμένος/η"
+
+msgctxt "field:gnuhealth.patient,amputee_since:"
+msgid "Since"
+msgstr "Από"
+
+msgctxt "field:gnuhealth.patient,disability:"
+msgid "Disabilities / Barriers"
+msgstr "Αναπηρίες / Εμπόδια"
+
+msgctxt "field:gnuhealth.patient,disability_assesments:"
+msgid "Assessment"
+msgstr "Αξιολόγηση"
+
+msgctxt "field:gnuhealth.patient,protheses:"
+msgid "Protheses"
+msgstr "Προσθέσεις"
+
+msgctxt "field:gnuhealth.patient,uxo:"
+msgid "UXO"
+msgstr "UXO"
+
+msgctxt "field:gnuhealth.patient.amputation,amputation_date:"
+msgid "Date"
+msgstr "Ημερομηνία"
+
+msgctxt "field:gnuhealth.patient.amputation,amputation_level:"
+msgid "Level"
+msgstr "Επίπεδο"
+
+msgctxt "field:gnuhealth.patient.amputation,body_structure:"
+msgid "Structure"
+msgstr "Δομή"
+
+msgctxt "field:gnuhealth.patient.amputation,comments:"
+msgid "Comments"
+msgstr "Σχόλια"
+
+msgctxt "field:gnuhealth.patient.amputation,etiology:"
+msgid "Etiology"
+msgstr "Αιτιολογία"
+
+msgctxt "field:gnuhealth.patient.amputation,healthprof:"
+msgid "Health Prof"
+msgstr "Επαγγ. Υγείας"
+
+msgctxt "field:gnuhealth.patient.amputation,limb:"
+msgid "Limb"
+msgstr "Άκρο"
+
+msgctxt "field:gnuhealth.patient.amputation,patient:"
+msgid "Patient"
+msgstr "Ασθενής"
+
+msgctxt "field:gnuhealth.patient.amputation,side:"
+msgid "Side"
+msgstr "Πλευρά"
+
+msgctxt ""
+"field:gnuhealth.patient.disability_assessment,activity_and_participation:"
+msgid "Activities and Participation Impairments"
+msgstr "Δυσλειτουργίες Δραστηριοτήτων και Συμμετοχής"
+
+msgctxt ""
+"field:gnuhealth.patient.disability_assessment,activity_participation:"
+msgid "A & P"
+msgstr "Δ & Σ"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,amputee:"
+msgid "Amputee"
+msgstr "Ακρωτηριασμένος/η"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,amputee_since:"
+msgid "Since"
+msgstr "Από"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,assessment:"
+msgid "Code"
+msgstr "Κωδικός"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,assessment_date:"
+msgid "Date"
+msgstr "Ημερομηνία"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,body_functions:"
+msgid "Body Functions Impairments"
+msgstr "Δυσλειτουργίες Λειτουργιών Σώματος"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,body_structures:"
+msgid "Body Structures Impairments"
+msgstr "Δυσλειτουργίες Δομών Σώματος"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,cognitive_function:"
+msgid "Cognitive"
+msgstr "Γνωστική"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,crutches:"
+msgid "Crutches"
+msgstr "Πατερίτσες"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,environmental_factor:"
+msgid "Environmental Factors Barriers"
+msgstr "Εμπόδια Περιβαλλοντικών Παραγόντων"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,hand_function:"
+msgid "Hand"
+msgstr "Χέρι"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,healthprof:"
+msgid "Health Prof"
+msgstr "Επαγγ. Υγείας"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,hearing_function:"
+msgid "Hearing"
+msgstr "Ακοή"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,locomotor_function:"
+msgid "Mobility"
+msgstr "Κινητικότητα"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,notes:"
+msgid "Notes"
+msgstr "Σημειώσεις"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,patient:"
+msgid "Patient"
+msgstr "Ασθενής"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,speech_function:"
+msgid "Speech"
+msgstr "Ομιλία"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,uxo:"
+msgid "UXO"
+msgstr "UXO"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,visual_function:"
+msgid "Visual"
+msgstr "Οπτική"
+
+msgctxt "field:gnuhealth.patient.disability_assessment,wheelchair:"
+msgid "Wheelchair"
+msgstr "Αναπηρικό αμαξίδιο"
+
+msgctxt "field:gnuhealth.patient.prothesis,comments:"
+msgid "Comments"
+msgstr "Σχόλια"
+
+msgctxt "field:gnuhealth.patient.prothesis,healthprof:"
+msgid "Health Prof"
+msgstr "Επαγγ. Υγείας"
+
+msgctxt "field:gnuhealth.patient.prothesis,issue_date:"
+msgid "Date"
+msgstr "Ημερομηνία"
+
+msgctxt "field:gnuhealth.patient.prothesis,patient:"
+msgid "Patient"
+msgstr "Ασθενής"
+
+msgctxt "field:gnuhealth.patient.prothesis,prothesis:"
+msgid "Prothesis"
+msgstr "Πρόθεση"
+
+msgctxt "field:product.product,is_prothesis:"
+msgid "Prothesis"
+msgstr "Πρόθεση"
+
+msgctxt "help:gnuhealth.activity.assessment,qualifier1:"
+msgid "Extent of the difficulty"
+msgstr "Έκταση της δυσκολίας"
+
+msgctxt "help:gnuhealth.activity.assessment,qualifier2:"
+msgid "Extent of the dificulty"
+msgstr "Έκταση της δυσκολίας"
+
+msgctxt "help:gnuhealth.body_structure.assessment,body_side:"
+msgid "Side of the body, if applies"
+msgstr "Πλευρά του σώματος, εάν ισχύει"
+
+msgctxt "help:gnuhealth.body_structure.assessment,qualifier1:"
+msgid "Extent of the impairment"
+msgstr "Έκταση της δυσλειτουργίας"
+
+msgctxt "help:gnuhealth.body_structure.assessment,qualifier2:"
+msgid "Nature of the change"
+msgstr "Φύση της αλλαγής"
+
+msgctxt "help:gnuhealth.environment.assessment,qualifier:"
+msgid "Extent of the barriers or facilitators"
+msgstr "Έκταση των εμποδίων ή των διευκολυντών"
+
+msgctxt "help:gnuhealth.patient,amputee:"
+msgid ""
+"Person has had one or more limbs removed by amputation. Includes congenital "
+"conditions"
+msgstr ""
+"Το άτομο έχει υποβληθεί σε αφαίρεση ενός ή περισσότερων άκρων με "
+"ακρωτηριασμό. Περιλαμβάνει συγγενείς παθήσεις"
+
+msgctxt "help:gnuhealth.patient,amputee_since:"
+msgid "Date of amputee status"
+msgstr "Ημερομηνία κατάστασης ακρωτηριασμού"
+
+msgctxt "help:gnuhealth.patient,disability:"
+msgid ""
+"Mark this box if the patient has history of significant disabilities and/or "
+"barriers. Review the Disability Assessments, socioeconomic info,  diseases "
+"and surgeries for more details"
+msgstr ""
+"Επισημάνετε αυτό το πλαίσιο εάν ο ασθενής έχει ιστορικό σημαντικών αναπηριών"
+" ή/και εμποδίων. Ελέγξτε τις Αξιολογήσεις Αναπηρίας, τις "
+"κοινωνικοοικονομικές πληροφορίες, τις ασθένειες και τα χειρουργεία για "
+"περισσότερες λεπτομέρειες"
+
+msgctxt "help:gnuhealth.patient,uxo:"
+msgid "UXO casualty"
+msgstr "Θύμα από μη εκραγέντα πυρομαχικά (UXO)"
+
+msgctxt "help:gnuhealth.patient.amputation,healthprof:"
+msgid "Authorized health professional"
+msgstr "Εξουσιοδοτημένος επαγγελματίας υγείας"
+
+msgctxt "help:gnuhealth.patient.disability_assessment,healthprof:"
+msgid "Authorized health professional"
+msgstr "Εξουσιοδοτημένος επαγγελματίας υγείας"
+
+msgctxt "help:gnuhealth.patient.disability_assessment,notes:"
+msgid "Extra Information"
+msgstr "Πρόσθετες πληροφορίες"
+
+msgctxt "help:gnuhealth.patient.prothesis,healthprof:"
+msgid "Prosthetist or authorized health professional"
+msgstr "Προσθετικός ή εξουσιοδοτημένος επαγγελματίας υγείας"
+
+msgctxt "help:gnuhealth.patient.prothesis,prothesis:"
+msgid "Prosthetic device"
+msgstr "Προσθετική συσκευή"
+
+msgctxt "help:product.product,is_prothesis:"
+msgid "Check if the product is a prothesis"
+msgstr "Ελέγξτε εάν το προϊόν είναι πρόθεση"
+
+msgctxt "model:gnuhealth.activity.assessment,name:"
+msgid "Activity and Participation Assessment"
+msgstr "Αξιολόγηση Δραστηριότητας και Συμμετοχής"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:"
+msgid "Activity limitations and participation restrictions"
+msgstr "Περιορισμοί δραστηριότητας και συμμετοχής"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d110"
+msgid "Watching"
+msgstr "Παρακολούθηση"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d115"
+msgid "Listening"
+msgstr "Ακρόαση"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d140"
+msgid "Learning to read"
+msgstr "Εκμάθηση ανάγνωσης"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d150"
+msgid "Learning to calculate"
+msgstr "Εκμάθηση υπολογισμών"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d175"
+msgid "Solving problems -arithmetic-"
+msgstr "Επίλυση προβλημάτων -αριθμητική-"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d210"
+msgid "Undertaking a single task"
+msgstr "Ανάληψη μίας εργασίας"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d220"
+msgid "Undertaking multiple tasks"
+msgstr "Ανάληψη πολλαπλών εργασιών"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d310"
+msgid "Communicating with -- receiving -- spoken messages"
+msgstr "Επικοινωνία με -- λήψη -- προφορικών μηνυμάτων"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d315"
+msgid "Communicating with -- receiving -- non-verbal messages"
+msgstr "Επικοινωνία με -- λήψη -- μη λεκτικών μηνυμάτων"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d320"
+msgid "Speaking"
+msgstr "Ομιλία"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d335"
+msgid "Producing non-verbal messages"
+msgstr "Παραγωγή μη λεκτικών μηνυμάτων"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d350"
+msgid "Conversation"
+msgstr "Συζήτηση"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d430"
+msgid "Lifting and carrying objects"
+msgstr "Άρση και μεταφορά αντικειμένων"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d440"
+msgid "Fine hand use (picking up, grasping)"
+msgstr "Λεπτή χρήση χεριών (σήκωμα, πιάσιμο)"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d450"
+msgid "Walking"
+msgstr "Βάδισμα"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d465"
+msgid "Moving around using equipment (wheelchair, skates, etc.)"
+msgstr "Μετακίνηση με χρήση εξοπλισμού (αναπηρικό αμαξίδιο, πατίνια, κ.λπ.)"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d470"
+msgid "Using transportation (car, bus, train, plane, etc.)"
+msgstr ""
+"Χρήση μέσων μεταφοράς (αυτοκίνητο, λεωφορείο, τρένο, αεροπλάνο, κ.λπ.)"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d475"
+msgid "Driving (riding bicycle and motorbike, driving car, etc.)"
+msgstr "Οδήγηση (ποδήλατο, μοτοσικλέτα, αυτοκίνητο, κ.λπ.)"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d510"
+msgid "Washing oneself (bathing, drying, washing hands, etc)"
+msgstr "Προσωπική υγιεινή (μπάνιο, στέγνωμα, πλύσιμο χεριών, κ.λπ.)"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d520"
+msgid "Caring for body parts (brushing teeth, shaving, grooming, etc.)"
+msgstr ""
+"Περιποίηση μερών του σώματος (βούρτσισμα δοντιών, ξύρισμα, καλλωπισμός, "
+"κ.λπ.)"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d530"
+msgid "Toileting"
+msgstr "Χρήση τουαλέτας"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d540"
+msgid "Dressing"
+msgstr "Ντύσιμο"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d550"
+msgid "Eating"
+msgstr "Σίτιση"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d560"
+msgid "Drinking"
+msgstr "Πόση"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d570"
+msgid "Looking after ones health"
+msgstr "Φροντίδα της υγείας"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d620"
+msgid "Acquisition of goods and services (shopping, etc.)"
+msgstr "Απόκτηση αγαθών και υπηρεσιών (αγορές, κ.λπ.)"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d630"
+msgid "Preparation of meals (Cooking, etc.)"
+msgstr "Προετοιμασία γευμάτων (Μαγείρεμα, κ.λπ.)"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d640"
+msgid "Doing housework (cleaning house, washing dishes laundry, ironing, etc)"
+msgstr ""
+"Εργασίες του σπιτιού (καθάρισμα, πλύσιμο πιάτων, πλύσιμο ρούχων, σιδέρωμα, "
+"κ.λπ.)"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d660"
+msgid "Assisting others"
+msgstr "Βοήθεια προς άλλους"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d710"
+msgid "Basic interpersonal interactions"
+msgstr "Βασικές διαπροσωπικές αλληλεπιδράσεις"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d720"
+msgid "Complex interpersonal interactions"
+msgstr "Σύνθετες διαπροσωπικές αλληλεπιδράσεις"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d730"
+msgid "Relating with strangers"
+msgstr "Σχέσεις με αγνώστους"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d740"
+msgid "Formal relationships"
+msgstr "Επίσημες σχέσεις"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d750"
+msgid "Informal relationships"
+msgstr "Ανεπίσημες σχέσεις"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d760"
+msgid "Family relationships"
+msgstr "Οικογενειακές σχέσεις"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d770"
+msgid "Intimate relationships"
+msgstr "Στενές σχέσεις"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d810"
+msgid "Informal education"
+msgstr "Άτυπη εκπαίδευση"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d820"
+msgid "School education"
+msgstr "Σχολική εκπαίδευση"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d830"
+msgid "Higher education"
+msgstr "Ανώτατη εκπαίδευση"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d850"
+msgid "Remunerative employment"
+msgstr "Αμειβόμενη απασχόληση"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d860"
+msgid "Basic economic transactions"
+msgstr "Βασικές οικονομικές συναλλαγές"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d870"
+msgid "Economic self-sufficiency"
+msgstr "Οικονομική αυτάρκεια"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d910"
+msgid "Community Life"
+msgstr "Κοινοτική Ζωή"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d920"
+msgid "Recreation and leisure"
+msgstr "Αναψυχή και ελεύθερος χρόνος"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d930"
+msgid "Religion and Spirituality"
+msgstr "Θρησκεία και Πνευματικότητα"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d940"
+msgid "Human Rights"
+msgstr "Ανθρώπινα Δικαιώματα"
+
+msgctxt "model:gnuhealth.activity_and_participation,name:d950"
+msgid "Political life and citizenship"
+msgstr "Πολιτική ζωή και ιδιότητα του πολίτη"
+
+msgctxt "model:gnuhealth.activity_and_participation.category,name:"
+msgid "Activity and Participation Category"
+msgstr "Κατηγορία Δραστηριότητας και Συμμετοχής"
+
+msgctxt "model:gnuhealth.activity_and_participation.category,name:d1"
+msgid "LEARNING AND APPLYING KNOWLEDGE"
+msgstr "ΜΑΘΗΣΗ ΚΑΙ ΕΦΑΡΜΟΓΗ ΓΝΩΣΕΩΝ"
+
+msgctxt "model:gnuhealth.activity_and_participation.category,name:d2"
+msgid "GENERAL TASKS AND DEMANDS"
+msgstr "ΓΕΝΙΚΕΣ ΕΡΓΑΣΙΕΣ ΚΑΙ ΑΠΑΙΤΗΣΕΙΣ"
+
+msgctxt "model:gnuhealth.activity_and_participation.category,name:d3"
+msgid "COMMUNICATION"
+msgstr "ΕΠΙΚΟΙΝΩΝΙΑ"
+
+msgctxt "model:gnuhealth.activity_and_participation.category,name:d4"
+msgid "MOBILITY"
+msgstr "ΚΙΝΗΤΙΚΟΤΗΤΑ"
+
+msgctxt "model:gnuhealth.activity_and_participation.category,name:d5"
+msgid "SELF CARE"
+msgstr "ΑΥΤΟΕΞΥΠΗΡΕΤΗΣΗ"
+
+msgctxt "model:gnuhealth.activity_and_participation.category,name:d6"
+msgid "DOMESTIC LIFE"
+msgstr "ΟΙΚΙΑΚΗ ΖΩΗ"
+
+msgctxt "model:gnuhealth.activity_and_participation.category,name:d7"
+msgid "INTERPERSONAL INTERACTIONS AND RELATIONSHIPS"
+msgstr "ΔΙΑΠΡΟΣΩΠΙΚΕΣ ΑΛΛΗΛΕΠΙΔΡΑΣΕΙΣ ΚΑΙ ΣΧΕΣΕΙΣ"
+
+msgctxt "model:gnuhealth.activity_and_participation.category,name:d8"
+msgid "MAJOR LIFE AREAS"
+msgstr "ΣΗΜΑΝΤΙΚΟΙ ΤΟΜΕΙΣ ΤΗΣ ΖΩΗΣ"
+
+msgctxt "model:gnuhealth.activity_and_participation.category,name:d9"
+msgid "COMMUNITY, SOCIAL AND CIVIC LIFE"
+msgstr "ΚΟΙΝΟΤΙΚΗ, ΚΟΙΝΩΝΙΚΗ ΚΑΙ ΠΟΛΙΤΙΚΗ ΖΩΗ"
+
+msgctxt "model:gnuhealth.body_function,name:"
+msgid "Body Functions"
+msgstr "Λειτουργίες Σώματος"
+
+msgctxt "model:gnuhealth.body_function,name:b110"
+msgid "Consciousness"
+msgstr "Συνείδηση"
+
+msgctxt "model:gnuhealth.body_function,name:b114"
+msgid "Orientation"
+msgstr "Προσανατολισμός"
+
+msgctxt "model:gnuhealth.body_function,name:b117"
+msgid "Intellectual"
+msgstr "Διανοητικές"
+
+msgctxt "model:gnuhealth.body_function,name:b130"
+msgid "Energy and drive functions"
+msgstr "Λειτουργίες ενέργειας και ορμής"
+
+msgctxt "model:gnuhealth.body_function,name:b134"
+msgid "Sleep"
+msgstr "Ύπνος"
+
+msgctxt "model:gnuhealth.body_function,name:b140"
+msgid "Attention"
+msgstr "Προσοχή"
+
+msgctxt "model:gnuhealth.body_function,name:b144"
+msgid "Memory"
+msgstr "Μνήμη"
+
+msgctxt "model:gnuhealth.body_function,name:b152"
+msgid "Emotional Functions"
+msgstr "Συναισθηματικές Λειτουργίες"
+
+msgctxt "model:gnuhealth.body_function,name:b156"
+msgid "Perceptual Functions"
+msgstr "Αντιληπτικές Λειτουργίες"
+
+msgctxt "model:gnuhealth.body_function,name:b164"
+msgid "Higher level cognitive functions"
+msgstr "Ανώτερες γνωστικές λειτουργίες"
+
+msgctxt "model:gnuhealth.body_function,name:b167"
+msgid "Language"
+msgstr "Γλώσσα"
+
+msgctxt "model:gnuhealth.body_function,name:b210"
+msgid "Seeing"
+msgstr "Όραση"
+
+msgctxt "model:gnuhealth.body_function,name:b230"
+msgid "Hearing"
+msgstr "Ακοή"
+
+msgctxt "model:gnuhealth.body_function,name:b235"
+msgid "Vestibular"
+msgstr "Αιθουσαίες"
+
+msgctxt "model:gnuhealth.body_function,name:b280"
+msgid "Pain"
+msgstr "Πόνος"
+
+msgctxt "model:gnuhealth.body_function,name:b310"
+msgid "Voice"
+msgstr "Φωνή"
+
+msgctxt "model:gnuhealth.body_function,name:b410"
+msgid "Heart"
+msgstr "Καρδιά"
+
+msgctxt "model:gnuhealth.body_function,name:b420"
+msgid "Blood Pressure"
+msgstr "Αρτηριακή Πίεση"
+
+msgctxt "model:gnuhealth.body_function,name:b430"
+msgid "Hematological"
+msgstr "Αιματολογικές"
+
+msgctxt "model:gnuhealth.body_function,name:b435"
+msgid "Immunological"
+msgstr "Ανοσολογικές"
+
+msgctxt "model:gnuhealth.body_function,name:b440"
+msgid "Respiration"
+msgstr "Αναπνοή"
+
+msgctxt "model:gnuhealth.body_function,name:b515"
+msgid "Digestive"
+msgstr "Πεπτικές"
+
+msgctxt "model:gnuhealth.body_function,name:b525"
+msgid "Defecation"
+msgstr "Αφόδευση"
+
+msgctxt "model:gnuhealth.body_function,name:b530"
+msgid "Weight Maintenance"
+msgstr "Διατήρηση Βάρους"
+
+msgctxt "model:gnuhealth.body_function,name:b620"
+msgid "Urination"
+msgstr "Ούρηση"
+
+msgctxt "model:gnuhealth.body_function,name:b640"
+msgid "Sexual functions"
+msgstr "Σεξουαλικές λειτουργίες"
+
+msgctxt "model:gnuhealth.body_function.assessment,name:"
+msgid "Body Functions Assessment"
+msgstr "Αξιολόγηση Λειτουργιών Σώματος"
+
+msgctxt "model:gnuhealth.body_function.category,name:"
+msgid "Body Function Category"
+msgstr "Κατηγορία Λειτουργιών Σώματος"
+
+msgctxt "model:gnuhealth.body_function.category,name:b0"
+msgid "ANY OTHER BODY FUNCTIONS"
+msgstr "ΟΠΟΙΑΔΗΠΟΤΕ ΑΛΛΗ ΛΕΙΤΟΥΡΓΙΑ ΤΟΥ ΣΩΜΑΤΟΣ"
+
+msgctxt "model:gnuhealth.body_function.category,name:b1"
+msgid "MENTAL FUNCTIONS"
+msgstr "ΨΥΧΙΚΕΣ ΛΕΙΤΟΥΡΓΙΕΣ"
+
+msgctxt "model:gnuhealth.body_function.category,name:b2"
+msgid "SENSORY FUNCTIONS AND PAIN"
+msgstr "ΑΙΣΘΗΤΙΚΕΣ ΛΕΙΤΟΥΡΓΙΕΣ ΚΑΙ ΠΟΝΟΣ"
+
+msgctxt "model:gnuhealth.body_function.category,name:b3"
+msgid "VOICE AND SPEECH FUNCTIONS"
+msgstr "ΛΕΙΤΟΥΡΓΙΕΣ ΦΩΝΗΣ ΚΑΙ ΟΜΙΛΙΑΣ"
+
+msgctxt "model:gnuhealth.body_function.category,name:b4"
+msgid ""
+"FUNCTIONS OF THE CARDIOVASCULAR, HEMATOLOGICAL, IMMUNOLOGICAL AND "
+"RESPIRATORY SYSTEMS"
+msgstr ""
+"ΛΕΙΤΟΥΡΓΙΕΣ ΤΟΥ ΚΑΡΔΙΑΓΓΕΙΑΚΟΥ, ΑΙΜΑΤΟΛΟΓΙΚΟΥ, ΑΝΟΣΟΠΟΙΗΤΙΚΟΥ ΚΑΙ "
+"ΑΝΑΠΝΕΥΣΤΙΚΟΥ ΣΥΣΤΗΜΑΤΟΣ"
+
+msgctxt "model:gnuhealth.body_function.category,name:b5"
+msgid "FUNCTIONS OF THE DIGESTIVE, METABOLIC AND ENDOCRINE SYSTEMS"
+msgstr "ΛΕΙΤΟΥΡΓΙΕΣ ΤΟΥ ΠΕΠΤΙΚΟΥ, ΜΕΤΑΒΟΛΙΚΟΥ ΚΑΙ ΕΝΔΟΚΡΙΝΙΚΟΥ ΣΥΣΤΗΜΑΤΟΣ"
+
+msgctxt "model:gnuhealth.body_function.category,name:b6"
+msgid "GENITOURINARY AND REPRODUCTIVE FUNCTIONS"
+msgstr "ΟΥΡΟΠΟΙΗΤΙΚΕΣ ΚΑΙ ΑΝΑΠΑΡΑΓΩΓΙΚΕΣ ΛΕΙΤΟΥΡΓΙΕΣ"
+
+msgctxt "model:gnuhealth.body_function.category,name:b7"
+msgid "NEUROMUSCULOSKELETAL AND MOVEMENT RELATED FUNCTIONS"
+msgstr "ΝΕΥΡΟΜΥΟΣΚΕΛΕΤΙΚΕΣ ΚΑΙ ΣΧΕΤΙΖΟΜΕΝΕΣ ΜΕ ΤΗΝ ΚΙΝΗΣΗ ΛΕΙΤΟΥΡΓΙΕΣ"
+
+msgctxt "model:gnuhealth.body_function.category,name:b8"
+msgid "FUNCTIONS OF THE SKIN AND RELATED STRUCTURES"
+msgstr "ΛΕΙΤΟΥΡΓΙΕΣ ΤΟΥ ΔΕΡΜΑΤΟΣ ΚΑΙ ΣΧΕΤΙΚΩΝ ΔΟΜΩΝ"
+
+msgctxt "model:gnuhealth.body_structure,name:"
+msgid "Body Functions"
+msgstr "Δομές Σώματος"
+
+msgctxt "model:gnuhealth.body_structure,name:s110"
+msgid "Brain"
+msgstr "Εγκέφαλος"
+
+msgctxt "model:gnuhealth.body_structure,name:s120"
+msgid "Spinal cord and peripheral nerves"
+msgstr "Νωτιαίος μυελός και περιφερικά νεύρα"
+
+msgctxt "model:gnuhealth.body_structure,name:s410"
+msgid "Cardiovascular system"
+msgstr "Καρδιαγγειακό σύστημα"
+
+msgctxt "model:gnuhealth.body_structure,name:s430"
+msgid "Respiratory system"
+msgstr "Αναπνευστικό σύστημα"
+
+msgctxt "model:gnuhealth.body_structure,name:s610"
+msgid "Urinary System"
+msgstr "Ουροποιητικό Σύστημα"
+
+msgctxt "model:gnuhealth.body_structure,name:s630"
+msgid "Resproductive system"
+msgstr "Αναπαραγωγικό σύστημα"
+
+msgctxt "model:gnuhealth.body_structure,name:s710"
+msgid "Head and neck region"
+msgstr "Περιοχή κεφαλής και αυχένα"
+
+msgctxt "model:gnuhealth.body_structure,name:s7100"
+msgid "Bones of cranium"
+msgstr "Οστά κρανίου"
+
+msgctxt "model:gnuhealth.body_structure,name:s7101"
+msgid "Bones of the face"
+msgstr "Οστά προσώπου"
+
+msgctxt "model:gnuhealth.body_structure,name:s7102"
+msgid "Bones of neck region"
+msgstr "Οστά της περιοχής του αυχένα"
+
+msgctxt "model:gnuhealth.body_structure,name:s7103"
+msgid "Joints of head and neck region"
+msgstr "Αρθρώσεις της περιοχής κεφαλής και αυχένα"
+
+msgctxt "model:gnuhealth.body_structure,name:s7104"
+msgid "Muscles of head and neck region"
+msgstr "Μύες της περιοχής κεφαλής και αυχένα"
+
+msgctxt "model:gnuhealth.body_structure,name:s7105"
+msgid "Ligaments and fasciae of head and neck region"
+msgstr "Σύνδεσμοι και περιτονίες της περιοχής κεφαλής και αυχένα"
+
+msgctxt "model:gnuhealth.body_structure,name:s7108"
+msgid "Structure of head and neck region, other specified"
+msgstr "Δομή της περιοχής κεφαλής και αυχένα, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7109"
+msgid "Structure of head and neck region, unspecified"
+msgstr "Δομή της περιοχής κεφαλής και αυχένα, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s720"
+msgid "Shoulder region"
+msgstr "Περιοχή του ώμου"
+
+msgctxt "model:gnuhealth.body_structure,name:s7200"
+msgid "Bones of shoulder region"
+msgstr "Οστά της περιοχής του ώμου"
+
+msgctxt "model:gnuhealth.body_structure,name:s7201"
+msgid "Joints of shoulder region"
+msgstr "Αρθρώσεις της περιοχής του ώμου"
+
+msgctxt "model:gnuhealth.body_structure,name:s7202"
+msgid "Muscles of shoulder region"
+msgstr "Μύες της περιοχής του ώμου"
+
+msgctxt "model:gnuhealth.body_structure,name:s7203"
+msgid "Ligaments and fasciae of shoulder region"
+msgstr "Σύνδεσμοι και περιτονίες της περιοχής του ώμου"
+
+msgctxt "model:gnuhealth.body_structure,name:s7208"
+msgid "Structure of shoulder region, other specified"
+msgstr "Δομή της περιοχής του ώμου, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7209"
+msgid "Structure of shoulder region, unspecified"
+msgstr "Δομή της περιοχής του ώμου, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s730"
+msgid "Upper extremity"
+msgstr "Άνω άκρο"
+
+msgctxt "model:gnuhealth.body_structure,name:s7300"
+msgid "Structure of upper arm"
+msgstr "Δομή του βραχίονα"
+
+msgctxt "model:gnuhealth.body_structure,name:s73000"
+msgid "Bones of upper arm"
+msgstr "Οστά του βραχίονα"
+
+msgctxt "model:gnuhealth.body_structure,name:s73001"
+msgid "Elbow joint"
+msgstr "Άρθρωση του αγκώνα"
+
+msgctxt "model:gnuhealth.body_structure,name:s73002"
+msgid "Muscles of upper arm"
+msgstr "Μύες του βραχίονα"
+
+msgctxt "model:gnuhealth.body_structure,name:s73003"
+msgid "Ligaments and fasciae of upper arm"
+msgstr "Σύνδεσμοι και περιτονίες του βραχίονα"
+
+msgctxt "model:gnuhealth.body_structure,name:s73008"
+msgid "Structure of upper arm, other specified"
+msgstr "Δομή του βραχίονα, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s73009"
+msgid "Structure of upper arm, unspecified"
+msgstr "Δομή του βραχίονα, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7301"
+msgid "Structure of forearm"
+msgstr "Δομή του αντιβραχίου"
+
+msgctxt "model:gnuhealth.body_structure,name:s73010"
+msgid "Bones of forearm"
+msgstr "Οστά του αντιβραχίου"
+
+msgctxt "model:gnuhealth.body_structure,name:s73011"
+msgid "Wrist joint"
+msgstr "Άρθρωση του καρπού"
+
+msgctxt "model:gnuhealth.body_structure,name:s73012"
+msgid "Muscles of forearm"
+msgstr "Μύες του αντιβραχίου"
+
+msgctxt "model:gnuhealth.body_structure,name:s73013"
+msgid "Ligaments and fasciae of forearm"
+msgstr "Σύνδεσμοι και περιτονίες του αντιβραχίου"
+
+msgctxt "model:gnuhealth.body_structure,name:s73018"
+msgid "Structure of forearm, other specified"
+msgstr "Δομή του αντιβραχίου, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s73019"
+msgid "Structure of forearm, unspecified"
+msgstr "Δομή του αντιβραχίου, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7302"
+msgid "Structure of hand"
+msgstr "Δομή του χεριού"
+
+msgctxt "model:gnuhealth.body_structure,name:s73020"
+msgid "Bones of hand"
+msgstr "Οστά του χεριού"
+
+msgctxt "model:gnuhealth.body_structure,name:s73021"
+msgid "Joints of hand and fingers"
+msgstr "Αρθρώσεις του χεριού και των δακτύλων"
+
+msgctxt "model:gnuhealth.body_structure,name:s73022"
+msgid "Muscles of hand"
+msgstr "Μύες του χεριού"
+
+msgctxt "model:gnuhealth.body_structure,name:s73023"
+msgid "Ligaments and fasciae of hand"
+msgstr "Σύνδεσμοι και περιτονίες του χεριού"
+
+msgctxt "model:gnuhealth.body_structure,name:s73028"
+msgid "Structure of hand, other specified"
+msgstr "Δομή του χεριού, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s73029"
+msgid "Structure of hand, unspecified"
+msgstr "Δομή του χεριού, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7308"
+msgid "Structure of upper extremity, other specified"
+msgstr "Δομή του άνω άκρου, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7309"
+msgid "Structure of upper extremity, unspecified"
+msgstr "Δομή του άνω άκρου, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s740"
+msgid "Structure of pelvic region"
+msgstr "Δομή της πυελικής περιοχής"
+
+msgctxt "model:gnuhealth.body_structure,name:s7400"
+msgid "Bones of pelvic region"
+msgstr "Οστά της πυελικής περιοχής"
+
+msgctxt "model:gnuhealth.body_structure,name:s7401"
+msgid "Joints of pelvic region"
+msgstr "Αρθρώσεις της πυελικής περιοχής"
+
+msgctxt "model:gnuhealth.body_structure,name:s7402"
+msgid "Muscles of pelvic region"
+msgstr "Μύες της πυελικής περιοχής"
+
+msgctxt "model:gnuhealth.body_structure,name:s7403"
+msgid "Ligaments and fasciae of pelvic region"
+msgstr "Σύνδεσμοι και περιτονίες της πυελικής περιοχής"
+
+msgctxt "model:gnuhealth.body_structure,name:s7408"
+msgid "Structure of pelvic region, other specified"
+msgstr "Δομή της πυελικής περιοχής, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7409"
+msgid "Structure of pelvic region, unspecified"
+msgstr "Δομή της πυελικής περιοχής, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s750"
+msgid "Structure of lower extremity"
+msgstr "Δομή του κάτω άκρου"
+
+msgctxt "model:gnuhealth.body_structure,name:s7500"
+msgid "Structure of thigh"
+msgstr "Δομή του μηρού"
+
+msgctxt "model:gnuhealth.body_structure,name:s75000"
+msgid "Bones of thigh"
+msgstr "Οστά του μηρού"
+
+msgctxt "model:gnuhealth.body_structure,name:s75001"
+msgid "Hip joint"
+msgstr "Άρθρωση του ισχίου"
+
+msgctxt "model:gnuhealth.body_structure,name:s75002"
+msgid "Muscles of thigh"
+msgstr "Μύες του μηρού"
+
+msgctxt "model:gnuhealth.body_structure,name:s75003"
+msgid "Ligaments and fasciae of thigh"
+msgstr "Σύνδεσμοι και περιτονίες του μηρού"
+
+msgctxt "model:gnuhealth.body_structure,name:s75008"
+msgid "Structure of thigh, other specified"
+msgstr "Δομή του μηρού, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s75009"
+msgid "Structure of thigh, unspecified"
+msgstr "Δομή του μηρού, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7501"
+msgid "Structure of lower leg"
+msgstr "Δομή της κνήμης"
+
+msgctxt "model:gnuhealth.body_structure,name:s75010"
+msgid "Bones of lower leg"
+msgstr "Οστά της κνήμης"
+
+msgctxt "model:gnuhealth.body_structure,name:s75011"
+msgid "Knee joint"
+msgstr "Άρθρωση του γόνατος"
+
+msgctxt "model:gnuhealth.body_structure,name:s75012"
+msgid "Muscles of lower leg"
+msgstr "Μύες της κνήμης"
+
+msgctxt "model:gnuhealth.body_structure,name:s75013"
+msgid "Ligaments and fasciae of lower leg"
+msgstr "Σύνδεσμοι και περιτονίες της κνήμης"
+
+msgctxt "model:gnuhealth.body_structure,name:s75018"
+msgid "Structure of lower leg, other specified"
+msgstr "Δομή της κνήμης, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s75019"
+msgid "Structure of lower leg, unspecified"
+msgstr "Δομή της κνήμης, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7502"
+msgid "Structure of ankle and foot"
+msgstr "Δομή της ποδοκνημικής και του άκρου ποδός"
+
+msgctxt "model:gnuhealth.body_structure,name:s75020"
+msgid "Bones of ankle and foot"
+msgstr "Οστά της ποδοκνημικής και του άκρου ποδός"
+
+msgctxt "model:gnuhealth.body_structure,name:s75021"
+msgid "Ankle joint and joints of foot and toes"
+msgstr ""
+"Άρθρωση της ποδοκνημικής και αρθρώσεις του άκρου ποδός και των δακτύλων"
+
+msgctxt "model:gnuhealth.body_structure,name:s75022"
+msgid "Muscles of ankle and foot"
+msgstr "Μύες της ποδοκνημικής και του άκρου ποδός"
+
+msgctxt "model:gnuhealth.body_structure,name:s75023"
+msgid "Ligaments and fasciae of ankle and foot"
+msgstr "Σύνδεσμοι και περιτονίες της ποδοκνημικής και του άκρου ποδός"
+
+msgctxt "model:gnuhealth.body_structure,name:s75028"
+msgid "Structure of ankle and foot, other specified"
+msgstr "Δομή της ποδοκνημικής και του άκρου ποδός, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s75029"
+msgid "Structure of ankle and foot, unspecified"
+msgstr "Δομή της ποδοκνημικής και του άκρου ποδός, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7508"
+msgid "Structure of lower extremity, other specified"
+msgstr "Δομή του κάτω άκρου, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7509"
+msgid "Structure of lower extremity, unspecified"
+msgstr "Δομή του κάτω άκρου, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s760"
+msgid "Structure of trunk"
+msgstr "Δομή του κορμού"
+
+msgctxt "model:gnuhealth.body_structure,name:s7600"
+msgid "Structure of vertebral column"
+msgstr "Δομή της σπονδυλικής στήλης"
+
+msgctxt "model:gnuhealth.body_structure,name:s76000"
+msgid "Cervical vertebral column"
+msgstr "Αυχενική μοίρα σπονδυλικής στήλης"
+
+msgctxt "model:gnuhealth.body_structure,name:s76001"
+msgid "Thoracic vertebral column"
+msgstr "Θωρακική μοίρα σπονδυλικής στήλης"
+
+msgctxt "model:gnuhealth.body_structure,name:s76002"
+msgid "Lumbar vertebral column"
+msgstr "Οσφυϊκή μοίρα σπονδυλικής στήλης"
+
+msgctxt "model:gnuhealth.body_structure,name:s76003"
+msgid "Sacral vertebral column"
+msgstr "Ιερή μοίρα σπονδυλικής στήλης"
+
+msgctxt "model:gnuhealth.body_structure,name:s76004"
+msgid "Coccyx"
+msgstr "Κόκκυγας"
+
+msgctxt "model:gnuhealth.body_structure,name:s76008"
+msgid "Structure of vertebral column, other specified"
+msgstr "Δομή της σπονδυλικής στήλης, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s76009"
+msgid "Structure of vertebral column, unspecified"
+msgstr "Δομή της σπονδυλικής στήλης, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7601"
+msgid "Muscles of trunk"
+msgstr "Μύες του κορμού"
+
+msgctxt "model:gnuhealth.body_structure,name:s7602"
+msgid "Ligaments and fasciae of trunk"
+msgstr "Σύνδεσμοι και περιτονίες του κορμού"
+
+msgctxt "model:gnuhealth.body_structure,name:s7608"
+msgid "Structure of trunk, other specified"
+msgstr "Δομή του κορμού, άλλη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s7609"
+msgid "Structure of trunk, unspecified"
+msgstr "Δομή του κορμού, μη καθορισμένη"
+
+msgctxt "model:gnuhealth.body_structure,name:s770"
+msgid "Additional musculoskeletal structures related to movement"
+msgstr "Πρόσθετες μυοσκελετικές δομές που σχετίζονται με την κίνηση"
+
+msgctxt "model:gnuhealth.body_structure,name:s7700"
+msgid "Bones"
+msgstr "Οστά"
+
+msgctxt "model:gnuhealth.body_structure,name:s7701"
+msgid "Joints"
+msgstr "Αρθρώσεις"
+
+msgctxt "model:gnuhealth.body_structure,name:s7702"
+msgid "Muscles"
+msgstr "Μύες"
+
+msgctxt "model:gnuhealth.body_structure,name:s7703"
+msgid ""
+"Extra-articular ligaments, fasciae, extramuscular aponeuroses, retinacula, "
+"septa, bursae, unspecified"
+msgstr ""
+"Εξωαρθρικοί σύνδεσμοι, περιτονίες, εξωμυϊκές απονευρώσεις, καθεκτικοί "
+"σύνδεσμοι, διαφράγματα, ορογόνοι θύλακοι, μη καθορισμένα"
+
+msgctxt "model:gnuhealth.body_structure,name:s7708"
+msgid ""
+"Additional musculoskeletal structures related to movement, other specified"
+msgstr ""
+"Πρόσθετες μυοσκελετικές δομές που σχετίζονται με την κίνηση, άλλες "
+"καθορισμένες"
+
+msgctxt "model:gnuhealth.body_structure,name:s7709"
+msgid "Additional musculoskeletal structures related to movement, unspecified"
+msgstr ""
+"Πρόσθετες μυοσκελετικές δομές που σχετίζονται με την κίνηση, μη καθορισμένες"
+
+msgctxt "model:gnuhealth.body_structure,name:s798"
+msgid "Structures related to movement, other specified"
+msgstr "Δομές που σχετίζονται με την κίνηση, άλλες καθορισμένες"
+
+msgctxt "model:gnuhealth.body_structure,name:s799"
+msgid "Structures related to movement, unspecified"
+msgstr "Δομές που σχετίζονται με την κίνηση, μη καθορισμένες"
+
+msgctxt "model:gnuhealth.body_structure.assessment,name:"
+msgid "Body Functions Assessment"
+msgstr "Αξιολόγηση Δομών Σώματος"
+
+msgctxt "model:gnuhealth.body_structure.category,name:"
+msgid "Body Structure Category"
+msgstr "Κατηγορία Δομών Σώματος"
+
+msgctxt "model:gnuhealth.body_structure.category,name:s1"
+msgid "STRUCTURES OF THE NERVOUS SYSTEM"
+msgstr "ΔΟΜΕΣ ΤΟΥ ΝΕΥΡΙΚΟΥ ΣΥΣΤΗΜΑΤΟΣ"
+
+msgctxt "model:gnuhealth.body_structure.category,name:s2"
+msgid "THE EYE, EAR AND RELATED STRUCTURES"
+msgstr "Ο ΟΦΘΑΛΜΟΣ, ΤΟ ΑΥΤΙ ΚΑΙ ΣΧΕΤΙΚΕΣ ΔΟΜΕΣ"
+
+msgctxt "model:gnuhealth.body_structure.category,name:s3"
+msgid "STRUCTURES INVOLVED IN VOICE AND SPEECH"
+msgstr "ΔΟΜΕΣ ΠΟΥ ΣΥΜΜΕΤΕΧΟΥΝ ΣΤΗ ΦΩΝΗ ΚΑΙ ΤΗΝ ΟΜΙΛΙΑ"
+
+msgctxt "model:gnuhealth.body_structure.category,name:s4"
+msgid ""
+"STRUCTURES OF THE CARDIOVASCULAR, IMMUNOLOGICAL AND RESPIRATORY SYSTEMS"
+msgstr "ΔΟΜΕΣ ΤΟΥ ΚΑΡΔΙΑΓΓΕΙΑΚΟΥ, ΑΝΟΣΟΠΟΙΗΤΙΚΟΥ ΚΑΙ ΑΝΑΠΝΕΥΣΤΙΚΟΥ ΣΥΣΤΗΜΑΤΟΣ"
+
+msgctxt "model:gnuhealth.body_structure.category,name:s5"
+msgid "STRUCTURES RELATED TO THE DIGESTIVE, METABOLIC AND ENDOCRINE SYSTEMS"
+msgstr ""
+"ΔΟΜΕΣ ΠΟΥ ΣΧΕΤΙΖΟΝΤΑΙ ΜΕ ΤΟ ΠΕΠΤΙΚΟ, ΜΕΤΑΒΟΛΙΚΟ ΚΑΙ ΕΝΔΟΚΡΙΝΙΚΟ ΣΥΣΤΗΜΑ"
+
+msgctxt "model:gnuhealth.body_structure.category,name:s6"
+msgid "STRUCTURES RELATED TO THE GENITOURINARY AND REPRODUCTIVE SYSTEMS"
+msgstr "ΔΟΜΕΣ ΠΟΥ ΣΧΕΤΙΖΟΝΤΑΙ ΜΕ ΤΟ ΟΥΡΟΠΟΙΗΤΙΚΟ ΚΑΙ ΑΝΑΠΑΡΑΓΩΓΙΚΟ ΣΥΣΤΗΜΑ"
+
+msgctxt "model:gnuhealth.body_structure.category,name:s7"
+msgid "STRUCTURES RELATED TO MOVEMENT"
+msgstr "ΔΟΜΕΣ ΠΟΥ ΣΧΕΤΙΖΟΝΤΑΙ ΜΕ ΤΗΝ ΚΙΝΗΣΗ"
+
+msgctxt "model:gnuhealth.body_structure.category,name:s8"
+msgid "SKIN AND RELATED STRUCTURES"
+msgstr "ΔΕΡΜΑ ΚΑΙ ΣΧΕΤΙΚΕΣ ΔΟΜΕΣ"
+
+msgctxt "model:gnuhealth.environment.assessment,name:"
+msgid "Environmental Factors Assessment"
+msgstr "Αξιολόγηση Περιβαλλοντικών Παραγόντων"
+
+msgctxt "model:gnuhealth.environmental_factor,name:"
+msgid "Environmental factors restrictions"
+msgstr "Περιορισμοί περιβαλλοντικών παραγόντων"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e110"
+msgid "For personal consumption (food, medicines)"
+msgstr "Για προσωπική κατανάλωση (τρόφιμα, φάρμακα)"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e115"
+msgid "For personal use in daily living"
+msgstr "Για προσωπική χρήση στην καθημερινή ζωή"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e120"
+msgid "For personal indoor and outdoor mobility and transportation"
+msgstr ""
+"Για προσωπική κινητικότητα και μεταφορά σε εσωτερικούς και εξωτερικούς "
+"χώρους"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e125"
+msgid "Products for communication"
+msgstr "Προϊόντα για επικοινωνία"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e150"
+msgid ""
+"Design, construction and building products and technology of buildings for "
+"public use"
+msgstr ""
+"Σχεδιασμός, κατασκευή και προϊόντα και τεχνολογία κτιρίων για δημόσια χρήση"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e155"
+msgid ""
+"Design, construction and building products and technology of buildings for "
+"private use"
+msgstr ""
+"Σχεδιασμός, κατασκευή και προϊόντα και τεχνολογία κτιρίων για ιδιωτική χρήση"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e225"
+msgid "Climate"
+msgstr "Κλίμα"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e240"
+msgid "Light"
+msgstr "Φως"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e250"
+msgid "Sound"
+msgstr "Ήχος"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e310"
+msgid "Immediate family"
+msgstr "Άμεση οικογένεια"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e320"
+msgid "Friends"
+msgstr "Φίλοι"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e325"
+msgid "Acquaintances, peers, colleagues, neighbours and community members"
+msgstr "Γνωστοί, συνομήλικοι, συνάδελφοι, γείτονες και μέλη της κοινότητας"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e330"
+msgid "People in position of authority"
+msgstr "Άτομα σε θέση εξουσίας"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e340"
+msgid "Personal care providers and personal assistants"
+msgstr "Πάροχοι προσωπικής φροντίδας και προσωπικοί βοηθοί"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e355"
+msgid "Health professionals"
+msgstr "Επαγγελματίες υγείας"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e360"
+msgid "Health related professionals"
+msgstr "Επαγγελματίες που σχετίζονται με την υγεία"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e410"
+msgid "Individual attitudes of immediate family members"
+msgstr "Ατομικές στάσεις των άμεσων μελών της οικογένειας"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e420"
+msgid "Individual attitudes of friends"
+msgstr "Ατομικές στάσεις των φίλων"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e440"
+msgid ""
+"Individual attitudes of personal care providers and personal assistants"
+msgstr ""
+"Ατομικές στάσεις των παρόχων προσωπικής φροντίδας και προσωπικών βοηθών"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e450"
+msgid "Individual attitudes of health professionals"
+msgstr "Ατομικές στάσεις των επαγγελματιών υγείας"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e455"
+msgid "Individual attitudes of health related professionals"
+msgstr "Ατομικές στάσεις των επαγγελματιών που σχετίζονται με την υγεία"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e460"
+msgid "Societal attitudes"
+msgstr "Κοινωνικές στάσεις"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e465"
+msgid "Social norms, practices and ideologies"
+msgstr "Κοινωνικές νόρμες, πρακτικές και ιδεολογίες"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e525"
+msgid "Housing services, systems and policies"
+msgstr "Υπηρεσίες, συστήματα και πολιτικές στέγασης"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e535"
+msgid "Communication services, systems and policies"
+msgstr "Υπηρεσίες, συστήματα και πολιτικές επικοινωνίας"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e540"
+msgid "Transportation services, systems and policies"
+msgstr "Υπηρεσίες, συστήματα και πολιτικές μεταφορών"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e550"
+msgid "Legal services, systems and policies"
+msgstr "Νομικές υπηρεσίες, συστήματα και πολιτικές"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e570"
+msgid "Social security, services, systems and policies"
+msgstr "Κοινωνική ασφάλιση, υπηρεσίες, συστήματα και πολιτικές"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e575"
+msgid "General social support services, systems and policies"
+msgstr "Γενικές υπηρεσίες, συστήματα και πολιτικές κοινωνικής υποστήριξης"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e580"
+msgid "Health services, systems and policies"
+msgstr "Υπηρεσίες, συστήματα και πολιτικές υγείας"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e585"
+msgid "Education and training services, systems and policies"
+msgstr "Υπηρεσίες, συστήματα και πολιτικές εκπαίδευσης και κατάρτισης"
+
+msgctxt "model:gnuhealth.environmental_factor,name:e590"
+msgid "Labour and employment services, systems and policies"
+msgstr "Υπηρεσίες, συστήματα και πολιτικές εργασίας και απασχόλησης"
+
+msgctxt "model:gnuhealth.environmental_factor.category,name:"
+msgid "Environmental Factor Category"
+msgstr "Κατηγορία Περιβαλλοντικών Παραγόντων"
+
+msgctxt "model:gnuhealth.environmental_factor.category,name:e1"
+msgid "PRODUCTS AND TECHNOLOGY"
+msgstr "ΠΡΟΪΟΝΤΑ ΚΑΙ ΤΕΧΝΟΛΟΓΙΑ"
+
+msgctxt "model:gnuhealth.environmental_factor.category,name:e2"
+msgid "NATURAL ENVIRONMENT AND HUMAN MADE CHANGES TO ENVIRONMENT"
+msgstr "ΦΥΣΙΚΟ ΠΕΡΙΒΑΛΛΟΝ ΚΑΙ ΑΝΘΡΩΠΟΓΕΝΕΙΣ ΑΛΛΑΓΕΣ ΣΤΟ ΠΕΡΙΒΑΛΛΟΝ"
+
+msgctxt "model:gnuhealth.environmental_factor.category,name:e3"
+msgid "SUPPORT AND RELATIONSHIPS"
+msgstr "ΥΠΟΣΤΗΡΙΞΗ ΚΑΙ ΣΧΕΣΕΙΣ"
+
+msgctxt "model:gnuhealth.environmental_factor.category,name:e4"
+msgid "ATTITUDES"
+msgstr "ΣΤΑΣΕΙΣ"
+
+msgctxt "model:gnuhealth.environmental_factor.category,name:e5"
+msgid "SERVICES, SYSTEMS AND POLICIES"
+msgstr "ΥΠΗΡΕΣΙΕΣ, ΣΥΣΤΗΜΑΤΑ ΚΑΙ ΠΟΛΙΤΙΚΕΣ"
+
+msgctxt "model:gnuhealth.patient.amputation,name:"
+msgid "Amputation"
+msgstr "Ακρωτηριασμός"
+
+msgctxt "model:gnuhealth.patient.disability_assessment,name:"
+msgid "Patient Disability Information"
+msgstr "Πληροφορίες Αναπηρίας Ασθενούς"
+
+msgctxt "model:gnuhealth.patient.prothesis,name:"
+msgid "Prothesis"
+msgstr "Πρόθεση"
+
+msgctxt "model:ir.action,name:act_patient_disability_assessment_form"
+msgid "Disability Assessment"
+msgstr "Αξιολόγηση Αναπηρίας"
+
+msgctxt ""
+"model:ir.action,name:action_gnuhealth_activity_and_participation_view"
+msgid "Activities and Participation"
+msgstr "Δραστηριότητες και Συμμετοχή"
+
+msgctxt "model:ir.action,name:action_gnuhealth_body_function_view"
+msgid "Body Functions"
+msgstr "Λειτουργίες Σώματος"
+
+msgctxt "model:ir.action,name:action_gnuhealth_body_structure_view"
+msgid "Body Structures"
+msgstr "Δομές Σώματος"
+
+msgctxt "model:ir.action,name:action_gnuhealth_environmental_factor_view"
+msgid "Environmental Factors"
+msgstr "Περιβαλλοντικοί Παράγοντες"
+
+msgctxt "model:ir.action,name:action_gnuhealth_patient_amputation_view"
+msgid "Amputations"
+msgstr "Ακρωτηριασμοί"
+
+msgctxt "model:ir.action,name:action_gnuhealth_patient_prothesis_view"
+msgid "Protheses"
+msgstr "Προσθέσεις"
+
+msgctxt "model:ir.ui.menu,name:disability_conf_menu"
+msgid "Functioning and Disability"
+msgstr "Λειτουργικότητα και Αναπηρία"
+
+msgctxt "model:ir.ui.menu,name:menu_gnuhealth_activity_and_participation_list"
+msgid "Activities and Participation"
+msgstr "Δραστηριότητες και Συμμετοχή"
+
+msgctxt "model:ir.ui.menu,name:menu_gnuhealth_body_function_list"
+msgid "Body Functions"
+msgstr "Λειτουργίες Σώματος"
+
+msgctxt "model:ir.ui.menu,name:menu_gnuhealth_body_structure_list"
+msgid "Body Structures"
+msgstr "Δομές Σώματος"
+
+msgctxt "model:ir.ui.menu,name:menu_gnuhealth_environmental_factor_list"
+msgid "Environmental Factors"
+msgstr "Περιβαλλοντικοί Παράγοντες"
+
+msgctxt "model:ir.ui.menu,name:menu_gnuhealth_patient_amputation_list"
+msgid "Amputations"
+msgstr "Ακρωτηριασμοί"
+
+msgctxt "model:ir.ui.menu,name:menu_gnuhealth_patient_prothesis_list"
+msgid "Protheses"
+msgstr "Προσθέσεις"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier1:"
+msgid "Complete difficulty"
+msgstr "Πλήρης δυσκολία"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier1:"
+msgid "Mild difficulty"
+msgstr "Ήπια δυσκολία"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier1:"
+msgid "Moderate difficulty"
+msgstr "Μέτρια δυσκολία"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier1:"
+msgid "No difficulty"
+msgstr "Καμία δυσκολία"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier1:"
+msgid "Not applicable"
+msgstr "Μη εφαρμόσιμο"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier1:"
+msgid "Not specified"
+msgstr "Μη καθορισμένο"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier1:"
+msgid "Severe difficulty"
+msgstr "Σοβαρή δυσκολία"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier2:"
+msgid "Complete difficulty"
+msgstr "Πλήρης δυσκολία"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier2:"
+msgid "Mild difficulty"
+msgstr "Ήπια δυσκολία"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier2:"
+msgid "Moderate difficulty"
+msgstr "Μέτρια δυσκολία"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier2:"
+msgid "No difficulty"
+msgstr "Καμία δυσκολία"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier2:"
+msgid "Not applicable"
+msgstr "Μη εφαρμόσιμο"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier2:"
+msgid "Not specified"
+msgstr "Μη καθορισμένο"
+
+msgctxt "selection:gnuhealth.activity.assessment,qualifier2:"
+msgid "Severe difficulty"
+msgstr "Σοβαρή δυσκολία"
+
+msgctxt "selection:gnuhealth.body_function.assessment,qualifier:"
+msgid "Complete impairment"
+msgstr "Πλήρης δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.body_function.assessment,qualifier:"
+msgid "Mild impairment"
+msgstr "Ήπια δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.body_function.assessment,qualifier:"
+msgid "No impairment"
+msgstr "Καμία δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.body_function.assessment,qualifier:"
+msgid "Not applicable"
+msgstr "Μη εφαρμόσιμο"
+
+msgctxt "selection:gnuhealth.body_function.assessment,qualifier:"
+msgid "Not specified"
+msgstr "Μη καθορισμένο"
+
+msgctxt "selection:gnuhealth.body_function.assessment,qualifier:"
+msgid "Severe impairment"
+msgstr "Σοβαρή δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,body_side:"
+msgid "Both"
+msgstr "Αμφότερα"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,body_side:"
+msgid "Left"
+msgstr "Αριστερά"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,body_side:"
+msgid "Right"
+msgstr "Δεξιά"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier1:"
+msgid "Complete impairment"
+msgstr "Πλήρης δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier1:"
+msgid "Mild impairment"
+msgstr "Ήπια δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier1:"
+msgid "Moderate impairment"
+msgstr "Μέτρια δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier1:"
+msgid "No impairment"
+msgstr "Καμία δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier1:"
+msgid "Not applicable"
+msgstr "Μη εφαρμόσιμο"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier1:"
+msgid "Not specified"
+msgstr "Μη καθορισμένο"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier1:"
+msgid "Severe impairment"
+msgstr "Σοβαρή δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier2:"
+msgid "8 - Not specified"
+msgstr "8 - Μη καθορισμένο"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier2:"
+msgid "9 - Not applicable"
+msgstr "9 - Μη εφαρμόσιμο"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier2:"
+msgid "Aberrant dimensions"
+msgstr "Παρεκκλίνουσες διαστάσεις"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier2:"
+msgid "Additional part"
+msgstr "Πρόσθετο τμήμα"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier2:"
+msgid "Deviating position"
+msgstr "Παρεκκλίνουσα θέση"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier2:"
+msgid "Discontinuity"
+msgstr "Ασυνέχεια"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier2:"
+msgid "No change in structure"
+msgstr "Καμία αλλαγή στη δομή"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier2:"
+msgid "Partial absence"
+msgstr "Μερική απουσία"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier2:"
+msgid "Qualitative changes in structure, including accumulation of fluid"
+msgstr "Ποιοτικές αλλαγές στη δομή, συμπεριλαμβανομένης της συσσώρευσης υγρού"
+
+msgctxt "selection:gnuhealth.body_structure.assessment,qualifier2:"
+msgid "Total absence"
+msgstr "Ολική απουσία"
+
+msgctxt "selection:gnuhealth.environment.assessment,qualifier:"
+msgid "Complete barriers"
+msgstr "Πλήρη εμπόδια"
+
+msgctxt "selection:gnuhealth.environment.assessment,qualifier:"
+msgid "Complete facilitator"
+msgstr "Πλήρης διευκολυντής"
+
+msgctxt "selection:gnuhealth.environment.assessment,qualifier:"
+msgid "Mild barriers"
+msgstr "Ήπια εμπόδια"
+
+msgctxt "selection:gnuhealth.environment.assessment,qualifier:"
+msgid "Mild facilitator"
+msgstr "Ήπιος διευκολυντής"
+
+msgctxt "selection:gnuhealth.environment.assessment,qualifier:"
+msgid "Moderate barriers"
+msgstr "Μέτρια εμπόδια"
+
+msgctxt "selection:gnuhealth.environment.assessment,qualifier:"
+msgid "Moderate facilitator"
+msgstr "Μέτριος διευκολυντής"
+
+msgctxt "selection:gnuhealth.environment.assessment,qualifier:"
+msgid "No barriers"
+msgstr "Κανένα εμπόδιο"
+
+msgctxt "selection:gnuhealth.environment.assessment,qualifier:"
+msgid "No facilitator"
+msgstr "Κανένας διευκολυντής"
+
+msgctxt "selection:gnuhealth.environment.assessment,qualifier:"
+msgid "Severe barriers"
+msgstr "Σοβαρά εμπόδια"
+
+msgctxt "selection:gnuhealth.environment.assessment,qualifier:"
+msgid "Severe facilitator"
+msgstr "Σοβαρός διευκολυντής"
+
+msgctxt "selection:gnuhealth.patient.amputation,amputation_level:"
+msgid "ED - Elbow disarticulation"
+msgstr "ED - Εξάρθρημα αγκώνα"
+
+msgctxt "selection:gnuhealth.patient.amputation,amputation_level:"
+msgid "HD - Hemipelvectomy"
+msgstr "HD - Ημιπυελεκτομή"
+
+msgctxt "selection:gnuhealth.patient.amputation,amputation_level:"
+msgid "PFFD"
+msgstr "PFFD"
+
+msgctxt "selection:gnuhealth.patient.amputation,amputation_level:"
+msgid "PH"
+msgstr "PH"
+
+msgctxt "selection:gnuhealth.patient.amputation,amputation_level:"
+msgid "SD - Shoulder disarticulation"
+msgstr "SD - Εξάρθρημα ώμου"
+
+msgctxt "selection:gnuhealth.patient.amputation,amputation_level:"
+msgid "Symes"
+msgstr "Symes"
+
+msgctxt "selection:gnuhealth.patient.amputation,amputation_level:"
+msgid "TF - Transfemoral"
+msgstr "TF - Διαμηριαίος"
+
+msgctxt "selection:gnuhealth.patient.amputation,amputation_level:"
+msgid "TH - Transhumeral"
+msgstr "TH - Διαβραχιόνιος"
+
+msgctxt "selection:gnuhealth.patient.amputation,amputation_level:"
+msgid "TR - Transradial"
+msgstr "TR - Διακερκιδικός"
+
+msgctxt "selection:gnuhealth.patient.amputation,amputation_level:"
+msgid "TT - Transtibial"
+msgstr "TT - Διακνημιαίος"
+
+msgctxt "selection:gnuhealth.patient.amputation,amputation_level:"
+msgid "WD - Wrist disarticulation"
+msgstr "WD - Εξάρθρημα καρπού"
+
+msgctxt "selection:gnuhealth.patient.amputation,etiology:"
+msgid "Congenital"
+msgstr "Συγγενής"
+
+msgctxt "selection:gnuhealth.patient.amputation,etiology:"
+msgid "Infection"
+msgstr "Λοίμωξη"
+
+msgctxt "selection:gnuhealth.patient.amputation,etiology:"
+msgid "Neoplasia"
+msgstr "Νεοπλασία"
+
+msgctxt "selection:gnuhealth.patient.amputation,etiology:"
+msgid "Peripherial Vascular Disease"
+msgstr "Περιφερική Αγγειακή Νόσος"
+
+msgctxt "selection:gnuhealth.patient.amputation,etiology:"
+msgid "Trauma"
+msgstr "Τραύμα"
+
+msgctxt "selection:gnuhealth.patient.amputation,limb:"
+msgid "lower limb"
+msgstr "κάτω άκρο"
+
+msgctxt "selection:gnuhealth.patient.amputation,limb:"
+msgid "upper limb"
+msgstr "άνω άκρο"
+
+msgctxt "selection:gnuhealth.patient.amputation,side:"
+msgid "both"
+msgstr "αμφότερα"
+
+msgctxt "selection:gnuhealth.patient.amputation,side:"
+msgid "left"
+msgstr "αριστερά"
+
+msgctxt "selection:gnuhealth.patient.amputation,side:"
+msgid "right"
+msgstr "δεξιά"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,activity_participation:"
+msgid "Complete impairment"
+msgstr "Πλήρης δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,activity_participation:"
+msgid "Mild impairment"
+msgstr "Ήπια δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,activity_participation:"
+msgid "Moderate impairment"
+msgstr "Μέτρια δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,activity_participation:"
+msgid "No impairment"
+msgstr "Καμία δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,activity_participation:"
+msgid "Severe impairment"
+msgstr "Σοβαρή δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,cognitive_function:"
+msgid "Complete impairment"
+msgstr "Πλήρης δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,cognitive_function:"
+msgid "Mild impairment"
+msgstr "Ήπια δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,cognitive_function:"
+msgid "Moderate impairment"
+msgstr "Μέτρια δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,cognitive_function:"
+msgid "No impairment"
+msgstr "Καμία δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,cognitive_function:"
+msgid "Severe impairment"
+msgstr "Σοβαρή δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,hand_function:"
+msgid "Complete impairment"
+msgstr "Πλήρης δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,hand_function:"
+msgid "Mild impairment"
+msgstr "Ήπια δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,hand_function:"
+msgid "Moderate impairment"
+msgstr "Μέτρια δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,hand_function:"
+msgid "No impairment"
+msgstr "Καμία δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,hand_function:"
+msgid "Severe impairment"
+msgstr "Σοβαρή δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,hearing_function:"
+msgid "Complete impairment"
+msgstr "Πλήρης δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,hearing_function:"
+msgid "Mild impairment"
+msgstr "Ήπια δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,hearing_function:"
+msgid "Moderate impairment"
+msgstr "Μέτρια δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,hearing_function:"
+msgid "No impairment"
+msgstr "Καμία δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,hearing_function:"
+msgid "Severe impairment"
+msgstr "Σοβαρή δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,locomotor_function:"
+msgid "Complete impairment"
+msgstr "Πλήρης δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,locomotor_function:"
+msgid "Mild impairment"
+msgstr "Ήπια δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,locomotor_function:"
+msgid "Moderate impairment"
+msgstr "Μέτρια δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,locomotor_function:"
+msgid "No impairment"
+msgstr "Καμία δυσλειτουργία"
+
+msgctxt ""
+"selection:gnuhealth.patient.disability_assessment,locomotor_function:"
+msgid "Severe impairment"
+msgstr "Σοβαρή δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,speech_function:"
+msgid "Complete impairment"
+msgstr "Πλήρης δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,speech_function:"
+msgid "Mild impairment"
+msgstr "Ήπια δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,speech_function:"
+msgid "Moderate impairment"
+msgstr "Μέτρια δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,speech_function:"
+msgid "No impairment"
+msgstr "Καμία δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,speech_function:"
+msgid "Severe impairment"
+msgstr "Σοβαρή δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,visual_function:"
+msgid "Complete impairment"
+msgstr "Πλήρης δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,visual_function:"
+msgid "Mild impairment"
+msgstr "Ήπια δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,visual_function:"
+msgid "Moderate impairment"
+msgstr "Μέτρια δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,visual_function:"
+msgid "No impairment"
+msgstr "Καμία δυσλειτουργία"
+
+msgctxt "selection:gnuhealth.patient.disability_assessment,visual_function:"
+msgid "Severe impairment"
+msgstr "Σοβαρή δυσλειτουργία"
+
+msgctxt "view:gnuhealth.patient.disability_assessment:"
+msgid "Amputee Status"
+msgstr "Κατάσταση Ακρωτηριασμού"
+
+msgctxt "view:gnuhealth.patient.disability_assessment:"
+msgid "Detailed Functioning and Disability Assessment"
+msgstr "Λεπτομερής Αξιολόγηση Λειτουργικότητας και Αναπηρίας"
+
+msgctxt "view:gnuhealth.patient.disability_assessment:"
+msgid "Extra Info"
+msgstr "Πρόσθετες Πληροφορίες"
+
+msgctxt "view:gnuhealth.patient.disability_assessment:"
+msgid "Header"
+msgstr "Γενικά"
+
+msgctxt "view:gnuhealth.patient.disability_assessment:"
+msgid "Summary - Brief Assessment"
+msgstr "Σύνοψη - Σύντομη Αξιολόγηση"
+
+msgctxt "view:gnuhealth.patient:"
+msgid "Functioning and Disability"
+msgstr "Λειτουργικότητα και Αναπηρία"

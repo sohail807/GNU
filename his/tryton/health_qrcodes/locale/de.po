@@ -1,0 +1,216 @@
+#
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-08-23 13:09+0000\n"
+"Last-Translator: tct123 <tct123@noreply.codeberg.org>\n"
+"Language-Team: German <https://translate.codeberg.org/projects/gnuhealth/health_qrcodes/de/>\n"
+"Language: de\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+msgctxt "field:gnuhealth.appointment,barcode:"
+msgid "Code39"
+msgstr "Code39"
+
+#, fuzzy
+msgctxt "field:gnuhealth.appointment,qr:"
+msgid "QR Code"
+msgstr "QR-Code"
+
+msgctxt "field:gnuhealth.lab,bar:"
+msgid "Bar Code39"
+msgstr ""
+
+#, fuzzy
+msgctxt "field:gnuhealth.lab,qr:"
+msgid "QR Code"
+msgstr "QR-Code"
+
+msgctxt "field:gnuhealth.newborn,qr:"
+msgid "QR Code"
+msgstr "QR-Code"
+
+msgctxt "field:gnuhealth.patient,barcode:"
+msgid "Code39"
+msgstr ""
+
+msgctxt "field:gnuhealth.patient,qr:"
+msgid "QR Code"
+msgstr "QR-Code"
+
+msgctxt "field:party.party,barcode:"
+msgid "Code39"
+msgstr ""
+
+msgctxt "model:ir.action,name:report_appointment_qrcode"
+msgid "Appointment QRCODE"
+msgstr ""
+
+msgctxt "model:ir.action,name:report_labtest_barcode39"
+msgid "Code39 barcode label"
+msgstr ""
+
+msgctxt "model:ir.action,name:report_labtest_qrcode"
+msgid "Test Labels"
+msgstr ""
+
+msgctxt "model:ir.action,name:report_newborn_qrcard"
+msgid "Newborn ID - QR"
+msgstr "Neugeborenen-ID - QR"
+
+msgctxt "model:ir.action,name:report_party_wristband"
+msgid "Wristbands"
+msgstr ""
+
+msgctxt "model:ir.action,name:report_patient_qrcard"
+msgid "ID Cards - QR"
+msgstr "ID-Karte - QR"
+
+msgctxt "model:ir.action,name:report_patient_wristband"
+msgid "Wristbands"
+msgstr ""
+
+msgctxt "report:appointment.qrcodel:"
+msgid "APPT ID:"
+msgstr ""
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "Appointment Receipt"
+msgstr "Quittung zum Termin"
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "Date:"
+msgstr "Datum:"
+
+msgctxt "report:appointment.qrcodel:"
+msgid "Extra Info:"
+msgstr ""
+
+msgctxt "report:appointment.qrcodel:"
+msgid "Health Prof:"
+msgstr ""
+
+msgctxt "report:appointment.qrcodel:"
+msgid "Institution:"
+msgstr ""
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "PUID:"
+msgstr "PUID:"
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "Patient:"
+msgstr "Patient:"
+
+msgctxt "report:appointment.qrcodel:"
+msgid "Specialty:"
+msgstr ""
+
+msgctxt "report:appointment.qrcodel:"
+msgid "You must present this receipt and your PUID"
+msgstr ""
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Cap label"
+msgstr ""
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Extraction date:"
+msgstr ""
+
+msgctxt "report:labtest.qrlabel:"
+msgid "ID:"
+msgstr ""
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Req by:"
+msgstr ""
+
+#, fuzzy
+msgctxt "report:labtest.qrlabel:"
+msgid "Source:"
+msgstr "Quelle:"
+
+#, fuzzy
+msgctxt "report:labtest.qrlabel:"
+msgid "Test:"
+msgstr "Test:"
+
+#, fuzzy
+msgctxt "report:newborn.qrcard:"
+msgid "DoB:"
+msgstr "Geb.dat."
+
+msgctxt "report:newborn.qrcard:"
+msgid "Ht / Wt:"
+msgstr ""
+
+msgctxt "report:newborn.qrcard:"
+msgid "Mother ID:"
+msgstr ""
+
+msgctxt "report:newborn.qrcard:"
+msgid "Mother:"
+msgstr ""
+
+#, fuzzy
+msgctxt "report:newborn.qrcard:"
+msgid "Name:"
+msgstr "Name:"
+
+#, fuzzy
+msgctxt "report:newborn.qrcard:"
+msgid "PUID:"
+msgstr "PUID:"
+
+msgctxt "report:newborn.qrcard:"
+msgid "Sex:"
+msgstr ""
+
+msgctxt "report:newborn.qrcard:"
+msgid "photo"
+msgstr ""
+
+#, fuzzy
+msgctxt "report:party.wristband:"
+msgid ","
+msgstr ","
+
+msgctxt "report:patient.qrcard:"
+msgid "Blood Type:"
+msgstr ""
+
+#, fuzzy
+msgctxt "report:patient.qrcard:"
+msgid "DoB:"
+msgstr "Geb.dat."
+
+#, fuzzy
+msgctxt "report:patient.qrcard:"
+msgid "Gender:"
+msgstr "Geschlecht:"
+
+#, fuzzy
+msgctxt "report:patient.qrcard:"
+msgid "Name:"
+msgstr "Name:"
+
+#, fuzzy
+msgctxt "report:patient.qrcard:"
+msgid "PUID:"
+msgstr "PUID:"
+
+msgctxt "report:patient.qrcard:"
+msgid "photo"
+msgstr ""
+
+#, fuzzy
+msgctxt "report:patient.wristband:"
+msgid ","
+msgstr ","

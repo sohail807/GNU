@@ -1,0 +1,22 @@
+# ==============================================================================
+# GNU HEALTH 5.0 — QATAR OUTPATIENT CLINIC MEDICATION MASTER DATA TEMPLATE
+# Status: PENDING_CLINIC_INPUT
+# Instructions: Fill in Qatar MOPH-approved clinic formulary before import.
+# ==============================================================================
+
+medicines:
+  - product_code: "<PENDING_CLINIC_INPUT>"  # e.g., MED-PARA-500
+    brand_name: "<PENDING_CLINIC_INPUT>"    # e.g., Panadol
+    generic_name: "<PENDING_CLINIC_INPUT>"  # e.g., Paracetamol
+    strength: "<PENDING_CLINIC_INPUT>"      # e.g., 500
+    dose_unit: "mg"                         # Mapped from gnuhealth.dose.unit (mg, mL, ug, mmol)
+    dosage_form: "TAB"                      # Mapped from gnuhealth.drug.form (TAB, CAP, CRM, DPS)
+    route: "O"                              # Mapped from gnuhealth.drug.route (O: Oral, TOP: Topical, IV, IM)
+    manufacturer: "<PENDING_CLINIC_INPUT>"
+    barcode: "<PENDING_CLINIC_INPUT>"
+    category: "Analgesic / Antipyretic"
+    selling_price_qar: "<PENDING_CLINIC_INPUT>"
+    purchase_price_qar: "<PENDING_CLINIC_INPUT>"
+    initial_stock: 0                        # Zero fake stock policy
+    reorder_level: "<PENDING_CLINIC_INPUT>"
+    is_active: false                        # Inactive until formulary verified

@@ -1,0 +1,394 @@
+#
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-04-20 01:21+0000\n"
+"Last-Translator: tumashu <tumashu@noreply.codeberg.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://translate.codeberg.org/projects/gnuhealth/health_nursing/zh_Hans/>\n"
+"Language: zh_CN\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.10.2\n"
+
+msgctxt "field:gnuhealth.ambulatory_care_procedure,ambcare:"
+msgid "Session"
+msgstr "轮次"
+
+msgctxt "field:gnuhealth.ambulatory_care_procedure,comments:"
+msgid "Comments"
+msgstr "说明"
+
+msgctxt "field:gnuhealth.ambulatory_care_procedure,procedure:"
+msgid "Code"
+msgstr "护理操作代码"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,ambulatory_procedures:"
+msgid "Procedures"
+msgstr "操作"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,base_condition:"
+msgid "Condition"
+msgstr "疾病"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,bpm:"
+msgid "Heart Rate"
+msgstr "心率"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,diastolic:"
+msgid "Diastolic Pressure"
+msgstr "舒张压"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,evaluation:"
+msgid "Related Evaluation"
+msgstr "相关评估"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,evolution:"
+msgid "Evolution"
+msgstr "进展情况"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,glycemia:"
+msgid "Glycemia"
+msgstr "血糖"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,health_professional:"
+msgid "Health Prof"
+msgstr "医务人员"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,name:"
+msgid "ID"
+msgstr "护理编号"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,next_session:"
+msgid "Next Session"
+msgstr "下一轮"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,ordering_professional:"
+msgid "Requested by"
+msgstr "申请人"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,osat:"
+msgid "Oxygen Saturation"
+msgstr "血氧饱和度"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,pain:"
+msgid "Pain"
+msgstr "疼痛"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,pain_level:"
+msgid "Pain level"
+msgstr "疼痛等级"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,patient:"
+msgid "Patient"
+msgstr "患者"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,procedures:"
+msgid "Procedures"
+msgstr "护理操作"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,respiratory_rate:"
+msgid "Respiratory Rate"
+msgstr "呼吸频率"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,session_end:"
+msgid "End"
+msgstr "结束"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,session_notes:"
+msgid "Notes"
+msgstr "注意事项"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,session_number:"
+msgid "Session #"
+msgstr "轮次 #"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,session_start:"
+msgid "Start"
+msgstr "开始"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,signed_by:"
+msgid "Signed by"
+msgstr "签署人"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,state:"
+msgid "State"
+msgstr "状态"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,systolic:"
+msgid "Systolic Pressure"
+msgstr "收缩压"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,temperature:"
+msgid "Temperature"
+msgstr "体温"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,warning:"
+msgid "Warning"
+msgstr "警告"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,warning_icon:"
+msgid "Warning Icon"
+msgstr "警告图标"
+
+msgctxt "field:gnuhealth.patient.ambulatory_care,weight:"
+msgid "Weight"
+msgstr "体重"
+
+msgctxt "field:gnuhealth.sequences,ambulatory_care_sequence:"
+msgid "Ambulatory Sequence"
+msgstr "门诊护理序列"
+
+msgctxt ""
+"field:gnuhealth.sequences.ambulatory_care_sequence,ambulatory_care_sequence:"
+msgid "Ambulatory Sequence"
+msgstr "门诊护理序列"
+
+msgctxt "help:gnuhealth.ambulatory_care_procedure,procedure:"
+msgid "Procedure Code"
+msgstr "护理操作代码"
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,ambulatory_procedures:"
+msgid "Procedures done during the ambulatory care session"
+msgstr "此次门诊护理期间完成的操作"
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,bpm:"
+msgid "Heart rate expressed in beats per minute"
+msgstr "心率（次/分钟）"
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,evolution:"
+msgid "Check your judgement of current patient condition"
+msgstr "检查你对当前病人患病情况的判断"
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,glycemia:"
+msgid "Blood Glucose level"
+msgstr "血糖水平"
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,osat:"
+msgid "Oxygen Saturation(arterial)."
+msgstr "血氧饱和度(动脉)。"
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,pain:"
+msgid "Check if the patient is in pain"
+msgstr "如果患者疼痛，就选中此项"
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,pain_level:"
+msgid "Enter the pain level, from 1 to 10."
+msgstr "请输入疼痛等级，从 1 到 10."
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,procedures:"
+msgid ""
+"List of the procedures in this session. Please enter the first one as the "
+"main procedure"
+msgstr "本轮护理操作列表. 第一个输入的应该是主护理操作"
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,respiratory_rate:"
+msgid "Respiratory rate expressed in breaths per minute"
+msgstr "呼吸频率（分钟/次）"
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,signed_by:"
+msgid "Health Professional that signed the session"
+msgstr "签署此轮护理的医务人员"
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,temperature:"
+msgid "Temperature in celsius"
+msgstr "摄氏度"
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,warning:"
+msgid ""
+"Check this box to alert the supervisor about this session. A warning icon "
+"will be shown in the session list"
+msgstr "选中此框可提醒管理人员此轮门诊护理情况，护理情况列表中将显示警告图标"
+
+msgctxt "help:gnuhealth.patient.ambulatory_care,weight:"
+msgid "Measured weight, in kg"
+msgstr "已测体重，单位：kg"
+
+msgctxt "model:gnuhealth.ambulatory_care_procedure,name:"
+msgid "Ambulatory Care Procedure"
+msgstr "门诊护理操作"
+
+msgctxt "model:gnuhealth.patient.ambulatory_care,name:"
+msgid "Ambulatory Care"
+msgstr "门诊护理"
+
+msgctxt "model:gnuhealth.sequences.ambulatory_care_sequence,name:"
+msgid "Ambulatory Care Sequences setup"
+msgstr "门诊护理序列设置"
+
+msgctxt "model:ir.action,name:action_gnuhealth_patient_ambulatory_care_view"
+msgid "Ambulatory Care"
+msgstr "门诊护理"
+
+msgctxt "model:ir.action,name:report_ambulatory_care"
+msgid "Ambulatory care session"
+msgstr "门诊护理报告"
+
+msgctxt "model:ir.message,text:msg_no_associated_health_professional"
+msgid ""
+"SM-CORE-0007: Currently logged in user is not associated to a health "
+"professional. See \"Internal User\" field of \"Parties/People\" form."
+msgstr "SM-CORE-0007: 当前登录用户没有关联到某个医务人员，请查看“参与者/人”界面的“内部用户”字段。"
+
+msgctxt "model:ir.message,text:msg_report_pain_level"
+msgid "Level: %(pain_level)s"
+msgstr "等级: %(pain_level)s"
+
+msgctxt "model:ir.message,text:msg_report_pain_no"
+msgid "No"
+msgstr "否"
+
+msgctxt "model:ir.message,text:msg_report_pain_yes"
+msgid "Yes"
+msgstr "是"
+
+msgctxt "model:ir.model.button,string:session_end_button"
+msgid "End session"
+msgstr "结束本轮查房"
+
+msgctxt "model:ir.sequence,name:seq_gnuhealth_ambulatory_care"
+msgid "Ambulatory Care"
+msgstr "门诊护理"
+
+msgctxt "model:ir.sequence.type,name:seq_type_gnuhealth_ambulatory_care"
+msgid "Ambulatory Care"
+msgstr "门诊护理"
+
+msgctxt "model:ir.ui.menu,name:menu_gnuhealth_patient_ambulatory_care_list"
+msgid "Ambulatory Care"
+msgstr "门诊护理"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "/"
+msgstr "/"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Ambulatory Care Session"
+msgstr "门诊护理报告"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "BP"
+msgstr "血压"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "End:"
+msgstr "结束时间:"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Evolution"
+msgstr "进展情况"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Glycemia"
+msgstr "血糖"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Health Prof:"
+msgstr "医务人员:"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Heart rate"
+msgstr "心率"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Next session"
+msgstr "下一轮"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "O2 Sat (%)"
+msgstr "血氧饱和度(%)"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "PUID:"
+msgstr "健康号:"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Pain"
+msgstr "疼痛"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Patient:"
+msgstr "患者:"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Procedures"
+msgstr "护理操作"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Resp. rate"
+msgstr "呼吸频率"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Session ID:"
+msgstr "护理编号:"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Start:"
+msgstr "开始时间:"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Summary"
+msgstr "总结"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Temp. (C)"
+msgstr "体温(C)"
+
+msgctxt "report:patient.ambulatory_care.report:"
+msgid "Weight (kg)"
+msgstr "体重(kg)"
+
+msgctxt "selection:gnuhealth.patient.ambulatory_care,evolution:"
+msgid "Improving"
+msgstr "正在改善"
+
+msgctxt "selection:gnuhealth.patient.ambulatory_care,evolution:"
+msgid "Initial"
+msgstr "初次"
+
+msgctxt "selection:gnuhealth.patient.ambulatory_care,evolution:"
+msgid "Status Quo"
+msgstr "现状"
+
+msgctxt "selection:gnuhealth.patient.ambulatory_care,evolution:"
+msgid "Worsening"
+msgstr "正在恶化"
+
+msgctxt "selection:gnuhealth.patient.ambulatory_care,state:"
+msgid "Done"
+msgstr "完成"
+
+msgctxt "selection:gnuhealth.patient.ambulatory_care,state:"
+msgid "In Progress"
+msgstr "过程中"
+
+msgctxt "view:gnuhealth.ambulatory_care_procedure:"
+msgid "Procedure Details / Incidents"
+msgstr "护理操作细节 / 事件"
+
+msgctxt "view:gnuhealth.patient.ambulatory_care:"
+msgid "End"
+msgstr "结束"
+
+msgctxt "view:gnuhealth.patient.ambulatory_care:"
+msgid "End this session"
+msgstr "结束此次门诊护理"
+
+msgctxt "view:gnuhealth.patient.ambulatory_care:"
+msgid "End this session ?"
+msgstr "结束此次门诊护理？"
+
+msgctxt "view:gnuhealth.patient.ambulatory_care:"
+msgid "Main"
+msgstr "主要"
+
+msgctxt "view:gnuhealth.patient.ambulatory_care:"
+msgid "Misc"
+msgstr "其他"
+
+msgctxt "view:gnuhealth.patient.ambulatory_care:"
+msgid "Summary"
+msgstr "总结"
+
+msgctxt "view:gnuhealth.patient.ambulatory_care:"
+msgid "Vital Signs"
+msgstr "生命体征"

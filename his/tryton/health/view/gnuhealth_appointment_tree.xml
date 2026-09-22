@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<!--
+SPDX-FileCopyrightText: 2008-2026 Luis Falcón <falcon@gnuhealth.org>
+SPDX-FileCopyrightText: 2011-2026 GNU Solidario <health@gnusolidario.org>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
+<tree editable="1">
+    <field name="state" expand="1"/>
+    <button name="check_in" 
+            help="The patient has arrived and is waiting, click this button will switch appointment to 'checked_in' state."  
+            string="Check In"/>
+    <button name="miss_out" 
+            help="The patient did not show up, click this button will switch appointment to 'no_show' state." 
+            string="Miss Out"/>
+    <field name="patient" expand="1"/>
+    <field name="insurance" expand="1"/>
+    <field name="healthprof" expand="1"/>
+    <field name="speciality"/>
+    <field name="appointment_date" string="Date" widget="date"/>
+    <field name="appointment_date" string="Time" widget="time"/>
+    <field name="visit_type" expand="1"/>
+    <field name="appointment_type"/>
+    <field name="urgency"/>
+    <field name="comments"/>
+    <field name="institution"/>
+    <field name="name" tree_invisible="1"/>
+</tree>

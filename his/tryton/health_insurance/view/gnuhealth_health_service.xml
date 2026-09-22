@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<!--
+SPDX-FileCopyrightText: 2008-2026 Luis Falcón <falcon@gnuhealth.org>
+SPDX-FileCopyrightText: 2011-2026 GNU Solidario <health@gnusolidario.org>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
+<data>
+    <xpath expr="/form/group/field[@name=&quot;invoice_to&quot;]" position="after">
+        <label name="insurance_holder"/>
+        <field name="insurance_holder"/>
+        <label name="insurance_plan"/>
+        <field name="insurance_plan"/>
+    </xpath>
+</data>
+ 

@@ -1,0 +1,109 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:gnuhealth.prescription.order,moves:"
+msgid "Moves"
+msgstr "تحركات"
+
+msgctxt "field:gnuhealth.vaccination,location:"
+msgid "Stock Location"
+msgstr "موقع المخزون"
+
+msgctxt "field:gnuhealth.vaccination,lot:"
+msgid "Lot"
+msgstr "الشحنة"
+
+msgctxt "field:gnuhealth.vaccination,moves:"
+msgid "Moves"
+msgstr "تحركات"
+
+msgctxt "field:gnuhealth.vaccination,product:"
+msgid "Product"
+msgstr "المنتج"
+
+msgctxt "field:party.party,warehouse:"
+msgid "Warehouse"
+msgstr "المستودع"
+
+msgctxt "field:stock.lot,expiration_date:"
+msgid "Expiration Date"
+msgstr "تاريخ الإنتهاء"
+
+msgctxt "help:gnuhealth.vaccination,lot:"
+msgid "This field includes the lot number and expiration date"
+msgstr "هذا الحقل يتضمن رقم الشحنة وتاريخ الإنتهاء"
+
+msgctxt "model:gnuhealth.prescription.stock.move.init,name:"
+msgid "Create Prescription Stock Move Init"
+msgstr "إنشاء التحركات المبدأية لمخزون الوصفة"
+
+msgctxt "model:gnuhealth.vaccination.stock.move.init,name:"
+msgid "Create Vaccination Stock Move Init"
+msgstr "إنشاء التحركات المبدأية لمخزون اللقاح"
+
+msgctxt "model:ir.action,name:act_create_prescription_stock_move"
+msgid "Create Prescription Stock Move"
+msgstr "إنشاء تحركات مخزون الوصفة"
+
+msgctxt "model:ir.action,name:act_create_vaccination_stock_move"
+msgid "Create Vaccination Stock Move"
+msgstr "إنشاء تحركات مخزون اللقاح"
+
+msgctxt "model:ir.action,name:act_prescription_move_form1"
+msgid "Stock Moves [readonly]"
+msgstr "تحركات المخزون [للقراءة فقط]"
+
+msgctxt "model:ir.action,name:act_vaccination_move_form1"
+msgid "Stock Moves [readonly]"
+msgstr "حركات المواد (للقراءة فقط)"
+
+msgctxt "model:ir.message,text:msg_expired_vaccine"
+msgid ""
+"EXPIRED VACCINE. PLEASE INFORM THE LOCAL HEALTH AUTHORITIES AND DO NOT USE "
+"IT !!!"
+msgstr ""
+"لقاح منتهي الصلاحية. يرجى إبلاغ السلطات الصحية المحلية وعدم استخدامه !!!"
+
+#, fuzzy
+msgctxt "model:ir.message,text:msg_no_location_origin"
+msgid "You need to select a stock location"
+msgstr "يجب اختيار صيدلية"
+
+msgctxt "model:ir.message,text:msg_no_pharmacy"
+msgid "You need to select a pharmacy"
+msgstr "يجب اختيار صيدلية"
+
+msgctxt "model:ir.message,text:msg_stock_move_exists"
+msgid "Stock move already exists"
+msgstr "حركة المخزون موجودة مسبقا"
+
+msgctxt "view:gnuhealth.prescription.stock.move.init:"
+msgid "Create Stock Move?"
+msgstr "انشاء حركة رصيد؟"
+
+msgctxt "view:gnuhealth.vaccination.stock.move.init:"
+msgid "Create Stock Move?"
+msgstr "انشاء حركة رصيد؟"
+
+msgctxt "view:gnuhealth.vaccination:"
+msgid "Stock"
+msgstr "رصيد"
+
+msgctxt ""
+"wizard_button:gnuhealth.prescription.stock.move.create,start,create_stock_move:"
+msgid "Create Stock Move"
+msgstr "إنشاء تحركات المخزون"
+
+msgctxt "wizard_button:gnuhealth.prescription.stock.move.create,start,end:"
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgctxt ""
+"wizard_button:gnuhealth.vaccination.stock.move.create,start,create_stock_move:"
+msgid "Create Stock Move"
+msgstr "إنشاء تحركات المخزون"
+
+msgctxt "wizard_button:gnuhealth.vaccination.stock.move.create,start,end:"
+msgid "Cancel"
+msgstr "إلغاء"

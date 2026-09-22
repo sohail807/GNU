@@ -1,0 +1,1126 @@
+#
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-11-10 00:11+0000\n"
+"Last-Translator: iosifidis <iosifidis@noreply.codeberg.org>\n"
+"Language-Team: Greek <https://translate.codeberg.org/projects/gnuhealth/health_pediatrics/el/>\n"
+"Language: el\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14\n"
+
+msgctxt "field:gnuhealth.neonatal.apgar,apgar_activity:"
+msgid "Activity"
+msgstr "Μυϊκός Τόνος"
+
+msgctxt "field:gnuhealth.neonatal.apgar,apgar_appearance:"
+msgid "Appearance"
+msgstr "Χρώμα Δέρματος"
+
+msgctxt "field:gnuhealth.neonatal.apgar,apgar_grimace:"
+msgid "Grimace"
+msgstr "Αντανακλαστικά"
+
+msgctxt "field:gnuhealth.neonatal.apgar,apgar_minute:"
+msgid "Minute"
+msgstr "Λεπτό"
+
+msgctxt "field:gnuhealth.neonatal.apgar,apgar_pulse:"
+msgid "Pulse"
+msgstr "Καρδιακός Ρυθμός"
+
+msgctxt "field:gnuhealth.neonatal.apgar,apgar_respiration:"
+msgid "Respiration"
+msgstr "Αναπνοή"
+
+msgctxt "field:gnuhealth.neonatal.apgar,apgar_score:"
+msgid "APGAR Score"
+msgstr "Βαθμολογία APGAR"
+
+msgctxt "field:gnuhealth.neonatal.apgar,newborn:"
+msgid "Newborn"
+msgstr "Νεογνό"
+
+msgctxt "field:gnuhealth.newborn,apgar1:"
+msgid "APGAR 1st minute"
+msgstr "APGAR 1ου λεπτού"
+
+msgctxt "field:gnuhealth.newborn,apgar5:"
+msgid "APGAR 5th minute"
+msgstr "APGAR 5ου λεπτού"
+
+msgctxt "field:gnuhealth.newborn,apgar_scores:"
+msgid "APGAR scores"
+msgstr "Βαθμολογίες APGAR"
+
+msgctxt "field:gnuhealth.newborn,bd:"
+msgid "Stillbirth"
+msgstr "Θνησιγένεια"
+
+msgctxt "field:gnuhealth.newborn,birth_date:"
+msgid "DoB"
+msgstr "Ημερομηνία Γέννησης"
+
+msgctxt "field:gnuhealth.newborn,cephalic_perimeter:"
+msgid "CP"
+msgstr "ΠΚ (Περίμετρος Κεφαλής)"
+
+msgctxt "field:gnuhealth.newborn,cod:"
+msgid "Cause of death"
+msgstr "Αιτία Θανάτου"
+
+msgctxt "field:gnuhealth.newborn,congenital_diseases:"
+msgid "Congenital diseases"
+msgstr "Συγγενείς Παθήσεις"
+
+msgctxt "field:gnuhealth.newborn,died_at_delivery:"
+msgid "Died at delivery room"
+msgstr "Απεβίωσε στην Αίθουσα Τοκετών"
+
+msgctxt "field:gnuhealth.newborn,died_at_the_hospital:"
+msgid "Died at the hospital"
+msgstr "Απεβίωσε στο Νοσοκομείο"
+
+msgctxt "field:gnuhealth.newborn,died_being_transferred:"
+msgid "Died being transferred"
+msgstr "Απεβίωσε κατά τη διακομιδή"
+
+msgctxt "field:gnuhealth.newborn,dismissed:"
+msgid "Discharged"
+msgstr "Έλαβε Εξιτήριο"
+
+msgctxt "field:gnuhealth.newborn,healthprof:"
+msgid "Health Prof"
+msgstr "Επαγγελματίας Υγείας"
+
+msgctxt "field:gnuhealth.newborn,length:"
+msgid "Length"
+msgstr "Μήκος"
+
+msgctxt "field:gnuhealth.newborn,meconium:"
+msgid "Meconium"
+msgstr "Μηκώνιο"
+
+msgctxt "field:gnuhealth.newborn,medication:"
+msgid "Medication"
+msgstr "Φαρμακευτική Αγωγή"
+
+msgctxt "field:gnuhealth.newborn,mother:"
+msgid "Mother"
+msgstr "Μητέρα"
+
+msgctxt "field:gnuhealth.newborn,name:"
+msgid "Newborn ID"
+msgstr "ID Νεογνού"
+
+msgctxt "field:gnuhealth.newborn,neonatal_ambiguous_genitalia:"
+msgid "Ambiguous Genitalia"
+msgstr "Αμφίβολα Γεννητικά Όργανα"
+
+msgctxt "field:gnuhealth.newborn,neonatal_babinski_reflex:"
+msgid "Babinski Reflex"
+msgstr "Αντανακλαστικό Babinski"
+
+msgctxt "field:gnuhealth.newborn,neonatal_barlow:"
+msgid "Positive Barlow"
+msgstr "Θετικό Σημείο Barlow"
+
+msgctxt "field:gnuhealth.newborn,neonatal_blink_reflex:"
+msgid "Blink Reflex"
+msgstr "Αντανακλαστικό Βλεφαρισμού"
+
+msgctxt "field:gnuhealth.newborn,neonatal_erbs_palsy:"
+msgid "Erbs Palsy"
+msgstr "Παράλυση Erb"
+
+msgctxt "field:gnuhealth.newborn,neonatal_grasp_reflex:"
+msgid "Grasp Reflex"
+msgstr "Αντανακλαστικό Σύλληψης"
+
+msgctxt "field:gnuhealth.newborn,neonatal_hematoma:"
+msgid "Hematomas"
+msgstr "Αιματώματα"
+
+msgctxt "field:gnuhealth.newborn,neonatal_hernia:"
+msgid "Hernia"
+msgstr "Κήλη"
+
+msgctxt "field:gnuhealth.newborn,neonatal_moro_reflex:"
+msgid "Moro Reflex"
+msgstr "Αντανακλαστικό Moro"
+
+msgctxt "field:gnuhealth.newborn,neonatal_ortolani:"
+msgid "Positive Ortolani"
+msgstr "Θετικό Σημείο Ortolani"
+
+msgctxt "field:gnuhealth.newborn,neonatal_palmar_crease:"
+msgid "Transversal Palmar Crease"
+msgstr "Εγκάρσια Παλαμιαία Πτυχή"
+
+msgctxt "field:gnuhealth.newborn,neonatal_polydactyly:"
+msgid "Polydactyly"
+msgstr "Πολυδακτυλία"
+
+msgctxt "field:gnuhealth.newborn,neonatal_rooting_reflex:"
+msgid "Rooting Reflex"
+msgstr "Αντανακλαστικό Αναζήτησης"
+
+msgctxt "field:gnuhealth.newborn,neonatal_stepping_reflex:"
+msgid "Stepping Reflex"
+msgstr "Αντανακλαστικό Βηματισμού"
+
+msgctxt "field:gnuhealth.newborn,neonatal_sucking_reflex:"
+msgid "Sucking Reflex"
+msgstr "Αντανακλαστικό Θηλασμού"
+
+msgctxt "field:gnuhealth.newborn,neonatal_swimming_reflex:"
+msgid "Swimming Reflex"
+msgstr "Αντανακλαστικό Κολύμβησης"
+
+msgctxt "field:gnuhealth.newborn,neonatal_syndactyly:"
+msgid "Syndactyly"
+msgstr "Συνδακτυλία"
+
+msgctxt "field:gnuhealth.newborn,neonatal_talipes_equinovarus:"
+msgid "Talipes Equinovarus"
+msgstr "Ραιβοϊπποποδία"
+
+msgctxt "field:gnuhealth.newborn,neonatal_tonic_neck_reflex:"
+msgid "Tonic Neck Reflex"
+msgstr "Τονικό Αντανακλαστικό Αυχένα"
+
+msgctxt "field:gnuhealth.newborn,newborn_name:"
+msgid "Name at Birth"
+msgstr "Όνομα κατά τη Γέννηση"
+
+msgctxt "field:gnuhealth.newborn,notes:"
+msgid "Notes"
+msgstr "Σημειώσεις"
+
+msgctxt "field:gnuhealth.newborn,patient:"
+msgid "Baby"
+msgstr "Βρέφος"
+
+msgctxt "field:gnuhealth.newborn,photo:"
+msgid "Picture"
+msgstr "Εικόνα"
+
+msgctxt "field:gnuhealth.newborn,reanimation_aspiration:"
+msgid "Aspiration"
+msgstr "Αναρρόφηση"
+
+msgctxt "field:gnuhealth.newborn,reanimation_intubation:"
+msgid "Intubation"
+msgstr "Διασωλήνωση"
+
+msgctxt "field:gnuhealth.newborn,reanimation_mask:"
+msgid "Mask"
+msgstr "Μάσκα"
+
+msgctxt "field:gnuhealth.newborn,reanimation_oxygen:"
+msgid "Oxygen"
+msgstr "Οξυγόνο"
+
+msgctxt "field:gnuhealth.newborn,reanimation_stimulation:"
+msgid "Stimulation"
+msgstr "Διέγερση"
+
+msgctxt "field:gnuhealth.newborn,sex:"
+msgid "Sex"
+msgstr "Φύλο"
+
+msgctxt "field:gnuhealth.newborn,signed_by:"
+msgid "Signed by"
+msgstr "Υπογραφή από"
+
+msgctxt "field:gnuhealth.newborn,state:"
+msgid "State"
+msgstr "Κατάσταση"
+
+msgctxt "field:gnuhealth.newborn,test_audition:"
+msgid "Audition"
+msgstr "Ακοή"
+
+msgctxt "field:gnuhealth.newborn,test_billirubin:"
+msgid "Billirubin"
+msgstr "Χολερυθρίνη"
+
+msgctxt "field:gnuhealth.newborn,test_chagas:"
+msgid "Chagas"
+msgstr "Chagas"
+
+msgctxt "field:gnuhealth.newborn,test_metabolic:"
+msgid "Metabolic (\"heel stick screening\")"
+msgstr "Μεταβολικός Έλεγχos (Guthrie test)"
+
+msgctxt "field:gnuhealth.newborn,test_toxo:"
+msgid "Toxoplasmosis"
+msgstr "Τοξοπλάσμωση"
+
+msgctxt "field:gnuhealth.newborn,test_vdrl:"
+msgid "VDRL"
+msgstr "VDRL"
+
+msgctxt "field:gnuhealth.newborn,tod:"
+msgid "Time of Death"
+msgstr "Ώρα Θανάτου"
+
+msgctxt "field:gnuhealth.newborn,weight:"
+msgid "Weight"
+msgstr "Βάρος"
+
+msgctxt "field:gnuhealth.patient.disease,newborn_id:"
+msgid "Newborn"
+msgstr "Νεογνό"
+
+msgctxt "field:gnuhealth.patient.medication,newborn_id:"
+msgid "Newborn"
+msgstr "Νεογνό"
+
+msgctxt "field:gnuhealth.patient.psc,evaluation_date:"
+msgid "Appointment"
+msgstr "Ραντεβού"
+
+msgctxt "field:gnuhealth.patient.psc,evaluation_start:"
+msgid "Date"
+msgstr "Ημερομηνία"
+
+msgctxt "field:gnuhealth.patient.psc,notes:"
+msgid "Notes"
+msgstr "Σημειώσεις"
+
+msgctxt "field:gnuhealth.patient.psc,patient:"
+msgid "Patient"
+msgstr "Ασθενής"
+
+msgctxt "field:gnuhealth.patient.psc,psc_absent_from_school:"
+msgid "Absent from school"
+msgstr "Απουσιάζει από το σχολείο"
+
+msgctxt "field:gnuhealth.patient.psc,psc_aches_pains:"
+msgid "Complains of aches and pains"
+msgstr "Παραπονιέται για πόνους"
+
+msgctxt "field:gnuhealth.patient.psc,psc_act_as_younger:"
+msgid "Acts younger than children his or her age"
+msgstr "Συμπεριφέρεται ανώριμα για την ηλικία του/της"
+
+msgctxt "field:gnuhealth.patient.psc,psc_acts_as_driven_by_motor:"
+msgid "Acts as if driven by a motor"
+msgstr "Είναι υπερκινητικός/ή"
+
+msgctxt "field:gnuhealth.patient.psc,psc_afraid_of_new_situations:"
+msgid "Is afraid of new situations"
+msgstr "Φοβάται τις νέες καταστάσεις"
+
+msgctxt "field:gnuhealth.patient.psc,psc_blames_others:"
+msgid "Blames others for his or her troubles"
+msgstr "Κατηγορεί τους άλλους για τα προβλήματά του/της"
+
+msgctxt "field:gnuhealth.patient.psc,psc_daydreams_too_much:"
+msgid "Daydreams too much"
+msgstr "Ονειροπολεί υπερβολικά"
+
+msgctxt "field:gnuhealth.patient.psc,psc_distracted_easily:"
+msgid "Distracted easily"
+msgstr "Αποσπάται εύκολα η προσοχή του/της"
+
+msgctxt "field:gnuhealth.patient.psc,psc_does_not_get_people_feelings:"
+msgid "Does not get people feelings"
+msgstr "Δεν κατανοεί τα συναισθήματα των άλλων"
+
+msgctxt "field:gnuhealth.patient.psc,psc_does_not_listen_to_rules:"
+msgid "Does not listen to rules"
+msgstr "Δεν ακολουθεί τους κανόνες"
+
+msgctxt "field:gnuhealth.patient.psc,psc_does_not_show_feelings:"
+msgid "Does not show feelings"
+msgstr "Δεν εκφράζει συναισθήματα"
+
+msgctxt "field:gnuhealth.patient.psc,psc_down_on_self:"
+msgid "Is down on him or herself"
+msgstr "Έχει χαμηλή αυτοεκτίμηση"
+
+msgctxt "field:gnuhealth.patient.psc,psc_feels_hopeless:"
+msgid "Feels hopeless"
+msgstr "Νιώθει απελπισία"
+
+msgctxt "field:gnuhealth.patient.psc,psc_feels_is_bad_child:"
+msgid "Feels he or she is bad"
+msgstr "Νιώθει ότι είναι κακό παιδί"
+
+msgctxt "field:gnuhealth.patient.psc,psc_fidgety:"
+msgid "Fidgety, unable to sit still"
+msgstr "Νευρικός/ή, δεν μπορεί να καθίσει ήσυχος/η"
+
+msgctxt "field:gnuhealth.patient.psc,psc_fights_with_others:"
+msgid "Fights with other children"
+msgstr "Καυγαδίζει με άλλα παιδιά"
+
+msgctxt "field:gnuhealth.patient.psc,psc_gets_hurt_often:"
+msgid "Gets hurt frequently"
+msgstr "Τραυματίζεται συχνά"
+
+msgctxt "field:gnuhealth.patient.psc,psc_having_less_fun:"
+msgid "Seems to be having less fun"
+msgstr "Φαίνεται να διασκεδάζει λιγότερο"
+
+msgctxt "field:gnuhealth.patient.psc,psc_irritable_angry:"
+msgid "Is irritable, angry"
+msgstr "Είναι ευερέθιστος/η, θυμωμένος/η"
+
+msgctxt "field:gnuhealth.patient.psc,psc_less_interest_in_school:"
+msgid "Less interested in school"
+msgstr "Μειωμένο ενδιαφέρον για το σχολείο"
+
+msgctxt "field:gnuhealth.patient.psc,psc_less_interested_in_friends:"
+msgid "Less interested in friends"
+msgstr "Μειωμένο ενδιαφέρον για τους φίλους"
+
+msgctxt "field:gnuhealth.patient.psc,psc_refuses_to_share:"
+msgid "Refuses to share"
+msgstr "Αρνείται να μοιραστεί"
+
+msgctxt "field:gnuhealth.patient.psc,psc_sad_unhappy:"
+msgid "Feels sad, unhappy"
+msgstr "Νιώθει λυπημένος/η, δυστυχισμένος/η"
+
+msgctxt "field:gnuhealth.patient.psc,psc_school_grades_dropping:"
+msgid "School grades dropping"
+msgstr "Πτώση των σχολικών βαθμών"
+
+msgctxt "field:gnuhealth.patient.psc,psc_spend_time_alone:"
+msgid "Spends more time alone"
+msgstr "Περνά περισσότερο χρόνο μόνος/η"
+
+msgctxt "field:gnuhealth.patient.psc,psc_takes_things_from_others:"
+msgid "Takes things that do not belong to him or her"
+msgstr "Παίρνει πράγματα που δεν του/της ανήκουν"
+
+msgctxt "field:gnuhealth.patient.psc,psc_takes_unnecesary_risks:"
+msgid "Takes unnecessary risks"
+msgstr "Παίρνει αχρείαστα ρίσκα"
+
+msgctxt "field:gnuhealth.patient.psc,psc_teases_others:"
+msgid "Teases others"
+msgstr "Πειράζει τους άλλους"
+
+msgctxt "field:gnuhealth.patient.psc,psc_tires_easily:"
+msgid "Tires easily, has little energy"
+msgstr "Κουράζεται εύκολα, έχει λίγη ενέργεια"
+
+msgctxt "field:gnuhealth.patient.psc,psc_total:"
+msgid "PSC Total"
+msgstr "Συνολική Βαθμολογία PSC"
+
+msgctxt "field:gnuhealth.patient.psc,psc_trouble_concentrating:"
+msgid "Has trouble concentrating"
+msgstr "Έχει δυσκολία συγκέντρωσης"
+
+msgctxt "field:gnuhealth.patient.psc,psc_trouble_sleeping:"
+msgid "Has trouble sleeping"
+msgstr "Έχει δυσκολία στον ύπνο"
+
+msgctxt "field:gnuhealth.patient.psc,psc_trouble_with_teacher:"
+msgid "Has trouble with teacher"
+msgstr "Έχει προβλήματα με τον/την δάσκαλο/α"
+
+msgctxt "field:gnuhealth.patient.psc,psc_visit_doctor_finds_ok:"
+msgid "Visits the doctor with doctor finding nothing wrong"
+msgstr "Επισκέπτεται τον γιατρό χωρίς να διαπιστώνεται κάποιο πρόβλημα"
+
+msgctxt "field:gnuhealth.patient.psc,psc_wants_to_be_with_parents:"
+msgid "Wants to be with you more than before"
+msgstr "Θέλει να είναι μαζί σας περισσότερο από πριν"
+
+msgctxt "field:gnuhealth.patient.psc,psc_worries_a_lot:"
+msgid "Worries a lot"
+msgstr "Ανησυχεί πολύ"
+
+msgctxt "field:gnuhealth.patient.psc,user_id:"
+msgid "Health Prof"
+msgstr "Επαγγελματίας Υγείας"
+
+msgctxt "help:gnuhealth.newborn,birth_date:"
+msgid "Date and Time of birth"
+msgstr "Ημερομηνία και Ώρα Γέννησης"
+
+msgctxt "help:gnuhealth.newborn,cephalic_perimeter:"
+msgid "Cephalic Perimeter in centimeters (cm)"
+msgstr "Περίμετρος Κεφαλής σε εκατοστά (cm)"
+
+msgctxt "help:gnuhealth.newborn,died_being_transferred:"
+msgid "The baby died being transferred to another health institution"
+msgstr "Το βρέφος απεβίωσε κατά τη διακομιδή σε άλλο ίδρυμα υγείας"
+
+msgctxt "help:gnuhealth.newborn,healthprof:"
+msgid "Health professional"
+msgstr "Επαγγελματίας Υγείας"
+
+msgctxt "help:gnuhealth.newborn,length:"
+msgid "Length in centimeters (cm)"
+msgstr "Μήκος σε εκατοστά (cm)"
+
+msgctxt "help:gnuhealth.newborn,patient:"
+msgid "Patient associated to this newborn"
+msgstr "Ασθενής που συνδέεται με αυτό το νεογνό"
+
+msgctxt "help:gnuhealth.newborn,sex:"
+msgid ""
+"Sex at birth. It might differ from the current patient gender. This is the "
+"biological sex."
+msgstr ""
+"Φύλο κατά τη γέννηση. Μπορεί να διαφέρει από το τρέχον φύλο του ασθενούς. "
+"Αυτό είναι το βιολογικό φύλο."
+
+msgctxt "help:gnuhealth.newborn,signed_by:"
+msgid "Health Professional that signed this document"
+msgstr "Επαγγελματίας Υγείας που υπέγραψε αυτό το έγγραφο"
+
+msgctxt "help:gnuhealth.newborn,test_metabolic:"
+msgid ""
+"Test for Fenilketonuria, Congenital Hypothyroidism, Quistic Fibrosis, "
+"Galactosemia"
+msgstr ""
+"Έλεγχος για Φαινυλκετονουρία, Συγγενή Υποθυρεοειδισμό, Κυστική Ίνωση, "
+"Γαλακτοζαιμία"
+
+msgctxt "help:gnuhealth.newborn,weight:"
+msgid "Weight in grams (g)"
+msgstr "Βάρος σε γραμμάρια (g)"
+
+msgctxt "help:gnuhealth.patient.psc,evaluation_date:"
+msgid ""
+"Enter or select the date / ID of the appointment related to this evaluation"
+msgstr ""
+"Εισαγάγετε ή επιλέξτε την ημερομηνία / το ID του ραντεβού που σχετίζεται με "
+"αυτή την αξιολόγηση"
+
+msgctxt "model:gnuhealth.neonatal.apgar,name:"
+msgid "Neonatal APGAR Score"
+msgstr "Βαθμολογία APGAR Νεογνού"
+
+msgctxt "model:gnuhealth.newborn,name:"
+msgid "Newborn Information"
+msgstr "Πληροφορίες Νεογνού"
+
+msgctxt "model:gnuhealth.patient.psc,name:"
+msgid "Pediatric Symptoms Checklist"
+msgstr "Λίστα Ελέγχου Παιδιατρικών Συμπτωμάτων"
+
+msgctxt "model:ir.action,name:act_newborn_form1"
+msgid "Neonatal Info"
+msgstr "Πληροφορίες Νεογνού"
+
+msgctxt "model:ir.action,name:act_psc_form1"
+msgid "PSC"
+msgstr "PSC"
+
+msgctxt "model:ir.action,name:gnuhealth_action_newborn"
+msgid "Newborn"
+msgstr "Νεογνό"
+
+msgctxt "model:ir.action,name:gnuhealth_action_psc"
+msgid "PSC"
+msgstr "PSC"
+
+msgctxt "model:ir.action,name:report_newborn_card"
+msgid "Newborn ID"
+msgstr "Ταυτότητα Νεογνού"
+
+msgctxt "model:ir.model.button,string:newborn_sign_button"
+msgid "Sign"
+msgstr "Υπογραφή"
+
+msgctxt "model:ir.ui.menu,name:gnuhealth_conf_edit_newborn"
+msgid "Newborn"
+msgstr "Νεογνό"
+
+msgctxt "model:ir.ui.menu,name:gnuhealth_conf_edit_psc"
+msgid "PSC"
+msgstr "PSC"
+
+msgctxt "model:ir.ui.menu,name:gnuhealth_pediatrics"
+msgid "Pediatrics"
+msgstr "Παιδιατρική"
+
+msgctxt "model:res.group,name:group_health_pediatrics_admin"
+msgid "Health Pediatrics Administration"
+msgstr "Διαχείριση Παιδιατρικής"
+
+msgctxt "report:newborn.card:"
+msgid "DoB:"
+msgstr "Ημ. Γένν.:"
+
+msgctxt "report:newborn.card:"
+msgid "Ht / Wt:"
+msgstr "Ύψος / Βάρος:"
+
+msgctxt "report:newborn.card:"
+msgid "Mother ID:"
+msgstr "ID Μητέρας:"
+
+msgctxt "report:newborn.card:"
+msgid "Mother:"
+msgstr "Μητέρα:"
+
+msgctxt "report:newborn.card:"
+msgid "Name:"
+msgstr "Όνομα:"
+
+msgctxt "report:newborn.card:"
+msgid "PUID:"
+msgstr "PUID:"
+
+msgctxt "report:newborn.card:"
+msgid "Sex:"
+msgstr "Φύλο:"
+
+msgctxt "report:newborn.card:"
+msgid "photo"
+msgstr "Φωτογραφία"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_activity:"
+msgid "None"
+msgstr "Καθόλου"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_activity:"
+msgid "Some flexion"
+msgstr "Μερική κάμψη"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_activity:"
+msgid "flexed arms and legs"
+msgstr "Ενεργός κίνηση"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_appearance:"
+msgid "acrocyanosis"
+msgstr "Ακροκυάνωση"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_appearance:"
+msgid "central cyanosis"
+msgstr "Κεντρική κυάνωση"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_appearance:"
+msgid "no cyanosis"
+msgstr "Χωρίς κυάνωση"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_grimace:"
+msgid "No response to stimulation"
+msgstr "Καμία αντίδραση σε ερεθίσματα"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_grimace:"
+msgid "cry or pull away when stimulated"
+msgstr "Κλάμα ή απομάκρυνση σε ερεθίσματα"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_grimace:"
+msgid "grimace when stimulated"
+msgstr "Σύσπαση προσώπου σε ερεθίσματα"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_pulse:"
+msgid "< 100"
+msgstr "< 100"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_pulse:"
+msgid "> 100"
+msgstr "> 100"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_pulse:"
+msgid "Absent"
+msgstr "Απών"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_respiration:"
+msgid "Absent"
+msgstr "Άπνοια"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_respiration:"
+msgid "Weak / Irregular"
+msgstr "Αδύναμη / Ακανόνιστη"
+
+msgctxt "selection:gnuhealth.neonatal.apgar,apgar_respiration:"
+msgid "strong"
+msgstr "Δυνατή"
+
+msgctxt "selection:gnuhealth.newborn,sex:"
+msgid "Female"
+msgstr "Θήλυ"
+
+msgctxt "selection:gnuhealth.newborn,sex:"
+msgid "Male"
+msgstr "Άρρεν"
+
+msgctxt "selection:gnuhealth.newborn,state:"
+msgid "Signed"
+msgstr "Υπογεγραμμένο"
+
+msgctxt "selection:gnuhealth.newborn,state:"
+msgid "draft"
+msgstr "Πρόχειρο"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_absent_from_school:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_absent_from_school:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_absent_from_school:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_aches_pains:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_aches_pains:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_aches_pains:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_act_as_younger:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_act_as_younger:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_act_as_younger:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_acts_as_driven_by_motor:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_acts_as_driven_by_motor:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_acts_as_driven_by_motor:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_afraid_of_new_situations:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_afraid_of_new_situations:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_afraid_of_new_situations:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_blames_others:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_blames_others:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_blames_others:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_daydreams_too_much:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_daydreams_too_much:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_daydreams_too_much:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_distracted_easily:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_distracted_easily:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_distracted_easily:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_does_not_get_people_feelings:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_does_not_get_people_feelings:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_does_not_get_people_feelings:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_does_not_listen_to_rules:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_does_not_listen_to_rules:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_does_not_listen_to_rules:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_does_not_show_feelings:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_does_not_show_feelings:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_does_not_show_feelings:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_down_on_self:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_down_on_self:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_down_on_self:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_feels_hopeless:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_feels_hopeless:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_feels_hopeless:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_feels_is_bad_child:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_feels_is_bad_child:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_feels_is_bad_child:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_fidgety:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_fidgety:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_fidgety:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_fights_with_others:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_fights_with_others:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_fights_with_others:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_gets_hurt_often:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_gets_hurt_often:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_gets_hurt_often:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_having_less_fun:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_having_less_fun:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_having_less_fun:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_irritable_angry:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_irritable_angry:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_irritable_angry:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_less_interest_in_school:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_less_interest_in_school:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_less_interest_in_school:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_less_interested_in_friends:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_less_interested_in_friends:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_less_interested_in_friends:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_refuses_to_share:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_refuses_to_share:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_refuses_to_share:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_sad_unhappy:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_sad_unhappy:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_sad_unhappy:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_school_grades_dropping:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_school_grades_dropping:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_school_grades_dropping:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_spend_time_alone:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_spend_time_alone:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_spend_time_alone:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_takes_things_from_others:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_takes_things_from_others:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_takes_things_from_others:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_takes_unnecesary_risks:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_takes_unnecesary_risks:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_takes_unnecesary_risks:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_teases_others:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_teases_others:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_teases_others:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_tires_easily:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_tires_easily:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_tires_easily:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_trouble_concentrating:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_trouble_concentrating:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_trouble_concentrating:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_trouble_sleeping:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_trouble_sleeping:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_trouble_sleeping:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_trouble_with_teacher:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_trouble_with_teacher:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_trouble_with_teacher:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_visit_doctor_finds_ok:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_visit_doctor_finds_ok:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_visit_doctor_finds_ok:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_wants_to_be_with_parents:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_wants_to_be_with_parents:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_wants_to_be_with_parents:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_worries_a_lot:"
+msgid "Never"
+msgstr "Ποτέ"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_worries_a_lot:"
+msgid "Often"
+msgstr "Συχνά"
+
+msgctxt "selection:gnuhealth.patient.psc,psc_worries_a_lot:"
+msgid "Sometimes"
+msgstr "Μερικές φορές"
+
+msgctxt "view:gnuhealth.neonatal.apgar:"
+msgid "APGAR"
+msgstr "APGAR"
+
+msgctxt "view:gnuhealth.newborn:"
+msgid "End the newborn document ?"
+msgstr "Ολοκλήρωση του εγγράφου νεογνού;"
+
+msgctxt "view:gnuhealth.newborn:"
+msgid "Findings and Tests"
+msgstr "Ευρήματα και Εξετάσεις"
+
+msgctxt "view:gnuhealth.newborn:"
+msgid "Main"
+msgstr "Βασικά Στοιχεία"
+
+msgctxt "view:gnuhealth.newborn:"
+msgid "Neonatal Reflex Check"
+msgstr "Έλεγχος Νεογνικών Αντανακλαστικών"
+
+msgctxt "view:gnuhealth.newborn:"
+msgid "Neonatal Signs and Symptoms"
+msgstr "Νεογνικά Σημεία και Συμπτώματα"
+
+msgctxt "view:gnuhealth.newborn:"
+msgid "Notes"
+msgstr "Σημειώσεις"
+
+msgctxt "view:gnuhealth.newborn:"
+msgid "Sign"
+msgstr "Υπογραφή"
+
+msgctxt "view:gnuhealth.newborn:"
+msgid "Sign the process"
+msgstr "Υπογραφή της διαδικασίας"
+
+msgctxt "view:gnuhealth.newborn:"
+msgid "Status"
+msgstr "Κατάσταση"
+
+msgctxt "view:gnuhealth.newborn:"
+msgid "Tests"
+msgstr "Εξετάσεις"
+
+msgctxt "view:gnuhealth.newborn:"
+msgid "Time"
+msgstr "Ώρα"

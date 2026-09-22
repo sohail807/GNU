@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2009-2013 Bertrand Chenal
+# SPDX-FileCopyrightText: 2009-2016 B2CK
+# SPDX-FileCopyrightText: 2009-2016 Cédric Krier
+# SPDX-FileCopyrightText: 2016-2026 Luis Falcon <falcon@gnuhealth.org>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+from trytond.tests.test_tryton import ModuleTestCase
+
+
+class CalendarTestCase(ModuleTestCase):
+    'Test Calendar module'
+    module = 'health_caldav'
+
+
+del ModuleTestCase

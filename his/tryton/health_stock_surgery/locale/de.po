@@ -1,0 +1,55 @@
+#
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-08-23 13:09+0000\n"
+"Last-Translator: tct123 <tct123@noreply.codeberg.org>\n"
+"Language-Team: German <https://translate.codeberg.org/projects/gnuhealth/health_stock_surgery/de/>\n"
+"Language: de\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+msgctxt "field:gnuhealth.surgery,location:"
+msgid "Stock Location"
+msgstr "Lagerort"
+
+#, fuzzy
+msgctxt "field:gnuhealth.surgery,moves:"
+msgid "Moves"
+msgstr "Bewegungen"
+
+msgctxt "model:gnuhealth.surgery.stock.move.init,name:"
+msgid "Create Surgery Stock Move Init"
+msgstr ""
+
+msgctxt "model:ir.action,name:act_create_surgery_stock_move"
+msgid "Create Surgery Stock Move"
+msgstr ""
+
+msgctxt "model:ir.action,name:act_surgery_move_form1"
+msgid "Surgery Stock Moves [readonly]"
+msgstr ""
+
+msgctxt "model:ir.message,text:msg_stock_move_exists"
+msgid "Stock move already exists"
+msgstr ""
+
+msgctxt "view:gnuhealth.surgery.stock.move.init:"
+msgid "Create Stock Move?"
+msgstr ""
+
+#, fuzzy
+msgctxt "view:gnuhealth.surgery:"
+msgid "Stock"
+msgstr "Lager"
+
+msgctxt ""
+"wizard_button:gnuhealth.surgery.stock.move.create,start,create_stock_move:"
+msgid "Create Stock Move"
+msgstr ""
+
+#, fuzzy
+msgctxt "wizard_button:gnuhealth.surgery.stock.move.create,start,end:"
+msgid "Cancel"
+msgstr "Annullieren"

@@ -1,0 +1,224 @@
+#
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-11-10 23:56+0000\n"
+"Last-Translator: pablomujik <pablomujik@noreply.codeberg.org>\n"
+"Language-Team: Spanish <https://translate.codeberg.org/projects/gnuhealth/health_qrcodes/es/>\n"
+"Language: es\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14\n"
+
+msgctxt "field:gnuhealth.appointment,barcode:"
+msgid "Code39"
+msgstr "Código 39"
+
+#, fuzzy
+msgctxt "field:gnuhealth.appointment,qr:"
+msgid "QR Code"
+msgstr "Código QR"
+
+msgctxt "field:gnuhealth.lab,bar:"
+msgid "Bar Code39"
+msgstr ""
+
+#, fuzzy
+msgctxt "field:gnuhealth.lab,qr:"
+msgid "QR Code"
+msgstr "Código QR"
+
+msgctxt "field:gnuhealth.newborn,qr:"
+msgid "QR Code"
+msgstr "Código QR"
+
+msgctxt "field:gnuhealth.patient,barcode:"
+msgid "Code39"
+msgstr ""
+
+msgctxt "field:gnuhealth.patient,qr:"
+msgid "QR Code"
+msgstr "Código QR"
+
+msgctxt "field:party.party,barcode:"
+msgid "Code39"
+msgstr ""
+
+msgctxt "model:ir.action,name:report_appointment_qrcode"
+msgid "Appointment QRCODE"
+msgstr ""
+
+msgctxt "model:ir.action,name:report_labtest_barcode39"
+msgid "Code39 barcode label"
+msgstr ""
+
+msgctxt "model:ir.action,name:report_labtest_qrcode"
+msgid "Test Labels"
+msgstr ""
+
+msgctxt "model:ir.action,name:report_newborn_qrcard"
+msgid "Newborn ID - QR"
+msgstr "ID - QR del recién nacido"
+
+msgctxt "model:ir.action,name:report_party_wristband"
+msgid "Wristbands"
+msgstr ""
+
+msgctxt "model:ir.action,name:report_patient_qrcard"
+msgid "ID Cards - QR"
+msgstr "Tarjetas ID-QR"
+
+msgctxt "model:ir.action,name:report_patient_wristband"
+msgid "Wristbands"
+msgstr ""
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "APPT ID:"
+msgstr "Número de cita:"
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "Appointment Receipt"
+msgstr "Recibo de la cita"
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "Date:"
+msgstr "Fecha:"
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "Extra Info:"
+msgstr "Información adicional:"
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "Health Prof:"
+msgstr "Prof. sanitario:"
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "Institution:"
+msgstr "Institución:"
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "PUID:"
+msgstr "PUID:"
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "Patient:"
+msgstr "Paciente:"
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "Specialty:"
+msgstr "Especialista:"
+
+#, fuzzy
+msgctxt "report:appointment.qrcodel:"
+msgid "You must present this receipt and your PUID"
+msgstr "Debe presentar este recibo y su PUID"
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Cap label"
+msgstr ""
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Extraction date:"
+msgstr ""
+
+#, fuzzy
+msgctxt "report:labtest.qrlabel:"
+msgid "ID:"
+msgstr "ID:"
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Req by:"
+msgstr ""
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Source:"
+msgstr ""
+
+msgctxt "report:labtest.qrlabel:"
+msgid "Test:"
+msgstr ""
+
+#, fuzzy
+msgctxt "report:newborn.qrcard:"
+msgid "DoB:"
+msgstr "FNac:"
+
+msgctxt "report:newborn.qrcard:"
+msgid "Ht / Wt:"
+msgstr ""
+
+msgctxt "report:newborn.qrcard:"
+msgid "Mother ID:"
+msgstr ""
+
+msgctxt "report:newborn.qrcard:"
+msgid "Mother:"
+msgstr ""
+
+#, fuzzy
+msgctxt "report:newborn.qrcard:"
+msgid "Name:"
+msgstr "Nombre:"
+
+#, fuzzy
+msgctxt "report:newborn.qrcard:"
+msgid "PUID:"
+msgstr "PUID:"
+
+msgctxt "report:newborn.qrcard:"
+msgid "Sex:"
+msgstr ""
+
+#, fuzzy
+msgctxt "report:newborn.qrcard:"
+msgid "photo"
+msgstr "foto"
+
+#, fuzzy
+msgctxt "report:party.wristband:"
+msgid ","
+msgstr ","
+
+#, fuzzy
+msgctxt "report:patient.qrcard:"
+msgid "Blood Type:"
+msgstr "Grupo sanguíneo:"
+
+#, fuzzy
+msgctxt "report:patient.qrcard:"
+msgid "DoB:"
+msgstr "FNac:"
+
+#, fuzzy
+msgctxt "report:patient.qrcard:"
+msgid "Gender:"
+msgstr "Género:"
+
+#, fuzzy
+msgctxt "report:patient.qrcard:"
+msgid "Name:"
+msgstr "Nombre:"
+
+#, fuzzy
+msgctxt "report:patient.qrcard:"
+msgid "PUID:"
+msgstr "PUID:"
+
+#, fuzzy
+msgctxt "report:patient.qrcard:"
+msgid "photo"
+msgstr "foto"
+
+#, fuzzy
+msgctxt "report:patient.wristband:"
+msgid ","
+msgstr ","

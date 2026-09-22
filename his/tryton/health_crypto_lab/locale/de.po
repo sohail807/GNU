@@ -1,0 +1,72 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:gnuhealth.lab,digest_current:"
+msgid "Current Hash"
+msgstr "Aktueller Hash"
+
+msgctxt "field:gnuhealth.lab,digest_status:"
+msgid "Altered"
+msgstr "Geändert"
+
+msgctxt "field:gnuhealth.lab,digital_signature:"
+msgid "Digital Signature"
+msgstr "Digitale Signatur"
+
+msgctxt "field:gnuhealth.lab,document_digest:"
+msgid "Digest"
+msgstr "Digest:"
+
+msgctxt "field:gnuhealth.lab,serializer:"
+msgid "Doc String"
+msgstr "Doc Zeichenkette"
+
+msgctxt "field:gnuhealth.lab,serializer_current:"
+msgid "Current Doc"
+msgstr "Aktuelles Dokument"
+
+msgctxt "help:gnuhealth.lab,digest_status:"
+msgid ""
+"This field will be set whenever parts of the main original document has been"
+" changed. Please note that the verification is done only on selected fields."
+msgstr ""
+"Diese Feld wird markiert wenn Teile des Originaldokumentes geändert werden. "
+"Hinweis: Die Validierung findet nur auf ausgewählten Feldern statt!"
+
+msgctxt "help:gnuhealth.lab,document_digest:"
+msgid "Original Document Digest"
+msgstr "Digest Originaldokument"
+
+#, fuzzy
+msgctxt "model:ir.model.button,string:labtest_sign_button"
+msgid "Validate"
+msgstr "Prüfen"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Are you sure to sign this lab results ?"
+msgstr ""
+
+#, fuzzy
+msgctxt "view:gnuhealth.lab:"
+msgid "Digital Signature"
+msgstr "Digitale Signatur"
+
+#, fuzzy
+msgctxt "view:gnuhealth.lab:"
+msgid "Document validation"
+msgstr "Validierung des Dokumentes"
+
+#, fuzzy
+msgctxt "view:gnuhealth.lab:"
+msgid "Validate"
+msgstr "Prüfen"
+
+msgctxt "view:gnuhealth.lab:"
+msgid "Validate and Sign the lab test"
+msgstr ""
+
+#, fuzzy
+msgctxt "view:gnuhealth.lab:"
+msgid "Validation"
+msgstr "Validierung"

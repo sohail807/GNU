@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!--
+SPDX-FileCopyrightText: 2008-2026 Luis Falcón <falcon@gnuhealth.org>
+SPDX-FileCopyrightText: 2011-2026 GNU Solidario <health@gnusolidario.org>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
+<tree>
+    <field name="admission_date" widget="date"/>
+    <field name="gestational_weeks" expand="1"/>
+    <field name="institution" expand="1"/>
+    <field name="healthprof" expand="1"/>
+</tree>

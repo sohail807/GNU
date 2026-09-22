@@ -1,0 +1,68 @@
+# Healthcare Information Management System - Git Ignore Rules
+# Strictly prevents committing secrets, credentials, backups, dumps, or logs
+
+# Credentials, Keys, and Secrets
+*.pem
+*.ppk
+*.key
+*.p12
+*.pfx
+*.pkcs12
+id_rsa*
+id_ed25519*
+id_ecdsa*
+id_dsa*
+*.pub
+.env*
+*token*
+*secret*
+*password*
+*.credentials
+credentials.db
+access_tokens.db
+service_account*.json
+gcp-key*.json
+
+# Database Dumps and Production Backups
+*.dump
+*.sql
+*.psql
+*.dump.*
+*.bak
+*.backup
+backup/
+/backup/
+var_backups/
+
+# Logs and Runtime Artifacts
+*.log
+logs/
+*.pid
+*.sock
+
+# Python Environment and Caches
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+.pytest_cache/
+.coverage
+
+# Temporary and Scratch Files
+*.tmp
+*.temp
+scratch/
+.system_generated/
+
+# Office Temporary Lock Files
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# OS Metadata
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store

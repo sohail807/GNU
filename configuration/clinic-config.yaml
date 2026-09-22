@@ -1,0 +1,302 @@
+# ==============================================================================
+# GNU HEALTH 5.0 — QATAR OUTPATIENT CLINIC MASTER CONFIGURATION SPECIFICATION
+# Master Single-Source Configuration File: clinic-config.yaml
+# Governance: Authoritative Implementation Baseline
+# Platform: GNU Health HMIS 5.0.7 / Tryton 7.0.57 / PostgreSQL 15.15 / Debian 12
+# ==============================================================================
+
+clinic:
+  name: "<CLINIC_NAME>"                             # Status: OFFICIAL CLINIC IDENTITY — PENDING CLINIC INPUT
+  legal_name: "<LEGAL_CLINIC_NAME>"                 # Status: OFFICIAL CLINIC IDENTITY — PENDING CLINIC INPUT
+  institution_code: "CLINIC-QA"                     # Status: EXISTING STRUCTURE — VERIFIED
+  institution_type: "clinic"                        # Status: EXISTING STRUCTURE — VERIFIED
+  cr_number: "<CR_NUMBER>"                          # Status: PENDING CLINIC INPUT
+  moph_license: "<MOPH_LICENSE_NUMBER>"             # Status: PENDING CLINIC INPUT
+  country: "Qatar"                                  # Status: VERIFIED LOADED
+  country_code: "QA"                                # Status: ISO 3166-1 alpha-2 VERIFIED
+  phone_prefix: "+974"                              # Status: Qatar country calling code
+  currency: "QAR"                                   # Status: VERIFIED (ID: 3, Symbol: ر.ق, 2 Dec, Rounding: 0.01)
+  currency_symbol: "ر.ق"                           # Status: VERIFIED
+  timezone: "Asia/Qatar"                            # Status: VERIFIED (UTC+3)
+  language:
+    primary: "en"                                   # English (Default Interface)
+    secondary: "ar"                                 # Arabic (RTL Clinical & Administrative)
+
+address:
+  building: "<BUILDING_NUMBER>"                     # Blue Plate National Address (PENDING CLINIC INPUT)
+  street: "<STREET_NUMBER>"                         # Blue Plate National Address (PENDING CLINIC INPUT)
+  zone: "<ZONE_NUMBER>"                             # Blue Plate National Address (PENDING CLINIC INPUT)
+  city: "<CITY>"                                    # Doha / Al Rayyan / Al Wakrah (PENDING CLINIC INPUT)
+  country: "Qatar"
+  phone: "+974 <PHONE_NUMBER>"                      # Landline / Reception (PENDING CLINIC INPUT)
+  email: "<INFO_EMAIL>"                             # Official Contact Email (PENDING CLINIC INPUT)
+  website: "OFFICIAL PRODUCTION DOMAIN / FQDN — PENDING USER INPUT"
+
+# ------------------------------------------------------------------------------
+# Outpatient Functional Departments / Hospital Units
+# Target Model: gnuhealth.hospital.unit (Status: IMPLEMENTED AS PROFESSIONAL DEFAULT)
+# ------------------------------------------------------------------------------
+departments:
+  - code: "OPD"
+    name: "Outpatient Department"
+    type: "outpatient"
+    description: "Physician examination rooms, specialist consultation suites"
+    status: "EXISTING / VERIFIED — OPERATIONAL VALIDATION PENDING"
+  - code: "NURS"
+    name: "Nursing / Triage"
+    type: "nursing"
+    description: "Ambulatory care intake, vital signs, rapid screening"
+    status: "EXISTING / VERIFIED — OPERATIONAL VALIDATION PENDING"
+  - code: "PHARM"
+    name: "Dispensary / Pharmacy"
+    type: "pharmacy"
+    description: "Outpatient medication dispensing, storage location"
+    status: "EXISTING / VERIFIED — OPERATIONAL VALIDATION PENDING"
+  - code: "LAB"
+    name: "Laboratory"
+    type: "laboratory"
+    description: "Diagnostic specimen accessioning, testing, verified reporting"
+    status: "EXISTING / VERIFIED — OPERATIONAL VALIDATION PENDING"
+  - code: "RAD"
+    name: "Radiology / Imaging"
+    type: "radiology"
+    description: "Diagnostic imaging suites (X-Ray, Ultrasound)"
+    status: "EXISTING / VERIFIED — OPERATIONAL VALIDATION PENDING"
+  - code: "BILL"
+    name: "Billing / Cashier"
+    type: "billing"
+    description: "Cashiering, patient invoice settlement, receipt issuance"
+    status: "EXISTING / VERIFIED — OPERATIONAL VALIDATION PENDING"
+  - code: "INS"
+    name: "Health Insurance"
+    type: "insurance"
+    description: "Third-party claims, eligibility, copayment accounting"
+    status: "EXISTING / VERIFIED — OPERATIONAL VALIDATION PENDING"
+  - code: "ADMIN"
+    name: "Clinic Administration"
+    type: "administration"
+    description: "Medical records, executive management, governance"
+    status: "EXISTING / VERIFIED — OPERATIONAL VALIDATION PENDING"
+
+# ------------------------------------------------------------------------------
+# Core Outpatient Medical Specialties
+# Target Model: gnuhealth.specialty (Status: VERIFIED LOADED - 73 in DB)
+# ------------------------------------------------------------------------------
+specialties:
+  - code: "GP"
+    name: "General Practitioner"
+    status: "VERIFIED LOADED"
+  - code: "INTERNAL"
+    name: "Internal Medicine"
+    status: "VERIFIED LOADED"
+  - code: "PEDIATRICS"
+    name: "Pediatrics"
+    status: "VERIFIED LOADED"
+  - code: "DS"
+    name: "Dermatology"
+    status: "VERIFIED LOADED"
+  - code: "CARDIO"
+    name: "Cardiology"
+    status: "VERIFIED LOADED"
+  - code: "ENT"
+    name: "Otolaryngology - ENT"
+    status: "VERIFIED LOADED"
+  - code: "ORTHOSURG"
+    name: "Orthopedic surgery"
+    status: "VERIFIED LOADED"
+  - code: "OBGYN"
+    name: "Obstetrics and gynecology"
+    status: "VERIFIED LOADED"
+  - code: "OPHTALMO"
+    name: "Ophthalmology"
+    status: "VERIFIED LOADED"
+  - code: "PRIMARY-ORAL"
+    name: "Oral Medicine (Primary Care)"
+    status: "VERIFIED LOADED"
+
+# ------------------------------------------------------------------------------
+# Healthcare Professionals (Physicians)
+# Target Model: gnuhealth.healthprofessional
+# ------------------------------------------------------------------------------
+doctors: []  # Status: PENDING CLINIC INPUT (Requires QCHP license numbers & approved roster)
+
+# ------------------------------------------------------------------------------
+# Role-Based Access Control (RBAC) Structure
+# Status: IMPLEMENTED AS PROFESSIONAL DEFAULT (Security groups active; staff users pending)
+# ------------------------------------------------------------------------------
+users:
+  - role: "System Administrator"
+    groups: ["Administration"]
+    scope: "Platform operations, backups, system configuration"
+  - role: "Clinic Administrator"
+    groups: ["Health Administration", "Company Administration"]
+    scope: "Operational parameters, departmental configuration, rosters"
+  - role: "Medical Director"
+    groups: ["Health Administration", "Health Doctor", "Health Services Administration"]
+    scope: "Clinical governance, doctor supervision, medical approvals"
+  - role: "Outpatient Physician"
+    groups: ["Health Doctor", "Health Services Administration"]
+    scope: "Patient encounters, SOAP charting, e-prescriptions, diagnostic orders"
+  - role: "Triage Nurse"
+    groups: ["Health Nurse", "Health Nurse Administration"]
+    scope: "Vital signs recording, BMI calculation, nursing treatments"
+  - role: "Receptionist"
+    groups: ["Health Front Desk", "Party Administration"]
+    scope: "Patient registration, appointment scheduling, queue check-in"
+  - role: "Pharmacist"
+    groups: ["Health Back Office", "Product Administration"]
+    scope: "Prescription verification, medication dispensing, stock deduction"
+  - role: "Laboratory Technician"
+    groups: ["Health Lab", "Health lab Administration"]
+    scope: "Diagnostic order accessioning, result entry, lab reporting"
+  - role: "Radiology Technician"
+    groups: ["Health Imaging", "Health Imaging Administration"]
+    scope: "Imaging requisitions, study logs, radiological report upload"
+  - role: "Billing Officer / Cashier"
+    groups: ["Account", "Account Administration", "Health Back Office"]
+    scope: "Invoice aggregation, cashier receipting, payment collection"
+  - role: "Insurance Specialist"
+    groups: ["Health Insurance", "Health Back Office"]
+    scope: "Payer policy verification, copay calculation, claim documentation"
+  - role: "Finance Lead / Chief Accountant"
+    groups: ["Account", "Account Administration", "Company Administration"]
+    scope: "General ledger, chart of accounts, fiscal year management, audits"
+
+# ------------------------------------------------------------------------------
+# Clinical Services Catalog (15 Standard Products in product.product)
+# Status: EXISTING SERVICE STUBS — TARIFF CONFIGURATION PENDING
+# ------------------------------------------------------------------------------
+services:
+  - code: "OPD-GEN"
+    name: "General Practitioner Consultation"
+    department: "OPD"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "OPD-SPEC"
+    name: "Specialist Physician Consultation"
+    department: "OPD"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "OPD-FU"
+    name: "Follow-up Consultation"
+    department: "OPD"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "OPD-EMERG"
+    name: "Emergency Ambulatory Triage Visit"
+    department: "OPD"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "NURS-DRESS"
+    name: "Wound Dressing & Minor Procedure"
+    department: "NURS"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "NURS-INJ"
+    name: "Intramuscular / Intravenous Injection Administration"
+    department: "NURS"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "NURS-NEB"
+    name: "Inhalation Nebulization Therapy"
+    department: "NURS"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "DIAG-ECG"
+    name: "12-Lead Electrocardiogram (ECG)"
+    department: "OPD"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "DIAG-GLUC"
+    name: "Point-of-Care Blood Glucose Screening"
+    department: "NURS"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "LAB-CBC"
+    name: "Complete Blood Count (CBC) with Automated Differential"
+    department: "LAB"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "LAB-LFT"
+    name: "Comprehensive Liver Function Panel (LFT)"
+    department: "LAB"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "LAB-RFT"
+    name: "Renal Function Panel (BUN, Creatinine, Electrolytes)"
+    department: "LAB"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "LAB-UA"
+    name: "Automated Urinalysis & Microscopy"
+    department: "LAB"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "RAD-CXR-PA"
+    name: "Chest Radiography (PA View)"
+    department: "RAD"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+  - code: "RAD-US-ABD"
+    name: "Diagnostic Abdominal Ultrasound"
+    department: "RAD"
+    price_qar: "SERVICE TARIFF — PENDING MANAGEMENT/FINANCE APPROVAL"
+
+# ------------------------------------------------------------------------------
+# Pharmacy Commercial Formulary
+# Target Model: gnuhealth.medicament
+# ------------------------------------------------------------------------------
+medicines: []  # Status: PHARMACY FORMULARY — PENDING CLINIC INPUT
+
+# ------------------------------------------------------------------------------
+# Contracted Health Insurance Payers
+# Target Model: gnuhealth.insurance
+# ------------------------------------------------------------------------------
+insurance_providers: []  # Status: PENDING CLINIC INPUT
+
+# ------------------------------------------------------------------------------
+# Clinic Weekly Operating Hours
+# Status: OPERATING HOURS — PENDING CLINIC INPUT
+# ------------------------------------------------------------------------------
+working_hours:
+  standard_operating_days: "Saturday through Thursday (Friday: Emergency / Closed)"
+  schedule_detail: "OPERATING HOURS — PENDING CLINIC INPUT"
+
+# ------------------------------------------------------------------------------
+# Financial & Accounting Configuration
+# Status: IMPLEMENTED AS PROFESSIONAL DEFAULT (Fiscal Year Pending Finance Input)
+# ------------------------------------------------------------------------------
+accounting:
+  status: "ACCOUNTING CONFIGURATION BLOCKED — NO APPROVED/ACTIVE FISCAL YEAR"
+  currency: "QAR"
+  currency_id: 3
+  journals_configured:
+    - code: "REV"
+      name: "Outpatient Services Revenue Journal"
+      type: "revenue"
+    - code: "EXP"
+      name: "Medical Operating Expenses Journal"
+      type: "expense"
+    - code: "CASH"
+      name: "Cashier Cash Receipts Journal"
+      type: "cash"
+    - code: "BANK"
+      name: "Operating Bank Account Journal"
+      type: "bank"
+    - code: "INV"
+      name: "Customer / Patient Invoices Journal"
+      type: "revenue"
+    - code: "GEN"
+      name: "General Journal"
+      type: "general"
+  chart_of_accounts:
+    - code: "101000"
+      name: "Cash on Hand (Cashier Drawer)"
+      type: "current_assets"
+    - code: "102000"
+      name: "Main Operating Bank Account"
+      type: "current_assets"
+    - code: "110000"
+      name: "Accounts Receivable - Patients and Insurers"
+      type: "receivable"
+    - code: "210000"
+      name: "Accounts Payable - Vendors and Suppliers"
+      type: "payable"
+    - code: "220000"
+      name: "Taxes Payable"
+      type: "current_liabilities"
+    - code: "401000"
+      name: "Outpatient Clinical Consultation and Services Revenue"
+      type: "revenue"
+    - code: "501000"
+      name: "Medical Supplies and Operating Expenses"
+      type: "expense"
+  fiscal_year:
+    status: "FISCAL YEAR — PENDING FINANCE INPUT"
+    guardrail: "Tryton ORM blocks all financial posting until FY is approved and opened"

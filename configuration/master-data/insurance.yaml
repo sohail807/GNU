@@ -1,0 +1,36 @@
+# ==============================================================================
+# GNU HEALTH 5.0 — QATAR OUTPATIENT CLINIC INSURANCE MASTER DATA TEMPLATE
+# Status: PENDING_CLINIC_INPUT
+# Instructions: Populate with accredited Qatar health insurance providers & TPAs.
+# ==============================================================================
+
+providers:
+  - name: "<PENDING_CLINIC_INPUT>"  # e.g., Qatar Insurance Company (QIC) / QLM Life & Medical
+    type: "INSURANCE"               # INSURANCE or TPA
+    code: "QLM"
+    country: "QA"
+    active: false
+
+  - name: "<PENDING_CLINIC_INPUT>"  # e.g., Al Koot Insurance & Reinsurance
+    type: "INSURANCE"
+    code: "ALKOOT"
+    country: "QA"
+    active: false
+
+  - name: "<PENDING_CLINIC_INPUT>"  # e.g., National Health Insurance Company (Daman / Seha)
+    type: "INSURANCE"
+    code: "DAMAN"
+    country: "QA"
+    active: false
+
+  - name: "<PENDING_CLINIC_INPUT>"  # e.g., Mednet Qatar
+    type: "TPA"
+    code: "MEDNET"
+    country: "QA"
+    active: false
+
+  - name: "<PENDING_CLINIC_INPUT>"  # e.g., NextCare Qatar
+    type: "TPA"
+    code: "NEXTCARE"
+    country: "QA"
+    active: false

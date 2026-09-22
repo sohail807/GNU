@@ -1,0 +1,123 @@
+#
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-11-09 22:34+0000\n"
+"Last-Translator: iosifidis <iosifidis@noreply.codeberg.org>\n"
+"Language-Team: Greek <https://translate.codeberg.org/projects/gnuhealth/health_stock_inpatient/el/>\n"
+"Language: el\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14\n"
+
+msgctxt "field:gnuhealth.patient.rounding,hospitalization_location:"
+msgid "Hospitalization Location"
+msgstr "Τοποθεσία Νοσηλείας"
+
+msgctxt "field:gnuhealth.patient.rounding,medical_supplies:"
+msgid "Medical Supplies"
+msgstr "Ιατρικά Αναλώσιμα"
+
+msgctxt "field:gnuhealth.patient.rounding,medicaments:"
+msgid "Medicaments"
+msgstr "Φάρμακα"
+
+msgctxt "field:gnuhealth.patient.rounding,moves:"
+msgid "Stock Moves"
+msgstr "Κινήσεις Αποθέματος"
+
+msgctxt "field:gnuhealth.patient.rounding.medical_supply,lot:"
+msgid "Lot"
+msgstr "Παρτίδα"
+
+msgctxt "field:gnuhealth.patient.rounding.medical_supply,product:"
+msgid "Medical Supply"
+msgstr "Ιατρικό Αναλώσιμο"
+
+msgctxt "field:gnuhealth.patient.rounding.medical_supply,quantity:"
+msgid "Quantity"
+msgstr "Ποσότητα"
+
+msgctxt "field:gnuhealth.patient.rounding.medical_supply,rounding:"
+msgid "Rounding ID"
+msgstr "ID Επίσκεψης"
+
+msgctxt "field:gnuhealth.patient.rounding.medical_supply,short_comment:"
+msgid "Comment"
+msgstr "Σχόλιο"
+
+msgctxt "field:gnuhealth.patient.rounding.medicament,lot:"
+msgid "Lot"
+msgstr "Παρτίδα"
+
+msgctxt "field:gnuhealth.patient.rounding.medicament,medicament:"
+msgid "Medicament"
+msgstr "Φάρμακο"
+
+msgctxt "field:gnuhealth.patient.rounding.medicament,product:"
+msgid "Product"
+msgstr "Προϊόν"
+
+msgctxt "field:gnuhealth.patient.rounding.medicament,quantity:"
+msgid "Quantity"
+msgstr "Ποσότητα"
+
+msgctxt "field:gnuhealth.patient.rounding.medicament,rounding:"
+msgid "Rounding ID"
+msgstr "ID Επίσκεψης"
+
+msgctxt "field:gnuhealth.patient.rounding.medicament,short_comment:"
+msgid "Comment"
+msgstr "Σχόλιο"
+
+msgctxt "help:gnuhealth.patient.rounding.medical_supply,short_comment:"
+msgid "Short comment on the specific drug"
+msgstr "Σύντομο σχόλιο για το συγκεκριμένο ιατρικό αναλώσιμο"
+
+msgctxt "help:gnuhealth.patient.rounding.medicament,short_comment:"
+msgid "Short comment on the specific drug"
+msgstr "Σύντομο σχόλιο για το συγκεκριμένο φάρμακο"
+
+msgctxt "model:gnuhealth.patient.rounding.medical_supply,name:"
+msgid "Patient Rounding Medical Supply"
+msgstr "Ιατρικό Αναλώσιμο Επίσκεψης Ασθενούς"
+
+msgctxt "model:gnuhealth.patient.rounding.medicament,name:"
+msgid "Patient Rounding Medicament"
+msgstr "Φαρμακευτική Αγωγή Επίσκεψης Ασθενούς"
+
+msgctxt "model:ir.message,text:msg_expired_vaccine"
+msgid ""
+"EXPIRED VACCINE. PLEASE INFORM THE LOCAL HEALTH AUTHORITIES AND DO NOT USE "
+"IT !!!"
+msgstr ""
+"ΛΗΓΜΕΝΟ ΕΜΒΟΛΙΟ. ΠΑΡΑΚΑΛΩ ΕΝΗΜΕΡΩΣΤΕ ΤΙΣ ΤΟΠΙΚΕΣ ΥΓΕΙΟΝΟΜΙΚΕΣ ΑΡΧΕΣ ΚΑΙ ΜΗΝ "
+"ΤΟ ΧΡΗΣΙΜΟΠΟΙΗΣΕΤΕ !!!"
+
+msgctxt "model:ir.message,text:msg_no_pharmacy"
+msgid "You need to select a pharmacy"
+msgstr "Πρέπει να επιλέξετε ένα φαρμακείο"
+
+msgctxt "model:ir.message,text:msg_stock_move_exists"
+msgid "Stock move already exists"
+msgstr "Η κίνηση αποθέματος υπάρχει ήδη"
+
+msgctxt "model:ir.model.button,string:rounding_end_button"
+msgid "End Rounding"
+msgstr "Λήξη Επίσκεψης"
+
+msgctxt "view:gnuhealth.patient.rounding:"
+msgid "Done / Create Stock moves"
+msgstr "Ολοκληρώθηκε / Δημιουργία Κινήσεων Αποθέματος"
+
+msgctxt "view:gnuhealth.patient.rounding:"
+msgid "Medication"
+msgstr "Φαρμακευτική Αγωγή"
+
+msgctxt "view:gnuhealth.patient.rounding:"
+msgid "Six P's"
+msgstr "Τα Έξι P"
+
+msgctxt "view:gnuhealth.patient.rounding:"
+msgid "Stock Moves"
+msgstr "Κινήσεις Αποθέματος"

@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<!--
+SPDX-FileCopyrightText: 2008-2026 Luis Falcón <falcon@gnuhealth.org>
+SPDX-FileCopyrightText: 2011-2026 GNU Solidario <health@gnusolidario.org>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
+<form>
+    <group col="10" string="Patient and Health Professional Information" id="prescription_patient_info">
+        <label name="patient"/>
+        <field name="patient"/>
+        <label name="prescription_date"/>
+        <field name="prescription_date"/>
+        <label name="healthprof"/>
+        <field name="healthprof"/>
+        <label name="pharmacy"/>
+        <field name="pharmacy"/>
+        <label name="prescription_id"/>
+        <field name="prescription_id"/>
+    </group>
+    <newline/>
+    <group string="Safety warnings" colspan="4" col="6" id="prescription_warning">
+        <label name="pregnancy_warning"/>
+        <field name="pregnancy_warning"/>
+        <label name="allergy_warning"/>
+        <field name="allergy_warning"/>
+        <label name="prescription_warning_ack"/>
+        <field name="prescription_warning_ack"/>
+    </group>
+    <newline/>
+    <field name="prescription_line" colspan="4"/>
+    <newline/>
+    <group string="Notes" id="group_prescription_notes">
+        <field name="notes" colspan="4"/>
+    </group>
+    <newline/>
+    <group id="group_prescription_footer">
+        <label name="state"/>
+        <field name="state"/>
+        <button name="create_prescription" help="Create the prescription" string="Create" icon="tryton-go-next" confirm="Create prescription ?"/>
+    </group>
+
+</form>

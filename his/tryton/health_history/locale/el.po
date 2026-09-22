@@ -1,0 +1,335 @@
+#
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2025-11-09 20:42+0000\n"
+"Last-Translator: iosifidis <iosifidis@noreply.codeberg.org>\n"
+"Language-Team: Greek <https://translate.codeberg.org/projects/gnuhealth/health_history/el/>\n"
+"Language: el\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14\n"
+
+msgctxt "model:ir.action,name:report_patient_evaluation"
+msgid "Patient Evaluation and History"
+msgstr "Αξιολόγηση και Ιστορικό Ασθενούς"
+
+msgctxt "report:patient.evaluation:"
+msgid "(Sys / dias)"
+msgstr "(Συσ / διασ)"
+
+msgctxt "report:patient.evaluation:"
+msgid ","
+msgstr ","
+
+msgctxt "report:patient.evaluation:"
+msgid "/"
+msgstr "/"
+
+msgctxt "report:patient.evaluation:"
+msgid "/ 15"
+msgstr "/ 15"
+
+msgctxt "report:patient.evaluation:"
+msgid "/ 4"
+msgstr "/ 4"
+
+msgctxt "report:patient.evaluation:"
+msgid "/ 5"
+msgstr "/ 5"
+
+msgctxt "report:patient.evaluation:"
+msgid "/ 6"
+msgstr "/ 6"
+
+msgctxt "report:patient.evaluation:"
+msgid "Active"
+msgstr "Ενεργό"
+
+msgctxt "report:patient.evaluation:"
+msgid "Age:"
+msgstr "Ηλικία:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Anthropometry"
+msgstr "Ανθρωπομετρία"
+
+msgctxt "report:patient.evaluation:"
+msgid "BMI:"
+msgstr "ΔΜΣ:"
+
+msgctxt "report:patient.evaluation:"
+msgid "BP"
+msgstr "ΑΠ"
+
+msgctxt "report:patient.evaluation:"
+msgid "Care Plan"
+msgstr "Σχέδιο Φροντίδας"
+
+msgctxt "report:patient.evaluation:"
+msgid "Chief Complaint"
+msgstr "Κύριο Ενόχλημα"
+
+msgctxt "report:patient.evaluation:"
+msgid "Clinical and Physical examination"
+msgstr "Κλινική και Φυσική Εξέταση"
+
+msgctxt "report:patient.evaluation:"
+msgid "Clinical finding"
+msgstr "Κλινικό Εύρημα"
+
+msgctxt "report:patient.evaluation:"
+msgid "Code:"
+msgstr "Κωδικός:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Comments"
+msgstr "Σχόλια"
+
+msgctxt "report:patient.evaluation:"
+msgid "Critical information"
+msgstr "Κρίσιμες Πληροφορίες"
+
+msgctxt "report:patient.evaluation:"
+msgid "Date"
+msgstr "Ημερομηνία"
+
+msgctxt "report:patient.evaluation:"
+msgid "Date:"
+msgstr "Ημερομηνία:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Digital Signature"
+msgstr "Ψηφιακή Υπογραφή"
+
+msgctxt "report:patient.evaluation:"
+msgid "Discharge Reason"
+msgstr "Αιτία Εξιτηρίου"
+
+msgctxt "report:patient.evaluation:"
+msgid "Disease"
+msgstr "Νόσος"
+
+msgctxt "report:patient.evaluation:"
+msgid "Diseases"
+msgstr "Νοσήματα"
+
+msgctxt "report:patient.evaluation:"
+msgid "DoB:"
+msgstr "Ημ. Γέν.:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Dose"
+msgstr "Δόση"
+
+msgctxt "report:patient.evaluation:"
+msgid "Dx date or estimated age"
+msgstr "Ημ/νία Διάγνωσης ή εκτιμώμενη ηλικία"
+
+msgctxt "report:patient.evaluation:"
+msgid "Educational Level:"
+msgstr "Μορφωτικό Επίπεδο:"
+
+msgctxt "report:patient.evaluation:"
+msgid "End"
+msgstr "Λήξη"
+
+msgctxt "report:patient.evaluation:"
+msgid "Ethnicity:"
+msgstr "Εθνικότητα:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Eyes"
+msgstr "Οφθαλμική Απόκριση"
+
+msgctxt "report:patient.evaluation:"
+msgid "Family History"
+msgstr "Οικογενειακό Ιστορικό"
+
+msgctxt "report:patient.evaluation:"
+msgid "Gender:"
+msgstr "Φύλο:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Genetics"
+msgstr "Γενετική"
+
+msgctxt "report:patient.evaluation:"
+msgid "Heart Rate"
+msgstr "Καρδιακή Συχνότητα"
+
+msgctxt "report:patient.evaluation:"
+msgid "Height:"
+msgstr "Ύψος:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Hip:"
+msgstr "Γοφός:"
+
+msgctxt "report:patient.evaluation:"
+msgid "History of Present Illness"
+msgstr "Ιστορικό Παρούσας Νόσου"
+
+msgctxt "report:patient.evaluation:"
+msgid "Housing conditions:"
+msgstr "Συνθήκες στέγασης:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Immunizations"
+msgstr "Εμβολιασμοί"
+
+msgctxt "report:patient.evaluation:"
+msgid "Indication"
+msgstr "Ένδειξη"
+
+msgctxt "report:patient.evaluation:"
+msgid "Information Source:"
+msgstr "Πηγή Πληροφοριών:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Information about the Diagnosis"
+msgstr "Πληροφορίες σχετικά με τη Διάγνωση"
+
+msgctxt "report:patient.evaluation:"
+msgid "Initiated by:"
+msgstr "Έναρξη από:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Level of Conciousness / Glasgow Scale"
+msgstr "Επίπεδο Συνείδησης / Κλίμακα Γλασκώβης"
+
+msgctxt "report:patient.evaluation:"
+msgid "Lifestyle"
+msgstr "Τρόπος Ζωής"
+
+msgctxt "report:patient.evaluation:"
+msgid "Marital Status:"
+msgstr "Οικογενειακή Κατάσταση:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Medicament"
+msgstr "Φάρμακο"
+
+msgctxt "report:patient.evaluation:"
+msgid "Medication History"
+msgstr "Ιστορικό Φαρμακευτικής Αγωγής"
+
+msgctxt "report:patient.evaluation:"
+msgid "Motor"
+msgstr "Κινητική Απόκριση"
+
+msgctxt "report:patient.evaluation:"
+msgid "Next Dose"
+msgstr "Επόμενη Δόση"
+
+msgctxt "report:patient.evaluation:"
+msgid "OSAT"
+msgstr "SpO2"
+
+msgctxt "report:patient.evaluation:"
+msgid "Observations"
+msgstr "Παρατηρήσεις"
+
+msgctxt "report:patient.evaluation:"
+msgid "Occupation"
+msgstr "Επάγγελμα"
+
+msgctxt "report:patient.evaluation:"
+msgid "Onset:"
+msgstr "Έναρξη:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Other Hypotheses / DDx"
+msgstr "Άλλες Υποθέσεις / ΔΔ"
+
+msgctxt "report:patient.evaluation:"
+msgid "PUID:"
+msgstr "PUID:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Patient Evaluation & History"
+msgstr "Αξιολόγηση & Ιστορικό Ασθενούς"
+
+msgctxt "report:patient.evaluation:"
+msgid "Patient:"
+msgstr "Ασθενής:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Presumptive Diagnosis"
+msgstr "Πιθανή Διάγνωση"
+
+msgctxt "report:patient.evaluation:"
+msgid "Print Date:"
+msgstr "Ημερομηνία Εκτύπωσης:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Reliability:"
+msgstr "Αξιοπιστία:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Remarks"
+msgstr "Παρατηρήσεις"
+
+msgctxt "report:patient.evaluation:"
+msgid "Resp Rate"
+msgstr "Ρυθμός Αναπνοής"
+
+msgctxt "report:patient.evaluation:"
+msgid "Severity:"
+msgstr "Σοβαρότητα:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Signs and Symptoms"
+msgstr "Σημεία και Συμπτώματα"
+
+msgctxt "report:patient.evaluation:"
+msgid "Socioeconomics"
+msgstr "Κοινωνικοοικονομικά"
+
+msgctxt "report:patient.evaluation:"
+msgid "Start"
+msgstr "Έναρξη"
+
+msgctxt "report:patient.evaluation:"
+msgid "Status:"
+msgstr "Κατάσταση:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Surgeries"
+msgstr "Χειρουργεία"
+
+msgctxt "report:patient.evaluation:"
+msgid "Temperature"
+msgstr "Θερμοκρασία"
+
+msgctxt "report:patient.evaluation:"
+msgid "Total Glasgow"
+msgstr "Σύνολο Γλασκώβης"
+
+msgctxt "report:patient.evaluation:"
+msgid "Type"
+msgstr "Τύπος"
+
+msgctxt "report:patient.evaluation:"
+msgid "Vaccine"
+msgstr "Εμβόλιο"
+
+msgctxt "report:patient.evaluation:"
+msgid "Verbal"
+msgstr "Λεκτική Απόκριση"
+
+msgctxt "report:patient.evaluation:"
+msgid "Vital Signs"
+msgstr "Ζωτικά Σημεία"
+
+msgctxt "report:patient.evaluation:"
+msgid "WHR:"
+msgstr "WHR:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Waist:"
+msgstr "Μέση:"
+
+msgctxt "report:patient.evaluation:"
+msgid "Weight:"
+msgstr "Βάρος:"

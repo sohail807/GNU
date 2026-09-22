@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+
+<!--
+SPDX-FileCopyrightText: 2008-2026 Luis Falcón <falcon@gnuhealth.org>
+SPDX-FileCopyrightText: 2011-2026 GNU Solidario <health@gnusolidario.org>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
+<tryton>
+    <data>
+        <!-- Icons-->
+        <record model="ir.ui.icon" id="imaging_orthanc_icon">
+            <field name="name">orthanc</field>
+            <field name="path">icons/orthanc_logo.svg</field>
+        </record>
+
+        <!-- Views -->
+        <record model="ir.ui.view" id="view_imaging_orthanc_imaging_test_result_form">
+            <field name="model">gnuhealth.imaging.test.result</field>
+            <field name="inherit" ref="health_imaging.view_imaging_test_result_form"/>
+            <field name="name">imaging_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="view_imaging_orthanc_patient_form">
+            <field name="model">gnuhealth.patient</field>
+            <field name="type">form</field>
+            <field name="name">imaging_orthanc_patient_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="view_imaging_orthanc_patient_tree">
+            <field name="model">gnuhealth.patient</field>
+            <field name="type">tree</field>
+            <field name="name">imaging_orthanc_patient_tree</field>
+        </record>
+
+        <record model="ir.ui.view" id="view_imaging_orthanc_study_form">
+            <field name="model">gnuhealth.imaging_orthanc.study</field>
+            <field name="type">form</field>
+            <field name="name">imaging_orthanc_study_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="view_imaging_orthanc_study_tree">
+            <field name="model">gnuhealth.imaging_orthanc.study</field>
+            <field name="type">tree</field>
+            <field name="name">imaging_orthanc_study_tree</field>
+        </record>
+
+        <record model="ir.ui.view" id="view_imaging_orthanc_study_series_form">
+            <field name="model">gnuhealth.imaging_orthanc.study_series</field>
+            <field name="type">form</field>
+            <field name="name">imaging_orthanc_study_series_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="view_imaging_orthanc_study_series_tree">
+            <field name="model">gnuhealth.imaging_orthanc.study_series</field>
+            <field name="type">tree</field>
+            <field name="name">imaging_orthanc_study_series_tree</field>
+        </record>
+
+        <record model="ir.ui.view" id="view_imaging_orthanc_series_instances_form">
+            <field name="model">gnuhealth.imaging_orthanc.series_instances</field>
+            <field name="type">form</field>
+            <field name="name">imaging_orthanc_series_instances_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="view_imaging_orthanc_series_instances_tree">
+            <field name="model">gnuhealth.imaging_orthanc.series_instances</field>
+            <field name="type">tree</field>
+            <field name="name">imaging_orthanc_series_instances_tree</field>
+        </record>
+
+        <!-- Act_Windows -->
+        <record model="ir.action.act_window" id="act_imaging_orthanc_patient_view">
+            <field name="name">Patients</field>
+            <field name="domain" eval="[('orthanc_studies', '!=', None)]" pyson="1"/>
+            <field name="res_model">gnuhealth.patient</field>
+        </record>
+
+       <record model="ir.action.act_window" id="act_imaging_orthanc_study_view">
+            <field name="name">Studies</field>
+            <field name="res_model">gnuhealth.imaging_orthanc.study</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_imaging_orthanc_study_series_view">
+            <field name="name">Series</field>
+            <field name="res_model">gnuhealth.imaging_orthanc.study_series</field>
+        </record>
+
+        <!-- Window views -->
+        <record model="ir.action.act_window.view" id="act_imaging_orthanc_patient_tree_view">
+            <field name="sequence" eval="30"/>
+            <field name="view" ref="view_imaging_orthanc_patient_tree"/>
+            <field name="act_window" ref="act_imaging_orthanc_patient_view"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_imaging_orthanc_patient_form_view">
+            <field name="sequence" eval="40"/>
+            <field name="view" ref="view_imaging_orthanc_patient_form"/>
+            <field name="act_window" ref="act_imaging_orthanc_patient_view"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_imaging_orthanc_study_tree_view">
+            <field name="sequence" eval="50"/>
+            <field name="view" ref="view_imaging_orthanc_study_tree"/>
+            <field name="act_window" ref="act_imaging_orthanc_study_view"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_imaging_orthanc_study_form_view">
+            <field name="sequence" eval="60"/>
+            <field name="view" ref="view_imaging_orthanc_study_form"/>
+            <field name="act_window" ref="act_imaging_orthanc_study_view"/>
+        </record>
+
+        <!-- Button-->
+        <record model="ir.model.button" id="button_imaging_orthanc_delete_study">
+            <field name="name">delete_study</field>
+            <field name="string">Delete Study</field>
+            <field name="model" search="[('model', '=', 'gnuhealth.imaging_orthanc.study')]"/>
+        </record>
+
+        <record model="ir.model.button" id="button_imaging_orthanc_delete_series">
+            <field name="name">delete_series</field>
+            <field name="string">Delete Series</field>
+            <field name="model" search="[('model', '=', 'gnuhealth.imaging_orthanc.study_series')]"/>
+        </record>
+
+        <record model="ir.model.button" id="button_imaging_orthanc_series_instances_attach_image_to_imaging_test_report">
+            <field name="name">attach_image_to_imaging_test_report</field>
+            <field name="string">Attach To Report</field>
+            <field name="model" search="[('model', '=', 'gnuhealth.imaging_orthanc.series_instances')]"/>
+        </record>
+
+        <!-- Menu items -->
+        <menuitem name="Orthanc" sequence="200" id="orthanc_menu"
+                  parent="health_imaging.menu_imaging" icon="orthanc"/>
+
+        <menuitem parent="orthanc_menu" action="act_imaging_orthanc_patient_view"
+                  id="imaging_orthanc_menu_patient_view" icon="gnuhealth-patient" sequence= "10"/>
+
+        <menuitem parent="orthanc_menu" action="act_imaging_orthanc_study_view"
+                  id="imaging_orthanc_menu_study_view" icon="orthanc" sequence= "20"/>
+
+    </data>
+</tryton>

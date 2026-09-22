@@ -1,0 +1,574 @@
+﻿{
+    "party.party":  {
+                        "count":  1,
+                        "records":  {
+                                        "value":  [
+                                                      {
+                                                          "is_person":  false,
+                                                          "is_healthprof":  false,
+                                                          "is_patient":  false,
+                                                          "is_institution":  true,
+                                                          "name":  "\u003cCLINIC_NAME\u003e",
+                                                          "id":  2
+                                                      }
+                                                  ],
+                                        "Count":  1
+                                    }
+                    },
+    "party.address":  {
+                          "count":  1,
+                          "records":  {
+                                          "value":  [
+                                                        {
+                                                            "city":  "\u003cCITY\u003e",
+                                                            "party":  2,
+                                                            "name":  "\u003cCLINIC_NAME\u003e",
+                                                            "id":  1,
+                                                            "street":  "\u003cSTREET\u003e, Zone \u003cZONE\u003e, Building \u003cBUILDING\u003e",
+                                                            "country":  1
+                                                        }
+                                                    ],
+                                          "Count":  1
+                                      }
+                      },
+    "company.company":  {
+                            "count":  1,
+                            "records":  {
+                                            "value":  [
+                                                          {
+                                                              "party":  2,
+                                                              "timezone":  "Asia/Qatar",
+                                                              "id":  2,
+                                                              "currency":  3
+                                                          }
+                                                      ],
+                                            "Count":  1
+                                        }
+                        },
+    "gnuhealth.institution":  {
+                                  "count":  1,
+                                  "records":  {
+                                                  "value":  [
+                                                                {
+                                                                    "party":  2,
+                                                                    "institution_type":  "clinic",
+                                                                    "id":  2,
+                                                                    "code":  "CLINIC-QA",
+                                                                    "public_level":  "private"
+                                                                }
+                                                            ],
+                                                  "Count":  1
+                                              }
+                              },
+    "gnuhealth.hospital.unit":  {
+                                    "count":  8,
+                                    "records":  {
+                                                    "value":  [
+                                                                  {
+                                                                      "institution":  2,
+                                                                      "name":  "Outpatient Department",
+                                                                      "id":  1,
+                                                                      "code":  "OPD"
+                                                                  },
+                                                                  {
+                                                                      "institution":  2,
+                                                                      "name":  "Nursing / Triage",
+                                                                      "id":  2,
+                                                                      "code":  "NURS"
+                                                                  },
+                                                                  {
+                                                                      "institution":  2,
+                                                                      "name":  "Pharmacy",
+                                                                      "id":  3,
+                                                                      "code":  "PHARM"
+                                                                  },
+                                                                  {
+                                                                      "institution":  2,
+                                                                      "name":  "Laboratory",
+                                                                      "id":  4,
+                                                                      "code":  "LAB"
+                                                                  },
+                                                                  {
+                                                                      "institution":  2,
+                                                                      "name":  "Radiology",
+                                                                      "id":  5,
+                                                                      "code":  "RAD"
+                                                                  },
+                                                                  {
+                                                                      "institution":  2,
+                                                                      "name":  "Billing / Accounts",
+                                                                      "id":  6,
+                                                                      "code":  "BILL"
+                                                                  },
+                                                                  {
+                                                                      "institution":  2,
+                                                                      "name":  "Insurance",
+                                                                      "id":  7,
+                                                                      "code":  "INS"
+                                                                  },
+                                                                  {
+                                                                      "institution":  2,
+                                                                      "name":  "Administration",
+                                                                      "id":  8,
+                                                                      "code":  "ADMIN"
+                                                                  }
+                                                              ],
+                                                    "Count":  8
+                                                }
+                                },
+    "currency.currency":  {
+                              "count":  1,
+                              "records":  {
+                                              "value":  [
+                                                            {
+                                                                "digits":  2,
+                                                                "name":  "Qatari Riyal",
+                                                                "rounding":  {
+                                                                                 "__class__":  "Decimal",
+                                                                                 "decimal":  "0.01"
+                                                                             },
+                                                                "id":  3,
+                                                                "code":  "QAR",
+                                                                "symbol":  "ر.ق"
+                                                            }
+                                                        ],
+                                              "Count":  1
+                                          }
+                          },
+    "currency.currency.rate":  {
+                                   "count":  2,
+                                   "records":  {
+                                                   "value":  [
+                                                                 {
+                                                                     "date":  {
+                                                                                  "__class__":  "date",
+                                                                                  "year":  2026,
+                                                                                  "month":  9,
+                                                                                  "day":  21
+                                                                              },
+                                                                     "rate":  {
+                                                                                  "__class__":  "Decimal",
+                                                                                  "decimal":  "1"
+                                                                              },
+                                                                     "id":  1,
+                                                                     "currency":  null
+                                                                 },
+                                                                 {
+                                                                     "date":  {
+                                                                                  "__class__":  "date",
+                                                                                  "year":  2026,
+                                                                                  "month":  9,
+                                                                                  "day":  21
+                                                                              },
+                                                                     "rate":  {
+                                                                                  "__class__":  "Decimal",
+                                                                                  "decimal":  "1.0000"
+                                                                              },
+                                                                     "id":  2,
+                                                                     "currency":  3
+                                                                 }
+                                                             ],
+                                                   "Count":  2
+                                               }
+                               },
+    "country.country":  {
+                            "count":  15,
+                            "records":  {
+                                            "value":  [
+                                                          {
+                                                              "name":  "Bahrain",
+                                                              "code3":  "BHR",
+                                                              "id":  6,
+                                                              "code":  "BH"
+                                                          },
+                                                          {
+                                                              "name":  "Egypt",
+                                                              "code3":  "EGY",
+                                                              "id":  7,
+                                                              "code":  "EG"
+                                                          },
+                                                          {
+                                                              "name":  "India",
+                                                              "code3":  "IND",
+                                                              "id":  8,
+                                                              "code":  "IN"
+                                                          },
+                                                          {
+                                                              "name":  "Jordan",
+                                                              "code3":  "JOR",
+                                                              "id":  11,
+                                                              "code":  "JO"
+                                                          },
+                                                          {
+                                                              "name":  "Kuwait",
+                                                              "code3":  "KWT",
+                                                              "id":  4,
+                                                              "code":  "KW"
+                                                          },
+                                                          {
+                                                              "name":  "Lebanon",
+                                                              "code3":  "LBN",
+                                                              "id":  12,
+                                                              "code":  "LB"
+                                                          },
+                                                          {
+                                                              "name":  "Oman",
+                                                              "code3":  "OMN",
+                                                              "id":  5,
+                                                              "code":  "OM"
+                                                          },
+                                                          {
+                                                              "name":  "Pakistan",
+                                                              "code3":  "PAK",
+                                                              "id":  9,
+                                                              "code":  "PK"
+                                                          },
+                                                          {
+                                                              "name":  "Philippines",
+                                                              "code3":  "PHL",
+                                                              "id":  10,
+                                                              "code":  "PH"
+                                                          },
+                                                          {
+                                                              "name":  "Qatar",
+                                                              "code3":  "QAT",
+                                                              "id":  1,
+                                                              "code":  "QA"
+                                                          },
+                                                          {
+                                                              "name":  "Saudi Arabia",
+                                                              "code3":  "SAU",
+                                                              "id":  3,
+                                                              "code":  "SA"
+                                                          },
+                                                          {
+                                                              "name":  "Sudan",
+                                                              "code3":  "SDN",
+                                                              "id":  15,
+                                                              "code":  "SD"
+                                                          },
+                                                          {
+                                                              "name":  "United Arab Emirates",
+                                                              "code3":  "ARE",
+                                                              "id":  2,
+                                                              "code":  "AE"
+                                                          },
+                                                          {
+                                                              "name":  "United Kingdom",
+                                                              "code3":  "GBR",
+                                                              "id":  13,
+                                                              "code":  "GB"
+                                                          },
+                                                          {
+                                                              "name":  "United States",
+                                                              "code3":  "USA",
+                                                              "id":  14,
+                                                              "code":  "US"
+                                                          }
+                                                      ],
+                                            "Count":  15
+                                        }
+                        },
+    "gnuhealth.federation.country.config":  {
+                                                "count":  1,
+                                                "records":  {
+                                                                "value":  [
+                                                                              {
+                                                                                  "id":  2,
+                                                                                  "country":  1,
+                                                                                  "code":  "QAT"
+                                                                              }
+                                                                          ],
+                                                                "Count":  1
+                                                            }
+                                            },
+    "gnuhealth.healthprofessional":  {
+                                         "count":  0,
+                                         "records":  {
+                                                         "value":  [
+
+                                                                   ],
+                                                         "Count":  0
+                                                     }
+                                     },
+    "gnuhealth.hp_specialty":  {
+                                   "count":  0,
+                                   "records":  {
+                                                   "value":  [
+
+                                                             ],
+                                                   "Count":  0
+                                               }
+                               },
+    "gnuhealth.patient":  {
+                              "count":  0,
+                              "records":  {
+                                              "value":  [
+
+                                                        ],
+                                              "Count":  0
+                                          }
+                          },
+    "gnuhealth.appointment":  {
+                                  "count":  0,
+                                  "records":  {
+                                                  "value":  [
+
+                                                            ],
+                                                  "Count":  0
+                                              }
+                              },
+    "gnuhealth.patient.evaluation":  {
+                                         "count":  0,
+                                         "records":  {
+                                                         "value":  [
+
+                                                                   ],
+                                                         "Count":  0
+                                                     }
+                                     },
+    "gnuhealth.lab":  {
+                          "count":  0,
+                          "records":  {
+                                          "value":  [
+
+                                                    ],
+                                          "Count":  0
+                                      }
+                      },
+    "gnuhealth.imaging.test":  {
+                                   "count":  1,
+                                   "records":  {
+                                                   "value":  [
+                                                                 {
+                                                                     "name":  "Chest X-Ray",
+                                                                     "product":  3,
+                                                                     "id":  1,
+                                                                     "code":  "CXR"
+                                                                 }
+                                                             ],
+                                                   "Count":  1
+                                               }
+                               },
+    "gnuhealth.imaging.test.request":  {
+                                           "count":  0,
+                                           "records":  {
+                                                           "value":  [
+
+                                                                     ],
+                                                           "Count":  0
+                                                       }
+                                       },
+    "gnuhealth.prescription.order":  {
+                                         "count":  0,
+                                         "records":  {
+                                                         "value":  [
+
+                                                                   ],
+                                                         "Count":  0
+                                                     }
+                                     },
+    "gnuhealth.prescription.line":  {
+                                        "count":  0,
+                                        "records":  {
+                                                        "value":  [
+
+                                                                  ],
+                                                        "Count":  0
+                                                    }
+                                    },
+    "product.product":  {
+                            "count":  15,
+                            "records":  {
+                                            "value":  [
+                                                          {
+                                                              "id":  4,
+                                                              "code":  null,
+                                                              "name":  "CT Scan charges",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  7,
+                                                              "code":  null,
+                                                              "name":  "Complete Blood Count",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  14,
+                                                              "code":  null,
+                                                              "name":  "Endocrinology",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  11,
+                                                              "code":  null,
+                                                              "name":  "Haematology",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  8,
+                                                              "code":  null,
+                                                              "name":  "Liver Function",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  2,
+                                                              "code":  null,
+                                                              "name":  "MRI charges",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  15,
+                                                              "code":  null,
+                                                              "name":  "Medical evaluation service",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  5,
+                                                              "code":  null,
+                                                              "name":  "PET Scan charges",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  12,
+                                                              "code":  null,
+                                                              "name":  "Peripheral Smear Examination",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  10,
+                                                              "code":  null,
+                                                              "name":  "Renal Function",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  6,
+                                                              "code":  null,
+                                                              "name":  "Semen Analysis",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  9,
+                                                              "code":  null,
+                                                              "name":  "Stool Examination",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  1,
+                                                              "code":  null,
+                                                              "name":  "Ultrasound charges",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  13,
+                                                              "code":  null,
+                                                              "name":  "Urine Analysis",
+                                                              "type":  "service"
+                                                          },
+                                                          {
+                                                              "id":  3,
+                                                              "code":  null,
+                                                              "name":  "X-ray charges",
+                                                              "type":  "service"
+                                                          }
+                                                      ],
+                                            "Count":  15
+                                        }
+                        },
+    "account.account":  {
+                            "count":  7,
+                            "records":  {
+                                            "value":  [
+                                                          {
+                                                              "id":  2,
+                                                              "code":  null,
+                                                              "name":  "Main Cash"
+                                                          },
+                                                          {
+                                                              "id":  3,
+                                                              "code":  null,
+                                                              "name":  "Main Expense"
+                                                          },
+                                                          {
+                                                              "id":  4,
+                                                              "code":  null,
+                                                              "name":  "Main Payable"
+                                                          },
+                                                          {
+                                                              "id":  5,
+                                                              "code":  null,
+                                                              "name":  "Main Receivable"
+                                                          },
+                                                          {
+                                                              "id":  6,
+                                                              "code":  null,
+                                                              "name":  "Main Revenue"
+                                                          },
+                                                          {
+                                                              "id":  7,
+                                                              "code":  null,
+                                                              "name":  "Main Tax"
+                                                          },
+                                                          {
+                                                              "id":  1,
+                                                              "code":  null,
+                                                              "name":  "Minimal Account Chart"
+                                                          }
+                                                      ],
+                                            "Count":  7
+                                        }
+                        },
+    "account.invoice":  {
+                            "count":  0,
+                            "records":  {
+                                            "value":  [
+
+                                                      ],
+                                            "Count":  0
+                                        }
+                        },
+    "account.journal":  {
+                            "count":  6,
+                            "records":  {
+                                            "value":  [
+                                                          {
+                                                              "name":  "Cash",
+                                                              "type":  "cash",
+                                                              "id":  3,
+                                                              "code":  "CASH"
+                                                          },
+                                                          {
+                                                              "name":  "Currency Exchange",
+                                                              "type":  "write-off",
+                                                              "id":  6,
+                                                              "code":  "EXC"
+                                                          },
+                                                          {
+                                                              "name":  "Expense",
+                                                              "type":  "expense",
+                                                              "id":  2,
+                                                              "code":  "EXP"
+                                                          },
+                                                          {
+                                                              "name":  "Miscellaneous",
+                                                              "type":  "general",
+                                                              "id":  5,
+                                                              "code":  "MISC"
+                                                          },
+                                                          {
+                                                              "name":  "Revenue",
+                                                              "type":  "revenue",
+                                                              "id":  1,
+                                                              "code":  "REV"
+                                                          },
+                                                          {
+                                                              "name":  "Stock",
+                                                              "type":  "general",
+                                                              "id":  4,
+                                                              "code":  "STO"
+                                                          }
+                                                      ],
+                                            "Count":  6
+                                        }
+                        }
+}
