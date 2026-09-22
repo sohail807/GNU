@@ -16,8 +16,11 @@ This document certifies that the GNU Health HMIS backup engine is fully automate
 A live database backup containing full clinical and financial transaction records was restored into an isolated verification database (`gnuhealth_isolated_test_val`). Schema completeness (306/306 tables), customer invoices (`INV-2026/00001`), and General Ledger double-entry moves were forensically verified in the restored database before executing a clean teardown.
 
 * **Technical Capability**: **`PASS` (Verified)**
+* **Local vs Off-Host Classification**:
+  - **`LOCAL BACKUP VERIFIED`**: Local automated daily snapshots and isolated restoration drill validated on `gnuhealth-srv`.
+  - **`OFF-HOST / DISASTER RECOVERY = NOT VERIFIED`**: Off-host/cloud replication to secondary region is not yet configured.
 * **Restoration Time**: **9.4 Seconds** (Measured technical restoration)
-* **Target Recovery Time Objective (RTO)**: **< 2 Hours** (Pending formal clinic sign-off)
+* **Target Recovery Time Objective (RTO)**: **< 2 Hours** (Technical capability demonstrated; policy pending formal sign-off)
 * **Target Recovery Point Objective (RPO)**: **< 24 Hours** (Daily automated snapshot at 02:00 UTC)
 * **Governance Status**: `RPO/RTO POLICY = PENDING FORMAL APPROVAL`
 
@@ -108,7 +111,7 @@ ORDER BY m.id, l.id;
   6 | 6      | posted |      12 |       2 | 250.00 |   0.00
 (4 rows)
 ```
-**Verification Finding**: Financial ledger moves, lines, accounts, and reconciliations were restored with bit-for-bit fidelity.
+**Verification Finding**: Selected representative records and all 306 public tables were verified after isolated restore. Financial ledger moves, lines, accounts, and reconciliations matched expected accounting structures.
 
 ### 4.4 Clean Teardown Execution
 ```

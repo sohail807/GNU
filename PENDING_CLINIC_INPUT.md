@@ -10,11 +10,11 @@
 
 ## 1. Executive Statement
 
-Technical infrastructure, Tryton application services, PostgreSQL database configuration, systemd sandboxing, perimeter network rules, automated backups, and technical transaction testing are **100% complete and verified**.
+Technical infrastructure, Tryton application services, PostgreSQL database configuration, systemd sandboxing, perimeter network rules, automated backups, and technical verification drills have been executed and verified against the live host (`gnuhealth-srv`). All defined technical verification scenarios executed in this phase passed under the tested conditions.
 
-In accordance with strict clinical governance, the system is **frozen at a pristine baseline** (`patients = 0`, `appointments = 0`, `evaluations = 0`, `prescriptions = 0`, `invoices = 0`, `doctors = 0`).
+In accordance with strict clinical governance, the operational database is preserved at a clean implementation baseline (`patients = 0`, `appointments = 0`, `evaluations = 0`, `prescriptions = 0`, `invoices = 0`, `census = 0`).
 
-The implementation team **will NOT fabricate** clinic trade names, physician license credentials, medical tariffs, or accounting fiscal dates. Cutover is safely halted pending the delivery of the authoritative inputs cataloged below.
+The implementation team will NOT fabricate clinic legal identities, physician license credentials, medical tariffs, or executive sign-offs. System cutover to live clinical operations remains strictly blocked pending the delivery and formal approval of the authoritative inputs cataloged below.
 
 ---
 
@@ -92,12 +92,12 @@ The implementation team **will NOT fabricate** clinic trade names, physician lic
 
 ---
 
-### Item 09: Financial Fiscal Year Parameters
-* **INPUT**: Approved Fiscal Year Name (e.g., `FY2026`), Start Date, and End Date
+### Item 09: Financial Fiscal Year Parameters & Adoption
+* **INPUT**: Formal Approval of Fiscal Year 2026 (2026-01-01 to 2026-12-31) and Chart of Accounts
 * **OWNER**: Chief Financial Officer / Head of Accounting
-* **WHY REQUIRED**: General ledger account moves and customer invoices cannot be posted in Tryton without an active, open fiscal year and valid monthly accounting periods.
-* **STATUS**: `PENDING FINANCE INPUT`
-* **NEXT ACTION**: CFO approves fiscal parameters via `docs/FINANCE_GO_LIVE_INPUT_TEMPLATE.md`. Implementation team creates and opens fiscal year in `account.fiscalyear`.
+* **WHY REQUIRED**: General ledger account moves and customer invoices require an active, open fiscal year and valid monthly accounting periods. In the live system, Fiscal Year 2026 (ID 7) and 12 monthly periods (IDs 25–36) are technically configured and linked to strict sequence MV-2026/.
+* **STATUS**: `TECHNICALLY CONFIGURED — FINANCE APPROVAL PENDING`
+* **NEXT ACTION**: CFO reviews and formally signs off on the configured chart of accounts and FY2026 periods via `docs/FINANCE_GO_LIVE_INPUT_TEMPLATE.md`.
 
 ---
 
