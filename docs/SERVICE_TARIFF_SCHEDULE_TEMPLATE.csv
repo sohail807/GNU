@@ -1,0 +1,16 @@
+code,name,type,category,accounting_category_id,list_price_qar,cost_price_qar,tax_rate,active
+OPD-EVAL,Medical evaluation service,service,Clinical Outpatient,4,,,0%,true
+RAD-US,Ultrasound charges,service,Diagnostic Imaging,2,,,0%,true
+RAD-XR,X-ray charges,service,Diagnostic Imaging,2,,,0%,true
+RAD-CT,CT Scan charges,service,Diagnostic Imaging,2,,,0%,true
+RAD-MRI,MRI charges,service,Diagnostic Imaging,2,,,0%,true
+RAD-PET,PET Scan charges,service,Diagnostic Imaging,2,,,0%,true
+LAB-CBC,Complete Blood Count,service,Clinical Laboratory,3,,,0%,true
+LAB-LFT,Liver Function,service,Clinical Laboratory,3,,,0%,true
+LAB-RFT,Renal Function,service,Clinical Laboratory,3,,,0%,true
+LAB-UA,Urine Analysis,service,Clinical Laboratory,3,,,0%,true
+LAB-STOOL,Stool Examination,service,Clinical Laboratory,3,,,0%,true
+LAB-SEMEN,Semen Analysis,service,Clinical Laboratory,3,,,0%,true
+LAB-HAEM,Haematology,service,Clinical Laboratory,3,,,0%,true
+LAB-SMEAR,Peripheral Smear Examination,service,Clinical Laboratory,3,,,0%,true
+LAB-ENDO,Endocrinology,service,Clinical Laboratory,3,,,0%,true

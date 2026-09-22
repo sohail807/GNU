@@ -54,6 +54,7 @@ env/
 *.tmp
 *.temp
 scratch/
+test_output.docx
 .system_generated/
 
 # Office Temporary Lock Files
