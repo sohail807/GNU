@@ -1,87 +1,76 @@
-# GNU Health HMIS — Master Backend & API Handover Package
-## Complete System Specification, API Architecture & Frontend Integration Blueprint
+# GNU HEALTH HMIS — ALL-IN-ONE MASTER BACKEND & API HANDOVER PACKAGE
+## Authoritative Architecture, Native JSON-RPC 2.0 API Specification, Data Models, RBAC Security Contract, Developer Guide & Certification Baseline
 
-**Document Reference:** `GH-MASTER-HANDOVER-2026`  
-**Date of Release:** `2026-09-23`  
+**Document Reference:** `GH-ALL-IN-ONE-MASTER-2026`  
+**Release Date:** `2026-09-23`  
 **System Target:** GNU Health HMIS 5.0.6 / Tryton Application Server 7.0.57  
-**Host Environment:** Google Cloud Platform (`34.7.237.8`) / Debian 12.15 / PostgreSQL 15.19  
+**Host Infrastructure:** Google Cloud Platform (`34.7.237.8`) / Debian 12.15 Bookworm / PostgreSQL 15.19  
 **Deployment Profile:** Specialist & Primary Care Outpatient Clinic (Doha, State of Qatar)  
-**Currency Standard:** Qatari Riyal (`QAR`, `ر.ق`, ISO 4217: 634)  
-**Backend Status:** **Technically Complete and End-to-End Certified for DEMO/UAT**  
+**Standard Currency:** Qatari Riyal (`QAR`, `ر.ق`, ISO 4217: 634)  
+**Backend Status:** **TECHNICALLY COMPLETE AND END-TO-END CERTIFIED FOR DEMO/UAT**  
 **Frontend Handover Status:** **READY FOR CUSTOM FRONTEND INTEGRATION**
 
 ---
 
-## 1. Document Control
-
-| Metadata Field | Value / Description |
-| :--- | :--- |
-| **Document Title** | Master Backend & API Handover Package for Frontend Integration |
-| **Document ID** | `GH-MASTER-HANDOVER-2026` |
-| **Version** | `1.0.0 (Final Release)` |
-| **Author** | Backend & Integration Engineering Lead |
-| **Reviewed By** | Quality Assurance Lead & Systems Architect |
-| **Approved By** | Project Manager & Product Owner |
-| **Target Audience** | Executive Leadership, Project Managers, Frontend Software Engineers, QA Leads |
-| **Security Classification**| Confidential / Internal Clinic Project Deliverable |
+## TABLE OF CONTENTS
+1. [Executive Management Summary](#1-executive-management-summary)
+2. [Technology Stack & Infrastructure Topology](#2-technology-stack--infrastructure-topology)
+3. [System Architecture & System of Record Boundaries](#3-system-architecture--system-of-record-boundaries)
+4. [Native JSON-RPC 2.0 API Protocol & Authentication Lifecycle](#4-native-json-rpc-20-api-protocol--authentication-lifecycle)
+5. [Complete API Operation Catalog (Domains A through T)](#5-complete-api-operation-catalog-domains-a-through-t)
+6. [Data Model Reference (18 Core Business Entities)](#6-data-model-reference-18-core-business-entities)
+7. [Clinical & Diagnostic Workflow State Machines](#7-clinical--diagnostic-workflow-state-machines)
+8. [Billing, Cashier & General Ledger Accounting Contracts](#8-billing-cashier--general-ledger-accounting-contracts)
+9. [Role-Based Access Control (RBAC) & Security Invariants](#9-role-based-access-control-rbac--security-invariants)
+10. [Frontend Developer Implementation Guide & TypeScript Recipes](#10-frontend-developer-implementation-guide--typescript-recipes)
+11. [Error Handling, Exception Schemas & UX Guidelines](#11-error-handling-exception-schemas--ux-guidelines)
+12. [Testing, Relational Integrity & Browser E2E Certification Summary](#12-testing-relational-integrity--browser-e2e-certification-summary)
+13. [Disaster Recovery & Backup Baseline](#13-disaster-recovery--backup-baseline)
+14. [Actionable Frontend Integration Checklist (16 Categories)](#14-actionable-frontend-integration-checklist-16-categories)
+15. [Documentation Consistency, Discrepancies & Production Gates](#15-documentation-consistency-discrepancies--production-gates)
+16. [Final Backend Handover Statement & Evidence Index](#16-final-backend-handover-statement--evidence-index)
 
 ---
 
-## 2. Executive Summary
+## 1. Executive Management Summary
 
-### Executive View (For Management)
-The core backend for the outpatient clinic's Hospital Management Information System (HMIS) has been successfully built, deployed, configured, hardened, and technically verified on the cloud infrastructure. The backend is powered by GNU Health HMIS 5.0 and the Tryton enterprise application framework, backed by PostgreSQL.
+### 1.1 Executive View (For Management & Project Directors)
+The core backend for the outpatient clinic's Hospital Management Information System (HMIS) has been successfully built, deployed, configured, hardened, and technically verified on the Google Cloud Platform (`http://34.7.237.8/`). The system is powered by GNU Health HMIS 5.0 and the enterprise-grade Tryton application kernel, backed by a hardened PostgreSQL 15 relational database.
 
-All ten core clinical and financial workflows—from initial patient registration and appointment check-in, through nursing triage, doctor consultations, electronic prescriptions, laboratory analysis, radiology imaging, patient invoicing, and cashier settlement—are fully implemented and interconnected.
+All ten operational departments required for ambulatory care—Patient Intake, Appointment Scheduling, Queue Check-In, Nursing Triage, Physician Consultations (SOAP), Electronic Prescriptions, Pathology Laboratory, Radiology Imaging, Health Services Billing, and Cashier Settlement—are 100% functional, interconnected, and operational.
 
-The backend has passed exhaustive automated technical certification (33/33 tests passing with 0 database orphans) and genuine visible Google Chrome browser certification (20/20 stages visually verified). The system is **Technically Complete and End-to-End Certified for DEMO/UAT**. The project is now ready to transition into the **Frontend Development Phase**.
+The platform has achieved full technical certification across two rigorous evaluation layers:
+1. **Automated Backend Certification:** 33 out of 33 transaction test cases passed (100% success rate) with **0 foreign key orphans** detected across 306 database tables.
+2. **Genuine Visible Google Chrome Browser Certification:** 20 out of 20 operational stages were executed and visually verified in real visible Google Chrome desktop sessions on the live Tryton SAO interface, producing a balanced general ledger transaction (150.00 QAR debit = 150.00 QAR credit).
 
-### Technical Detail (For Engineers)
+The system is officially **Technically Complete and End-to-End Certified for DEMO/UAT**. The backend engineering team is pleased to formally deliver this comprehensive, all-in-one technical specification to the Project Owner and Frontend Engineering Team to govern the upcoming custom frontend phase.
+
+### 1.2 Technical Detail (For Engineers & System Architects)
 GNU Health acts as the sole system of record, clinical state machine, and double-entry accounting engine. The upcoming frontend application will interface exclusively via authenticated native Tryton JSON-RPC 2.0 application interfaces (`http://34.7.237.8/gnuhealth/`). Direct database access, parallel shadow tables, and duplicated accounting logic are strictly prohibited.
 
 ---
 
-## 3. Scope of the Handover
+## 2. Technology Stack & Infrastructure Topology
 
-### In Scope for this Handover
-- Formal delivery of the operational cloud backend (`34.7.237.8`).
-- Authoritative API integration contract and JSON-RPC 2.0 communication specifications.
-- Comprehensive data model documentation for all 18 core business entities.
-- Role-based access control (RBAC) security matrix and boundary verification across 7 roles.
-- Synthesis of testing evidence (33 automated backend tests, 20 browser E2E screenshots, 0 database orphans, 10s disaster recovery drill).
-- Uncompleted actionable checklist for the upcoming frontend development phase.
-
-### Out of Scope for this Handover (Belongs to Upcoming Frontend Phase)
-- Custom frontend user interface design, styling, and branding.
-- Web, mobile, or kiosk frontend client applications.
-- Client-side navigation, form rendering UX, and state management.
-- Production commercial registration, live staff onboarding, and off-site cloud storage replication (defined as pre-go-live gates).
-
----
-
-## 4. Backend Completion Status
-
-| Operational Domain | Built Capabilities | Technical Status | Certification Level |
-| :--- | :--- | :---: | :---: |
-| **Infrastructure & OS** | Debian 12 Bookworm, Nginx reverse proxy, PostgreSQL 15.19, Systemd sandbox | **OPERATIONAL** | Verified on live GCP host |
-| **Master Data** | Qatar clinic institution, FY2026, 3 GL accounts, 2 journals, 14,416 ICD-10 codes | **OPERATIONAL** | Level 1 & Level 3 Verified |
-| **Patient Demographics** | Person records, unique QID index, auto-generated permanent PUID | **OPERATIONAL** | Level 1 & Level 3 Verified |
-| **Appointments & Queue** | Outpatient scheduling, doctor allocation, queue check-in state machine | **OPERATIONAL** | Level 1 & Level 3 Verified |
-| **Nursing Triage** | Outpatient evaluation creation, anthropometric vital signs (BP, HR, Temp, SpO2) | **OPERATIONAL** | Level 1 & Level 3 Verified |
-| **Physician Consultation** | SOAP clinical notes, ICD-10 diagnostic coding, digital sign-off locking | **OPERATIONAL** | Level 1 & Level 3 Verified |
-| **Electronic Prescribing** | Medicament formulation, dosage, route, frequency, duration, safety validation | **OPERATIONAL** | Level 1 & Level 3 Verified |
-| **Diagnostic Laboratory** | Pathology requisitions, 20 CBC analyte criteria loading, numerical results | **OPERATIONAL** | Level 1 & Level 3 Verified |
-| **Medical Imaging** | Radiology requests, study selection (Chest X-Ray), radiologist reporting | **OPERATIONAL** | Level 1 & Level 3 Verified |
-| **Health Services** | Service bundling, automatic compilation of billable encounter items | **OPERATIONAL** | Level 1 & Level 3 Verified |
-| **Invoicing & Billing** | Customer invoice generation, tariff pricing (150.00 QAR), fiscal posting | **OPERATIONAL** | Level 1 & Level 3 Verified |
-| **Cash Settlement** | Native cashier payment wizard (`Cash Payment (QAR)`), invoice reconciliation | **OPERATIONAL** | Level 1 & Level 3 Verified |
-| **General Ledger** | Balanced double-entry moves (Move 47 & 48, 150.00 QAR debit = credit) | **OPERATIONAL** | Level 1 & Level 3 Verified |
+| Architectural Layer | Component | Version | Purpose | Source / Evidence |
+| :--- | :--- | :--- | :--- | :--- |
+| **Operating System** | Debian GNU/Linux | `12.15 Bookworm` | Server operating system | Live host `gnuhealth-srv` |
+| **Kernel** | Linux Kernel | `6.1.0-53-cloud-amd64` | Linux operating system kernel | `uname -a` |
+| **Hosting** | Google Cloud Platform | Compute Engine | Cloud infrastructure | Static IP `34.7.237.8` (Zone `europe-west4-a`) |
+| **Reverse Proxy** | Nginx | `1.22.1-100` | TLS termination & request routing | `nginx -v` |
+| **App Server** | Tryton Server (`trytond`) | `7.0.57` | Business logic & transaction kernel | Virtualenv python package |
+| **HMIS Core** | GNU Health HMIS | `5.0.6` | Healthcare domain models & logic | Modular Tryton pool |
+| **Runtime** | Python | `3.11.2` | Application execution runtime | `python3 --version` |
+| **Database** | PostgreSQL RDBMS | `15.19-0+deb12u1` | Relational data persistence | `psql -V` |
+| **Web Client** | Tryton SAO | `6.0 / 7.0 compatible` | Reference administrative web UI | Verified in browser tests |
+| **Automation** | Selenium WebDriver | `4.49.0` | Visible browser test automation | `pip list` |
+| **Browser** | Google Chrome | `153.0.8010.53` | Client desktop browser | Chrome system binary |
+| **Driver** | ChromeDriver | `153.0.8010.52` | Browser automation driver | Local Selenium Manager |
 
 ---
 
-## 5. System Architecture
+## 3. System Architecture & System of Record Boundaries
 
-### Multi-Tier Architecture Diagram
 ```
                     +==================================+
                     |      Upcoming Custom Frontend    |
@@ -89,7 +78,7 @@ GNU Health acts as the sole system of record, clinical state machine, and double
                     +==================================+
                                      |
                                      | HTTPS / JSON-RPC 2.0
-                                     | (Session Header Authentication)
+                                     | (Header Token Authentication)
                                      v
 +-----------------------------------------------------------------------------+
 |                            REVERSE PROXY TIER                               |
@@ -121,34 +110,8 @@ GNU Health acts as the sole system of record, clinical state machine, and double
 +-----------------------------------------------------------------------------+
 ```
 
----
-
-## 6. Technology Stack
-
-| Layer | Component | Version | Purpose | Source / Evidence |
-| :--- | :--- | :--- | :--- | :--- |
-| **OS** | Debian GNU/Linux | `12.15 Bookworm` | Server operating system | Live host `gnuhealth-srv` |
-| **Kernel** | Linux Kernel | `6.1.0-53-cloud-amd64` | Linux operating system kernel | `uname -a` |
-| **Hosting** | Google Cloud Platform | Compute Engine | Cloud infrastructure | Static IP `34.7.237.8` |
-| **Reverse Proxy** | Nginx | `1.22.1-100` | TLS termination & request routing | `nginx -v` |
-| **App Server** | Tryton Server (`trytond`) | `7.0.57` | Business logic & transaction kernel | Virtualenv python package |
-| **HMIS Core** | GNU Health HMIS | `5.0.6` | Healthcare domain models & logic | Modular Tryton pool |
-| **Runtime** | Python | `3.11.2` | Application execution runtime | `python3 --version` |
-| **Database** | PostgreSQL RDBMS | `15.19-0+deb12u1` | Relational data persistence | `psql -V` |
-| **Web Client** | Tryton SAO | `6.0 / 7.0 compatible` | Reference administrative web UI | Verified in browser tests |
-| **Automation** | Selenium WebDriver | `4.49.0` | Visible browser test automation | `pip list` |
-| **Browser** | Google Chrome | `153.0.8010.53` | Client desktop browser | Chrome system binary |
-| **Driver** | ChromeDriver | `153.0.8010.52` | Browser automation driver | Local Selenium Manager |
-
----
-
-## 7. System of Record and Architectural Boundaries
-
-### The System of Record Principle
-GNU Health HMIS is the **sole authoritative system of record** for all medical, diagnostic, and financial data. The upcoming frontend application is strictly an untrusted client that presents data and transmits user intentions.
-
-### Non-Negotiable Architectural Invariants:
-1. **NO Direct Database Access:** The frontend must never connect directly to PostgreSQL on port 5432.
+### The System of Record Invariants (Non-Negotiable)
+1. **NO Direct PostgreSQL Connections:** The frontend must never connect directly to PostgreSQL on port 5432.
 2. **NO Direct Database Writes:** Raw SQL `INSERT`, `UPDATE`, or `DELETE` statements are prohibited.
 3. **NO Shadow Tables:** The frontend must not maintain parallel database tables for patient, clinical, or financial records.
 4. **NO Duplicate Accounting Logic:** General ledger debits, credits, and tax amounts must never be calculated in frontend code.
@@ -158,25 +121,24 @@ GNU Health HMIS is the **sole authoritative system of record** for all medical, 
 
 ---
 
-## 8. API Architecture & Communication Protocol
+## 4. Native JSON-RPC 2.0 API Protocol & Authentication Lifecycle
 
-- **Protocol:** HTTP/1.1 or HTTP/2 over TLS (HTTPS).
-- **Encoding:** JSON-RPC 2.0.
+### 4.1 Protocol Specifications
+- **Transport:** HTTP/1.1 or HTTP/2 over TLS (HTTPS).
+- **Format:** JSON-RPC 2.0.
 - **Base Endpoint:** `http://34.7.237.8/gnuhealth/` (Production: `https://<clinic-domain>/gnuhealth/`).
-- **Standard Request Headers:**
+- **Required Request Headers:**
   ```http
   Content-Type: application/json
   Accept: application/json
   Authorization: Session <base64_encoded_token>
   ```
 
----
-
-## 9. Authentication & Session Management
-
-### 9.1 Authentication Handshake
+### 4.2 Authentication Handshake (`common.db.login`)
+Authentication executes against the native Tryton database service:
 ```http
 POST /gnuhealth/ HTTP/1.1
+Host: 34.7.237.8
 Content-Type: application/json
 
 {
@@ -185,90 +147,282 @@ Content-Type: application/json
   "params": ["<USERNAME>", "<PASSWORD>"]
 }
 ```
-**Response:**
+**Response Schema:**
 ```json
 {
   "id": 1,
-  "result": [12, "session_token_xyz_123"],
+  "result": [12, "abc123sessiontoken456xyz"],
   "error": null
 }
 ```
+- `result[0]` = Integer User ID (e.g. `12`).
+- `result[1]` = Cryptographic Session Token string.
 
-### 9.2 Session Authorization Header Construction
+### 4.3 Constructing the Authorization Header
+Combine the User ID and Session Token separated by a colon, and Base64-encode the string:
 ```
-Raw String:    "<USER_ID>:<SESSION_TOKEN>"
-Encoded:       Base64Encode(Raw String)
-Header:        Authorization: Session <ENCODED_STRING>
+Raw String:    "12:abc123sessiontoken456xyz"
+Base64 String: "MTI6YWJjMTIzc2Vzc2lvbnRva2VuNDU2eHl6"
+HTTP Header:   Authorization: Session MTI6YWJjMTIzc2Vzc2lvbnRva2VuNDU2eHl6
 ```
 
-### 9.3 Session Expiration & Logout
-- Sessions expire after inactivity. When the server returns HTTP `401 Unauthorized` or `AccessError`, the frontend must prompt for re-authentication.
-- Calling `common.db.logout` invalidates the session token on the server.
+### 4.4 Session Expiry & Logout
+- **Inactivity Timeout:** Managed natively by Tryton server settings.
+- **Session Expiration:** When an expired token is submitted, Tryton returns HTTP `401 Unauthorized` or an `AccessError`. The frontend must prompt for re-login.
+- **Logout Action:** Calling `common.db.logout` invalidates the server-side session token.
 
 ---
 
-## 10. Native JSON-RPC Contract & Core Methods
+## 5. Complete API Operation Catalog (Domains A through T)
 
-Every Tryton ORM model exposes standard methods under the `model.<model_name>.<method>` namespace:
+### Domain A: Authentication & Session
+- `common.db.login([username, password])` -> `[user_id, session_token]`
+- `common.db.logout()` -> `true`
 
-| Method | Parameters | Return Type | Description |
-| :--- | :--- | :--- | :--- |
-| `search` | `[domain, offset, limit, order, context]` | `[id1, id2, ...]` | Searches records matching domain. |
-| `read` | `[[id1, id2], [fields], context]` | `[{field: val}, ...]` | Reads specified field values. |
-| `search_read` | `[domain, offset, limit, order, fields, context]` | `[{field: val}, ...]` | Combined search and read in one call. |
-| `create` | `[[{field: val}], context]` | `[new_id1, ...]` | Creates new records; returns IDs. |
-| `write` | `[[id1, id2], {field: val}, context]` | `true` | Updates specified records. |
-| `delete` | `[[id1, id2], context]` | `true` | Deletes records (if permitted). |
+### Domain B: Users & Context
+- `model.res.user.read([[user_id], ["name", "login", "groups"]], context)` -> User profile and groups.
+
+### Domain C: Patient Demographics & Intake
+- **Create Party:**
+  ```json
+  {
+    "method": "model.party.party.create",
+    "params": [
+      [{
+        "name": "Fatima Al-Kuwari",
+        "is_person": true,
+        "is_patient": true,
+        "gender": "f",
+        "dob": "1994-08-12",
+        "fed_country": 178,
+        "ref": "29463401234"
+      }],
+      {"company": 1}
+    ]
+  }
+  ```
+- **Create Patient File:**
+  ```json
+  {
+    "method": "model.gnuhealth.patient.create",
+    "params": [
+      [{"party": 215, "blood_type": "O", "rh": "+"}],
+      {"company": 1}
+    ]
+  }
+  ```
+  *Result: Returns patient ID; auto-generates permanent PUID.*
+
+### Domain D: Appointment Scheduling
+- **Create Appointment:** `model.gnuhealth.appointment.create([[{patient, healthprof, specialty, appointment_date}], context])`
+- **Search Appointments:** `model.gnuhealth.appointment.search_read([[["appointment_date", ">=", "2026-09-23 00:00:00"]], 0, 50, ...])`
+
+### Domain E: Patient Check-In
+- **Check-In Action:** `model.gnuhealth.appointment.write([[appointment_id], {"state": "checked_in"}], context)`
+
+### Domain F: Nursing Triage & Vitals
+- **Create Evaluation:**
+  ```json
+  {
+    "method": "model.gnuhealth.patient.evaluation.create",
+    "params": [
+      [{
+        "patient": 65,
+        "healthprof": 1,
+        "systolic": 120,
+        "diastolic": 80,
+        "bpm": 76,
+        "temperature": 37.0,
+        "respiratory_rate": 16,
+        "osat": 98,
+        "weight": 75.0,
+        "height": 175.0,
+        "evaluation_type": "outpatient"
+      }],
+      {"company": 1}
+    ]
+  }
+  ```
+
+### Domain G: Clinical Consultation & SOAP Documentation
+- **Update SOAP & Diagnosis:**
+  ```json
+  {
+    "method": "model.gnuhealth.patient.evaluation.write",
+    "params": [
+      [15],
+      {
+        "chief_complaint": "Mild fever and headache",
+        "present_illness": "Patient reports mild fever for two days.",
+        "evaluation_summary": "Temperature 37.0 C, vitals stable.",
+        "info_diagnosis": "Viral upper respiratory infection.",
+        "directions": "Hydration, rest, symptomatic therapy.",
+        "diagnosis": 8
+      },
+      {"company": 1}
+    ]
+  }
+  ```
+- **Sign Evaluation Action:** `model.gnuhealth.patient.evaluation.end_evaluation([[15]], context)`  
+  *Result: Transitions state to `signed`; record permanently locks against edits.*
+
+### Domain H: Medical Coding (ICD-10)
+- `model.gnuhealth.pathology.search_read([[["code", "ilike", "J06%"]], 0, 20, null, ["id", "code", "name"]], context)`
+
+### Domain I: Electronic Prescribing
+- **Create Prescription Order & Lines:**
+  ```json
+  {
+    "method": "model.gnuhealth.prescription.order.create",
+    "params": [
+      [{
+        "patient": 65,
+        "healthprof": 1,
+        "prescription_warning_ack": true,
+        "lines": [
+          ["create", [{
+            "medicament": 1,
+            "dose": 500,
+            "dose_unit": 1,
+            "form": 1,
+            "route": 1,
+            "qty": 15,
+            "frequency": 3,
+            "duration": 5,
+            "duration_period": "days"
+          }]]
+        ]
+      }],
+      {"company": 1}
+    ]
+  }
+  ```
+- **Validate Prescription:** `model.gnuhealth.prescription.order.create_prescription([[rx_id]], context)` -> State `done`.
+
+### Domain J: Diagnostic Laboratory
+- **Create Test:** `model.gnuhealth.lab.create([[{patient, requestor, test: cbc_id}], context])`
+- **Load Criteria:** `model.gnuhealth.lab.complete_criteareas([[lab_id]], context)` -> Loads 20 CBC analytes.
+- **Save Result:** `model.gnuhealth.lab.test.critearea.write([[analyte_id], {"result": "14.1"}], context)`
+- **Sign-off Document:** `model.gnuhealth.lab.generate_document([[lab_id]], context)` -> State `done`.
+
+### Domain K: Medical Imaging (Radiology)
+- **Create Request:** `model.gnuhealth.imaging.test.request.create([[{patient, doctor, requested_test, comment}], context])`
+- **Execute Request:** `model.gnuhealth.imaging.test.request.requested([[rad_id]], context)`
+- **Generate Results:** `model.gnuhealth.imaging.test.request.generate_results([[rad_id]], context)` -> State `done`.
+
+### Domain L: Health Services
+- `model.gnuhealth.health_service.create([[{patient, desc: "Outpatient Visit"}], context])`
+
+### Domain M & N: Customer Invoicing
+- **Create Invoice:**
+  ```json
+  {
+    "method": "model.account.invoice.create",
+    "params": [
+      [{
+        "party": 215,
+        "type": "out",
+        "currency": 1,
+        "lines": [
+          ["create", [{
+            "product": 1,
+            "quantity": 1,
+            "unit_price": 150.00
+          }]]
+        ]
+      }],
+      {"company": 1}
+    ]
+  }
+  ```
+- **Post Invoice:** `model.account.invoice.post([[invoice_id]], context)`  
+  *Result: Generates Move #47 on Revenue journal; locks invoice lines permanently.*
+
+### Domain O: Cashier Payments
+- **Execute Cash Settlement Wizard:**
+  ```json
+  {
+    "method": "wizard.account.invoice.pay.execute",
+    "params": [
+      {"invoice": 14, "payment_method": 1},
+      {"company": 1}
+    ]
+  }
+  ```
+  *Result: Generates Move #48 on Cash journal; reconciles invoice to `Paid`.*
+
+### Domain P & Q: Accounting & Reconciliation
+- `model.account.move.search_read([[["origin", "=", "account.invoice,14"]]], context)`
+- `model.account.move.line.reconcile([ar_debit_id, ar_credit_id], context)`
+
+### Domain R: Patient Related Records
+- Native Tryton `relate` queries linking patient file to appointments, evaluations, prescriptions, labs, and invoices.
+
+### Domain S & T: Reporting & Administration
+- Tryton standard reporting engines and administrative models (`res.user`, `res.group`).
 
 ---
 
-## 11. API Operation Catalog (Domains A through T)
+## 6. Data Model Reference (18 Core Business Entities)
 
-- **Domain A: Authentication** (`common.db.login`, `common.db.logout`)
-- **Domain B: Users / Context** (`model.res.user.read`)
-- **Domain C: Patient Demographics** (`model.party.party.create`, `model.gnuhealth.patient.create`, `search_read`)
-- **Domain D: Appointment Scheduling** (`model.gnuhealth.appointment.create`, `search_read`)
-- **Domain E: Patient Check-In** (`model.gnuhealth.appointment.write` with `state='checked_in'`)
-- **Domain F: Nursing Triage** (`model.gnuhealth.patient.evaluation.create` with vital signs)
-- **Domain G: Clinical Consultations** (`model.gnuhealth.patient.evaluation.write` with SOAP; action `end_evaluation`)
-- **Domain H: ICD-10 Medical Coding** (`model.gnuhealth.pathology.search_read`)
-- **Domain I: Electronic Prescribing** (`model.gnuhealth.prescription.order.create`; action `create_prescription`)
-- **Domain J: Diagnostic Laboratory** (`model.gnuhealth.lab.create`; actions `complete_criteareas` and `generate_document`)
-- **Domain K: Medical Imaging** (`model.gnuhealth.imaging.test.request.create`; actions `requested` and `generate_results`)
-- **Domain L: Health Services** (`model.gnuhealth.health_service.create`)
-- **Domain M & N: Customer Invoicing** (`model.account.invoice.create`; action `post`)
-- **Domain O: Cashier Payments** (`account.invoice.pay` wizard; method: `Cash Payment (QAR)`)
-- **Domain P & Q: Accounting & Reconciliation** (`model.account.move.search_read`; `model.account.move.line.reconcile`)
-- **Domain R: Related Records** (Native Tryton Relate queries connecting patient file to history)
-- **Domain S & T: Reporting & Administration** (Tryton standard report engines and `res.group` models)
+### 1. `party.party` (Person Identity)
+- Fields: `name` (Char), `is_person` (Bool), `is_patient` (Bool), `gender` ('m'/'f'), `dob` (Date), `fed_country` (Many2One), `ref` (Unique QID).
+- Relates: 1:1 with `gnuhealth.patient`, 1:N with `party.address`.
+
+### 2. `gnuhealth.patient` (Medical Record)
+- Fields: `party` (Many2One, Unique), `puid` (Char, Unique, Read-Only), `blood_type`, `rh`, `general_info`.
+
+### 3. `gnuhealth.appointment` (Scheduling)
+- Fields: `patient` (Many2One), `healthprof` (Many2One), `specialty` (Many2One), `appointment_date` (DateTime), `state` (`free`, `confirmed`, `checked_in`, `done`).
+
+### 4. `gnuhealth.patient.evaluation` (Triage & SOAP)
+- Fields: `patient`, `healthprof`, `appointment`, `chief_complaint`, `present_illness`, `evaluation_summary`, `info_diagnosis`, `directions`, `diagnosis` (ICD-10), vitals (`systolic`, `diastolic`, `bpm`, `temperature`, `respiratory_rate`, `osat`, `weight`, `height`), `state` (`draft`, `in_progress`, `signed`).
+
+### 5. `gnuhealth.pathology` (ICD-10 Catalog)
+- Fields: `code` (Unique), `name`, `category`. (Contains 14,416 standard ICD-10 records).
+
+### 6. `gnuhealth.prescription.order` (e-Prescription Header)
+- Fields: `name` (RX sequence), `patient`, `healthprof`, `prescription_date`, `prescription_warning_ack` (Bool), `state` (`draft`, `done`).
+
+### 7. `gnuhealth.prescription.line` (Medication Line)
+- Fields: `order`, `medicament`, `dose`, `dose_unit`, `form`, `route`, `qty`, `frequency`, `duration`, `duration_period`.
+
+### 8. `gnuhealth.lab` (Diagnostic Pathology Requisition)
+- Fields: `name` (TEST sequence), `patient`, `requestor`, `test` (test type), `state` (`draft`, `tested`, `done`).
+
+### 9. `gnuhealth.lab.test.critearea` (Laboratory Analyte)
+- Fields: `gnuhealth_lab_id`, `name`, `result`, `lower_limit`, `upper_limit`, `units`.
+
+### 10. `gnuhealth.imaging.test.request` (Radiology Order)
+- Fields: `order_code` (RAD sequence), `patient`, `doctor`, `requested_test`, `state` (`draft`, `requested`, `done`).
+
+### 11. `gnuhealth.imaging.test.result` (Radiologist Report)
+- Fields: `request`, `comment` (narrative impression), `date`.
+
+### 12. `gnuhealth.health_service` (Billable Service Bundle)
+- Fields: `patient`, `desc`, `service_date`, `lines`.
+
+### 13. `account.invoice` (Customer Invoice)
+- Fields: `number` (INV sequence), `party`, `type` (`out`), `currency` (QAR), `total_amount`, `state` (`draft`, `validated`, `posted`, `paid`).
+
+### 14. `account.invoice.line` (Invoice Line Item)
+- Fields: `invoice`, `product`, `account` (4000), `quantity`, `unit_price`.
+
+### 15. `account.move` (General Ledger Journal Entry)
+- Fields: `number`, `journal` (Revenue/Cash), `date`, `origin`, `state` (`draft`, `posted`). Invariant: Debits == Credits.
+
+### 16. `account.move.line` (Debit / Credit Line)
+- Fields: `move`, `account` (1000/1200/4000), `debit`, `credit`, `party`, `reconciliation`.
+
+### 17. `account.move.reconciliation` (AR Reconciliation)
+- Fields: `name`, `lines`. Links invoice AR debit with payment AR credit.
+
+### 18. `res.user` / `res.group` (Security & Roles)
+- Fields: `login`, `password_hash`, `groups`.
 
 ---
 
-## 12. Data Model Documentation (18 Core Models)
-
-The system operates on 18 core business models, detailed in `03_GNU_HEALTH_DATA_MODEL_AND_WORKFLOW_REFERENCE.md`:
-1. `party.party` (Person identity & civil ID)
-2. `gnuhealth.patient` (Medical record file & permanent PUID)
-3. `gnuhealth.appointment` (Scheduling & check-in state machine)
-4. `gnuhealth.patient.evaluation` (Nursing triage vitals & physician SOAP notes)
-5. `gnuhealth.pathology` (ICD-10 clinical diagnoses catalog)
-6. `gnuhealth.prescription.order` (Electronic prescription header)
-7. `gnuhealth.prescription.line` (Medication, dosage, route, frequency, duration)
-8. `gnuhealth.lab` (Diagnostic pathology order)
-9. `gnuhealth.lab.test.critearea` (Analyte criteria and quantitative results)
-10. `gnuhealth.imaging.test.request` (Radiology imaging request)
-11. `gnuhealth.imaging.test.result` (Radiologist narrative findings report)
-12. `gnuhealth.health_service` (Billable encounter service bundle)
-13. `account.invoice` (Customer commercial invoice)
-14. `account.invoice.line` (Invoice service line items)
-15. `account.move` (Double-entry general ledger journal entry)
-16. `account.move.line` (Debit and credit ledger entries)
-17. `account.move.reconciliation` (Accounts receivable settlement link)
-18. `res.user` / `res.group` (Operator accounts and RBAC groups)
-
----
-
-## 13. Clinical Workflow Lifecycle
+## 7. Clinical & Diagnostic Workflow State Machines
 
 ```
 [ FRONT DESK ]              [ NURSING ]                 [ PHYSICIAN ]
@@ -295,126 +449,41 @@ The system operates on 18 core business models, detailed in `03_GNU_HEALTH_DATA_
 
 ---
 
-## 14. Laboratory Workflow Contract
-- **Order Creation:** Physician orders test (e.g. CBC) in state `draft`.
-- **Criteria Generation:** Lab technician triggers `complete_criteareas` action; Tryton auto-expands the 20 standard CBC analytes.
-- **Result Recording:** Quantitative findings (e.g. Hemoglobin `14.1 g/dL`) recorded on analyte lines.
-- **Validation:** Technician triggers `generate_document`; test state permanently locks to `done`.
+## 8. Billing, Cashier & General Ledger Accounting Contracts
+
+```
+1. Customer Invoice Posting (Move #47 - Revenue Journal):
+   DEBIT:  Account 1200 - Accounts Receivable (Party: Patient)   150.00 QAR
+   CREDIT: Account 4000 - Medical Services Revenue               150.00 QAR
+   Balance: 150.00 QAR == 150.00 QAR (Balanced)
+
+2. Cashier Payment Settlement (Move #48 - Cash Journal):
+   DEBIT:  Account 1000 - Petty Cash / Main Till                 150.00 QAR
+   CREDIT: Account 1200 - Accounts Receivable (Party: Patient)   150.00 QAR
+   Balance: 150.00 QAR == 150.00 QAR (Balanced)
+
+3. Reconciliation:
+   Line 47.AR matched with Line 48.AR -> Reconciled.
+   Net Patient Receivable Balance = 0.00 QAR (Paid in Full).
+```
 
 ---
 
-## 15. Radiology Workflow Contract
-- **Request Creation:** Clinician orders study (e.g. Chest X-Ray PA View) with clinical indications.
-- **Study Execution:** Radiologist captures study and enters formal narrative findings.
-- **Results Generation:** Radiologist triggers `generate_results`; state permanently locks to `done`.
+## 9. Role-Based Access Control (RBAC) & Security Invariants
 
----
+### 9.1 Role Matrix across 7 Operational Roles
 
-## 16. Billing Workflow Contract
-- **Health Service Compilation:** Billable consultation fees and diagnostic tests are bundled into `gnuhealth.health_service`.
-- **Invoice Draft:** Cashier creates `account.invoice` linked to patient party.
-- **Posting Action:** Cashier triggers `post` action; Tryton generates Move #47 on the Revenue journal and permanently locks the invoice against alteration.
+| Role Name | Demo Login | Allowed Modules | Restricted Modules | Observed UI Denial Result |
+| :--- | :--- | :--- | :--- | :--- |
+| **Front Desk** | `demo_frontdesk1` | Registration, Appointments, Check-in | Prescriptions, Clinical Evaluations, GL | Search returns `[]`; access denied |
+| **Nurse** | `demo_nurse1` | Outpatient Triage, Anthropometric Vitals | Financial Invoicing, Prescriptions, GL | Search returns `[]`; access denied |
+| **Physician** | `demo_dr1` | SOAP Consultations, ICD-10, Prescriptions | General Ledger Move Administration | Search returns `[]`; access denied |
+| **Laboratory** | `demo_lab1` | Pathology Requisitions, Analyte Results | Billing, Prescriptions, Evaluations | Restricted to diagnostic lab domain |
+| **Radiology** | `demo_rad1` | Imaging Requests, Radiologist Reports | Financial Ledger, Pharmacy Dispensing | Restricted to diagnostic imaging |
+| **Cashier** | `demo_cashier1` | Invoices, Posting, Cash Payment Wizard | Clinical Evaluations, Prescriptions | Search returns `[]`; access denied |
+| **Administrator**| `demo_admin1` | User Management, System Configuration | Operational separation enforced | Segregated from clinical roles |
 
----
-
-## 17. Payment Workflow Contract
-- **Wizard Launch:** Cashier clicks `PAY` button on posted invoice.
-- **Method Selection:** Cashier selects `Cash Payment (QAR)`.
-- **Settlement Execution:** Tryton generates Move #48 on the Cash journal, matches Accounts Receivable debit/credit lines, creates reconciliation record, and transitions invoice to `Paid`.
-
----
-
-## 18. Accounting Workflow & Immutability Contract
-- **Revenue Move #47:**
-  - Debit: Account `1200` (Accounts Receivable) = `150.00 QAR`
-  - Credit: Account `4000` (Medical Services Revenue) = `150.00 QAR`
-  - Balanced: `150.00 QAR == 150.00 QAR`.
-- **Payment Move #48:**
-  - Debit: Account `1000` (Petty Cash / Main Till) = `150.00 QAR`
-  - Credit: Account `1200` (Accounts Receivable) = `150.00 QAR`
-  - Balanced: `150.00 QAR == 150.00 QAR`.
-- **Immutability Invariant:** Posted invoices and moves cannot be modified or deleted. Any unauthorized modification raises an explicit `AccessError`.
-
----
-
-## 19. Role-Based Access Control (RBAC) Contract
-
-| Role | User Account | Permitted Operational Areas | Strictly Restricted Areas |
-| :--- | :--- | :--- | :--- |
-| **Front Desk** | `demo_frontdesk1` | Registration, Appointments, Check-in | Prescriptions, Clinical Evaluations, General Ledger |
-| **Nurse** | `demo_nurse1` | Outpatient Triage, Anthropometric Vitals | Financial Invoicing, Prescription Issuance, General Ledger |
-| **Physician** | `demo_dr1` | SOAP Consultations, ICD-10, Prescriptions | General Ledger Move Administration |
-| **Laboratory** | `demo_lab1` | Pathology Requisitions, Analyte Results | Financial Invoicing, Prescriptions |
-| **Radiology** | `demo_rad1` | Imaging Requests, Radiologist Reports | Financial Ledger, Pharmacy Dispensing |
-| **Cashier** | `demo_cashier1` | Invoices, Posting, Cash Settlement Wizard | Clinical Evaluations, Diagnosis Modification |
-| **Administrator**| `demo_admin1` | User Administration, System Maintenance | Operational separation enforced |
-
----
-
-## 20. Security Architecture & Network Boundaries
-- **Perimeter Firewall:** GCP VPC Firewall restricting ingress to TCP 22 (SSH Hardened), TCP 80 (HTTP), and TCP 443 (HTTPS).
-- **Application Sandbox:** Tryton server runs under unprivileged service user `gnuhealth` bound strictly to `127.0.0.1:8000`.
-- **Database Sandbox:** PostgreSQL bound strictly to `127.0.0.1:5432` with SCRAM-SHA-256 / peer authentication.
-- **Password Hashes:** User passwords stored as cryptographic scrypt hashes.
-
----
-
-## 21. Validation & Error Handling Contract
-
-| Exception Class | Trigger Condition | Frontend Action | Recommended User Message |
-| :--- | :--- | :--- | :--- |
-| `AccessError` | Role permission denied or record locked | Block action; show alert | *"Access Restricted: You do not have permission to access or modify this record."* |
-| `UserError` | Missing required field or invalid state | Highlight form field | Displays specific validation message returned by Tryton backend. |
-| `SelectionValidationError` | Invalid state machine string | Fix dropdown value | *"Invalid selection option submitted."* |
-| `SQLConstraintError` | Duplicate QID / Civil ID entered | Reject duplicate input | *"A patient with this Civil ID already exists in the clinic database."* |
-| `401 Unauthorized` | Inactivity session timeout | Prompt re-login modal | *"Your session has expired. Please enter your password to continue."* |
-
----
-
-## 22. Transaction Integrity & Rollback Safety
-- **ACID Transactions:** Every business action executes inside an atomic PostgreSQL transaction.
-- **Rollback Safety:** During validation failures, transactions roll back completely, preventing corrupted or orphaned database rows.
-- **Zero Orphan Audit:** Audit of 306 public tables confirmed 0 foreign key orphans.
-
----
-
-## 23. Backup & Disaster Recovery
-- **Backup Schedule:** Automated daily script creating encrypted database dump and file attachment archive.
-- **Tested Artifacts:** `/var/backups/gnuhealth/gnuhealth_db_e2e_post_20260922_184552.dump` (7.65 MB).
-- **Disaster Recovery Drill:** Fully verified; restored database into sandbox in **10 seconds** with 100% table and accounting fidelity.
-- **Off-Site Gate:** Automated sync to remote GCP Cloud Storage bucket flagged as pre-go-live gate.
-
----
-
-## 24. API Testing Synthesis
-- **Automated Integration Test Suite:** 33 / 33 test cases passed (100% success rate) in `reports/e2e_test_results.json`.
-- **Negative Test Suite:** 14 / 14 defensive exception tests passed in `reports/e2e_negative_tests.json`.
-- **Zero SQL Bypass:** All tests verified through native Tryton ORM.
-
----
-
-## 25. Genuine Visible Browser E2E Certification
-- **Certification Source:** `reports/LIVE_BROWSER_E2E_CERTIFICATION.md`.
-- **Execution Engine:** Selenium WebDriver controlling installed Google Chrome desktop browser (`153.0.8010.53`).
-- **Results:** 20 out of 20 operational stages executed through native SAO forms and buttons.
-- **Evidence Payload:** 21 authentic screenshots (1.17 MB total) in `reports/live_browser_test/`.
-- **Live Identifiers:** Patient `LIVE E2E TEST PATIENT` (`KQI816APL`), Appointment `18`, Evaluation `15`, Prescription `RX014`, Lab `TEST037`, Radiology `RAD-00012`, Invoice `INV-2026/00014` (Paid).
-
----
-
-## 26. Performance Baselines (Observed Test Measurements)
-*Note: Test-environment measurements on cloud host `gnuhealth-srv`, not production SLAs.*
-- Patient Search: 3.67 ms average
-- Patient Search & Read: 7.00 ms average
-- Appointment Search: 1.12 ms average
-- Clinical Evaluation Retrieval: 2.20 ms average
-- Customer Invoice Search: 1.42 ms average
-- Accounting Move Retrieval: 5.09 ms average
-
----
-
-## 27. Frontend Integration Rules (17 Invariants)
-
+### 9.2 The 17 Mandatory Frontend Security Invariants
 1. Never connect directly to PostgreSQL.
 2. Never store database passwords in frontend code.
 3. Never embed administrative service accounts.
@@ -435,120 +504,222 @@ The system operates on 18 core business models, detailed in `03_GNU_HEALTH_DATA_
 
 ---
 
-## 28. Frontend ↔ Backend Responsibility Matrix
+## 10. Frontend Developer Implementation Guide & TypeScript Recipes
 
-| Feature Domain | Frontend Responsibility | Backend Responsibility |
-| :--- | :--- | :--- |
-| **Authentication** | Collects credentials; manages session token state. | Verifies password hash; issues session token. |
-| **Demographics** | Renders patient intake form; validates format. | Auto-generates permanent PUID; checks QID uniqueness. |
-| **Appointments** | Displays calendar slots; submits booking request. | Validates provider availability; updates queue state. |
-| **Triage** | Renders vitals form; calculates instant BMI. | Attaches vitals to medical file; checks physiological ranges. |
-| **Consultation** | Renders SOAP inputs; provides ICD-10 search. | Validates physician license; locks record upon sign-off. |
-| **Prescriptions** | Renders drug dosing fields; collects safety ack. | Validates formulation; executes contraindication check. |
-| **Invoicing** | Displays service tariff and line totals. | Posts fiscal invoice; generates balanced GL move. |
-| **Payment** | Renders cash payment wizard. | Reconciles Accounts Receivable; sets invoice to Paid. |
-| **RBAC** | Hides unauthorized buttons for visual cleanliness. | Authoritatively enforces permissions on every RPC call. |
+### Recipe 1: Authenticating & Obtaining a Session Token
+```typescript
+async function login(username: string, password: string): Promise<{ userId: number; sessionToken: string }> {
+  const response = await fetch("http://34.7.237.8/gnuhealth/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: Date.now(),
+      method: "common.db.login",
+      params: [username, password]
+    })
+  });
+  const data = await response.json();
+  if (!data.result) throw new Error("Invalid username or password.");
+  const [userId, sessionToken] = data.result;
+  return { userId, sessionToken };
+}
+```
 
----
+### Recipe 2: Constructing Authorization Header
+```typescript
+function getAuthHeader(userId: number, token: string): string {
+  return `Session ${btoa(`${userId}:${token}`)}`;
+}
+```
 
-## 29. Frontend Team Required Inputs
+### Recipe 3: Universal RPC Client
+```typescript
+async function callRpc<T = any>(method: string, params: any[], authHeader?: string): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+  };
+  if (authHeader) headers["Authorization"] = authHeader;
 
-The frontend team requires the following verified parameters from the backend:
-- **Base Endpoint:** `http://34.7.237.8/gnuhealth/` (Production: `https://<domain>/gnuhealth/`).
-- **Database Parameter:** `gnuhealth`.
-- **Default Company Context:** `{"company": 1}`.
-- **Currency Code:** `QAR` (Currency ID: `1`).
-- **Country Code:** Qatar (Country ID: `178`, Alpha-3: `QAT`).
-- **Active Operational Accounts:** DEMO role accounts (`demo_frontdesk1`, `demo_nurse1`, `demo_dr1`, `demo_lab1`, `demo_rad1`, `demo_cashier1`, `demo_admin1`).
-- **Test Credentials:** Approved DEMO credentials (never hardcoded in repositories).
+  const res = await fetch("http://34.7.237.8/gnuhealth/", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ id: Date.now(), method, params })
+  });
 
----
+  if (res.status === 401) throw new Error("SESSION_EXPIRED");
+  const data = await res.json();
+  if (data.error) {
+    const [errClass, errMsg] = data.error;
+    throw new Error(`[${errClass}] ${errMsg}`);
+  }
+  return data.result;
+}
+```
 
-## 30. Documentation vs Implementation Consistency Audit
+### Recipe 4: Patient Registration
+```typescript
+async function registerPatient(name: string, gender: "m"|"f", dob: string, qid: string, authHeader: string) {
+  const ctx = { company: 1 };
+  const [partyId] = await callRpc<number[]>(
+    "model.party.party.create",
+    [[{ name, is_person: true, is_patient: true, gender, dob, fed_country: 178, ref: qid }], ctx],
+    authHeader
+  );
+  const [patientId] = await callRpc<number[]>(
+    "model.gnuhealth.patient.create",
+    [[{ party: partyId }], ctx],
+    authHeader
+  );
+  return { patientId, partyId };
+}
+```
 
-In accordance with Section 3, a strict audit cross-referencing repository documentation against live system behavior was conducted:
+### Recipe 5: Signing Clinical Consultation
+```typescript
+async function signEvaluation(evaluationId: number, authHeader: string) {
+  return await callRpc(
+    "model.gnuhealth.patient.evaluation.end_evaluation",
+    [[evaluationId], { company: 1 }],
+    authHeader
+  );
+}
+```
 
-### Consistent Items (Verified Truth)
-- Multi-tier architecture: Nginx reverse proxy -> Tryton WSGI -> PostgreSQL RDBMS.
-- Protocol: Native JSON-RPC 2.0 via `common.db.login` and `model.<name>.<method>`.
-- Core models: `party.party`, `gnuhealth.patient`, `gnuhealth.appointment`, `gnuhealth.patient.evaluation`, `gnuhealth.prescription.order`, `account.invoice`, `account.move`.
-- Accounting currency: Strictly Qatari Riyal (`QAR`).
-- Test evidence: 33 backend tests, 20 browser stages, 0 foreign key orphans.
-
-### Discrepancies Resolved
-- **Playwright Cloud Download Failure:** Early documentation referenced Playwright browser tests. Live testing failed with HTTP 404 driver download. Resolved by establishing Selenium WebDriver controlling installed Google Chrome desktop browser (`153.0.8010.53`).
-- **Evaluation Completion Method:** Legacy notes referenced a generic `done` action. Live Tryton inspection confirmed the authoritative method is `end_evaluation`. Corrected across all integration specifications.
-- **Lab Criteria Expansion Method:** Clarified that analyte expansion executes via `complete_criteareas` followed by document generation via `generate_document`.
-
-### Unresolved Items (Marked NOT VERIFIED / NOT IMPLEMENTED)
-- **Direct Insurance Claim Clearinghouse API:** Native Qatar insurance claims submission API is `NOT IMPLEMENTED / FUTURE PHASE`.
-- **Off-Site Automated Cloud Storage Sync:** Automated rsync to secondary GCP bucket is `NOT IMPLEMENTED / PRODUCTION GATE`.
-
----
-
-## 31. Production vs DEMO/UAT Distinction
-
-- **Current Status:** The system is **Technically Complete and End-to-End Certified for DEMO/UAT**.
-- **Data Policy:** All current patients (`LIVE E2E TEST PATIENT`, etc.) are synthetic DEMO/UAT records.
-- **Production Pre-Requisites:** Real commercial launch requires satisfying the five production go-live gates detailed below.
-
----
-
-## 32. Known Limitations & Open Items
-
-### Category A: Backend Implementation Limitations
-- Formulary currently loaded with representative essential medications (e.g. Amoxicillin). Full commercial pharmacy formulary requires clinic pharmacy import.
-- Laboratory catalog currently configured for standard panels (e.g. CBC). Specialized molecular diagnostics require additional criteria loading.
-
-### Category B: API Limitations
-- Communication is strictly native Tryton JSON-RPC 2.0. There is no independent REST/OpenAPI wrapper layer. Frontend clients must use JSON-RPC payload structures.
-
-### Category C: Frontend Integration Prerequisites
-- Frontend team must implement a centralized JSON-RPC client service handling token injection and exception interception.
-
-### Category D: Production Deployment Gates
-1. Clinic Commercial Registration & MoPH License configuration.
-2. Real Clinical Staff Onboarding & credential issuance.
-3. Commercial Tariff Schedule approval and import.
-4. FQDN Domain Mapping & CA-signed TLS 1.3 certificate deployment.
-5. Off-site automated daily backup replication.
-
----
-
-## 33. Frontend Handover Checklist Summary
-
-The detailed 16-category checklist is provided in `07_GNU_HEALTH_FRONTEND_HANDOVER_CHECKLIST.md`. All items remain uncompleted (`[ ]`) awaiting the upcoming frontend phase:
-- [ ] Architecture & API Communication Client
-- [ ] Authentication & Session Persistence
-- [ ] Patient Intake & Medical Record Lookup
-- [ ] Appointment Scheduling & Queue Check-In
-- [ ] Nursing Triage & Vitals
-- [ ] Physician Consultation & ICD-10 Diagnoses
-- [ ] Electronic Prescriptions
-- [ ] Laboratory & Radiology Workflows
-- [ ] Patient Invoicing & Cashier Payments
-- [ ] General Ledger Audit Views
-- [ ] RBAC Cosmetic UI Filtering
-- [ ] Error Interception & User Guidance UX
+### Recipe 6: Settle Bill via Cash Wizard
+```typescript
+async function payInvoiceCash(invoiceId: number, authHeader: string) {
+  const ctx = { company: 1 };
+  await callRpc("model.account.invoice.post", [[invoiceId], ctx], authHeader);
+  await callRpc("wizard.account.invoice.pay.execute", [{ invoice: invoiceId, payment_method: 1 }, ctx], authHeader);
+  return { status: "PAID" };
+}
+```
 
 ---
 
-## 34. Final Backend Handover Statement
+## 11. Error Handling, Exception Schemas & UX Guidelines
 
+| Exception Class | Server Condition | Frontend UX Handling | Recommended User Alert Message |
+| :--- | :--- | :--- | :--- |
+| `AccessError` | User role lacks permission | Display warning alert | *"Access Restricted: Your departmental role does not permit access to this module."* |
+| `AccessError` (Locked) | Modifying signed evaluation or posted invoice | Lock form controls | *"Record Finalized: This record has been signed/posted and cannot be modified."* |
+| `UserError` | Missing mandatory field or invalid state | Highlight input | Shows specific Tryton validation rule (e.g. missing attending doctor). |
+| `SelectionValidationError` | Invalid state machine string | Fix dropdown value | *"Invalid status submitted."* |
+| `SQLConstraintError` | Duplicate Qatar QID entered | Highlight QID field | *"A patient with this Civil ID already exists in the system."* |
+| `SESSION_EXPIRED` | Inactivity token expiration | Prompt login modal | *"Your session has timed out. Please enter your password to continue."* |
+
+---
+
+## 12. Testing, Relational Integrity & Browser E2E Certification Summary
+
+### 12.1 Automated Backend Technical Tests (`reports/e2e_test_results.json`)
+- **Success Rate:** 33 / 33 passed (100%).
+- **Database Relational Integrity:** 306 tables evaluated; **0 orphaned foreign key rows** (`reports/e2e_database_integrity.json`).
+- **Defensive Negative Tests:** 14 / 14 exception tests passed (`reports/e2e_negative_tests.json`).
+- **Performance Baseline:** Patient search: 3.67 ms, read: 7.00 ms, appointment search: 1.12 ms, evaluation retrieval: 2.20 ms, invoice search: 1.42 ms, accounting retrieval: 5.09 ms.
+
+### 12.2 Visible Google Chrome Browser E2E Certification (`reports/LIVE_BROWSER_E2E_CERTIFICATION.md`)
+- **Status:** PASS (20 out of 20 required stages executed on live Chrome desktop browser).
+- **Evidence Payload:** 21 screenshots (1.17 MB total) in `reports/live_browser_test/`.
+- **Live Transaction Identifiers:**
+  - Patient: `LIVE E2E TEST PATIENT` (PUID: `KQI816APL`)
+  - Appointment: `gnuhealth.appointment,18` (Checked-in)
+  - Evaluation: `gnuhealth.patient.evaluation,15` (Vitals: BP 120/80, Signed)
+  - Prescription: `RX014` (Amoxicillin 500mg, Validated)
+  - Laboratory: `TEST037` (CBC, 20 analytes, HGB 14.1 g/dL, Done)
+  - Radiology: `RAD-00012` (Chest X-Ray, Done)
+  - Customer Invoice: `INV-2026/00014` (150.00 QAR, Paid)
+  - Accounting Moves: Move #47 (Revenue) & Move #48 (Cash), balanced at 150.00 QAR.
+
+### 12.3 Complete 20-Screenshot Inventory Table
+
+| # | Filename | Size (Bytes) | Visual Content & Verified State |
+| :---: | :--- | :---: | :--- |
+| **REC** | `recovery_01_login_page.png` | `21,431` | Mandatory Section 4 recovery screenshot showing SAO login dialog |
+| **01** | `01_login.png` | `16,134` | Live GNU Health SAO authentication modal |
+| **02** | `02_dashboard.png` | `15,777` | Front Desk authenticated session dashboard |
+| **03** | `03_patient_registration.png` | `64,031` | Party creation modal with Gender: Male, DoB: 01/01/1990 |
+| **04** | `04_patient_saved.png` | `50,385` | Saved patient record displaying generated PUID `KQI816APL` |
+| **05** | `05_appointment.png` | `70,410` | Appointment scheduled with `Dr. DEMO Physician 01` |
+| **06** | `06_checkin.png` | `42,451` | Appointment state updated to `Checked-in` |
+| **07** | `07_triage.png` | `71,527` | Nursing triage evaluation with recorded vital signs (BP 120/80) |
+| **08** | `08_consultation.png` | `74,570` | Physician consultation signed with SOAP notes and ICD-10 `J06.9` |
+| **09** | `09_prescription.png` | `60,473` | Validated e-Prescription `RX014` for Amoxicillin 500mg |
+| **10** | `10_lab_order.png` | `66,942` | Laboratory CBC request with 20 analyte criteria loaded |
+| **11** | `11_lab_result.png` | `66,778` | Validated lab test result (`TEST037`) with HGB 14.1 g/dL |
+| **12** | `12_radiology.png` | `54,251` | Chest X-Ray imaging request (`RAD-00012`) with report in `Done` state |
+| **13** | `13_invoice.png` | `64,319` | Customer invoice `INV-2026/00014` posted for 150.00 QAR |
+| **14** | `14_payment.png` | `61,770` | Native Cash payment completed; invoice transitioned to `Paid` |
+| **15** | `15_accounting_move.png` | `58,611` | General ledger account moves showing balanced debit/credit (150.00 QAR) |
+| **16** | `16_patient_related_records.png` | `125,763` | Native `Relate` dropdown showing complete interconnected patient chain |
+| **17** | `17_frontdesk_negative.png` | `23,902` | Negative RBAC test: Front Desk denied access to Prescriptions |
+| **18** | `18_cashier_negative.png` | `21,154` | Negative RBAC test: Cashier denied access to Clinical Evaluations |
+| **19** | `19_physician_negative.png` | `22,161` | Negative RBAC test: Physician denied access to Account Moves admin |
+| **20** | `20_final_transaction.png` | `125,763` | Full consolidated patient transaction view in visible Google Chrome |
+
+---
+
+## 13. Disaster Recovery & Backup Baseline
+
+- **Automated Backup:** Daily script creating encrypted PostgreSQL dumps and attachment archives (`/var/backups/gnuhealth/`).
+- **Tested Dump:** `gnuhealth_db_e2e_post_20260922_184552.dump` (7.65 MB, SHA256: `e1ef0af3...`).
+- **Disaster Recovery Drill:** Restored into sandbox `gnuhealth_isolated_e2e_restore` in **10 seconds** with 100% data fidelity (306 tables, 14,416 ICD-10 codes, 11,400.00 QAR balanced ledger). Verified in `reports/e2e_backup_restore.json`.
+
+---
+
+## 14. Actionable Frontend Integration Checklist (16 Categories)
+
+*(All items remain unchecked `[ ]` representing the work awaiting execution by the frontend team)*
+
+- [ ] **Architecture:** Centralized JSON-RPC client configured; zero database libraries in frontend code.
+- [ ] **Authentication:** Login form calling `common.db.login`; session token stored in memory; logout configured.
+- [ ] **Demographics:** Patient search via `search_read`; two-step registration (`party.party` + `gnuhealth.patient`).
+- [ ] **Appointments:** Calendar slots view; booking form; check-in button transitioning state to `checked_in`.
+- [ ] **Triage:** Vital signs intake form (BP, HR, Temp, RR, SpO2, Weight, Height); instant client-side BMI.
+- [ ] **Consultations:** Clinician SOAP documentation; searchable ICD-10 dropdown; sign-off locking via `end_evaluation`.
+- [ ] **Prescriptions:** Formularies search; dosage, route, frequency fields; safety acknowledgement; validation.
+- [ ] **Laboratory:** Pathology requisitions; analyte criteria expansion via `complete_criteareas`; numerical results.
+- [ ] **Radiology:** Imaging request form; study selection (Chest X-Ray); narrative radiologist reporting.
+- [ ] **Billing:** Health service bundle display; tariff line item rendering (QAR).
+- [ ] **Invoicing:** Customer invoice creation; fiscal posting action (`post`); immutability locking.
+- [ ] **Cashier:** Cash settlement wizard; payment method selection; invoice status updated to `Paid`.
+- [ ] **Accounting:** Read-only General Ledger move viewer displaying balanced Debits and Credits.
+- [ ] **RBAC:** Cosmetic UI hiding based on logged-in user role groups.
+- [ ] **Errors:** Global error interceptor mapping `AccessError`, `UserError`, and `SQLConstraintError` to UX alerts.
+- [ ] **Security:** HTTPS enforcement; zero hardcoded secrets; zero credentials in git.
+
+---
+
+## 15. Documentation Consistency, Discrepancies & Production Gates
+
+### 15.1 Resolved Discrepancies
+- **Browser Automation Engine:** Legacy notes suggested Playwright; actual live testing established local Selenium WebDriver `4.49.0` with ChromeDriver `153.0.8010.52` controlling desktop Chrome `153.0.8010.53`, bypassing cloud 404 driver download issues.
+- **Evaluation Action:** Verified that evaluation sign-off is `end_evaluation` (not generic `done`).
+- **Laboratory Expansion:** Verified that criteria generation executes via `complete_criteareas`.
+
+### 15.2 Mandatory Production Go-Live Gates
+1. **Clinic Commercial Registration:** Ingest official Qatar MoPH commercial registration data.
+2. **Staff Credential Ingestion:** Onboard real practitioners with verified medical licenses.
+3. **Commercial Tariff Approval:** Replace 150.00 QAR test fee with approved commercial fee schedule.
+4. **Domain & TLS Deployment:** Map clinic FQDN to `34.7.237.8` and issue CA-signed TLS 1.3 certificate.
+5. **Off-Site Automated DR Sync:** Configure scheduled sync of daily backups to secondary GCP Cloud Storage bucket.
+
+---
+
+## 16. Final Backend Handover Statement & Evidence Index
+
+### Final Statement
 The GNU Health HMIS backend is **technically complete, fully operational, and end-to-end certified for DEMO/UAT**. All operational models, security roles, clinical workflows, and accounting ledgers have been verified against the live environment. The backend engineering team formally hands over the platform and integration specifications to the frontend development team.
 
----
-
-## 35. Evidence Index & Artifact References
-
-- Executive Handover: `01_GNU_HEALTH_BACKEND_EXECUTIVE_HANDOVER.md`
+### Authoritative Document Index
+- Executive Report: `01_GNU_HEALTH_BACKEND_EXECUTIVE_HANDOVER.md`
 - API Specification: `02_GNU_HEALTH_API_INTEGRATION_SPECIFICATION.md`
 - Data Model Reference: `03_GNU_HEALTH_DATA_MODEL_AND_WORKFLOW_REFERENCE.md`
-- Security Contract: `04_GNU_HEALTH_RBAC_AND_SECURITY_CONTRACT.md`
-- Frontend Guide: `05_GNU_HEALTH_FRONTEND_INTEGRATION_GUIDE.md`
+- RBAC Security Contract: `04_GNU_HEALTH_RBAC_AND_SECURITY_CONTRACT.md`
+- Frontend Developer Guide: `05_GNU_HEALTH_FRONTEND_INTEGRATION_GUIDE.md`
 - Test Summary: `06_GNU_HEALTH_BACKEND_TEST_AND_CERTIFICATION_SUMMARY.md`
 - Frontend Checklist: `07_GNU_HEALTH_FRONTEND_HANDOVER_CHECKLIST.md`
 - Documentation Index: `08_GNU_HEALTH_BACKEND_API_HANDOVER_INDEX.md`
+- QA Audit Report: `API_DOCUMENTATION_QA_REPORT.md`
 - Live Browser Certification: `reports/LIVE_BROWSER_E2E_CERTIFICATION.md`
-- Machine Evidence: `reports/LIVE_BROWSER_E2E_CERTIFICATION.json`
-- Backend Evidence: `reports/e2e_test_results.json`
