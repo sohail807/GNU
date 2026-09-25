@@ -32,7 +32,7 @@ export async function setSession(data: SessionData): Promise<void> {
 
   cookieStore.set(COOKIE_NAME, encoded, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.COOKIE_SECURE === "true",
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7, // 7 days

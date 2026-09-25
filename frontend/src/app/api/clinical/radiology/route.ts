@@ -90,16 +90,34 @@ export async function POST(req: NextRequest) {
 
     // Action 1: Create a new imaging test request
     if (action === "create" && patientId) {
+      const now = new Date();
+      const dtObj = {
+        __class__: "datetime",
+        year: now.getFullYear(),
+        month: now.getMonth() + 1,
+        day: now.getDate(),
+        hour: now.getHours(),
+        minute: now.getMinutes(),
+        second: now.getSeconds(),
+        microsecond: 0,
+      };
+
+      const radPayload = {
+        patient: parseInt(patientId, 10),
+        requested_test: 1, // PA & Lateral Chest Radiography (X-Ray)
+        doctor: session.healthprofId || 71,
+        date: dtObj,
+        state: "draft",
+        comment: body.study || "Chest X-Ray (PA & Lateral)",
+      };
+
       const res = await TrytonClient.execute<number[]>(
         session.username,
         session.userId,
         session.sessionToken,
         "gnuhealth.imaging.test.request",
         "create",
-        [[{
-          patient: parseInt(patientId, 10),
-          state: "draft",
-        }]]
+        [[radPayload]]
       );
       const newId = res[0];
       return NextResponse.json({

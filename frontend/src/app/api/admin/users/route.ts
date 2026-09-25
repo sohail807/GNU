@@ -210,12 +210,18 @@ export async function POST(req: NextRequest) {
 
     // Action 3: Administrative Password Reset
     if (action === "reset_password") {
-      const { userId, newPassword } = body;
-      if (!userId || !newPassword) {
+      const { userId } = body;
+      let { newPassword } = body;
+      if (!userId) {
         return NextResponse.json(
-          { error: "User ID and new password are required." },
+          { error: "User ID is required." },
           { status: 400 }
         );
+      }
+
+      if (!newPassword || typeof newPassword !== "string" || newPassword.trim() === "") {
+        // Auto-generate strong 12-char temporary credential
+        newPassword = "Temp" + Math.random().toString(36).slice(-6) + "!";
       }
 
       const uid = parseInt(userId, 10);
@@ -239,6 +245,7 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({
         success: true,
+        temporaryPassword: newPassword,
         message: "Staff account password updated successfully in Tryton security database.",
       });
     }

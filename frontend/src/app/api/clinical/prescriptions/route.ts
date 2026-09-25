@@ -145,18 +145,23 @@ export async function POST(req: NextRequest) {
 
     // 1. Create gnuhealth.prescription.order
     const now = new Date();
-    const dateObj = {
-      __class__: "date",
+    const dtObj = {
+      __class__: "datetime",
       year: now.getFullYear(),
       month: now.getMonth() + 1,
       day: now.getDate(),
+      hour: now.getHours(),
+      minute: now.getMinutes(),
+      second: now.getSeconds(),
+      microsecond: 0,
     };
 
     const rxPayload = {
       patient: pid,
       healthprof: hpId,
-      prescription_date: dateObj,
-      state: "prescribed",
+      prescription_date: dtObj,
+      state: "draft",
+      prescription_warning_ack: true,
     };
 
     const rxRes = await TrytonClient.execute<number[]>(

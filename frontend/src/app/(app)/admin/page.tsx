@@ -279,7 +279,8 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setFeedback(`Password reset instructions issued for ${selectedUser.username}. One-time token generated.`);
+        const tempMsg = data.temporaryPassword ? ` Temporary password: ${data.temporaryPassword}` : "";
+        setFeedback(`Password reset successful for @${selectedUser.username}.${tempMsg}`);
         setIsResetPwdModalOpen(false);
       } else {
         setErrorMsg(data.error || "Failed to reset password.");

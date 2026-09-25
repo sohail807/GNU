@@ -35,13 +35,14 @@ export default function UnifiedPatientChartPage() {
   const patientId = params?.id ? String(params.id) : "66";
 
   const [activeTab, setActiveTab] = useState<
-    "overview" | "appointments" | "evaluations" | "prescriptions" | "laboratory" | "radiology" | "billing" | "audit"
+    "overview" | "appointments" | "evaluations" | "prescriptions" | "laboratory" | "radiology" | "billing"
   >("overview");
 
   const [isRelateDropdownOpen, setIsRelateDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [patient, setPatient] = useState<any>({
-    id: 66,
+    id: parseInt(patientId, 10) || 66,
     puid: "P00088",
     name: "Alexander Wright",
     arabicName: "ألكسندر رايت",
@@ -58,70 +59,161 @@ export default function UnifiedPatientChartPage() {
     attending: "Dr. Alexander Wright, MD",
   });
 
-  // Load live patient from Tryton by ID
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [evaluations, setEvaluations] = useState<any[]>([]);
+  const [prescriptions, setPrescriptions] = useState<any[]>([]);
+  const [labOrders, setLabOrders] = useState<any[]>([]);
+  const [radiologyOrders, setRadiologyOrders] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]);
+
+  // Load all live patient data from Tryton backend via API routes
   useEffect(() => {
-    async function loadPatient() {
+    let isMounted = true;
+    async function loadAllPatientData() {
+      setIsLoading(true);
       try {
-        const res = await fetch("/api/clinical/patients");
-        const data = await res.json();
-        if (data.success && Array.isArray(data.patients) && data.patients.length > 0) {
-          const match = data.patients.find((p: any) => String(p.id) === String(patientId)) || data.patients[0];
-          if (match) {
+        const [patRes, apptRes, evalRes, rxRes, labRes, radRes, billRes] = await Promise.allSettled([
+          fetch(`/api/clinical/patients?id=${patientId}`),
+          fetch(`/api/clinical/appointments?patientId=${patientId}`),
+          fetch(`/api/clinical/consultations?patientId=${patientId}`),
+          fetch(`/api/clinical/prescriptions?patientId=${patientId}`),
+          fetch(`/api/clinical/laboratory?patientId=${patientId}`),
+          fetch(`/api/clinical/radiology?patientId=${patientId}`),
+          fetch(`/api/clinical/billing?patientId=${patientId}`),
+        ]);
+
+        if (!isMounted) return;
+
+        // 1. Patient Metadata
+        if (patRes.status === "fulfilled" && patRes.value.ok) {
+          const patData = await patRes.value.json();
+          if (patData.success && Array.isArray(patData.patients) && patData.patients.length > 0) {
+            const p = patData.patients[0];
             setPatient({
-              id: match.id,
-              puid: match.puid,
-              name: match.name,
-              arabicName: match.name,
-              qid: match.qid || `282634019${match.id}`,
-              dob: match.dob || "1984-06-15",
-              age: match.age || 42,
-              gender: match.gender || "Male",
-              bloodGroup: match.bloodGroup || "O+",
-              phone: match.phone || "+974 5512 8492",
-              email: `${match.name.toLowerCase().replace(/[^a-z0-9]/g, "")}@example.com`,
-              address: match.address || "Zone 61, Street 840, West Bay, Doha, Qatar",
-              emergencyContact: "Emergency Contact",
+              id: p.id,
+              puid: p.puid || `P${String(p.id).padStart(5, "0")}`,
+              name: p.name,
+              arabicName: p.arabicName || p.name,
+              qid: p.qid || `282634019${p.id}`,
+              dob: p.dob || "1984-06-15",
+              age: p.age || 42,
+              gender: p.gender || "Male",
+              bloodGroup: p.bloodGroup || "O+",
+              phone: p.phone || "+974 5512 8492",
+              email: `${p.name.toLowerCase().replace(/[^a-z0-9]/g, "")}@ist-health.qa`,
+              address: p.address || "Zone 61, West Bay, Doha, Qatar",
+              emergencyContact: "Registered Contact",
               allergies: ["Penicillin (Moderate rash)"],
-              attending: "Dr. Alexander Wright, MD",
+              attending: "Dr. Gregory House, MD",
             });
           }
         }
+
+        // 2. Appointments
+        if (apptRes.status === "fulfilled" && apptRes.value.ok) {
+          const apptData = await apptRes.value.json();
+          if (apptData.success && Array.isArray(apptData.appointments)) {
+            setAppointments(apptData.appointments);
+          }
+        }
+
+        // 3. Evaluations
+        if (evalRes.status === "fulfilled" && evalRes.value.ok) {
+          const evalData = await evalRes.value.json();
+          if (evalData.success && Array.isArray(evalData.consultations)) {
+            setEvaluations(evalData.consultations);
+          }
+        }
+
+        // 4. Prescriptions
+        if (rxRes.status === "fulfilled" && rxRes.value.ok) {
+          const rxData = await rxRes.value.json();
+          if (rxData.success && Array.isArray(rxData.prescriptions)) {
+            setPrescriptions(rxData.prescriptions);
+          }
+        }
+
+        // 5. Labs
+        if (labRes.status === "fulfilled" && labRes.value.ok) {
+          const labData = await labRes.value.json();
+          if (labData.success && Array.isArray(labData.laboratoryOrders)) {
+            setLabOrders(labData.laboratoryOrders);
+          }
+        }
+
+        // 6. Radiology
+        if (radRes.status === "fulfilled" && radRes.value.ok) {
+          const radData = await radRes.value.json();
+          if (radData.success && Array.isArray(radData.radiologyOrders)) {
+            setRadiologyOrders(radData.radiologyOrders);
+          }
+        }
+
+        // 7. Invoices
+        if (billRes.status === "fulfilled" && billRes.value.ok) {
+          const billData = await billRes.value.json();
+          if (billData.success && Array.isArray(billData.invoices)) {
+            setInvoices(billData.invoices);
+          }
+        }
       } catch {
-        // Keep baseline
+        // Fallback gracefully
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
     }
-    loadPatient();
+
+    loadAllPatientData();
+    return () => {
+      isMounted = false;
+    };
   }, [patientId]);
 
-  // Relate Navigation Handler (Resolves S9.2 - S9.7)
+  const initials = patient.name
+    ? patient.name
+        .split(" ")
+        .filter(Boolean)
+        .map((n: string) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "PT";
+
   const handleRelate = (tabId: typeof activeTab) => {
     setActiveTab(tabId);
     setIsRelateDropdownOpen(false);
   };
 
+  const latestEval = evaluations.length > 0 ? evaluations[0] : null;
+  const latestAppt = appointments.length > 0 ? appointments[0] : null;
+  const latestRx = prescriptions.length > 0 ? prescriptions[0] : null;
+  const latestLab = labOrders.length > 0 ? labOrders[0] : null;
+  const latestRad = radiologyOrders.length > 0 ? radiologyOrders[0] : null;
+  const latestInv = invoices.length > 0 ? invoices[0] : null;
+
   return (
     <div className="max-w-7xl mx-auto space-y-7 animate-fade-in">
-      {/* HEADER WITH PROMINENT RELATE TOOLBAR BUTTON (Resolves S9.1 & S9.2) */}
+      {/* HEADER WITH PROMINENT RELATE TOOLBAR BUTTON */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200/90 gap-4">
         <div>
           <Link
-            href="/frontdesk"
+            href="/patient"
             className="text-xs font-mono uppercase tracking-wider text-slate-500 hover:text-slate-900 flex items-center gap-1.5 mb-2 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Intake Queue</span>
+            <span>Back to Master Patient Directory</span>
           </Link>
-          <div className="kicker text-[#0F766E] mb-1">LONGITUDINAL ELECTRONIC HEALTH RECORD · MENU SEQUENCE 10</div>
+          <div className="kicker text-[#0F766E] mb-1">LONGITUDINAL ELECTRONIC HEALTH RECORD · RECORD ID {patient.id}</div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Master Patient Chart & 360° EHR Directory
           </h1>
           <p className="text-xs text-slate-600 mt-1">
-            Alexander Wright (<span className="font-mono text-[#0F766E] font-bold">P00088</span>) · Master Patient Record
+            {patient.name} (<span className="font-mono text-[#0F766E] font-bold">{patient.puid}</span>) · Master Patient Record
           </p>
         </div>
 
         <div className="flex items-center gap-3 relative">
-          {/* TRYTON NATIVE 'RELATE' TOOLBAR BUTTON (Resolves S9.2: Locate Relate Button) */}
+          {/* TRYTON NATIVE 'RELATE' TOOLBAR BUTTON */}
           <div className="relative">
             <button
               onClick={() => setIsRelateDropdownOpen(!isRelateDropdownOpen)}
@@ -133,7 +225,7 @@ export default function UnifiedPatientChartPage() {
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
 
-            {/* RELATE DROPDOWN MENU (Resolves S9.3, S9.4, S9.5, S9.6, S9.7) */}
+            {/* RELATE DROPDOWN MENU */}
             {isRelateDropdownOpen && (
               <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-xl shadow-xl z-50 py-1.5 text-xs divide-y divide-slate-100 animate-fade-in">
                 <div className="px-3 py-1.5 text-[10px] font-mono text-slate-400 uppercase font-bold">
@@ -148,7 +240,9 @@ export default function UnifiedPatientChartPage() {
                       <Calendar className="w-3.5 h-3.5 text-[#0F766E]" />
                       <span>Appointments</span>
                     </span>
-                    <span className="font-mono text-[10px] text-teal-700 font-bold">APT-2026-0042</span>
+                    <span className="font-mono text-[10px] text-teal-700 font-bold">
+                      {appointments.length > 0 ? `APT #${appointments[0].id}` : "None"}
+                    </span>
                   </button>
 
                   <button
@@ -159,7 +253,9 @@ export default function UnifiedPatientChartPage() {
                       <Stethoscope className="w-3.5 h-3.5 text-[#0F766E]" />
                       <span>Evaluations</span>
                     </span>
-                    <span className="font-mono text-[10px] text-teal-700 font-bold">EVAL-2026-0038</span>
+                    <span className="font-mono text-[10px] text-teal-700 font-bold">
+                      {evaluations.length > 0 ? `EVAL #${evaluations[0].id}` : "None"}
+                    </span>
                   </button>
 
                   <button
@@ -170,7 +266,9 @@ export default function UnifiedPatientChartPage() {
                       <Pill className="w-3.5 h-3.5 text-[#0F766E]" />
                       <span>Prescriptions</span>
                     </span>
-                    <span className="font-mono text-[10px] text-teal-700 font-bold">RX-2026-0029</span>
+                    <span className="font-mono text-[10px] text-teal-700 font-bold">
+                      {prescriptions.length > 0 ? `RX #${prescriptions[0].id}` : "None"}
+                    </span>
                   </button>
 
                   <button
@@ -181,7 +279,9 @@ export default function UnifiedPatientChartPage() {
                       <Microscope className="w-3.5 h-3.5 text-[#0F766E]" />
                       <span>Lab Results</span>
                     </span>
-                    <span className="font-mono text-[10px] text-teal-700 font-bold">LAB-2026-0019</span>
+                    <span className="font-mono text-[10px] text-teal-700 font-bold">
+                      {labOrders.length > 0 ? `LAB #${labOrders[0].id}` : "None"}
+                    </span>
                   </button>
 
                   <button
@@ -192,7 +292,9 @@ export default function UnifiedPatientChartPage() {
                       <Scan className="w-3.5 h-3.5 text-[#0F766E]" />
                       <span>Medical Imaging</span>
                     </span>
-                    <span className="font-mono text-[10px] text-teal-700 font-bold">RAD-2026-0014</span>
+                    <span className="font-mono text-[10px] text-teal-700 font-bold">
+                      {radiologyOrders.length > 0 ? `RAD #${radiologyOrders[0].id}` : "None"}
+                    </span>
                   </button>
 
                   <button
@@ -203,7 +305,9 @@ export default function UnifiedPatientChartPage() {
                       <Receipt className="w-3.5 h-3.5 text-[#0F766E]" />
                       <span>Financial Invoices</span>
                     </span>
-                    <span className="font-mono text-[10px] text-teal-700 font-bold">INV-2026-0012</span>
+                    <span className="font-mono text-[10px] text-teal-700 font-bold">
+                      {invoices.length > 0 ? invoices[0].number || `INV #${invoices[0].id}` : "None"}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -218,7 +322,7 @@ export default function UnifiedPatientChartPage() {
         </div>
       </div>
 
-      {/* 360° LONGITUDINAL EHR AUDIT BANNER (Resolves S9.8: Complete EHR Audit) */}
+      {/* 360° LONGITUDINAL EHR AUDIT BANNER */}
       <div className="p-5 bg-gradient-to-r from-teal-900 via-slate-900 to-slate-900 text-white rounded-2xl shadow-md space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-teal-800/80">
           <div className="flex items-center gap-3">
@@ -230,12 +334,12 @@ export default function UnifiedPatientChartPage() {
                 360° Certified Longitudinal Patient Record Audit
               </div>
               <h3 className="text-base font-bold text-white">
-                Alexander Wright (PUID: P00088) · 9/9 Departmental Modules Certified
+                {patient.name} (PUID: {patient.puid}) · Dynamic EHR Traceability
               </h3>
             </div>
           </div>
           <Badge variant="green" size="md">
-            All 9 Modules Linked
+            Authoritative GNU Health Record
           </Badge>
         </div>
 
@@ -243,43 +347,45 @@ export default function UnifiedPatientChartPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-xs font-mono">
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">1. INTAKE PUID</span>
-            <span className="text-emerald-400 font-bold">P00088</span>
+            <span className="text-emerald-400 font-bold">{patient.puid}</span>
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">2. APPOINTMENT</span>
-            <span className="text-emerald-400 font-bold">APT-2026-0042</span>
+            <span className="text-emerald-400 font-bold">{latestAppt ? `APT #${latestAppt.id}` : "None Scheduled"}</span>
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">3. EVALUATION</span>
-            <span className="text-emerald-400 font-bold">EVAL-2026-0038</span>
+            <span className="text-emerald-400 font-bold">{latestEval ? `EVAL #${latestEval.id}` : "None Recorded"}</span>
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">4. ICD-10 DIAGNOSIS</span>
-            <span className="text-emerald-400 font-bold">J06.9 (Acute URI)</span>
+            <span className="text-emerald-400 font-bold">
+              {latestEval?.diagnosis ? String(latestEval.diagnosis) : "None Documented"}
+            </span>
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">5. PRESCRIPTION</span>
-            <span className="text-emerald-400 font-bold">RX-2026-0029</span>
+            <span className="text-emerald-400 font-bold">{latestRx ? `RX #${latestRx.id}` : "None Prescribed"}</span>
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
-            <span className="text-[10px] text-slate-400 block">6. LAB (CBC)</span>
-            <span className="text-emerald-400 font-bold">LAB-2026-0019</span>
+            <span className="text-[10px] text-slate-400 block">6. LAB (ORDERS)</span>
+            <span className="text-emerald-400 font-bold">{latestLab ? `LAB #${latestLab.id}` : "None Ordered"}</span>
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">7. RADIOLOGY</span>
-            <span className="text-emerald-400 font-bold">RAD-2026-0014</span>
+            <span className="text-emerald-400 font-bold">{latestRad ? `RAD #${latestRad.id}` : "None Requested"}</span>
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">8. INVOICE</span>
-            <span className="text-emerald-400 font-bold">INV-2026-0012 ($50)</span>
+            <span className="text-emerald-400 font-bold">{latestInv ? latestInv.number || `INV #${latestInv.id}` : "None Issued"}</span>
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">9. SETTLEMENT</span>
-            <span className="text-emerald-400 font-bold">PAY-2026-0012 ($0 Bal)</span>
+            <span className="text-emerald-400 font-bold">{latestInv ? (latestInv.state === "paid" ? "Settled ($0.00 Bal)" : `Due: $${latestInv.amountToPay || 0}`) : "No Open Balance"}</span>
           </div>
           <div className="p-2.5 bg-emerald-950/70 rounded-lg border border-emerald-500/40">
-            <span className="text-[10px] text-emerald-300 block">LEDGER STATUS</span>
-            <span className="text-emerald-400 font-bold">RECONCILED ($0.00)</span>
+            <span className="text-[10px] text-emerald-300 block">RECORD HEALTH</span>
+            <span className="text-emerald-400 font-bold">SYNCHRONIZED</span>
           </div>
         </div>
       </div>
@@ -289,12 +395,11 @@ export default function UnifiedPatientChartPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-[#0F766E] text-white flex items-center justify-center font-bold text-xl shadow-xs">
-              AW
+              {initials}
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-3">
                 <h2 className="text-xl font-bold text-slate-900">{patient.name}</h2>
-                <span className="text-sm font-arabic text-slate-500">{patient.arabicName}</span>
                 <span className="font-mono text-xs px-2.5 py-0.5 rounded-md bg-teal-50 border border-teal-200 text-[#0F766E] font-bold">
                   {patient.puid}
                 </span>
@@ -321,13 +426,13 @@ export default function UnifiedPatientChartPage() {
         {/* Chart Navigation Tabs */}
         <div className="flex flex-wrap items-center gap-2 pt-1 border-b border-slate-100">
           {[
-            { id: "overview", label: "Patient Summary", icon: User },
-            { id: "appointments", label: "Appointments (APT-2026-0042)", icon: Calendar },
-            { id: "evaluations", label: "Evaluations (EVAL-2026-0038)", icon: Stethoscope },
-            { id: "prescriptions", label: "Prescriptions (RX-2026-0029)", icon: Pill },
-            { id: "laboratory", label: "Laboratory (LAB-2026-0019)", icon: Microscope },
-            { id: "radiology", label: "Radiology (RAD-2026-0014)", icon: Scan },
-            { id: "billing", label: "Invoices (INV-2026-0012)", icon: Receipt },
+            { id: "overview", label: "Patient Summary", icon: User, count: null },
+            { id: "appointments", label: "Appointments", icon: Calendar, count: appointments.length },
+            { id: "evaluations", label: "Evaluations", icon: Stethoscope, count: evaluations.length },
+            { id: "prescriptions", label: "Prescriptions", icon: Pill, count: prescriptions.length },
+            { id: "laboratory", label: "Laboratory", icon: Microscope, count: labOrders.length },
+            { id: "radiology", label: "Radiology", icon: Scan, count: radiologyOrders.length },
+            { id: "billing", label: "Invoices", icon: Receipt, count: invoices.length },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -343,6 +448,13 @@ export default function UnifiedPatientChartPage() {
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
+                {tab.count !== null && tab.count > 0 && (
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                    isActive ? "bg-white/20 text-white" : "bg-slate-200 text-slate-700"
+                  }`}>
+                    {tab.count}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -350,185 +462,257 @@ export default function UnifiedPatientChartPage() {
       </div>
 
       {/* TAB CONTENT VIEWS */}
-      {/* 1. APPOINTMENTS TAB (Resolves S9.3) */}
+      {/* 1. APPOINTMENTS TAB */}
       {activeTab === "appointments" && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <Calendar className="w-4 h-4 text-[#0F766E]" />
-              <span>Linked Appointment · APT-2026-0042</span>
+              <span>Linked Appointments ({appointments.length})</span>
             </h3>
-            <Badge variant="green">Checked In</Badge>
+            <Link href="/frontdesk/appointments">
+              <Button variant="secondary" size="xs">Book Appointment</Button>
+            </Link>
           </div>
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
-            <div className="flex justify-between">
-              <span className="text-slate-500">Appointment Reference:</span>
-              <span className="font-mono font-bold text-[#0F766E]">APT-2026-0042</span>
+          {appointments.length === 0 ? (
+            <div className="p-8 text-center text-slate-500 text-xs bg-slate-50 rounded-xl">
+              No appointments scheduled for this patient.
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Date & Slot:</span>
-              <span className="font-semibold text-slate-800">2026-09-24 at 09:30 AM</span>
+          ) : (
+            <div className="space-y-3">
+              {appointments.map((appt) => (
+                <div key={appt.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="font-mono font-bold text-[#0F766E]">APT #{appt.id}</span>
+                    <Badge variant={appt.status === "checked_in" ? "green" : appt.status === "confirmed" ? "blue" : "neutral"}>
+                      {appt.status || "scheduled"}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Date & Slot:</span>
+                    <span className="font-semibold text-slate-800">{appt.appointmentDate || "Scheduled"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Consultant:</span>
+                    <span className="font-semibold text-slate-800">{appt.doctorName || "Attending Physician"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Urgency:</span>
+                    <span className="font-mono text-slate-700 capitalize">{appt.urgency || "normal"}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Consultant:</span>
-              <span className="font-semibold text-slate-800">Dr. Gregory House, MD (Internal Medicine)</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Encounter Status:</span>
-              <span className="font-bold text-emerald-700">Checked In (Arrival Logged)</span>
-            </div>
-          </div>
+          )}
         </div>
       )}
 
-      {/* 2. EVALUATIONS TAB (Resolves S9.4) */}
+      {/* 2. EVALUATIONS TAB */}
       {activeTab === "evaluations" && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <Stethoscope className="w-4 h-4 text-[#0F766E]" />
-              <span>Linked Clinical Evaluation · EVAL-2026-0038</span>
+              <span>Linked Clinical Evaluations ({evaluations.length})</span>
             </h3>
-            <Badge variant="teal">Completed</Badge>
+            <Link href={`/physician?patientId=${patient.id}`}>
+              <Button variant="secondary" size="xs">New Consultation</Button>
+            </Link>
           </div>
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5 text-xs">
-            <div className="flex justify-between">
-              <span className="text-slate-500">Evaluation Ref:</span>
-              <span className="font-mono font-bold text-[#0F766E]">EVAL-2026-0038</span>
+          {evaluations.length === 0 ? (
+            <div className="p-8 text-center text-slate-500 text-xs bg-slate-50 rounded-xl">
+              No clinical evaluations recorded yet for this patient.
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Primary Diagnosis:</span>
-              <span className="font-bold text-slate-900">J06.9 (Acute upper respiratory infection, unspecified)</span>
+          ) : (
+            <div className="space-y-3">
+              {evaluations.map((ev) => (
+                <div key={ev.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="font-mono font-bold text-[#0F766E]">EVAL #{ev.id}</span>
+                    <Badge variant={ev.state === "done" ? "teal" : "blue"}>{ev.state || "Completed"}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Primary Diagnosis:</span>
+                    <span className="font-bold text-slate-900">
+                      {ev.diagnosis ? String(ev.diagnosis) : "Clinical Examination Completed"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Recorded Vitals:</span>
+                    <span className="font-mono text-slate-800 font-semibold">
+                      BP {ev.systolic || 120}/{ev.diastolic || 80} mmHg · HR {ev.bpm || 72} bpm · Temp {ev.temperature || 37.0}°C · BMI {ev.bmi || 22.86} kg/m²
+                    </span>
+                  </div>
+                  {ev.chief_complaint && (
+                    <div className="pt-2 border-t border-slate-200">
+                      <span className="text-slate-500 block mb-1">Chief Complaint & Subjective:</span>
+                      <p className="text-slate-700 leading-relaxed font-sans">{ev.chief_complaint}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Recorded Vitals:</span>
-              <span className="font-mono text-slate-800 font-semibold">BP 120/80 mmHg · HR 72 bpm · Temp 37.0°C · BMI 22.86 kg/m²</span>
-            </div>
-            <div className="pt-2 border-t border-slate-200">
-              <span className="text-slate-500 block mb-1">Subjective History:</span>
-              <p className="text-slate-700 leading-relaxed font-sans">
-                Acute sore throat and cough for 3 days. Symptomatic conservative management with Amoxicillin and Paracetamol.
-              </p>
-            </div>
-          </div>
+          )}
         </div>
       )}
 
-      {/* 3. PRESCRIPTIONS TAB (Resolves S9.5) */}
+      {/* 3. PRESCRIPTIONS TAB */}
       {activeTab === "prescriptions" && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <Pill className="w-4 h-4 text-[#0F766E]" />
-              <span>Linked Prescription · RX-2026-0029</span>
+              <span>Linked Prescriptions ({prescriptions.length})</span>
             </h3>
-            <Badge variant="green">Dispensed</Badge>
+            <Link href={`/physician?patientId=${patient.id}`}>
+              <Button variant="secondary" size="xs">Create Prescription</Button>
+            </Link>
           </div>
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
-            <div className="flex justify-between">
-              <span className="text-slate-500">Prescription Reference:</span>
-              <span className="font-mono font-bold text-[#0F766E]">RX-2026-0029</span>
+          {prescriptions.length === 0 ? (
+            <div className="p-8 text-center text-slate-500 text-xs bg-slate-50 rounded-xl">
+              No prescriptions recorded for this patient.
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Prescribed Medicine:</span>
-              <span className="font-bold text-slate-900">Amoxicillin 500mg capsule</span>
+          ) : (
+            <div className="space-y-3">
+              {prescriptions.map((rx) => (
+                <div key={rx.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="font-mono font-bold text-[#0F766E]">RX #{rx.id}</span>
+                    <Badge variant={rx.state === "dispensed" ? "green" : "teal"}>{rx.state || "Active"}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Prescribed Medicine:</span>
+                    <span className="font-bold text-slate-900">{rx.medicationName || rx.medicament || "Formulary Medication"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Date:</span>
+                    <span className="font-mono text-slate-800">{rx.date || "Active Today"}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Dosing Regimen:</span>
-              <span className="font-mono text-slate-800">500 mg · Oral · TID (3x daily) · 7 Days</span>
-            </div>
-          </div>
+          )}
         </div>
       )}
 
-      {/* 4. LABORATORY TAB (Resolves S9.6) */}
+      {/* 4. LABORATORY TAB */}
       {activeTab === "laboratory" && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <Microscope className="w-4 h-4 text-[#0F766E]" />
-              <span>Linked Laboratory Test · LAB-2026-0019</span>
+              <span>Linked Laboratory Tests ({labOrders.length})</span>
             </h3>
-            <Badge variant="green">Done</Badge>
+            <Link href="/laboratory">
+              <Button variant="secondary" size="xs">Laboratory Worklist</Button>
+            </Link>
           </div>
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
-            <div className="flex justify-between">
-              <span className="text-slate-500">Requisition Reference:</span>
-              <span className="font-mono font-bold text-[#0F766E]">LAB-2026-0019</span>
+          {labOrders.length === 0 ? (
+            <div className="p-8 text-center text-slate-500 text-xs bg-slate-50 rounded-xl">
+              No laboratory tests ordered for this patient.
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Test Protocol:</span>
-              <span className="font-bold text-slate-900">Complete Blood Count (CBC)</span>
+          ) : (
+            <div className="space-y-3">
+              {labOrders.map((lab) => (
+                <div key={lab.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="font-mono font-bold text-[#0F766E]">LAB #{lab.id}</span>
+                    <Badge variant={lab.state === "done" ? "green" : "blue"}>{lab.state || "Pending"}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Test Protocol:</span>
+                    <span className="font-bold text-slate-900">{lab.testName || "Diagnostic Protocol"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Result Status:</span>
+                    <span className="font-mono text-slate-800">{lab.results || "Certified in Tryton LIMS"}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Key Analyte:</span>
-              <span className="font-mono font-bold text-slate-900">Hemoglobin: 14.1 g/dL (Normal: 13.0 - 17.5)</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Certification State:</span>
-              <span className="font-bold text-emerald-700">Verified & Certified (Done)</span>
-            </div>
-          </div>
+          )}
         </div>
       )}
 
-      {/* 5. RADIOLOGY TAB (Resolves S9.7) */}
+      {/* 5. RADIOLOGY TAB */}
       {activeTab === "radiology" && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <Scan className="w-4 h-4 text-[#0F766E]" />
-              <span>Linked Radiology Study · RAD-2026-0014</span>
+              <span>Linked Radiology Studies ({radiologyOrders.length})</span>
             </h3>
-            <Badge variant="green">Done</Badge>
+            <Link href="/radiology">
+              <Button variant="secondary" size="xs">Radiology Worklist</Button>
+            </Link>
           </div>
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
-            <div className="flex justify-between">
-              <span className="text-slate-500">Imaging Reference:</span>
-              <span className="font-mono font-bold text-[#0F766E]">RAD-2026-0014</span>
+          {radiologyOrders.length === 0 ? (
+            <div className="p-8 text-center text-slate-500 text-xs bg-slate-50 rounded-xl">
+              No radiology studies ordered for this patient.
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Procedure Name:</span>
-              <span className="font-bold text-slate-900">Chest X-Ray (PA & Lateral)</span>
+          ) : (
+            <div className="space-y-3">
+              {radiologyOrders.map((rad) => (
+                <div key={rad.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="font-mono font-bold text-[#0F766E]">RAD #{rad.id}</span>
+                    <Badge variant={rad.state === "done" ? "green" : "blue"}>{rad.state || "Requested"}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Procedure Name:</span>
+                    <span className="font-bold text-slate-900">{rad.testName || "Medical Imaging Request"}</span>
+                  </div>
+                  {rad.comment && (
+                    <div className="pt-2 border-t border-slate-200">
+                      <span className="text-slate-500 block mb-1">Clinical Findings:</span>
+                      <p className="text-slate-800 leading-relaxed font-sans">{rad.comment}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-            <div className="pt-2 border-t border-slate-200">
-              <span className="text-slate-500 block mb-1">Clinical Findings (Additional Information):</span>
-              <p className="text-slate-800 leading-relaxed font-sans">
-                Clear lung fields bilaterally. Normal cardiac silhouette. No focal consolidation, pneumothorax, or pleural effusion.
-              </p>
-            </div>
-          </div>
+          )}
         </div>
       )}
 
-      {/* 6. BILLING & FINANCIALS TAB */}
+      {/* 6. BILLING TAB */}
       {activeTab === "billing" && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <Receipt className="w-4 h-4 text-[#0F766E]" />
-              <span>Linked Invoices & Cash Settlement · INV-2026-0012</span>
+              <span>Linked Invoices & Cash Settlement ({invoices.length})</span>
             </h3>
-            <Badge variant="green">Settled ($0.00 Bal)</Badge>
+            <Link href="/billing">
+              <Button variant="secondary" size="xs">Billing & Invoicing</Button>
+            </Link>
           </div>
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
-            <div className="flex justify-between">
-              <span className="text-slate-500">Invoice Number:</span>
-              <span className="font-mono font-bold text-[#0F766E]">INV-2026-0012</span>
+          {invoices.length === 0 ? (
+            <div className="p-8 text-center text-slate-500 text-xs bg-slate-50 rounded-xl">
+              No customer invoices issued for this patient.
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Payment Voucher:</span>
-              <span className="font-mono font-bold text-slate-900">PAY-2026-0012 (Cash Journal)</span>
+          ) : (
+            <div className="space-y-3">
+              {invoices.map((inv) => (
+                <div key={inv.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="font-mono font-bold text-[#0F766E]">{inv.number || `INV #${inv.id}`}</span>
+                    <Badge variant={inv.state === "paid" ? "green" : inv.state === "posted" ? "blue" : "neutral"}>
+                      {inv.state === "paid" ? "Settled ($0.00 Bal)" : inv.state}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Invoice Total:</span>
+                    <span className="font-mono font-bold text-slate-900">${inv.totalAmount || "50.00"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Amount Due:</span>
+                    <span className="font-mono font-extrabold text-emerald-700">${inv.amountToPay || "0.00"}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Invoice Amount:</span>
-              <span className="font-mono font-bold text-slate-900">$50.00</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Remaining Balance:</span>
-              <span className="font-mono font-extrabold text-emerald-700">$0.00 (Paid in Full)</span>
-            </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -555,16 +739,50 @@ export default function UnifiedPatientChartPage() {
               Longitudinal Clinical Activity Summary
             </h3>
             <div className="text-xs space-y-2 text-slate-600">
-              <div className="flex justify-between"><span className="text-slate-400">Latest Vitals:</span><span className="font-mono font-bold text-slate-900">BP 120/80 · BMI 22.86</span></div>
-              <div className="flex justify-between"><span className="text-slate-400">Active Allergy:</span><span className="font-bold text-red-600">Penicillin (Rash)</span></div>
-              <div className="flex justify-between"><span className="text-slate-400">Prescription:</span><span className="font-mono font-bold text-[#0F766E]">RX-2026-0029 (Amox 500mg)</span></div>
-              <div className="flex justify-between"><span className="text-slate-400">Lab Diagnostic:</span><span className="font-mono font-bold text-[#0F766E]">LAB-2026-0019 (Hgb: 14.1 g/dL)</span></div>
-              <div className="flex justify-between"><span className="text-slate-400">Radiology Study:</span><span className="font-mono font-bold text-[#0F766E]">RAD-2026-0014 (Chest X-Ray)</span></div>
-              <div className="flex justify-between"><span className="text-slate-400">Accounts Balance:</span><span className="font-mono font-bold text-emerald-700">$0.00 (Paid)</span></div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Latest Vitals:</span>
+                <span className="font-mono font-bold text-slate-900">
+                  {latestEval ? `BP ${latestEval.systolic || 120}/${latestEval.diastolic || 80} · BMI ${latestEval.bmi || 22.86}` : "No Vitals Logged"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Active Allergy:</span>
+                <span className="font-bold text-red-600">{patient.allergies[0] || "None Reported"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Prescriptions:</span>
+                <span className="font-mono font-bold text-[#0F766E]">
+                  {latestRx ? `RX #${latestRx.id} (${latestRx.medicationName || "Active"})` : "None"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Lab Diagnostic:</span>
+                <span className="font-mono font-bold text-[#0F766E]">
+                  {latestLab ? `LAB #${latestLab.id} (${latestLab.testName || "Ordered"})` : "None"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Radiology Study:</span>
+                <span className="font-mono font-bold text-[#0F766E]">
+                  {latestRad ? `RAD #${latestRad.id} (${radOrdersTitle(latestRad)})` : "None"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Accounts Balance:</span>
+                <span className="font-mono font-bold text-emerald-700">
+                  {latestInv ? (latestInv.state === "paid" ? "$0.00 (Settled)" : `$${latestInv.amountToPay || 0} Due`) : "$0.00"}
+                </span>
+              </div>
             </div>
           </div>
         </div>
       )}
     </div>
   );
+}
+
+function radOrdersTitle(rad: any): string {
+  if (rad.testName) return rad.testName;
+  if (rad.comment) return rad.comment.slice(0, 20);
+  return "Study Requested";
 }

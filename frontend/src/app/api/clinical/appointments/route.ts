@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type");
+  const patientId = searchParams.get("patientId");
 
   try {
     // If client requests available physicians list for appointment booking
@@ -32,13 +33,18 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    let domain: unknown[] = [];
+    if (patientId) {
+      domain = [["patient", "=", parseInt(patientId, 10)]];
+    }
+
     const rawAppts = await TrytonClient.execute<any[]>(
       session.username,
       session.userId,
       session.sessionToken,
       "gnuhealth.appointment",
       "search_read",
-      [[], 0, 50, [["id", "DESC"]], ["id", "patient", "healthprof", "appointment_date", "state", "urgency"]]
+      [domain, 0, 50, [["id", "DESC"]], ["id", "patient", "healthprof", "appointment_date", "state", "urgency"]]
     );
 
     // Resolve patient names
@@ -178,11 +184,15 @@ export async function POST(req: NextRequest) {
       // If healthprofId not specified, lookup first attending physician
       let hp = healthprofId ? parseInt(healthprofId, 10) : 71;
 
+      let urgencyCode = "a";
+      if (urgency === "b" || urgency === "urgent") urgencyCode = "b";
+      else if (urgency === "c" || urgency === "emergency") urgencyCode = "c";
+
       const apptPayload = {
         patient: parseInt(patientId, 10),
         healthprof: hp,
         appointment_date: dtObj,
-        urgency: urgency || "normal",
+        urgency: urgencyCode,
         state: "confirmed",
       };
 
