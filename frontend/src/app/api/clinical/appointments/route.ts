@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { ClinicalLookupService } from "@/lib/clinical-lookup";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -181,8 +182,14 @@ export async function POST(req: NextRequest) {
             microsecond: 0,
           };
 
-      // If healthprofId not specified, lookup first attending physician
-      let hp = healthprofId ? parseInt(healthprofId, 10) : 71;
+      // Dynamically resolve attending clinician
+      const hp = await ClinicalLookupService.resolveClinician(session, healthprofId);
+      if (!hp) {
+        return NextResponse.json(
+          { error: "Attending health professional could not be resolved or verified for appointment." },
+          { status: 400 }
+        );
+      }
 
       let urgencyCode = "a";
       if (urgency === "b" || urgency === "urgent") urgencyCode = "b";
@@ -202,7 +209,9 @@ export async function POST(req: NextRequest) {
         session.sessionToken,
         "gnuhealth.appointment",
         "create",
-        [[apptPayload]]
+        [[apptPayload]],
+        { company: session.companyId },
+        session.database
       );
 
       return NextResponse.json({

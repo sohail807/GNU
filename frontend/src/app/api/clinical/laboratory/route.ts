@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { ClinicalLookupService } from "@/lib/clinical-lookup";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -90,11 +91,24 @@ export async function POST(req: NextRequest) {
 
     // Action 1: Create a new laboratory order
     if (action === "create" && patientId) {
-      const payload = {
+      const resolvedTestId = await ClinicalLookupService.resolveLabTestType(session, testId, body.testName || body.testCode);
+      if (!resolvedTestId) {
+        return NextResponse.json(
+          { error: "Selected laboratory test could not be resolved in the diagnostic catalog." },
+          { status: 400 }
+        );
+      }
+
+      const doctorId = await ClinicalLookupService.resolveClinician(session, body.healthprofId || body.doctorId);
+
+      const payload: Record<string, unknown> = {
         patient: parseInt(patientId, 10),
-        test: testId ? parseInt(testId, 10) : 2, // Default to CBC test
+        test: resolvedTestId,
         state: "draft",
       };
+      if (doctorId) {
+        payload.requestor = doctorId;
+      }
 
       const res = await TrytonClient.execute<number[]>(
         session.username,
@@ -102,7 +116,9 @@ export async function POST(req: NextRequest) {
         session.sessionToken,
         "gnuhealth.lab",
         "create",
-        [[payload]]
+        [[payload]],
+        { company: session.companyId },
+        session.database
       );
       const newId = res[0];
 

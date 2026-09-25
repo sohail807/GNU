@@ -1,0 +1,70 @@
+{
+  "main": {
+    "id": "main",
+    "name": "IST Health Hospital - Qatar Central Campus",
+    "database": "gnuhealth",
+    "backendUrl": "http://34.7.237.8",
+    "defaultCompanyId": 1,
+    "branches": [
+      {
+        "id": 1,
+        "name": "Qatar Central Hospital",
+        "code": "QCH"
+      },
+      {
+        "id": 2,
+        "name": "Doha Outpatient Clinic",
+        "code": "DOC"
+      },
+      {
+        "id": 3,
+        "name": "West Bay Specialist Center",
+        "code": "WBSC"
+      }
+    ],
+    "currency": "QAR",
+    "country": "QA",
+    "status": "active",
+    "adminEmail": "admin@ist-health.local"
+  },
+  "test_alpha": {
+    "id": "test_alpha",
+    "name": "Alpha Medical Center",
+    "database": "gnuhealth_test_alpha",
+    "backendUrl": "http://34.7.237.8",
+    "defaultCompanyId": 1,
+    "branches": [
+      {
+        "id": 1,
+        "name": "Alpha Medical Center - Main Campus",
+        "code": "MAIN"
+      }
+    ],
+    "currency": "USD",
+    "country": "QA",
+    "status": "active",
+    "adminEmail": "alpha@ist-health.local",
+    "createdAt": "2026-09-25T12:13:07.647086+00:00",
+    "storageQuotaMb": 5000
+  },
+  "test_beta": {
+    "id": "test_beta",
+    "name": "Beta Specialty Hospital",
+    "database": "gnuhealth_test_beta",
+    "backendUrl": "http://34.7.237.8",
+    "defaultCompanyId": 1,
+    "branches": [
+      {
+        "id": 1,
+        "name": "Beta Specialty Hospital - Main Campus",
+        "code": "MAIN"
+      }
+    ],
+    "currency": "EUR",
+    "country": "QA",
+    "status": "active",
+    "adminEmail": "beta@ist-health.local",
+    "createdAt": "2026-09-25T12:14:29.267732+00:00",
+    "storageQuotaMb": 5000
+  }
+}

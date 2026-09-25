@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { ClinicalLookupService } from "@/lib/clinical-lookup";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -171,14 +172,18 @@ export async function POST(req: NextRequest) {
             session.sessionToken,
             "gnuhealth.patient",
             "read",
-            [[pid], ["name"]]
+            [[pid], ["party"]]
           );
-          if (pat && pat.length > 0 && pat[0].name) {
-            targetPartyId = typeof pat[0].name === "number" ? pat[0].name : pat[0].name[0];
+          if (pat && pat.length > 0 && pat[0].party) {
+            targetPartyId = typeof pat[0].party === "number" ? pat[0].party : pat[0].party[0];
           }
         } catch {
           // Fallback
         }
+      }
+
+      if (!targetPartyId) {
+        targetPartyId = await ClinicalLookupService.resolvePatientParty(session, patientId, body.partyId);
       }
 
       if (!targetPartyId && patientName) {
@@ -189,7 +194,9 @@ export async function POST(req: NextRequest) {
           session.sessionToken,
           "party.party",
           "search_read",
-          [[["name", "ilike", `%${patientName.trim()}%`]], 0, 1, null, ["id"]]
+          [[["name", "ilike", `%${patientName.trim()}%`]], 0, 1, null, ["id"]],
+          { company: session.companyId },
+          session.database
         );
         if (parties && parties.length > 0) {
           targetPartyId = parties[0].id;
@@ -197,35 +204,28 @@ export async function POST(req: NextRequest) {
       }
 
       if (!targetPartyId) {
-        targetPartyId = 196; // Fallback to Alexander Wright party if unassigned
+        return NextResponse.json(
+          { error: "A valid patient or billing party is required to generate a clinical invoice." },
+          { status: 400 }
+        );
       }
 
       // Resolve or create invoice address for the party
-      let invoiceAddressId: number = 1;
-      try {
-        const addrs = await TrytonClient.execute<any[]>(
-          session.username,
-          session.userId,
-          session.sessionToken,
-          "party.address",
-          "search_read",
-          [[["party", "=", targetPartyId]], 0, 1, null, ["id"]]
+      const invoiceAddressId = await ClinicalLookupService.resolvePartyAddress(session, targetPartyId);
+      if (!invoiceAddressId) {
+        return NextResponse.json(
+          { error: "Billing address could not be resolved or created for the party." },
+          { status: 400 }
         );
-        if (addrs && addrs.length > 0) {
-          invoiceAddressId = addrs[0].id;
-        } else {
-          const newAddr = await TrytonClient.execute<number[]>(
-            session.username,
-            session.userId,
-            session.sessionToken,
-            "party.address",
-            "create",
-            [[{ party: targetPartyId, city: "Doha", street: "Outpatient Clinic" }]]
-          );
-          invoiceAddressId = newAddr[0];
-        }
-      } catch {
-        invoiceAddressId = 1;
+      }
+
+      // Dynamically resolve Accounts Receivable and Revenue accounts
+      const accounts = await ClinicalLookupService.resolveBillingAccounts(session);
+      if (!accounts) {
+        return NextResponse.json(
+          { error: "Chart of Accounts configuration (Receivable/Revenue) could not be resolved for tenant." },
+          { status: 400 }
+        );
       }
 
       const now = new Date();
@@ -240,7 +240,7 @@ export async function POST(req: NextRequest) {
         type: "out",
         party: targetPartyId,
         invoice_address: invoiceAddressId,
-        account: 5, // 1100 Accounts Receivable
+        account: accounts.receivableAccountId,
         invoice_date: dateObj,
         state: "draft",
       };
@@ -251,7 +251,9 @@ export async function POST(req: NextRequest) {
         session.sessionToken,
         "account.invoice",
         "create",
-        [[invPayload]]
+        [[invPayload]],
+        { company: session.companyId },
+        session.database
       );
       const newInvId = invRes[0];
 
@@ -260,15 +262,25 @@ export async function POST(req: NextRequest) {
         ? lines
         : [{ desc: body.service || "Outpatient Clinical Consultation", amount: parseFloat(body.amount) || 50.0 }];
 
-      const linePayloads = lineItems.map((li: any) => ({
-        invoice: newInvId,
-        account: 6, // 4000 Outpatient Clinical Revenue
-        product: 15,
-        unit: 1,
-        description: li.desc || "Clinical Consultation",
-        quantity: 1,
-        unit_price: parseFloat(li.amount) || 50.0,
-      }));
+      const linePayloads = [];
+      for (const li of lineItems) {
+        const prodInfo = await ClinicalLookupService.resolveProductAndUom(session, li.desc || body.service, li.productId);
+        if (!prodInfo) {
+          return NextResponse.json(
+            { error: `Billing service item "${li.desc || body.service || "consultation"}" could not be resolved in the catalog.` },
+            { status: 400 }
+          );
+        }
+        linePayloads.push({
+          invoice: newInvId,
+          account: accounts.revenueAccountId,
+          product: prodInfo.productId,
+          unit: prodInfo.uomId,
+          description: li.desc || "Clinical Consultation",
+          quantity: 1,
+          unit_price: parseFloat(li.amount) || 50.0,
+        });
+      }
 
       await TrytonClient.execute(
         session.username,
@@ -276,7 +288,9 @@ export async function POST(req: NextRequest) {
         session.sessionToken,
         "account.invoice.line",
         "create",
-        [linePayloads]
+        [linePayloads],
+        { company: session.companyId },
+        session.database
       );
 
       return NextResponse.json({

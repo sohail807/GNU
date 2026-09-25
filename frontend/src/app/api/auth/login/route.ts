@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
 
     const tenant = resolveTenant(tenantId || req.headers.get("x-tenant-id"));
 
-    // Authenticate with authoritative Tryton backend
-    const { userId, sessionToken } = await TrytonClient.login(username.trim(), password);
+    // Authenticate with authoritative Tryton backend for the tenant's dedicated database
+    const { userId, sessionToken } = await TrytonClient.login(username.trim(), password, tenant.database);
 
     // Fetch live user profile and security groups using the user's authentic session
     let role = "general";
@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
         "res.user",
         "read",
         [[userId], ["id", "login", "name", "groups"]],
-        { company: tenant.companyId }
+        { company: tenant.defaultCompanyId },
+        tenant.database
       );
 
       if (userRecords && userRecords.length > 0) {
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Attempt to locate associated Health Professional ID
+    // Attempt to locate associated Health Professional ID via party.internal_user relation
     try {
       const hpRecords = await TrytonClient.execute<any[]>(
         username.trim(),
@@ -62,8 +63,9 @@ export async function POST(req: NextRequest) {
         sessionToken,
         "gnuhealth.healthprofessional",
         "search_read",
-        [[["rec_name", "ilike", `%${displayName}%`]], 0, 1, null, ["id", "rec_name"]],
-        { company: tenant.companyId }
+        [[["party.internal_user", "=", userId]], 0, 1, null, ["id", "rec_name"]],
+        { company: tenant.defaultCompanyId },
+        tenant.database
       );
       if (hpRecords && hpRecords.length > 0) {
         healthprofId = hpRecords[0].id;
@@ -72,7 +74,7 @@ export async function POST(req: NextRequest) {
       // Non-clinical roles (receptionist, cashier, admin) will not have a health professional record
     }
 
-    // Store in secure httpOnly cookie
+    // Store in secure httpOnly cookie with tenant database and company context
     await setSession({
       username: username.trim(),
       userId,
@@ -80,6 +82,8 @@ export async function POST(req: NextRequest) {
       role,
       name: displayName,
       tenantId: tenant.id,
+      database: tenant.database,
+      companyId: tenant.defaultCompanyId,
       healthprofId,
       groups: groupIds,
     });

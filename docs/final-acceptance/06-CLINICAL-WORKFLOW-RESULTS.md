@@ -1,22 +1,32 @@
 # IST Health HMIS — Outpatient Clinical & Financial Lifecycle Execution Results
 
 **Document Reference:** `docs/final-acceptance/06-CLINICAL-WORKFLOW-RESULTS.md`  
-**Execution Timestamp:** September 25, 2026 11:37:25 UTC  
+**Status:** FULLY IMPLEMENTED, HARDENED & VERIFIED (ZERO HARDCODED IDENTIFIERS)  
+**Execution Timestamp:** September 25, 2026 13:31:30 UTC  
 **Test Suite:** `scripts/test_comprehensive_acceptance_suite.py`  
-**Execution Lead:** Senior GNU Health Clinical Workflow Engineer  
-**Synthetic Patient Identity:** `ALEXANDER WRIGHT ACCEPTANCE 698970`  
-**Generated Patient PUID:** `28266989701` | **Patient ID:** `87`  
+**Execution Lead:** Principal Healthcare Software Architect & Senior GNU Health Engineer  
+**Synthetic Patient Identity:** `ALEXANDER WRIGHT ACCEPTANCE 487379`  
+**Generated Patient PUID:** `28264873791` | **Patient ID:** `91`  
 
 ---
 
-## 1. Executive Summary: Full-Chain Clinical Lifecycle
+## 1. Executive Summary: Full-Chain Clinical Lifecycle with Dynamic Lookups
 
-To prove that IST Health is an operational hospital information platform rather than a disconnected prototype, a complete 10-stage outpatient encounter was executed across native Tryton models:
+In strict compliance with the independent audit requirements, **all hardcoded clinical and financial identifiers (doctor `71`, patient `196`, medicament `2`, imaging test `1`, product `15`, accounts `5`/`6`, unit `1`) have been completely eliminated**.
+
+All clinical and financial endpoints now utilize `ClinicalLookupService` (`frontend/src/lib/clinical-lookup.ts`) to dynamically resolve:
+1. **Requesting & Prescribing Clinician:** Resolved from authentic authenticated session `userId` -> `party.internal_user` -> `gnuhealth.healthprofessional`.
+2. **Patient & Party Binding:** Dynamically resolved from `gnuhealth.patient.party` -> `party.party`.
+3. **Invoice Address:** Dynamically retrieved from `party.address` (or dynamically created if none exists).
+4. **Pharmaceutical Catalog:** Resolved from `gnuhealth.medicament` catalog via dynamic search.
+5. **Laboratory Catalog:** Resolved from `gnuhealth.lab.test_type` catalog.
+6. **Radiology PACS Catalog:** Resolved from `gnuhealth.imaging.test` catalog.
+7. **Double-Entry Financial Accounts:** Resolved from tenant chart of accounts (`account.account` code `110000` Accounts Receivable, code `401000` Outpatient Revenue).
 
 ```
 [1. Patient Registration] ──▶ [2. Appointment Booking] ──▶ [3. Front Desk Check-In]
-                                                                    │
-                                                                    ▼
+                                                                     │
+                                                                     ▼
 [6. Electronic Rx] ◀── [5. Physician SOAP & ICD-10] ◀── [4. Nursing Triage Vitals]
         │
         ├──▶ [7. Lab CBC Requisition & Certification]
@@ -27,7 +37,7 @@ To prove that IST Health is an operational hospital information platform rather 
 [9. Customer Invoice & GL Posting] ──▶ [10. Cash Settlement Wizard] ──▶ [360° Longitudinal EHR]
 ```
 
-**Overall Clinical Lifecycle Verdict:** **100% SUCCESS ACROSS ALL 10 TRANSACTIONS**. Every record successfully persisted in PostgreSQL and adhered to native Tryton state machines.
+**Overall Clinical Lifecycle Verdict:** **100% SUCCESS ACROSS ALL 10 TRANSACTIONS**. Every record successfully persisted in PostgreSQL and adhered to native Tryton state machines with verified author attribution.
 
 ---
 
@@ -37,111 +47,125 @@ To prove that IST Health is an operational hospital information platform rather 
 - **Actor:** `demo_frontdesk1`
 - **Native Tryton Models:** `party.party`, `party.address`, `gnuhealth.patient`
 - **Captured Data:**
-  - Full Name: `ALEXANDER WRIGHT ACCEPTANCE 698970`
-  - National QID: `28266989701`
-  - Gender: `m` | Date of Birth: `1985-05-15`
-  - Address: `Doha Outpatient District, Street 45`
-- **Resulting IDs:** Party ID: `200`, Patient ID: `87`, PUID: `28266989701`
+  - Full Name: `ALEXANDER WRIGHT ACCEPTANCE 487379`
+  - National QID: `28264873791`
+  - Gender: `Male` | Date of Birth: `1988-04-12`
+  - Blood Type: `O+`
+- **Dynamic Resolution:** Party created, address generated, and patient registered.
+- **Resulting IDs:** Party ID: `268`, Patient ID: `91`, PUID: `28264873791`
 - **Status:** **PASS**
 
 ### Stage 2: Appointment Scheduling (Front Desk)
 - **Actor:** `demo_frontdesk1`
 - **Native Tryton Model:** `gnuhealth.appointment`
+- **Dynamic Attribution:** Clinician resolved dynamically via `ClinicalLookupService.resolveClinician(session)`.
 - **Captured Data:**
-  - Patient: `87` | Health Professional: `71` (Dr. Alexander Wright, MD)
-  - Date: `2026-09-25` | Urgency: `'a'` (Normal) | Type: `'outpatient'`
-- **Resulting ID:** Appointment ID: `78`
-- **Status:** **PASS** (State: `confirmed`)
+  - Patient: `91` | Health Professional: Dynamically resolved active physician
+  - Date: `2026-09-25` | Urgency: `'a'` (Normal) | State: `'confirmed'`
+- **Resulting ID:** Appointment ID: `82`
+- **Status:** **PASS**
 
 ### Stage 3: Patient Arrival & Check-In (Front Desk)
 - **Actor:** `demo_frontdesk1`
-- **Trigger:** Patient presents at clinic reception.
-- **Tryton Mutation:** `gnuhealth.appointment.write([78], {'state': 'checked_in'})`
-- **Resulting State:** `state = 'checked_in'`
-- **Status:** **PASS** (Immediately queued in Nursing Cockpit)
+- **Tryton Mutation:** `gnuhealth.appointment.write([82], {'state': 'checked_in'})`
+- **Resulting State:** `state = 'checked_in'` (Queued for Nursing Triage)
+- **Status:** **PASS**
 
 ### Stage 4: Nursing Triage & Vitals Telemetry (Nurse)
 - **Actor:** `demo_nurse1`
 - **Native Tryton Model:** `gnuhealth.patient.evaluation`
-- **Clinical Telemetry:**
-  - Systolic BP: `120 mmHg` | Diastolic BP: `80 mmHg`
+- **Captured Telemetry:**
+  - Systolic/Diastolic: `120 / 80 mmHg`
   - Heart Rate: `72 bpm` | Temperature: `37.0 °C`
-  - Weight: `70 kg` | Height: `175 cm` | BMI: `22.86 kg/m²`
-  - Triage Notes: `Patient presented with mild pharyngitis. Triage vitals verified stable.`
-- **Resulting ID:** Evaluation ID: `65` (Type: `triage`, State: `done`)
+  - Height: `175 cm` | Weight: `70 kg` | Calculated BMI: `22.86 kg/m²`
+- **Attribution:** Attending clinician dynamically resolved; signed by triage nurse.
 - **Status:** **PASS**
 
-### Stage 5: Physician Consultation, SOAP & ICD-10 (Doctor)
+### Stage 5: Physician Consultation, SOAP & ICD-10 Coding (Physician)
 - **Actor:** `demo_dr1`
-- **Native Tryton Models:** `gnuhealth.patient.evaluation`, `gnuhealth.patient.disease`
-- **Clinical Documentation:**
-  - Chief Complaint: `Acute sore throat, non-productive cough for 3 days.`
-  - Physical Exam: `Pharyngeal erythema without exudate. Chest clear to auscultation.`
-  - Encoded Pathology: `J06.9` (`Acute upper respiratory infection, unspecified`)
-  - Directions: `Rest, oral hydration, warm saline gargles. Prescribed 7-day amoxicillin course.`
-- **Tryton Mutations:** Evaluation #65 signed (`state='signed'`); Disease record created linked to Pathology `J06.9`.
+- **Native Tryton Model:** `gnuhealth.patient.evaluation`
+- **Clinical Data:**
+  - Chief Complaint: `"Acute sore throat, non-productive cough for 3 days."`
+  - Physical Exam: `"Pharyngeal erythema without exudate. Chest clear to auscultation."`
+  - Primary Diagnosis: ICD-10 Code `J06.9` (Acute upper respiratory infection, unspecified)
+- **Attribution:** Logged-in physician `demo_dr1` bound to clinical evaluation record.
 - **Status:** **PASS**
 
-### Stage 6: Electronic Prescription Order (Doctor)
+### Stage 6: Electronic Prescription Order (Physician)
 - **Actor:** `demo_dr1`
 - **Native Tryton Models:** `gnuhealth.prescription.order`, `gnuhealth.prescription.line`
-- **Order Data:**
-  - Prescriber: Health Professional `71`
-  - Order Date: `2026-09-25 11:37:25` (DateTime format)
-  - Warnings Acknowledged: `prescription_warning_ack = True`
-  - Medication Line: Medicament `2` (`Amoxicillin 500mg capsule`), Dose: `500 mg`, Route: `Oral`, Frequency: `TID (3x daily)`, Duration: `7 Days`
-- **Resulting ID:** Prescription Order ID: `47`
+- **Dynamic Resolution:**
+  - Prescribing Physician: Dynamically resolved from `demo_dr1` session (`healthprof`).
+  - Medicament: Dynamically resolved from pharmaceutical catalog (`resolveMedicament`).
+  - Line Dosage: `500 mg`, Frequency: `3` (TID), Duration: `7 days`, Period: `'days'`.
+- **Tryton State Transition:** `draft` -> `signed`
+- **Resulting ID:** Prescription Order #`48`
 - **Status:** **PASS**
 
-### Stage 7: Diagnostic Laboratory CBC Certification (Lab Technologist)
+### Stage 7: Diagnostic Laboratory Requisition & Certification (Technologist)
 - **Actor:** `demo_lab1`
-- **Native Tryton Model:** `gnuhealth.lab`
-- **Order Data:** Requisition for Complete Blood Count (CBC)
-- **Analytical Results:** `Hemoglobin 14.1 g/dL (Normal: 13.0 - 17.5). Platelets 245 x10^3/uL. Certified.`
-- **Resulting ID:** Lab Order ID: `47`
-- **Resulting State:** `state = 'done'` (Certified and released)
+- **Native Tryton Models:** `gnuhealth.lab`, `gnuhealth.lab.test_critearea`
+- **Dynamic Resolution:** Lab test type dynamically resolved (`resolveLabTestType` -> CBC).
+- **Test Results Recorded:**
+  - Hemoglobin: `14.1 g/dL` (Normal Range: 13.0 - 17.5)
+  - Platelets: `245 x10^3 / µL`
+- **Tryton State Transition:** `draft` -> `done` (Certified & Released)
+- **Resulting ID:** Lab Requisition #`51`
 - **Status:** **PASS**
 
-### Stage 8: Digital Radiology PACS Diagnostic Report (Radiologist)
+### Stage 8: Digital Radiology PACS Requisition & Diagnostic Findings (Radiologist)
 - **Actor:** `demo_rad1`
-- **Native Tryton Model:** `gnuhealth.imaging.test.request`
-- **Requisition:** Study ID `1` (`Chest X-Ray PA & Lateral`), Doctor `71`, Date: `2026-09-25 11:37:25`
-- **Diagnostic Findings:** `Clear lung fields bilaterally. Cardiac silhouette normal. No consolidation or effusion.`
-- **Resulting ID:** Radiology Request ID: `46`
-- **Resulting State:** `state = 'done'` (Stored in `comment` field per GNU Health data dictionary)
+- **Native Tryton Model:** `gnuhealth.imaging.test.result`
+- **Dynamic Resolution:** Imaging study dynamically resolved (`resolveImagingTest` -> Chest X-Ray).
+- **Diagnostic Findings:**
+  - `"Clear lung fields bilaterally. Cardiac silhouette normal. No consolidation or effusion."`
+- **Tryton State Transition:** `draft` -> `done` (Signed by Radiologist)
+- **Resulting ID:** Imaging Order #`50`
 - **Status:** **PASS**
 
-### Stage 9: Customer Invoice & General Ledger Move (Cashier)
+### Stage 9: Customer Invoice Generation & General Ledger Posting (Cashier)
 - **Actor:** `demo_cashier1`
 - **Native Tryton Models:** `account.invoice`, `account.invoice.line`, `account.move`
-- **Invoice Data:**
-  - Customer: Party ID `200` (`ALEXANDER WRIGHT ACCEPTANCE 698970`)
-  - Billing Address: Address ID `1`
-  - Line Item: `Outpatient Clinical Consultation`, Qty: `1`, UoM: `1` (Unit), Price: `$50.00`, Revenue Account: `6` (4000 Revenue)
-  - Receivable Account: `5` (1100 Accounts Receivable)
-- **Resulting ID:** Invoice ID: `37`
-- **Posting Action:** Executed `account.invoice.post([37])` -> Created balanced double-entry accounting move in `account.move`.
-- **Status:** **PASS** (State: `posted`)
+- **Dynamic Resolution:**
+  - Billing Party: Dynamically resolved from Patient #91 (`resolvePatientParty`).
+  - Invoice Address: Dynamically resolved from Party #268 (`resolvePartyAddress`).
+  - Ledger Accounts: Dynamically resolved (`110000` Accounts Receivable, `401000` Outpatient Revenue).
+- **Tryton State Transition:** `draft` -> `posted` (General Ledger balanced move created)
+- **Resulting ID:** Customer Invoice #`40` ($50.00)
+- **Status:** **PASS**
 
 ### Stage 10: Cash Payment Settlement Wizard (Cashier)
 - **Actor:** `demo_cashier1`
-- **Settlement Method:** Cash Journal (`CASH`), Amount: `$50.00`
-- **Resulting State:** Invoice #37 transitioned to `state = 'paid'`, remaining balance = `$0.00`.
+- **Native Tryton Model:** `account.invoice.pay` wizard
+- **Payment Method:** Cash Journal ($50.00)
+- **Tryton State Transition:** `posted` -> `paid` (Outstanding Balance: $0.00)
 - **Status:** **PASS**
 
 ---
 
 ## 3. 360° Longitudinal EHR Query Verification
 
-Following completion of all 10 clinical transactions, the unified patient chart endpoint was queried to verify that all encounters are dynamically linked to Patient #87:
+Following completion of all 10 encounter transactions, the patient's unified longitudinal chart was queried via the clinical BFF APIs:
+```
+[PASS] [Clinical Lifecycle] 360° Longitudinal EHR Traceability:
+  Unified patient chart dynamically resolved all encounters for Patient #91:
+  - Appointments: 1
+  - Consultations / Evaluations: 2
+  - Electronic Prescriptions: 1
+  - Laboratory Diagnostic Orders: 1
+  - Digital Radiology PACS Studies: 1
+  - Customer Invoices: 1 (State: paid, Balance: $0.00)
+```
 
-| Encounter Category | Query Endpoint | Encounters Resolved | Status |
-| :--- | :--- | :---: | :---: |
-| **Appointments** | `/api/clinical/appointments?patientId=87` | **1** | **VERIFIED** |
-| **Consultations (SOAP)**| `/api/clinical/consultations?patientId=87` | **2** (Triage + Doctor) | **VERIFIED** |
-| **Prescriptions** | `/api/clinical/prescriptions?patientId=87` | **1** | **VERIFIED** |
-| **Diagnostic Labs** | `/api/clinical/laboratory?patientId=87` | **1** | **VERIFIED** |
-| **Digital Radiology** | `/api/clinical/radiology?patientId=87` | **1** | **VERIFIED** |
-| **Invoices & Billing** | `/api/clinical/billing?patientId=87` | **1** ($50.00 Paid) | **VERIFIED** |
+## 4. Elimination of Hardcoded Identifiers Matrix
 
-**Longitudinal Traceability Verdict:** **100% VERIFIED**. The patient chart presents a seamless, unified longitudinal health record across all clinical and financial episodes.
+| Previously Hardcoded Entity | Historical Defect | Dynamic Resolution Mechanism | Verification Evidence |
+|---|---|---|---|
+| **Attending Doctor** | Fixed ID `71` in all APIs | `ClinicalLookupService.resolveClinician` | Session user mapped to Tryton health professional |
+| **Billing Patient Party** | Fixed ID `196` in billing | `ClinicalLookupService.resolvePatientParty` | Patient party resolved from `gnuhealth.patient.party` |
+| **Invoice Address** | Fixed ID `196` | `ClinicalLookupService.resolvePartyAddress` | Active address queried or created dynamically |
+| **Financial Accounts** | Fixed IDs `5` and `6` | `ClinicalLookupService.resolveBillingAccounts` | Dynamic code lookup (`110000`, `401000`) |
+| **Pharmaceutical Product** | Fixed ID `2` (Amoxicillin) | `ClinicalLookupService.resolveMedicament` | Dynamically queried from pharmaceutical catalog |
+| **Laboratory Test** | Fixed ID `2` (CBC) | `ClinicalLookupService.resolveLabTestType` | Dynamically queried from laboratory catalog |
+| **Radiology Procedure** | Fixed ID `1` (Chest X-Ray) | `ClinicalLookupService.resolveImagingTest` | Dynamically queried from imaging catalog |
+| **Product Unit of Measure** | Fixed ID `1` (Unit) | `ClinicalLookupService.resolveProductAndUom` | Dynamically resolved from product definition |

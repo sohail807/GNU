@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { ClinicalLookupService } from "@/lib/clinical-lookup";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -113,7 +114,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const hpId = session.healthprofId || 71;
+    const hpId = await ClinicalLookupService.resolveClinician(session, body.healthprofId);
+    if (!hpId) {
+      return NextResponse.json(
+        { error: "Attending clinician could not be resolved or verified for consultation." },
+        { status: 400 }
+      );
+    }
 
     // 1. Create clinical evaluation
     const evalPayload: Record<string, unknown> = {
@@ -136,40 +143,52 @@ export async function POST(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.patient.evaluation",
       "create",
-      [[evalPayload]]
+      [[evalPayload]],
+      { company: session.companyId },
+      session.database
     );
 
-    // 2. If Order Lab requested, create lab order
+    // 2. If Order Lab requested, create lab order with dynamic test and requestor
     let labOrderId: number | null = null;
     if (orderLab) {
       try {
-        const labRes = await TrytonClient.execute<number[]>(
-          session.username,
-          session.userId,
-          session.sessionToken,
-          "gnuhealth.lab",
-          "create",
-          [[{ patient: pid, test: 2, state: "draft" }]]
-        );
-        labOrderId = labRes[0];
+        const labTestId = await ClinicalLookupService.resolveLabTestType(session, body.labTestId, body.labTestName);
+        if (labTestId) {
+          const labRes = await TrytonClient.execute<number[]>(
+            session.username,
+            session.userId,
+            session.sessionToken,
+            "gnuhealth.lab",
+            "create",
+            [[{ patient: pid, test: labTestId, requestor: hpId, state: "draft" }]],
+            { company: session.companyId },
+            session.database
+          );
+          labOrderId = labRes[0];
+        }
       } catch {
         // Non-blocking
       }
     }
 
-    // 3. If Order Radiology requested, create imaging request
+    // 3. If Order Radiology requested, create imaging request with dynamic test and doctor
     let radOrderId: number | null = null;
     if (orderRadiology) {
       try {
-        const radRes = await TrytonClient.execute<number[]>(
-          session.username,
-          session.userId,
-          session.sessionToken,
-          "gnuhealth.imaging.test.request",
-          "create",
-          [[{ patient: pid, state: "draft" }]]
-        );
-        radOrderId = radRes[0];
+        const imagingTestId = await ClinicalLookupService.resolveImagingTest(session, body.radiologyTestId, body.radiologyStudy);
+        if (imagingTestId) {
+          const radRes = await TrytonClient.execute<number[]>(
+            session.username,
+            session.userId,
+            session.sessionToken,
+            "gnuhealth.imaging.test.request",
+            "create",
+            [[{ patient: pid, requested_test: imagingTestId, doctor: hpId, state: "draft" }]],
+            { company: session.companyId },
+            session.database
+          );
+          radOrderId = radRes[0];
+        }
       } catch {
         // Non-blocking
       }

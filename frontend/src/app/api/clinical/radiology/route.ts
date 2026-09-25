@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { ClinicalLookupService } from "@/lib/clinical-lookup";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -102,13 +103,29 @@ export async function POST(req: NextRequest) {
         microsecond: 0,
       };
 
+      const doctorId = await ClinicalLookupService.resolveClinician(session, body.healthprofId || body.doctorId);
+      if (!doctorId) {
+        return NextResponse.json(
+          { error: "Attending clinician could not be resolved or verified for imaging order." },
+          { status: 400 }
+        );
+      }
+
+      const testId = await ClinicalLookupService.resolveImagingTest(session, body.testId || body.requestedTestId, body.study);
+      if (!testId) {
+        return NextResponse.json(
+          { error: "Selected imaging procedure could not be resolved in the clinical catalog." },
+          { status: 400 }
+        );
+      }
+
       const radPayload = {
         patient: parseInt(patientId, 10),
-        requested_test: 1, // PA & Lateral Chest Radiography (X-Ray)
-        doctor: session.healthprofId || 71,
+        requested_test: testId,
+        doctor: doctorId,
         date: dtObj,
         state: "draft",
-        comment: body.study || "Chest X-Ray (PA & Lateral)",
+        comment: body.study || "Diagnostic Radiography Requisition",
       };
 
       const res = await TrytonClient.execute<number[]>(
@@ -117,7 +134,9 @@ export async function POST(req: NextRequest) {
         session.sessionToken,
         "gnuhealth.imaging.test.request",
         "create",
-        [[radPayload]]
+        [[radPayload]],
+        { company: session.companyId },
+        session.database
       );
       const newId = res[0];
       return NextResponse.json({

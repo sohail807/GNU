@@ -24,9 +24,23 @@ export class TrytonClient {
   }
 
   /**
-   * Performs primary authentication via common.db.login
+   * Resolves the target Tryton backend endpoint dynamically for a specific tenant database.
    */
-  static async login(username: string, password: string): Promise<TrytonLoginResult> {
+  static getBaseUrl(database?: string): string {
+    const defaultUrl = process.env.GNUHEALTH_BACKEND_URL;
+    if (defaultUrl && !database) {
+      return defaultUrl.endsWith("/") ? defaultUrl : `${defaultUrl}/`;
+    }
+    const rawHost = process.env.GNUHEALTH_HOST || "http://34.7.237.8";
+    const host = rawHost.replace(/\/+$/, "");
+    const dbName = database || process.env.GNUHEALTH_DATABASE || "gnuhealth";
+    return `${host}/${dbName}/`;
+  }
+
+  /**
+   * Performs primary authentication via common.db.login against the tenant's dedicated database
+   */
+  static async login(username: string, password: string, database?: string): Promise<TrytonLoginResult> {
     const authHeader = `Basic ${this.encodeBase64(`${username}:${password}`)}`;
     const payload = {
       id: Date.now(),
@@ -34,7 +48,8 @@ export class TrytonClient {
       params: [username, { password }],
     };
 
-    const res = await fetch(TRYTON_BASE_URL, {
+    const targetUrl = this.getBaseUrl(database);
+    const res = await fetch(targetUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -63,7 +78,7 @@ export class TrytonClient {
   }
 
   /**
-   * Executes an authenticated model method via JSON-RPC 2.0 using the user's authentic session
+   * Executes an authenticated model method via JSON-RPC 2.0 against the tenant's dedicated database
    */
   static async execute<T = unknown>(
     username: string,
@@ -72,7 +87,8 @@ export class TrytonClient {
     model: string,
     method: string,
     params: unknown[] = [],
-    context: Record<string, unknown> = {}
+    context: Record<string, unknown> = {},
+    database?: string
   ): Promise<T> {
     const sessionAuth = `Session ${this.encodeBase64(`${username}:${userId}:${sessionToken}`)}`;
 
@@ -91,7 +107,8 @@ export class TrytonClient {
       params: callParams,
     };
 
-    const res = await fetch(TRYTON_BASE_URL, {
+    const targetUrl = this.getBaseUrl(database);
+    const res = await fetch(targetUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -132,7 +149,7 @@ export class TrytonClient {
     return (data.result !== undefined ? data.result : data) as T;
   }
 
-  private static systemSession: { userId: number; token: string; expiresAt: number } | null = null;
+  private static systemSession: { username: string; userId: number; token: string; expiresAt: number } | null = null;
 
   /**
    * Executes a system-level administrative call (strictly for automated background services or bootstrap)
@@ -141,45 +158,67 @@ export class TrytonClient {
     model: string,
     method: string,
     params: unknown[] = [],
-    context: Record<string, unknown> = {}
+    context: Record<string, unknown> = {},
+    database?: string
   ): Promise<T> {
     const now = Date.now();
     if (!this.systemSession || now > this.systemSession.expiresAt) {
-      const loginRes = await this.login("admin", ADMIN_PASSWORD);
-      this.systemSession = {
-        userId: loginRes.userId,
-        token: loginRes.sessionToken,
-        expiresAt: now + 1000 * 60 * 30, // 30 minutes
-      };
+      try {
+        const loginRes = await this.login("demo_admin1", "DemoAdmin2026!", database);
+        this.systemSession = {
+          username: "demo_admin1",
+          userId: loginRes.userId,
+          token: loginRes.sessionToken,
+          expiresAt: now + 1000 * 60 * 30, // 30 minutes
+        };
+      } catch {
+        const loginRes = await this.login("admin", ADMIN_PASSWORD, database);
+        this.systemSession = {
+          username: "admin",
+          userId: loginRes.userId,
+          token: loginRes.sessionToken,
+          expiresAt: now + 1000 * 60 * 30,
+        };
+      }
     }
 
     try {
       return await this.execute<T>(
-        "admin",
+        this.systemSession.username,
         this.systemSession.userId,
         this.systemSession.token,
         model,
         method,
         params,
-        context
+        context,
+        database
       );
-    } catch (err: unknown) {
+    } catch {
       // Invalidate cache and retry once
       this.systemSession = null;
-      const loginRes = await this.login("admin", ADMIN_PASSWORD);
+      let loginRes;
+      let user = "demo_admin1";
+      try {
+        loginRes = await this.login("demo_admin1", "DemoAdmin2026!", database);
+      } catch {
+        user = "admin";
+        loginRes = await this.login("admin", ADMIN_PASSWORD, database);
+      }
       this.systemSession = {
+        username: user,
         userId: loginRes.userId,
         token: loginRes.sessionToken,
         expiresAt: Date.now() + 1000 * 60 * 30,
       };
       return await this.execute<T>(
-        "admin",
+        this.systemSession.username,
         this.systemSession.userId,
         this.systemSession.token,
         model,
         method,
         params,
-        context
+        context,
+        database
       );
     }
   }

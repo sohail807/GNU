@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { ClinicalLookupService } from "@/lib/clinical-lookup";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -141,7 +142,13 @@ export async function POST(req: NextRequest) {
     }
 
     const pid = parseInt(patientId, 10);
-    const hpId = healthprofId || session.healthprofId || 71;
+    const hpId = await ClinicalLookupService.resolveClinician(session, healthprofId);
+    if (!hpId) {
+      return NextResponse.json(
+        { error: "Prescribing physician could not be resolved or verified." },
+        { status: 400 }
+      );
+    }
 
     // 1. Create gnuhealth.prescription.order
     const now = new Date();
@@ -170,33 +177,70 @@ export async function POST(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.prescription.order",
       "create",
-      [[rxPayload]]
+      [[rxPayload]],
+      { company: session.companyId },
+      session.database
     );
     const rxId = rxRes[0];
 
     // 2. Create lines in gnuhealth.prescription.line
     if (lines && Array.isArray(lines) && lines.length > 0) {
-      const linePayloads = lines.map((l: any) => ({
-        presc_order: rxId,
-        medicament: 2, // Default to Amoxicillin 500mg if not mapped
-        dose: parseFloat(l.dose) || 500,
-        route: l.route || "Oral",
-        frequency: l.frequency || "TID",
-        duration: parseInt(l.duration, 10) || 7,
-      }));
+      const linePayloads = [];
+      for (const l of lines) {
+        const medId = await ClinicalLookupService.resolveMedicament(session, l.medicamentId || l.medicament, l.name);
+        if (!medId) {
+          return NextResponse.json(
+            { error: `Medicament "${l.name || l.medicamentId || "unspecified"}" could not be resolved in the pharmaceutical catalog.` },
+            { status: 400 }
+          );
+        }
+        let freqInt = 1;
+        if (typeof l.frequency === "number") {
+          freqInt = l.frequency;
+        } else if (typeof l.frequency === "string") {
+          const m = l.frequency.match(/\d+/);
+          if (m) {
+            freqInt = parseInt(m[0], 10);
+          } else if (l.frequency.toUpperCase().includes("TID")) {
+            freqInt = 3;
+          } else if (l.frequency.toUpperCase().includes("BID")) {
+            freqInt = 2;
+          } else if (l.frequency.toUpperCase().includes("QID")) {
+            freqInt = 4;
+          }
+        }
 
-      try {
-        await TrytonClient.execute(
-          session.username,
-          session.userId,
-          session.sessionToken,
-          "gnuhealth.prescription.line",
-          "create",
-          [linePayloads]
-        );
-      } catch {
-        // Line insertion fallback
+        let durInt = 7;
+        if (typeof l.duration === "number") {
+          durInt = l.duration;
+        } else if (typeof l.duration === "string") {
+          const m = l.duration.match(/\d+/);
+          if (m) durInt = parseInt(m[0], 10);
+        }
+
+        const lineObj: Record<string, unknown> = {
+          presc_order: rxId,
+          medicament: medId,
+          dose: parseFloat(l.dose) || 500,
+          frequency: freqInt,
+          duration: durInt,
+          duration_period: "days",
+          qty: freqInt * durInt,
+        };
+
+        linePayloads.push(lineObj);
       }
+
+      await TrytonClient.execute(
+        session.username,
+        session.userId,
+        session.sessionToken,
+        "gnuhealth.prescription.line",
+        "create",
+        [linePayloads],
+        { company: session.companyId },
+        session.database
+      );
     }
 
     return NextResponse.json({

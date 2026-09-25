@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { ClinicalLookupService } from "@/lib/clinical-lookup";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -95,8 +96,14 @@ export async function POST(req: NextRequest) {
       microsecond: 0,
     };
 
-    // Use session healthprofId, explicit healthprofId, or default to 71 (attending physician)
-    const hpId = healthprofId || session.healthprofId || 71;
+    // Dynamically resolve attending physician or triage clinician
+    const hpId = await ClinicalLookupService.resolveClinician(session, healthprofId);
+    if (!hpId) {
+      return NextResponse.json(
+        { error: "Attending clinician could not be resolved or verified for triage evaluation." },
+        { status: 400 }
+      );
+    }
 
     const evalPayload: Record<string, unknown> = {
       patient: parseInt(patientId, 10),
@@ -122,7 +129,9 @@ export async function POST(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.patient.evaluation",
       "create",
-      [[evalPayload]]
+      [[evalPayload]],
+      { company: session.companyId },
+      session.database
     );
 
     return NextResponse.json({
