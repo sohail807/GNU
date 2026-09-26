@@ -14,6 +14,7 @@ id_ecdsa*
 id_dsa*
 *.pub
 .env*
+!.env.example
 *token*
 *secret*
 *password*

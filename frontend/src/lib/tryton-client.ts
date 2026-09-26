@@ -17,6 +17,10 @@ export interface TrytonRPCError {
   data?: unknown;
 }
 
+interface HttpStatusError extends Error { status?: number }
+
+export type TrytonWorkflowWizard = "gnuhealth.lab.test.create";
+
 export class TrytonClient {
   private static encodeBase64(str: string): string {
     return Buffer.from(str, "utf-8").toString("base64");
@@ -149,32 +153,89 @@ export class TrytonClient {
     if (!res.ok) {
       const errText = await res.text();
       if (res.status === 400 && errText.includes("not allowed to access")) {
-        const error = new Error(`Access Denied: You do not have permission to access ${model}.`);
-        (error as any).status = 403;
+        const error = new Error(`Access Denied: You do not have permission to access ${model}.`) as HttpStatusError;
+        error.status = 403;
         throw error;
       }
-      const error = new Error(`Tryton RPC failed (${res.status}) on ${model}.${method}: ${errText}`);
-      (error as any).status = res.status;
+      const error = new Error(`Tryton RPC failed (${res.status}) on ${model}.${method}: ${errText}`) as HttpStatusError;
+      error.status = res.status;
       throw error;
     }
 
-    const data = await res.json();
+    const data = await res.json() as { error?: unknown; result?: T };
     if (data.error) {
       const errStr = JSON.stringify(data.error);
       if (errStr.includes("not allowed to access") || errStr.includes("AccessError")) {
-        const error = new Error(`Access Denied: Security rules prevent access to ${model}.`);
-        (error as any).status = 403;
+        const error = new Error(`Access Denied: Security rules prevent access to ${model}.`) as HttpStatusError;
+        error.status = 403;
         throw error;
       }
       if (errStr.includes("unique") || errStr.includes("duplicate key") || errStr.includes("IntegrityError")) {
-        const error = new Error(`Data Integrity Error: Duplicate record or constraint violation on ${model}.`);
-        (error as any).status = 409;
+        const error = new Error(`Data Integrity Error: Duplicate record or constraint violation on ${model}.`) as HttpStatusError;
+        error.status = 409;
         throw error;
       }
       throw new Error(`Tryton RPC error on ${model}.${method}: ${errStr}`);
     }
 
     return (data.result !== undefined ? data.result : data) as T;
+  }
+
+  /**
+   * Runs the GNU Health lab-result creation wizard for existing patient lab
+   * request records. The wizard allowlist intentionally stays narrow: callers
+   * cannot dispatch arbitrary Tryton wizards.
+   */
+  static async createLabResultFromRequests(
+    username: string,
+    userId: number,
+    sessionToken: string,
+    requestIds: number[],
+    context: Record<string, unknown> = {},
+    database?: string
+  ): Promise<void> {
+    if (requestIds.length < 1 || requestIds.length > 20 || requestIds.some((id) => !Number.isSafeInteger(id) || id < 1)) {
+      throw new Error("A valid set of laboratory request IDs is required.");
+    }
+
+    const wizardName: TrytonWorkflowWizard = "gnuhealth.lab.test.create";
+    const auth = `Session ${this.encodeBase64(`${username}:${userId}:${sessionToken}`)}`;
+    const fullContext = { language: "en", ...context, active_model: "gnuhealth.patient.lab.test", active_ids: requestIds, active_id: requestIds[0] };
+    const call = async <T>(method: "create" | "execute" | "delete", params: unknown[]): Promise<T> => {
+      const res = await fetch(this.getBaseUrl(database), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: auth },
+        body: JSON.stringify({ id: Date.now(), method: `wizard.${wizardName}.${method}`, params: [...params, fullContext] }),
+        cache: "no-store",
+        signal: AbortSignal.timeout(RPC_TIMEOUT_MS),
+      });
+      if (!res.ok) {
+        const error = new Error(`Tryton wizard request failed (${res.status}).`);
+        (error as Error & { status?: number }).status = res.status;
+        throw error;
+      }
+      const data = await res.json();
+      if (data.error) {
+        const errText = JSON.stringify(data.error);
+        const status = errText.includes("AccessError") || errText.includes("not allowed to access") ? 403 : 502;
+        const error = new Error(status === 403 ? "Access denied while running the laboratory workflow." : "The clinical system rejected the laboratory workflow.");
+        (error as Error & { status?: number }).status = status;
+        throw error;
+      }
+      return (data.result !== undefined ? data.result : data) as T;
+    };
+
+    const created = await call<[number | string, string, string]>("create", []);
+    const wizardSessionId = created?.[0];
+    const startingState = created?.[1];
+    if (!((typeof wizardSessionId === "number" && Number.isSafeInteger(wizardSessionId) && wizardSessionId > 0) || (typeof wizardSessionId === "string" && wizardSessionId.length > 0)) || startingState !== "start" || created?.[2] !== "end") {
+      throw new Error("The clinical system returned an unsupported laboratory wizard state.");
+    }
+    try {
+      await call("execute", [wizardSessionId, {}, "create_lab_test"]);
+    } finally {
+      await call("delete", [wizardSessionId]).catch(() => undefined);
+    }
   }
 
 }

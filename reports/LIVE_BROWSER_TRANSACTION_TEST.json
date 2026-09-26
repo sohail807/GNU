@@ -1,0 +1,256 @@
+{
+  "test_suite": "GNU Health HMIS Live Browser End-to-End Transaction Verification",
+  "environment": {
+    "url": "http://34.7.237.8/",
+    "database": "gnuhealth",
+    "application": "GNU Health HMIS 4.4 / Tryton SAO 7.0.58 Web Client",
+    "execution_mode": "Native Headless Chrome Browser Automation (Zero Synthetic Mocks, Zero Direct SQL, 100% Native SAO UI User Actions)",
+    "execution_timestamp": "2026-09-23T14:55:00+04:00"
+  },
+  "overall_verdict": "PASS",
+  "summary": {
+    "total_phases": 14,
+    "passed_phases": 14,
+    "failed_phases": 0,
+    "success_rate": "100%",
+    "patient_puid": "KQI816APL",
+    "patient_name": "LIVE E2E TEST PATIENT",
+    "invoice_number": "INV-2026/00014",
+    "account_move_post_number": "MV-2026/00037",
+    "total_billed_qar": 150.0,
+    "total_paid_qar": 150.0
+  },
+  "created_entities": {
+    "patient": {
+      "id": 66,
+      "puid": "KQI816APL",
+      "name": "LIVE E2E TEST PATIENT",
+      "gender": "m",
+      "dob": "1990-01-01"
+    },
+    "appointment": {
+      "patient_puid": "KQI816APL",
+      "health_professional": "Dr. DEMO Physician 01",
+      "specialty": "Family Medicine",
+      "appointment_date": "2026-09-23 10:45",
+      "state": "checked_in"
+    },
+    "evaluation": {
+      "id": 45,
+      "code": "EVAL 2026/000050",
+      "patient_puid": "KQI816APL",
+      "nurse": "DEMO Nurse 01",
+      "health_professional": "Dr. DEMO Physician 01",
+      "vitals": {
+        "systolic": 120,
+        "diastolic": 80,
+        "heart_rate": 72,
+        "temperature_c": 37.0,
+        "weight_kg": 70.0,
+        "height_cm": 175.0,
+        "bmi": 22.86
+      },
+      "diagnosis_code": "J06.9",
+      "diagnosis_name": "Acute upper respiratory infection, unspecified",
+      "discharge_reason": "home",
+      "state": "done"
+    },
+    "prescription": {
+      "code": "PRES 2026/000044",
+      "patient_puid": "KQI816APL",
+      "health_professional": "Dr. DEMO Physician 01",
+      "medicament": "Amoxicillin 500mg",
+      "patient_safety_verified": true,
+      "state": "done"
+    },
+    "laboratory": {
+      "code": "TEST037",
+      "patient_puid": "KQI816APL",
+      "test_type": "Complete Blood Count",
+      "analytes_criteria_loaded": 20,
+      "analyte_sample": {
+        "name": "Hemoglobin (HGB)",
+        "value": 14.1,
+        "unit": "g/dL"
+      },
+      "state": "done"
+    },
+    "radiology": {
+      "code": "TEST030",
+      "request_order": "032",
+      "patient_puid": "KQI816APL",
+      "study": "Chest X-Ray",
+      "technician": "DEMO Radiology Technician 01",
+      "state": "done"
+    },
+    "billing": {
+      "invoice_number": "INV-2026/00014",
+      "patient_party": "LIVE E2E TEST PATIENT",
+      "service": "[OPD-EVAL] Medical evaluation service",
+      "account": "401000 - Main Revenue",
+      "amount_qar": 150.0,
+      "state": "paid"
+    },
+    "payment": {
+      "amount_qar": 150.0,
+      "method": "Cash Payment (QAR)",
+      "journal": "Cash",
+      "state": "reconciled"
+    },
+    "general_ledger": {
+      "revenue_move_number": 47,
+      "post_number": "MV-2026/00037",
+      "cash_move_number": 48,
+      "period": "2026-09",
+      "journal": "Revenue",
+      "lines": [
+        {
+          "account": "110000 - Main Receivable",
+          "party": "LIVE E2E TEST PATIENT",
+          "debit": 150.0,
+          "credit": 0.0
+        },
+        {
+          "account": "401000 - Main Revenue",
+          "party": null,
+          "debit": 0.0,
+          "credit": 150.0
+        }
+      ],
+      "balance": {
+        "debit_total": 150.0,
+        "credit_total": 150.0,
+        "balanced": true
+      },
+      "state": "posted"
+    }
+  },
+  "phases": [
+    {
+      "step": 1,
+      "title": "Front Desk User Authentication",
+      "role": "Front Desk Operator",
+      "username": "demo_frontdesk1",
+      "action": "Open browser at http://34.7.237.8/, fill username, submit password via native dialog",
+      "screenshot": "reports/live_browser_test/01_login.png",
+      "status": "PASS"
+    },
+    {
+      "step": 2,
+      "title": "HMIS Main Dashboard Navigation",
+      "role": "Front Desk Operator",
+      "username": "demo_frontdesk1",
+      "action": "Access Tryton SAO main dashboard with operational healthcare menus and global search bar",
+      "screenshot": "reports/live_browser_test/02_dashboard.png",
+      "status": "PASS"
+    },
+    {
+      "step": 3,
+      "title": "Patient Demographics Registration",
+      "role": "Front Desk Operator",
+      "username": "demo_frontdesk1",
+      "action": "Navigate to Health / Patients, click New (+), register LIVE E2E TEST PATIENT, gender Male, DOB 1990-01-01, auto-generate PUID KQI816APL, save record",
+      "screenshot": "reports/live_browser_test/03_patient_created.png",
+      "status": "PASS"
+    },
+    {
+      "step": 4,
+      "title": "Outpatient Appointment Scheduling",
+      "role": "Front Desk Operator",
+      "username": "demo_frontdesk1",
+      "action": "Navigate to Health / Appointments, click New (+), select patient LIVE E2E TEST PATIENT, select Dr. DEMO Physician 01, specialty Family Medicine, save appointment",
+      "screenshot": "reports/live_browser_test/04_appointment_created.png",
+      "status": "PASS"
+    },
+    {
+      "step": 5,
+      "title": "Patient Check-In Action Transition",
+      "role": "Front Desk Operator",
+      "username": "demo_frontdesk1",
+      "action": "Open appointment, click action button CHECK IN, verify status transition to Checked in in form and list views",
+      "screenshot": "reports/live_browser_test/05_patient_checked_in.png",
+      "status": "PASS"
+    },
+    {
+      "step": 6,
+      "title": "Nursing Triage & Vital Signs Capture",
+      "role": "Triage Nurse",
+      "username": "demo_nurse1",
+      "action": "Navigate to Health / Patient Evaluations, create evaluation EVAL 2026/000050, record BP 120/80, HR 72, Temp 37.0C, Weight 70kg, Height 175cm, auto-compute BMI 22.9 kg/m2, save evaluation",
+      "screenshot": "reports/live_browser_test/06_nursing_triage.png",
+      "status": "PASS"
+    },
+    {
+      "step": 7,
+      "title": "Physician Clinical Consultation & ICD-10 Coding",
+      "role": "Attending Physician",
+      "username": "demo_dr1",
+      "action": "Open evaluation, record clinical assessment, assign ICD-10 diagnosis J06.9 (Acute upper respiratory infection, unspecified), set discharge reason to Home / Selfcare, click DONE button to finalize",
+      "screenshot": "reports/live_browser_test/07_physician_consultation.png",
+      "status": "PASS"
+    },
+    {
+      "step": 8,
+      "title": "E-Prescription & Safety Verification",
+      "role": "Attending Physician",
+      "username": "demo_dr1",
+      "action": "Navigate to Health / Prescriptions, create prescription PRES 2026/000044, add Amoxicillin 500mg, check Patient Safety Verified checkbox, save and click CREATE to issue",
+      "screenshot": "reports/live_browser_test/08_prescription.png",
+      "status": "PASS"
+    },
+    {
+      "step": 9,
+      "title": "Laboratory Criteria Loading & CBC Analyte Result Entry",
+      "role": "Laboratory Technician",
+      "username": "demo_lab1",
+      "action": "Navigate to Health / Laboratory / Tests, create lab test TEST037 for Complete Blood Count, click LOAD ANALYTES CRITERIA (20 items loaded), enter Hemoglobin 14.1 g/dL, save and transition to Done",
+      "screenshot": "reports/live_browser_test/09_laboratory.png",
+      "status": "PASS"
+    },
+    {
+      "step": 10,
+      "title": "Radiology Imaging Request & Result Generation",
+      "role": "Radiology Technician",
+      "username": "demo_rad1",
+      "action": "Navigate to Health / Medical Imaging / Medical Imaging Requests, request Chest X-Ray (Order 032), click GENERATE RESULTS to produce finalized Medical Imaging Results TEST030",
+      "screenshot": "reports/live_browser_test/10_radiology.png",
+      "status": "PASS"
+    },
+    {
+      "step": 11,
+      "title": "Billing Customer Invoice Creation & Posting",
+      "role": "Cashier / Billing Clerk",
+      "username": "demo_cashier1",
+      "action": "Navigate to Financial / Invoices / Customer Invoices, create invoice INV-2026/00014 for LIVE E2E TEST PATIENT, add OPD-EVAL service (150.00 QAR, 401000 Main Revenue), click POST to commit to General Ledger",
+      "screenshot": "reports/live_browser_test/11_invoice_posted.png",
+      "status": "PASS"
+    },
+    {
+      "step": 12,
+      "title": "Point-of-Sale Cash Payment Processing",
+      "role": "Cashier / Billing Clerk",
+      "username": "demo_cashier1",
+      "action": "Click PAY on posted invoice, select Cash Payment (QAR) in SAO modal, click OK to register 150.00 QAR payment, verify invoice state transitions to Paid",
+      "screenshot": "reports/live_browser_test/12_payment_completed.png",
+      "status": "PASS"
+    },
+    {
+      "step": 13,
+      "title": "General Ledger & Double-Entry Move Verification",
+      "role": "Cashier / Accounting Auditor",
+      "username": "demo_cashier1",
+      "action": "Navigate to Financial / Entries / Account Moves, open Move 47 (MV-2026/00037), inspect balanced Debit (110000 Main Receivable: 150.00 QAR) and Credit (401000 Main Revenue: 150.00 QAR) entries",
+      "screenshot": "reports/live_browser_test/13_accounting_verified.png",
+      "status": "PASS"
+    },
+    {
+      "step": 14,
+      "title": "End-to-End Full Chain Traceability Reopen",
+      "role": "Attending Physician / Front Desk",
+      "username": "demo_dr1",
+      "action": "Open LIVE E2E TEST PATIENT in SAO, open Relate Menu and open connected tabs for Appointments, Evaluations, Prescriptions, Lab Results, and Medical Imaging, verifying 100% interconnected data integrity",
+      "screenshot": "reports/live_browser_test/14_complete_transaction.png",
+      "status": "PASS"
+    }
+  ]
+}

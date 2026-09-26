@@ -1,0 +1,38 @@
+{
+  "summary": {
+    "start_time": "2026-09-24T08:37:46.287037Z",
+    "end_time": "2026-09-24T08:38:25.486001Z",
+    "total_steps": 3,
+    "passed": 3,
+    "failed": 0,
+    "blocked": 0,
+    "status": "RUNNING",
+    "tests": {}
+  },
+  "steps": [
+    {
+      "timestamp": "2026-09-24T08:38:16.001175Z",
+      "test_id": "SMOKE-NAV",
+      "step": "Login & Dashboard Load",
+      "status": "PASS",
+      "details": "Dashboard rendered successfully",
+      "screenshot": "smoke_01_dashboard.png"
+    },
+    {
+      "timestamp": "2026-09-24T08:38:21.029354Z",
+      "test_id": "SMOKE-NAV",
+      "step": "Open Patients List View",
+      "status": "PASS",
+      "details": "Patients table loaded with records",
+      "screenshot": "smoke_02_patients_list.png"
+    },
+    {
+      "timestamp": "2026-09-24T08:38:23.165507Z",
+      "test_id": "SMOKE-NAV",
+      "step": "Logout Action",
+      "status": "PASS",
+      "details": "Session closed cleanly",
+      "screenshot": null
+    }
+  ]
+}

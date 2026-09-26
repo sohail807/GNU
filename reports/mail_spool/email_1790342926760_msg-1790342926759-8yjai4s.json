@@ -1,0 +1,17 @@
+{
+  "messageId": "msg-1790342926759-8yjai4s",
+  "timestamp": "2026-09-25T13:28:46.759Z",
+  "to": "demo_dr1@ist-health.local",
+  "from": "security@ist-health.local",
+  "subject": "IST Health - Secure Password Reset Request",
+  "text": "Hello Dr. DEMO Physician 01,\n\nA password reset request was initiated for your IST Health account.\n\nClick the link below to set a new password:\nhttp://localhost:3000/reset-password?token=fc757f6bce01e0d388daadac03598ebe904afb42f2314b0920bf72835afe6812&tenant=default\n\nThis recovery link will expire in 15 minutes and can only be used once.\nIf you did not request this, please contact your hospital administrator immediately.\n\nIST Health Security Team",
+  "html": "<p>Hello <strong>Dr. DEMO Physician 01</strong>,</p><p>A password reset request was initiated for your IST Health account.</p><p><a href=\"http://localhost:3000/reset-password?token=fc757f6bce01e0d388daadac03598ebe904afb42f2314b0920bf72835afe6812&tenant=default\" style=\"background:#0284c7;color:#ffffff;padding:10px 16px;text-decoration:none;border-radius:6px;display:inline-block;\">Reset Your Password</a></p><p>Or copy this URL into your browser:<br><code>http://localhost:3000/reset-password?token=fc757f6bce01e0d388daadac03598ebe904afb42f2314b0920bf72835afe6812&tenant=default</code></p><p>This link expires in <strong>15 minutes</strong> and is strictly single-use.</p>",
+  "metadata": {
+    "username": "demo_dr1",
+    "userId": 146,
+    "tenantId": "default",
+    "database": "gnuhealth",
+    "token": "fc757f6bce01e0d388daadac03598ebe904afb42f2314b0920bf72835afe6812"
+  },
+  "status": "delivered"
+}

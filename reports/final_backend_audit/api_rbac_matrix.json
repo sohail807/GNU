@@ -1,0 +1,114 @@
+{
+  "demo_admin1": {
+    "uid": 153,
+    "models": {
+      "Patient": "ALLOW",
+      "Appointment": "ALLOW",
+      "Evaluation": "ALLOW",
+      "Prescription": "ALLOW",
+      "Lab": "DENY",
+      "Radiology": "DENY",
+      "HealthService": "DENY",
+      "Invoice": "DENY",
+      "PaymentMove": "DENY"
+    }
+  },
+  "demo_dr1": {
+    "uid": 146,
+    "models": {
+      "Patient": "ALLOW",
+      "Appointment": "ALLOW",
+      "Evaluation": "ALLOW",
+      "Prescription": "ALLOW",
+      "Lab": "ALLOW",
+      "Radiology": "ALLOW",
+      "HealthService": "ALLOW",
+      "Invoice": "DENY",
+      "PaymentMove": "DENY"
+    }
+  },
+  "demo_dr2": {
+    "uid": 147,
+    "models": {
+      "Patient": "ALLOW",
+      "Appointment": "ALLOW",
+      "Evaluation": "ALLOW",
+      "Prescription": "ALLOW",
+      "Lab": "ALLOW",
+      "Radiology": "ALLOW",
+      "HealthService": "ALLOW",
+      "Invoice": "DENY",
+      "PaymentMove": "DENY"
+    }
+  },
+  "demo_nurse1": {
+    "uid": 148,
+    "models": {
+      "Patient": "ALLOW",
+      "Appointment": "DENY",
+      "Evaluation": "ERROR",
+      "Prescription": "DENY",
+      "Lab": "DENY",
+      "Radiology": "DENY",
+      "HealthService": "DENY",
+      "Invoice": "DENY",
+      "PaymentMove": "DENY"
+    }
+  },
+  "demo_frontdesk1": {
+    "uid": 151,
+    "models": {
+      "Patient": "ALLOW",
+      "Appointment": "ALLOW",
+      "Evaluation": "DENY",
+      "Prescription": "DENY",
+      "Lab": "DENY",
+      "Radiology": "DENY",
+      "HealthService": "DENY",
+      "Invoice": "DENY",
+      "PaymentMove": "DENY"
+    }
+  },
+  "demo_cashier1": {
+    "uid": 152,
+    "models": {
+      "Patient": "ALLOW",
+      "Appointment": "DENY",
+      "Evaluation": "DENY",
+      "Prescription": "DENY",
+      "Lab": "DENY",
+      "Radiology": "DENY",
+      "HealthService": "DENY",
+      "Invoice": "ALLOW",
+      "PaymentMove": "ALLOW"
+    }
+  },
+  "demo_lab1": {
+    "uid": 149,
+    "models": {
+      "Patient": "ALLOW",
+      "Appointment": "DENY",
+      "Evaluation": "DENY",
+      "Prescription": "DENY",
+      "Lab": "ALLOW",
+      "Radiology": "DENY",
+      "HealthService": "DENY",
+      "Invoice": "DENY",
+      "PaymentMove": "DENY"
+    }
+  },
+  "demo_rad1": {
+    "uid": 150,
+    "models": {
+      "Patient": "ALLOW",
+      "Appointment": "DENY",
+      "Evaluation": "DENY",
+      "Prescription": "DENY",
+      "Lab": "DENY",
+      "Radiology": "ALLOW",
+      "HealthService": "DENY",
+      "Invoice": "DENY",
+      "PaymentMove": "DENY"
+    }
+  }
+}

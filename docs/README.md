@@ -16,3 +16,4 @@ docs/
 - **Frontend Integration:** [`docs/handover/`](./handover/) contains the 8-part executive handover series (`01_...` through `08_...`).
 - **Native API Contract:** [`docs/api/`](./api/) references the Tryton 7.0 JSON-RPC protocol specification.
 - **Visual UAT Manual:** [`docs/uat/`](./uat/) references the 54-page click-by-click manual and execution sheets.
+- **Complete Frontend Readiness Blueprint:** [`production-readiness/09-COMPLETE_GNU_HEALTH_FRONTEND_IMPLEMENTATION_BLUEPRINT.md`](./production-readiness/09-COMPLETE_GNU_HEALTH_FRONTEND_IMPLEMENTATION_BLUEPRINT.md) defines module discovery, UI/API coverage, workflow tests, tenant/QAR requirements, and production release gates. It is a plan, not a completion certificate.
