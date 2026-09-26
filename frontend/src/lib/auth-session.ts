@@ -113,14 +113,23 @@ export async function getSession(): Promise<SessionData | null> {
   }
 }
 
-export async function setSession(data: Omit<SessionData, "expiresAt">): Promise<void> {
+export async function setSession(
+  data: Omit<SessionData, "expiresAt">,
+  isSecure?: boolean
+): Promise<void> {
   const cookieStore = await cookies();
   const expiresAt = Date.now() + SESSION_TTL_SECONDS * 1000;
   const value = encryptSession({ ...data, expiresAt });
+
+  const secureCookie =
+    isSecure !== undefined
+      ? isSecure
+      : process.env.NODE_ENV === "production" && process.env.COOKIE_SECURE !== "false";
+
   cookieStore.set(COOKIE_NAME, value, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: secureCookie,
+    sameSite: "lax",
     path: "/",
     maxAge: SESSION_TTL_SECONDS,
   });

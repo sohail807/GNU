@@ -85,19 +85,26 @@ export async function POST(req: NextRequest) {
       // Non-clinical roles (receptionist, cashier, admin) will not have a health professional record
     }
 
+    const isHttps =
+      req.nextUrl.protocol === "https:" ||
+      req.headers.get("x-forwarded-proto") === "https";
+
     // Store in secure httpOnly cookie with tenant database and company context
-    await setSession({
-      username: username.trim(),
-      userId,
-      sessionToken,
-      role,
-      name: displayName,
-      tenantId: tenant.id,
-      database: tenant.database,
-      companyId: tenant.defaultCompanyId,
-      healthprofId,
-      groups: groupIds,
-    });
+    await setSession(
+      {
+        username: username.trim(),
+        userId,
+        sessionToken,
+        role,
+        name: displayName,
+        tenantId: tenant.id,
+        database: tenant.database,
+        companyId: tenant.defaultCompanyId,
+        healthprofId,
+        groups: groupIds,
+      },
+      isHttps
+    );
 
     return NextResponse.json({
       success: true,
