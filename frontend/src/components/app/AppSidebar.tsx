@@ -178,65 +178,47 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           )}
         </div>
 
-        {/* Navigation Sections with IST Access Control Filtering */}
+        {/* Navigation Sections with Role-Based Access Control Filtering (Zero Locked Clutter) */}
         <div
           className={`py-3 overflow-y-auto max-h-[calc(100vh-270px)] space-y-4 ${
             isCollapsed ? "px-2" : "px-3"
           }`}
         >
-          {navSections.map((sec, idx) => {
-            // Determine visible or authorized items
-            return (
+          {navSections
+            .map((sec) => ({
+              ...sec,
+              items: sec.items.filter(
+                (item) => user.role === "admin" || hasModuleAccess(user.role, item.moduleKey)
+              ),
+            }))
+            .filter((sec) => sec.items.length > 0)
+            .map((sec, idx) => (
               <div key={idx}>
                 {!isCollapsed && (
-                  <div className="text-[11px] font-medium text-slate-400 px-3 mb-1.5">
+                  <div className="text-[11px] font-semibold tracking-wider text-slate-400 px-3 mb-1.5 uppercase">
                     {sec.title}
                   </div>
                 )}
                 <div className="space-y-0.5">
                   {sec.items.map((item) => {
                     const Icon = item.icon;
-                    const isPermitted = hasModuleAccess(user.role, item.moduleKey);
                     const isActive =
                       pathname === item.href ||
                       (item.href !== "/frontdesk" && pathname.startsWith(item.href.split("?")[0]));
-
-                    // If user is non-admin and has no access, render restricted state
-                    if (!isPermitted && user.role !== "admin") {
-                      return (
-                        <div
-                          key={`${item.href}-${item.label}`}
-                          className={`flex items-center gap-3 rounded-lg text-[13px] font-medium text-slate-400 cursor-not-allowed select-none ${
-                            isCollapsed
-                              ? "justify-center p-2.5"
-                              : "px-3 py-2 justify-between"
-                          }`}
-                          title={isCollapsed ? `${item.label} (Access Restricted — ${user.role})` : undefined}
-                        >
-                          <div className="flex items-center gap-3">
-                            <Icon className="w-4 h-4 shrink-0" />
-                            {!isCollapsed && <span className="truncate">{item.label}</span>}
-                          </div>
-                          {!isCollapsed && (
-                            <Lock className="w-3 h-3 text-slate-300" />
-                          )}
-                        </div>
-                      );
-                    }
 
                     return (
                       <Link
                         key={`${item.href}-${item.label}`}
                         href={item.href}
                         onClick={onCloseMobile}
-                        className={`flex items-center gap-3 rounded-lg text-[13px] font-medium transition-colors group relative ${
+                        className={`flex items-center gap-3 rounded-lg text-[13px] font-medium transition-all group relative ${
                           isCollapsed
                             ? "justify-center p-2.5"
                             : "px-3 py-2 justify-between"
                         } ${
                           isActive
-                            ? "bg-teal-50 text-[#0F766E]"
-                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                            ? "bg-teal-50 text-[#0F766E] shadow-sm font-semibold"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
                         }`}
                         title={isCollapsed ? item.label : undefined}
                       >
@@ -245,7 +227,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                             className={`w-4 h-4 shrink-0 transition-colors ${
                               isActive
                                 ? "text-[#0F766E]"
-                                : "text-slate-400 group-hover:text-slate-600"
+                                : "text-slate-400 group-hover:text-slate-700"
                             }`}
                           />
                           {!isCollapsed && <span className="truncate">{item.label}</span>}
@@ -267,8 +249,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   })}
                 </div>
               </div>
-            );
-          })}
+            ))}
         </div>
       </div>
 
