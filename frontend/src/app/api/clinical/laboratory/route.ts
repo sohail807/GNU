@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
-import { ClinicalLookupService } from "@/lib/clinical-lookup";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -55,19 +54,18 @@ export async function GET(req: NextRequest) {
     const labOrders = rawLabs.map((l) => {
       const pid = typeof l.patient === "number" ? l.patient : l.patient?.[0];
       const pat = patientsMap[pid] || {};
-      const testName = Array.isArray(l.test) ? l.test[1] : "Complete Blood Count (CBC)";
+      const testName = Array.isArray(l.test) ? l.test[1] : null;
 
       return {
         id: l.id,
         patientId: pid,
-        patientName: pat.rec_name || "Outpatient Candidate",
-        puid: pat.puid || `P000${pid || 88}`,
-        testName: testName || "Complete Blood Count (CBC)",
-        orderRef: `LAB-2026-${String(l.id).padStart(4, "0")}`,
-        dateAnalysis: l.date_analysis || "2026-09-25",
-        state: l.state === "done" ? "done" : "ordered",
-        doctor: "Dr. Alexander Wright, MD",
-        specimen: "Whole Blood (EDTA)",
+        patientName: pat.rec_name || null,
+        puid: pat.puid || null,
+        testName,
+        orderRef: String(l.id),
+        dateAnalysis: l.date_analysis || null,
+        state: l.state || "unknown",
+        results: l.results || null,
       };
     });
 
@@ -79,97 +77,13 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
-
-  try {
-    const body = await req.json();
-    const { action, orderId, patientId, testId, analytes } = body;
-
-    // Action 1: Create a new laboratory order
-    if (action === "create" && patientId) {
-      const resolvedTestId = await ClinicalLookupService.resolveLabTestType(session, testId, body.testName || body.testCode);
-      if (!resolvedTestId) {
-        return NextResponse.json(
-          { error: "Selected laboratory test could not be resolved in the diagnostic catalog." },
-          { status: 400 }
-        );
-      }
-
-      const doctorId = await ClinicalLookupService.resolveClinician(session, body.healthprofId || body.doctorId);
-
-      const payload: Record<string, unknown> = {
-        patient: parseInt(patientId, 10),
-        test: resolvedTestId,
-        state: "draft",
-      };
-      if (doctorId) {
-        payload.requestor = doctorId;
-      }
-
-      const res = await TrytonClient.execute<number[]>(
-        session.username,
-        session.userId,
-        session.sessionToken,
-        "gnuhealth.lab",
-        "create",
-        [[payload]],
-        { company: session.companyId },
-        session.database
-      );
-      const newId = res[0];
-
-      // Populate criteria template if available
-      try {
-        await TrytonClient.execute(
-          session.username,
-          session.userId,
-          session.sessionToken,
-          "gnuhealth.lab",
-          "complete_criteareas",
-          [[newId]]
-        );
-      } catch {
-        // If already populated
-      }
-
-      return NextResponse.json({
-        success: true,
-        orderId: newId,
-        orderRef: `LAB-2026-${String(newId).padStart(4, "0")}`,
-        message: `Laboratory order LAB-2026-${String(newId).padStart(4, "0")} successfully registered.`,
-      });
-    }
-
-    // Action 2: Certify results and transition state to done
-    if (!orderId) {
-      return NextResponse.json({ error: "Order ID is required." }, { status: 400 });
-    }
-
-    const oid = parseInt(orderId, 10);
-    const resultsSummary = analytes && Array.isArray(analytes)
-      ? analytes.map((a: any) => `${a.code}: ${a.value} ${a.unit || ""}`).join("; ")
-      : "CBC test criteria certified within normal physiological ranges.";
-
-    await TrytonClient.execute(
-      session.username,
-      session.userId,
-      session.sessionToken,
-      "gnuhealth.lab",
-      "write",
-      [[oid], { state: "done", results: resultsSummary }]
-    );
-
-    return NextResponse.json({
-      success: true,
-      message: `Laboratory order LAB-2026-${String(oid).padStart(4, "0")} certified and results released to Patient Medical Record.`,
-    });
-  } catch (err: unknown) {
-    const status = (err as any)?.status || 500;
-    const message = err instanceof Error ? err.message : "Failed to process laboratory transaction";
-    return NextResponse.json({ error: message }, { status });
-  }
+  return NextResponse.json(
+    { error: "Laboratory order creation and result entry are unavailable until the native health records system criteria and certification workflow is integrated." },
+    { status: 501 }
+  );
 }

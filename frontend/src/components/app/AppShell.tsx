@@ -12,6 +12,7 @@ interface AppShellProps {
 }
 
 export const AppShell: React.FC<AppShellProps> = ({ user, children }) => {
+  const isTestInstance = process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "test";
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
@@ -64,6 +65,11 @@ export const AppShell: React.FC<AppShellProps> = ({ user, children }) => {
         />
 
         <main className="flex-1 p-5 sm:p-7 lg:p-8 overflow-y-auto">
+          {isTestInstance && (
+            <div role="status" className="mb-5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-950">
+              Isolated test environment. Do not use for patient care, live billing, or production operations.
+            </div>
+          )}
           {children}
         </main>
       </div>

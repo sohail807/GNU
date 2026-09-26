@@ -182,7 +182,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     if (!isPermitted && user.role !== "admin") {
                       return (
                         <div
-                          key={item.href}
+                          key={`${item.href}-${item.label}`}
                           className={`flex items-center gap-3 rounded-lg text-xs font-medium text-slate-600 opacity-60 cursor-not-allowed select-none ${
                             isCollapsed
                               ? "justify-center p-2.5"
@@ -206,7 +206,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
                     return (
                       <Link
-                        key={item.href}
+                        key={`${item.href}-${item.label}`}
                         href={item.href}
                         onClick={onCloseMobile}
                         className={`flex items-center gap-3 rounded-lg text-xs font-medium transition-all group relative ${

@@ -92,45 +92,45 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const invoices = rawInvoices.map((inv, idx) => {
+    const invoices = rawInvoices.map((inv) => {
       const pid = typeof inv.party === "number" ? inv.party : inv.party?.[0];
       const party = partiesMap[pid] || {};
       const invDate = inv.invoice_date;
       const dateStr = invDate?.year
         ? `${invDate.year}-${String(invDate.month).padStart(2, "0")}-${String(invDate.day).padStart(2, "0")}`
-        : "2026-09-25";
+        : null;
 
       const totalVal =
         typeof inv.total_amount === "object" && inv.total_amount?.decimal
           ? parseFloat(inv.total_amount.decimal)
-          : parseFloat(inv.total_amount || "150.00");
+          : Number(inv.total_amount || 0);
 
       const lineObjs = (inv.lines || []).map((lid: number) => {
         const l = linesMap[lid] || {};
         const amountNum =
           typeof l.amount === "object" && l.amount?.decimal
             ? parseFloat(l.amount.decimal)
-            : parseFloat(l.amount || "150.00");
+            : Number(l.amount || 0);
         return {
           id: l.id,
-          desc: l.description || "General Outpatient Clinical Consultation",
+          desc: l.description || "",
           amount: amountNum,
         };
       });
 
       return {
         id: inv.id,
-        number: inv.number || `INV-2026/000${inv.id}`,
-        patient: party.name || "Outpatient Client",
+        number: inv.number || String(inv.id),
+        patient: party.name || "",
         patientId: pid,
-        puid: party.ref || `P000${inv.id + 10}`,
+        puid: party.ref || "",
         date: dateStr,
         totalQar: totalVal,
-        amountToPay: inv.state === "paid" ? 0.0 : totalVal,
+        amountToPay: typeof inv.amount_to_pay === "object" && inv.amount_to_pay?.decimal
+          ? Number(inv.amount_to_pay.decimal)
+          : inv.amount_to_pay == null ? null : Number(inv.amount_to_pay),
         status: inv.state === "paid" ? "paid" : inv.state === "posted" ? "posted" : "draft",
-        lines: lineObjs.length > 0 ? lineObjs : [
-          { desc: "General Outpatient Consultation Service", amount: totalVal },
-        ],
+        lines: lineObjs,
       };
     });
 
@@ -154,6 +154,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
 
+  // This custom endpoint previously created invoices with a browser supplied
+  // price, then bypassed backend system's posting/payment workflows by writing state.
+  // Keep financial mutations disabled until they use native backend system wizards and
+  // server-derived product prices/journals.
+  return NextResponse.json(
+    { error: "Invoice creation, posting, and payment are unavailable in this frontend until the native backend system accounting workflows are integrated." },
+    { status: 501 }
+  );
+
+  /*
   try {
     const body = await req.json();
     const { action, invoiceId, partyId, patientId, patientName, lines, paymentMethod } = body;
@@ -369,4 +379,5 @@ export async function POST(req: NextRequest) {
     const message = err instanceof Error ? err.message : "Billing transaction failed";
     return NextResponse.json({ error: message }, { status });
   }
+  */
 }

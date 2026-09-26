@@ -32,7 +32,7 @@ import { Badge } from "@/components/ui/Badge";
 
 export default function UnifiedPatientChartPage() {
   const params = useParams();
-  const patientId = params?.id ? String(params.id) : "66";
+  const patientId = params?.id ? String(params.id) : "";
 
   const [activeTab, setActiveTab] = useState<
     "overview" | "appointments" | "evaluations" | "prescriptions" | "laboratory" | "radiology" | "billing"
@@ -42,21 +42,9 @@ export default function UnifiedPatientChartPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [patient, setPatient] = useState<any>({
-    id: parseInt(patientId, 10) || 66,
-    puid: "P00088",
-    name: "Alexander Wright",
-    arabicName: "ألكسندر رايت",
-    qid: "28263401928",
-    dob: "1984-06-15",
-    age: 42,
-    gender: "Male",
-    bloodGroup: "O+",
-    phone: "+974 5512 8492",
-    email: "alexander.wright@example.com",
-    address: "Zone 61, Street 840, West Bay, Doha, Qatar",
-    emergencyContact: "Elena Wright (Spouse) +974 5512 8493",
-    allergies: ["Penicillin (Moderate rash)"],
-    attending: "Dr. Alexander Wright, MD",
+    id: Number(patientId), puid: "", name: "", arabicName: "", qid: "", dob: "",
+    age: "", gender: "", bloodGroup: "", phone: "", email: "", address: "",
+    emergencyContact: "", allergies: [], allergiesLoaded: false, attending: "",
   });
 
   const [appointments, setAppointments] = useState<any[]>([]);
@@ -66,7 +54,7 @@ export default function UnifiedPatientChartPage() {
   const [radiologyOrders, setRadiologyOrders] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
 
-  // Load all live patient data from Tryton backend via API routes
+  // Load all live patient data from clinical system backend via API routes
   useEffect(() => {
     let isMounted = true;
     async function loadAllPatientData() {
@@ -91,20 +79,21 @@ export default function UnifiedPatientChartPage() {
             const p = patData.patients[0];
             setPatient({
               id: p.id,
-              puid: p.puid || `P${String(p.id).padStart(5, "0")}`,
-              name: p.name,
-              arabicName: p.arabicName || p.name,
-              qid: p.qid || `282634019${p.id}`,
-              dob: p.dob || "1984-06-15",
-              age: p.age || 42,
-              gender: p.gender || "Male",
-              bloodGroup: p.bloodGroup || "O+",
-              phone: p.phone || "+974 5512 8492",
-              email: `${p.name.toLowerCase().replace(/[^a-z0-9]/g, "")}@ist-health.qa`,
-              address: p.address || "Zone 61, West Bay, Doha, Qatar",
-              emergencyContact: "Registered Contact",
-              allergies: ["Penicillin (Moderate rash)"],
-              attending: "Dr. Gregory House, MD",
+              puid: p.puid || "",
+              name: p.name || "",
+              arabicName: p.arabicName || "",
+              qid: p.qid || "",
+              dob: p.dob || "",
+              age: p.age || "",
+              gender: p.gender || "",
+              bloodGroup: p.bloodGroup || "",
+              phone: p.phone || "",
+              email: p.email || "",
+              address: p.address || "",
+              emergencyContact: p.emergencyContact || "",
+              allergies: p.allergies || [],
+              allergiesLoaded: p.allergiesLoaded === true,
+              attending: p.attending || "",
             });
           }
         }
@@ -213,7 +202,7 @@ export default function UnifiedPatientChartPage() {
         </div>
 
         <div className="flex items-center gap-3 relative">
-          {/* TRYTON NATIVE 'RELATE' TOOLBAR BUTTON */}
+          {/* CLINICAL SYSTEM NATIVE 'RELATE' TOOLBAR BUTTON */}
           <div className="relative">
             <button
               onClick={() => setIsRelateDropdownOpen(!isRelateDropdownOpen)}
@@ -339,7 +328,7 @@ export default function UnifiedPatientChartPage() {
             </div>
           </div>
           <Badge variant="green" size="md">
-            Authoritative GNU Health Record
+            Authoritative clinical system Record
           </Badge>
         </div>
 
@@ -381,7 +370,7 @@ export default function UnifiedPatientChartPage() {
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">9. SETTLEMENT</span>
-            <span className="text-emerald-400 font-bold">{latestInv ? (latestInv.state === "paid" ? "Settled ($0.00 Bal)" : `Due: $${latestInv.amountToPay || 0}`) : "No Open Balance"}</span>
+            <span className="text-emerald-400 font-bold">{latestInv ? (latestInv.amountToPay == null ? "Balance unavailable" : formatQar(latestInv.amountToPay)) : "No invoice"}</span>
           </div>
           <div className="p-2.5 bg-emerald-950/70 rounded-lg border border-emerald-500/40">
             <span className="text-[10px] text-emerald-300 block">RECORD HEALTH</span>
@@ -403,10 +392,10 @@ export default function UnifiedPatientChartPage() {
                 <span className="font-mono text-xs px-2.5 py-0.5 rounded-md bg-teal-50 border border-teal-200 text-[#0F766E] font-bold">
                   {patient.puid}
                 </span>
-                <Badge variant="green" dot>Master File Active</Badge>
+                <Badge variant="green" dot>clinical system patient record</Badge>
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                QID: <span className="font-mono text-slate-700 font-bold">{patient.qid}</span> · DOB: {patient.dob} ({patient.age} Y) · Blood Group: {patient.bloodGroup} · Attending: {patient.attending}
+                QID: <span className="font-mono text-slate-700 font-bold">{patient.qid || "Not recorded"}</span> · DOB: {patient.dob || "Not recorded"} · Age: {patient.age || "Not recorded"} · Blood Group: {patient.bloodGroup || "Not recorded"}
               </p>
             </div>
           </div>
@@ -420,6 +409,7 @@ export default function UnifiedPatientChartPage() {
                 {all}
               </Badge>
             ))}
+            {patient.allergies.length === 0 && <span className="text-xs text-slate-500">{patient.allergiesLoaded ? "No allergy records returned by clinical system." : "Allergy information could not be loaded."}</span>}
           </div>
         </div>
 
@@ -484,21 +474,21 @@ export default function UnifiedPatientChartPage() {
                 <div key={appt.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="font-mono font-bold text-[#0F766E]">APT #{appt.id}</span>
-                    <Badge variant={appt.status === "checked_in" ? "green" : appt.status === "confirmed" ? "blue" : "neutral"}>
-                      {appt.status || "scheduled"}
+                    <Badge variant={appt.state === "checkin" ? "green" : appt.state === "confirmed" ? "blue" : "neutral"}>
+                      {appt.state || "Unknown"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Date & Slot:</span>
-                    <span className="font-semibold text-slate-800">{appt.appointmentDate || "Scheduled"}</span>
+                    <span className="font-semibold text-slate-800">{[appt.date, appt.time].filter(Boolean).join(" ") || "Not available"}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Consultant:</span>
-                    <span className="font-semibold text-slate-800">{appt.doctorName || "Attending Physician"}</span>
+                    <span className="font-semibold text-slate-800">{appt.physicianName || "Not available"}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Urgency:</span>
-                    <span className="font-mono text-slate-700 capitalize">{appt.urgency || "normal"}</span>
+                    <span className="font-mono text-slate-700 capitalize">{appt.urgency || "Not recorded"}</span>
                   </div>
                 </div>
               ))}
@@ -534,13 +524,13 @@ export default function UnifiedPatientChartPage() {
                   <div className="flex justify-between">
                     <span className="text-slate-500">Primary Diagnosis:</span>
                     <span className="font-bold text-slate-900">
-                      {ev.diagnosis ? String(ev.diagnosis) : "Clinical Examination Completed"}
+                      {ev.diagnosis ? (Array.isArray(ev.diagnosis) ? ev.diagnosis[1] : String(ev.diagnosis)) : "Not recorded"}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Recorded Vitals:</span>
                     <span className="font-mono text-slate-800 font-semibold">
-                      BP {ev.systolic || 120}/{ev.diastolic || 80} mmHg · HR {ev.bpm || 72} bpm · Temp {ev.temperature || 37.0}°C · BMI {ev.bmi || 22.86} kg/m²
+                      BP {ev.systolic ?? "—"}/{ev.diastolic ?? "—"} mmHg · HR {ev.bpm ?? "—"} bpm · Temp {ev.temperature ?? "—"}°C · BMI {ev.bmi ?? "—"} kg/m²
                     </span>
                   </div>
                   {ev.chief_complaint && (
@@ -578,15 +568,15 @@ export default function UnifiedPatientChartPage() {
                 <div key={rx.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="font-mono font-bold text-[#0F766E]">RX #{rx.id}</span>
-                    <Badge variant={rx.state === "dispensed" ? "green" : "teal"}>{rx.state || "Active"}</Badge>
+                    <Badge variant={rx.state === "dispensed" ? "green" : "teal"}>{rx.state || "Unknown"}</Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Prescribed Medicine:</span>
-                    <span className="font-bold text-slate-900">{rx.medicationName || rx.medicament || "Formulary Medication"}</span>
+                    <span className="font-bold text-slate-900">{rx.medicationName || rx.medicament || "Not available"}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Date:</span>
-                    <span className="font-mono text-slate-800">{rx.date || "Active Today"}</span>
+                    <span className="font-mono text-slate-800">{rx.date || "Not available"}</span>
                   </div>
                 </div>
               ))}
@@ -621,11 +611,11 @@ export default function UnifiedPatientChartPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Test Protocol:</span>
-                    <span className="font-bold text-slate-900">{lab.testName || "Diagnostic Protocol"}</span>
+                    <span className="font-bold text-slate-900">{lab.testName || "Not available"}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Result Status:</span>
-                    <span className="font-mono text-slate-800">{lab.results || "Certified in Tryton LIMS"}</span>
+                    <span className="font-mono text-slate-800">{lab.results || "No result recorded"}</span>
                   </div>
                 </div>
               ))}
@@ -660,7 +650,7 @@ export default function UnifiedPatientChartPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Procedure Name:</span>
-                    <span className="font-bold text-slate-900">{rad.testName || "Medical Imaging Request"}</span>
+                    <span className="font-bold text-slate-900">{rad.testName || "Not available"}</span>
                   </div>
                   {rad.comment && (
                     <div className="pt-2 border-t border-slate-200">
@@ -698,16 +688,16 @@ export default function UnifiedPatientChartPage() {
                   <div className="flex justify-between items-center">
                     <span className="font-mono font-bold text-[#0F766E]">{inv.number || `INV #${inv.id}`}</span>
                     <Badge variant={inv.state === "paid" ? "green" : inv.state === "posted" ? "blue" : "neutral"}>
-                      {inv.state === "paid" ? "Settled ($0.00 Bal)" : inv.state}
+                      {inv.status || "Unknown"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Invoice Total:</span>
-                    <span className="font-mono font-bold text-slate-900">${inv.totalAmount || "50.00"}</span>
+                    <span className="font-mono font-bold text-slate-900">{formatQar(inv.totalQar)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Amount Due:</span>
-                    <span className="font-mono font-extrabold text-emerald-700">${inv.amountToPay || "0.00"}</span>
+                    <span className="font-mono font-extrabold text-emerald-700">{inv.amountToPay == null ? "Not available" : formatQar(inv.amountToPay)}</span>
                   </div>
                 </div>
               ))}
@@ -725,7 +715,7 @@ export default function UnifiedPatientChartPage() {
             </h3>
             <div className="text-xs space-y-2 text-slate-600">
               <div className="flex justify-between"><span className="text-slate-400">Full Name:</span><span className="font-bold text-slate-900">{patient.name}</span></div>
-              <div className="flex justify-between"><span className="text-slate-400">Civil QID:</span><span className="font-mono font-bold text-slate-900">{patient.qid}</span></div>
+              <div className="flex justify-between"><span className="text-slate-400">Civil QID:</span><span className="font-mono font-bold text-slate-900">{patient.qid || "Not recorded"}</span></div>
               <div className="flex justify-between"><span className="text-slate-400">Date of Birth:</span><span>{patient.dob} ({patient.age} Years)</span></div>
               <div className="flex justify-between"><span className="text-slate-400">Biological Sex:</span><span>{patient.gender}</span></div>
               <div className="flex justify-between"><span className="text-slate-400">Blood Group:</span><span className="font-bold text-[#0F766E]">{patient.bloodGroup}</span></div>
@@ -742,23 +732,23 @@ export default function UnifiedPatientChartPage() {
               <div className="flex justify-between">
                 <span className="text-slate-400">Latest Vitals:</span>
                 <span className="font-mono font-bold text-slate-900">
-                  {latestEval ? `BP ${latestEval.systolic || 120}/${latestEval.diastolic || 80} · BMI ${latestEval.bmi || 22.86}` : "No Vitals Logged"}
+                  {latestEval ? `BP ${latestEval.systolic ?? "—"}/${latestEval.diastolic ?? "—"} · BMI ${latestEval.bmi ?? "—"}` : "No Vitals Logged"}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Active Allergy:</span>
-                <span className="font-bold text-red-600">{patient.allergies[0] || "None Reported"}</span>
+                <span className="font-bold text-slate-600">{patient.allergies[0] || (patient.allergiesLoaded ? "No allergy records" : "Not loaded")}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Prescriptions:</span>
                 <span className="font-mono font-bold text-[#0F766E]">
-                  {latestRx ? `RX #${latestRx.id} (${latestRx.medicationName || "Active"})` : "None"}
+                  {latestRx ? `RX #${latestRx.id}${latestRx.medicationName ? ` (${latestRx.medicationName})` : ""}` : "None recorded"}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Lab Diagnostic:</span>
                 <span className="font-mono font-bold text-[#0F766E]">
-                  {latestLab ? `LAB #${latestLab.id} (${latestLab.testName || "Ordered"})` : "None"}
+                  {latestLab ? `LAB #${latestLab.id}${latestLab.testName ? ` (${latestLab.testName})` : ""}` : "None recorded"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -770,7 +760,7 @@ export default function UnifiedPatientChartPage() {
               <div className="flex justify-between">
                 <span className="text-slate-400">Accounts Balance:</span>
                 <span className="font-mono font-bold text-emerald-700">
-                  {latestInv ? (latestInv.state === "paid" ? "$0.00 (Settled)" : `$${latestInv.amountToPay || 0} Due`) : "$0.00"}
+                  {latestInv ? (latestInv.amountToPay == null ? "Balance unavailable" : formatQar(latestInv.amountToPay)) : "No invoice"}
                 </span>
               </div>
             </div>
@@ -784,5 +774,10 @@ export default function UnifiedPatientChartPage() {
 function radOrdersTitle(rad: any): string {
   if (rad.testName) return rad.testName;
   if (rad.comment) return rad.comment.slice(0, 20);
-  return "Study Requested";
+  return "Not available";
+}
+
+function formatQar(value: number | string | null | undefined): string {
+  if (value == null || value === "" || !Number.isFinite(Number(value))) return "Not available";
+  return new Intl.NumberFormat("en-QA", { style: "currency", currency: "QAR" }).format(Number(value));
 }

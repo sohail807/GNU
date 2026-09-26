@@ -4,8 +4,7 @@
  * Strictly enforces session token headers and mandatory company context.
  */
 
-const TRYTON_BASE_URL = process.env.GNUHEALTH_BACKEND_URL || "http://34.7.237.8/gnuhealth/";
-const ADMIN_PASSWORD = process.env.GNUHEALTH_ADMIN_PASSWORD || "Admin12345!";
+const RPC_TIMEOUT_MS = 15_000;
 
 export interface TrytonLoginResult {
   userId: number;
@@ -27,14 +26,24 @@ export class TrytonClient {
    * Resolves the target Tryton backend endpoint dynamically for a specific tenant database.
    */
   static getBaseUrl(database?: string): string {
-    const defaultUrl = process.env.GNUHEALTH_BACKEND_URL;
-    if (defaultUrl && !database) {
-      return defaultUrl.endsWith("/") ? defaultUrl : `${defaultUrl}/`;
+    const rawHost = process.env.GNUHEALTH_HOST;
+    if (!rawHost) throw new Error("GNUHEALTH_HOST is required.");
+    const host = new URL(rawHost);
+    if (host.username || host.password || host.search || host.hash) {
+      throw new Error("GNUHEALTH_HOST must not contain credentials, query parameters, or fragments.");
     }
-    const rawHost = process.env.GNUHEALTH_HOST || "http://34.7.237.8";
-    const host = rawHost.replace(/\/+$/, "");
-    const dbName = database || process.env.GNUHEALTH_DATABASE || "gnuhealth";
-    return `${host}/${dbName}/`;
+    const isLoopback = ["localhost", "127.0.0.1", "::1"].includes(host.hostname.replace(/^\[|\]$/g, ""));
+    if (process.env.NODE_ENV === "production" && host.protocol !== "https:" && !(host.protocol === "http:" && isLoopback)) {
+      throw new Error("GNU Health backend connections must use HTTPS in production, except for a loopback-only backend connection.");
+    }
+    if (host.protocol !== "https:" && host.protocol !== "http:") {
+      throw new Error("GNUHEALTH_HOST must use HTTP or HTTPS.");
+    }
+    const dbName = database || process.env.GNUHEALTH_DATABASE;
+    if (!dbName || !/^[A-Za-z0-9_-]+$/.test(dbName)) {
+      throw new Error("A valid GNUHEALTH_DATABASE is required.");
+    }
+    return new URL(`${encodeURIComponent(dbName)}/`, host.toString().replace(/\/?$/, "/")).toString();
   }
 
   /**
@@ -57,6 +66,7 @@ export class TrytonClient {
       },
       body: JSON.stringify(payload),
       cache: "no-store",
+      signal: AbortSignal.timeout(RPC_TIMEOUT_MS),
     });
 
     if (!res.ok) {
@@ -77,6 +87,27 @@ export class TrytonClient {
     return { userId, sessionToken };
   }
 
+  static async logout(
+    username: string,
+    userId: number,
+    sessionToken: string,
+    database?: string
+  ): Promise<void> {
+    const res = await fetch(this.getBaseUrl(database), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Session ${this.encodeBase64(`${username}:${userId}:${sessionToken}`)}`,
+      },
+      body: JSON.stringify({ id: Date.now(), method: "common.db.logout", params: [] }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(RPC_TIMEOUT_MS),
+    });
+    if (!res.ok) throw new Error(`Tryton logout failed (${res.status}).`);
+    const data = await res.json();
+    if (data.error) throw new Error("Tryton rejected the logout request.");
+  }
+
   /**
    * Executes an authenticated model method via JSON-RPC 2.0 against the tenant's dedicated database
    */
@@ -92,11 +123,7 @@ export class TrytonClient {
   ): Promise<T> {
     const sessionAuth = `Session ${this.encodeBase64(`${username}:${userId}:${sessionToken}`)}`;
 
-    const fullContext = {
-      company: context.company || 2,
-      language: "en",
-      ...context,
-    };
+    const fullContext = { language: "en", ...context };
 
     // Tryton model calls expect context as the final parameter
     const callParams = [...params, fullContext];
@@ -116,6 +143,7 @@ export class TrytonClient {
       },
       body: JSON.stringify(payload),
       cache: "no-store",
+      signal: AbortSignal.timeout(RPC_TIMEOUT_MS),
     });
 
     if (!res.ok) {
@@ -149,77 +177,4 @@ export class TrytonClient {
     return (data.result !== undefined ? data.result : data) as T;
   }
 
-  private static systemSession: { username: string; userId: number; token: string; expiresAt: number } | null = null;
-
-  /**
-   * Executes a system-level administrative call (strictly for automated background services or bootstrap)
-   */
-  static async executeSystem<T = unknown>(
-    model: string,
-    method: string,
-    params: unknown[] = [],
-    context: Record<string, unknown> = {},
-    database?: string
-  ): Promise<T> {
-    const now = Date.now();
-    if (!this.systemSession || now > this.systemSession.expiresAt) {
-      try {
-        const loginRes = await this.login("demo_admin1", "DemoAdmin2026!", database);
-        this.systemSession = {
-          username: "demo_admin1",
-          userId: loginRes.userId,
-          token: loginRes.sessionToken,
-          expiresAt: now + 1000 * 60 * 30, // 30 minutes
-        };
-      } catch {
-        const loginRes = await this.login("admin", ADMIN_PASSWORD, database);
-        this.systemSession = {
-          username: "admin",
-          userId: loginRes.userId,
-          token: loginRes.sessionToken,
-          expiresAt: now + 1000 * 60 * 30,
-        };
-      }
-    }
-
-    try {
-      return await this.execute<T>(
-        this.systemSession.username,
-        this.systemSession.userId,
-        this.systemSession.token,
-        model,
-        method,
-        params,
-        context,
-        database
-      );
-    } catch {
-      // Invalidate cache and retry once
-      this.systemSession = null;
-      let loginRes;
-      let user = "demo_admin1";
-      try {
-        loginRes = await this.login("demo_admin1", "DemoAdmin2026!", database);
-      } catch {
-        user = "admin";
-        loginRes = await this.login("admin", ADMIN_PASSWORD, database);
-      }
-      this.systemSession = {
-        username: user,
-        userId: loginRes.userId,
-        token: loginRes.sessionToken,
-        expiresAt: Date.now() + 1000 * 60 * 30,
-      };
-      return await this.execute<T>(
-        this.systemSession.username,
-        this.systemSession.userId,
-        this.systemSession.token,
-        model,
-        method,
-        params,
-        context,
-        database
-      );
-    }
-  }
 }

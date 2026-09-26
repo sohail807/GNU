@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.patient",
       "search_read",
-      [domain, 0, 50, [["id", "DESC"]], ["id", "puid", "rec_name", "party", "blood_type", "rh"]]
+      [domain, 0, 50, [["id", "DESC"]], ["id", "puid", "rec_name", "party", "dob", "age", "gender", "blood_type", "rh", "active"]]
     );
 
     // Retrieve party metadata for each patient
@@ -58,26 +58,47 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const patientIds = patientsRaw.map((patient) => patient.id);
+    let diseasesRaw: any[] = [];
+    let allergiesLoaded = false;
+    if (patientIds.length > 0) {
+      try {
+        diseasesRaw = await TrytonClient.execute<any[]>(
+          session.username, session.userId, session.sessionToken,
+          "gnuhealth.patient.disease", "search_read",
+          [[ ["patient", "in", patientIds] ], 0, 500, [["id", "ASC"]], ["id", "patient", "pathology", "is_allergy", "is_active", "status"]],
+          { company: session.companyId }, session.database
+        );
+        allergiesLoaded = true;
+      } catch {
+        // Do not interpret unavailable allergy data as an empty allergy list.
+      }
+    }
+
     const patients = patientsRaw.map((p) => {
       const partyId = typeof p.party === "number" ? p.party : p.party?.[0];
       const party = partiesMap[partyId] || {};
-      const dobStr = party.dob
-        ? `${party.dob.year || ""}-${String(party.dob.month || "").padStart(2, "0")}-${String(party.dob.day || "").padStart(2, "0")}`
-        : "1990-01-01";
-      const currentYear = new Date().getFullYear();
-      const birthYear = party.dob?.year || 1990;
-      const age = currentYear - birthYear;
+      const dob = p.dob || party.dob;
+      const dobStr = dob?.year
+        ? `${dob.year}-${String(dob.month).padStart(2, "0")}-${String(dob.day).padStart(2, "0")}`
+        : null;
 
       return {
         id: p.id,
-        puid: p.puid || `P000${p.id}`,
-        name: party.name || p.rec_name || "Outpatient Record",
-        qid: party.ref || "28463401928",
-        gender: party.gender === "f" ? "Female" : "Male",
+        puid: p.puid || "",
+        name: party.name || p.rec_name || "",
+        qid: party.ref || "",
+        gender: p.gender || "",
         dob: dobStr,
-        age: age > 0 ? age : 35,
-        bloodGroup: p.blood_type ? `${p.blood_type}${p.rh || "+"}` : "O+",
-        status: "active",
+        age: p.age || null,
+        bloodGroup: p.blood_type ? `${p.blood_type}${p.rh || ""}` : "",
+        status: p.active === true ? "active" : p.active === false ? "inactive" : "unknown",
+        allergiesLoaded,
+        allergies: allergiesLoaded ? diseasesRaw
+          .filter((disease) => disease.is_allergy && disease.is_active && !["h", "healed"].includes(String(disease.status || "")))
+          .filter((disease) => Array.isArray(disease.patient) ? disease.patient[0] === p.id : disease.patient === p.id)
+          .map((disease) => Array.isArray(disease.pathology) ? disease.pathology[1] : "")
+          .filter(Boolean) : null,
       };
     });
 
@@ -107,7 +128,10 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Create party.party using user's session
-    const genderCode = gender?.toLowerCase().startsWith("f") ? "f" : "m";
+    const genderCode = typeof gender === "string" && gender ? gender.toLowerCase().charAt(0) : undefined;
+    if (genderCode && !["m", "f", "n", "o", "u"].includes(genderCode)) {
+      return NextResponse.json({ error: "Gender must be a valid health records system selection." }, { status: 400 });
+    }
     const dobObj = dob
       ? {
           __class__: "date",
@@ -118,13 +142,13 @@ export async function POST(req: NextRequest) {
       : null;
 
     const partyPayload: Record<string, unknown> = {
-      name: name.trim().toUpperCase(),
+      name: name.trim(),
       is_person: true,
       is_patient: true,
       fed_country: "QAT",
       ref: qid.trim(),
-      gender: genderCode,
     };
+    if (genderCode) partyPayload.gender = genderCode;
     if (dobObj) partyPayload.dob = dobObj;
 
     const partyRes = await TrytonClient.execute<number[]>(
@@ -177,8 +201,8 @@ export async function POST(req: NextRequest) {
         name: name.trim().toUpperCase(),
         qid: qid.trim(),
         gender: genderCode === "f" ? "Female" : "Male",
-        dob: dob || "1990-01-01",
-        bloodGroup: bloodType || "O+",
+        dob: dob || null,
+        bloodGroup: pat.blood_type ? `${pat.blood_type}${pat.rh || ""}` : "",
       },
     });
   } catch (err: unknown) {
@@ -212,27 +236,29 @@ export async function PUT(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { patientId, criticalInfo, phone, emergencyContact, address } = body;
+    const { patientId, criticalInfo } = body;
 
     if (!patientId) {
       return NextResponse.json({ error: "Patient ID is required." }, { status: 400 });
     }
 
-    if (criticalInfo) {
-      await TrytonClient.execute(
+    if (typeof patientId !== "string" || !/^\d+$/.test(patientId) || !criticalInfo?.trim()) {
+      return NextResponse.json({ error: "A valid patient ID and clinical critical information are required." }, { status: 400 });
+    }
+
+    await TrytonClient.execute(
         session.username,
         session.userId,
         session.sessionToken,
         "gnuhealth.patient",
         "write",
-        [[parseInt(patientId, 10)], { critical_info: criticalInfo }]
-      );
-    }
+        [[parseInt(patientId, 10)], { critical_info: criticalInfo.trim() }]
+    );
 
     return NextResponse.json({
       success: true,
       message: `Patient records updated successfully for Patient ID ${patientId}.`,
-      updated: { patientId, criticalInfo, phone, emergencyContact, address },
+      updated: { patientId, criticalInfo: criticalInfo.trim() },
     });
   } catch (err: unknown) {
     const status = (err as any)?.status || 500;

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Stethoscope,
   Activity,
@@ -38,23 +39,7 @@ interface ICD10Item {
   category: string;
 }
 
-const ICD10_CATALOG: ICD10Item[] = [
-  { code: "J06.9", name: "Acute upper respiratory infection, unspecified", category: "Respiratory" },
-  { code: "J20.9", name: "Acute bronchitis, unspecified", category: "Respiratory" },
-  { code: "J02.9", name: "Acute pharyngitis, unspecified", category: "Respiratory" },
-  { code: "J18.9", name: "Pneumonia, unspecified organism", category: "Respiratory" },
-  { code: "I10", name: "Essential (primary) hypertension", category: "Circulatory" },
-  { code: "I20.9", name: "Angina pectoris, unspecified", category: "Circulatory" },
-  { code: "I25.10", name: "Atherosclerotic heart disease of native coronary artery", category: "Circulatory" },
-  { code: "E11.9", name: "Type 2 diabetes mellitus without complications", category: "Endocrine" },
-  { code: "E78.5", name: "Hyperlipidemia, unspecified", category: "Endocrine" },
-  { code: "K21.9", name: "Gastro-esophageal reflux disease without esophagitis", category: "Digestive" },
-  { code: "K29.7", name: "Gastritis, unspecified", category: "Digestive" },
-  { code: "R50.9", name: "Fever, unspecified", category: "Symptoms & Signs" },
-  { code: "R05", name: "Cough", category: "Symptoms & Signs" },
-  { code: "M54.5", name: "Low back pain", category: "Musculoskeletal" },
-  { code: "N39.0", name: "Urinary tract infection, site not specified", category: "Genitourinary" },
-];
+const ICD10_CATALOG: ICD10Item[] = [];
 
 // MASTER HOSPITAL DRUG DATABASE / FORMULARY (Resolves S4.5)
 interface DrugFormularyItem {
@@ -70,128 +55,7 @@ interface DrugFormularyItem {
   category: string;
 }
 
-const DRUG_FORMULARY: DrugFormularyItem[] = [
-  {
-    id: "drg-01",
-    name: "Amoxicillin 500mg capsule",
-    genericName: "Amoxicillin trihydrate",
-    strength: "500 mg",
-    form: "Capsule",
-    defaultDose: "500 mg",
-    defaultRoute: "Oral",
-    defaultFrequency: "TID (3x daily)",
-    defaultDuration: "7 Days",
-    category: "Antibacterial",
-  },
-  {
-    id: "drg-02",
-    name: "Paracetamol 1000mg tablet",
-    genericName: "Acetaminophen",
-    strength: "1000 mg",
-    form: "Tablet",
-    defaultDose: "1000 mg",
-    defaultRoute: "Oral",
-    defaultFrequency: "QDS PRN (Every 6h as needed)",
-    defaultDuration: "5 Days",
-    category: "Analgesic / Antipyretic",
-  },
-  {
-    id: "drg-03",
-    name: "Ibuprofen 400mg tablet",
-    genericName: "Ibuprofen",
-    strength: "400 mg",
-    form: "Tablet",
-    defaultDose: "400 mg",
-    defaultRoute: "Oral",
-    defaultFrequency: "TDS (3x daily with food)",
-    defaultDuration: "5 Days",
-    category: "NSAID",
-  },
-  {
-    id: "drg-04",
-    name: "Azithromycin 500mg tablet",
-    genericName: "Azithromycin dihydrate",
-    strength: "500 mg",
-    form: "Tablet",
-    defaultDose: "500 mg",
-    defaultRoute: "Oral",
-    defaultFrequency: "OD (Once daily)",
-    defaultDuration: "3 Days",
-    category: "Macrolide Antibiotic",
-  },
-  {
-    id: "drg-05",
-    name: "Cetirizine 10mg tablet",
-    genericName: "Cetirizine hydrochloride",
-    strength: "10 mg",
-    form: "Tablet",
-    defaultDose: "10 mg",
-    defaultRoute: "Oral",
-    defaultFrequency: "OD (Once daily at bedtime)",
-    defaultDuration: "7 Days",
-    category: "Antihistamine",
-  },
-  {
-    id: "drg-06",
-    name: "Metformin 500mg tablet",
-    genericName: "Metformin hydrochloride",
-    strength: "500 mg",
-    form: "Tablet",
-    defaultDose: "500 mg",
-    defaultRoute: "Oral",
-    defaultFrequency: "BD (Twice daily with meals)",
-    defaultDuration: "30 Days",
-    category: "Antidiabetic",
-  },
-  {
-    id: "drg-07",
-    name: "Atorvastatin 20mg tablet",
-    genericName: "Atorvastatin calcium",
-    strength: "20 mg",
-    form: "Tablet",
-    defaultDose: "20 mg",
-    defaultRoute: "Oral",
-    defaultFrequency: "OD (Once daily at night)",
-    defaultDuration: "30 Days",
-    category: "Statin / Lipid Lowering",
-  },
-  {
-    id: "drg-08",
-    name: "Omeprazole 20mg capsule",
-    genericName: "Omeprazole",
-    strength: "20 mg",
-    form: "Capsule",
-    defaultDose: "20 mg",
-    defaultRoute: "Oral",
-    defaultFrequency: "OD (Once daily before breakfast)",
-    defaultDuration: "14 Days",
-    category: "Proton Pump Inhibitor",
-  },
-  {
-    id: "drg-09",
-    name: "Ciprofloxacin 500mg tablet",
-    genericName: "Ciprofloxacin hydrochloride",
-    strength: "500 mg",
-    form: "Tablet",
-    defaultDose: "500 mg",
-    defaultRoute: "Oral",
-    defaultFrequency: "BD (Twice daily)",
-    defaultDuration: "7 Days",
-    category: "Fluoroquinolone Antibiotic",
-  },
-  {
-    id: "drg-10",
-    name: "Salbutamol 100mcg Inhaler",
-    genericName: "Albuterol sulfate",
-    strength: "100 mcg/actuation",
-    form: "Metered Dose Inhaler",
-    defaultDose: "1-2 Puffs",
-    defaultRoute: "Inhalation",
-    defaultFrequency: "PRN (As needed for wheezing/cough)",
-    defaultDuration: "30 Days",
-    category: "Bronchodilator",
-  },
-];
+const DRUG_FORMULARY: DrugFormularyItem[] = [];
 
 interface PrescriptionLine {
   id: number;
@@ -204,61 +68,35 @@ interface PrescriptionLine {
 }
 
 export default function PhysicianConsultationPage() {
+  const searchParams = useSearchParams();
+  const initialPatientId = Number(searchParams.get("patientId")) || 0;
+  const initialEvaluationId = Number(searchParams.get("evaluationId")) || 0;
   const [patientsList, setPatientsList] = useState<any[]>([]);
-  const [selectedPatientId, setSelectedPatientId] = useState<number>(66);
+  const [selectedPatientId, setSelectedPatientId] = useState<number>(initialPatientId);
+  const [evaluationId, setEvaluationId] = useState<number>(initialEvaluationId);
   const [patient, setPatient] = useState({
-    id: 66,
-    puid: "P00088",
-    name: "Alexander Wright",
-    age: 42,
-    gender: "Male",
-    bloodGroup: "O+",
-    allergies: ["Penicillin (Moderate rash)"],
+    id: 0, puid: "", name: "", age: "", gender: "", bloodGroup: "", allergies: [] as string[],
     vitals: {
-      bp: "120/80",
-      bpm: 72,
-      temp: 37.0,
-      spo2: 98,
-      bmi: "22.86",
+      bp: "", bpm: null as number | null, temp: null as number | null, spo2: null as number | null, bmi: "",
     },
   });
 
   const [soapData, setSoapData] = useState({
-    chiefComplaint: "Acute sore throat and non-productive cough for 3 days.",
-    physicalExam:
-      "Pharyngeal erythema present. Tonsils non-hypertrophic without purulent exudate. Bilateral breath sounds clear, no wheezes or rales. S1/S2 regular.",
-    diagnosisCode: "J06.9",
-    diagnosisName: "Acute upper respiratory infection, unspecified",
-    treatmentPlan:
-      "Hydration, symptomatic relief with paracetamol, conservative monitoring. If symptoms worsen beyond 5 days, return for laboratory evaluation.",
+    chiefComplaint: "", physicalExam: "", diagnosisCode: "", diagnosisName: "", treatmentPlan: "",
   });
 
   // Prescriptions state (Resolves S4.6 & S4.8: RX-2026-0029)
-  const [prescriptionRef, setPrescriptionRef] = useState("RX-2026-0029");
-  const [prescriptions, setPrescriptions] = useState<PrescriptionLine[]>([
-    {
-      id: 1,
-      medicament: "Amoxicillin 500mg capsule",
-      dose: "500 mg",
-      route: "Oral",
-      frequency: "TID (3x daily)",
-      duration: "7 Days",
-      status: "approved",
-    },
-  ]);
+  const [prescriptionRef, setPrescriptionRef] = useState("");
+  const [prescriptions, setPrescriptions] = useState<PrescriptionLine[]>([]);
 
   // Modal States
   const [isIcdModalOpen, setIsIcdModalOpen] = useState(false);
   const [icdSearchTerm, setIcdSearchTerm] = useState("");
   const [isRxModalOpen, setIsRxModalOpen] = useState(false);
   const [drugSearchTerm, setDrugSearchTerm] = useState("");
-  const [selectedDrug, setSelectedDrug] = useState<DrugFormularyItem>(DRUG_FORMULARY[0]);
+  const [selectedDrug, setSelectedDrug] = useState<DrugFormularyItem | null>(null);
   const [newRx, setNewRx] = useState({
-    medicament: DRUG_FORMULARY[0].name,
-    dose: DRUG_FORMULARY[0].defaultDose,
-    route: DRUG_FORMULARY[0].defaultRoute,
-    frequency: DRUG_FORMULARY[0].defaultFrequency,
-    duration: DRUG_FORMULARY[0].defaultDuration,
+    medicament: "", dose: "", route: "", frequency: "", duration: "",
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -266,17 +104,17 @@ export default function PhysicianConsultationPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Live ICD-10 Search State
-  const [liveIcdResults, setLiveIcdResults] = useState<ICD10Item[]>(ICD10_CATALOG);
+  const [liveIcdResults, setLiveIcdResults] = useState<ICD10Item[]>([]);
   const [isIcdSearching, setIsIcdSearching] = useState(false);
 
   // Live Drug Formulary Search State
-  const [liveDrugResults, setLiveDrugResults] = useState<DrugFormularyItem[]>(DRUG_FORMULARY);
+  const [liveDrugResults, setLiveDrugResults] = useState<DrugFormularyItem[]>([]);
   const [isDrugSearching, setIsDrugSearching] = useState(false);
 
-  // Live ICD-10 debounced search against Tryton gnuhealth.pathology
+  // Live ICD-10 debounced search against clinical system gnuhealth.pathology
   useEffect(() => {
     if (!icdSearchTerm || icdSearchTerm.length < 2) {
-      setLiveIcdResults(ICD10_CATALOG);
+      setLiveIcdResults([]);
       return;
     }
     const timer = setTimeout(async () => {
@@ -289,27 +127,14 @@ export default function PhysicianConsultationPage() {
             data.pathologies.map((p: any) => ({
               code: p.code,
               name: p.name,
-              category: "GNU Health Pathology",
+              category: "clinical system Pathology",
             }))
           );
         } else {
-          // Filter local fallback
-          setLiveIcdResults(
-            ICD10_CATALOG.filter(
-              (i) =>
-                i.code.toLowerCase().includes(icdSearchTerm.toLowerCase()) ||
-                i.name.toLowerCase().includes(icdSearchTerm.toLowerCase())
-            )
-          );
+          setLiveIcdResults([]);
         }
       } catch {
-        setLiveIcdResults(
-          ICD10_CATALOG.filter(
-            (i) =>
-              i.code.toLowerCase().includes(icdSearchTerm.toLowerCase()) ||
-              i.name.toLowerCase().includes(icdSearchTerm.toLowerCase())
-          )
-        );
+        setLiveIcdResults([]);
       } finally {
         setIsIcdSearching(false);
       }
@@ -317,10 +142,10 @@ export default function PhysicianConsultationPage() {
     return () => clearTimeout(timer);
   }, [icdSearchTerm]);
 
-  // Live Formulary debounced search against Tryton gnuhealth.medicament
+  // Live Formulary debounced search against clinical system gnuhealth.medicament
   useEffect(() => {
     if (!drugSearchTerm || drugSearchTerm.length < 2) {
-      setLiveDrugResults(DRUG_FORMULARY);
+      setLiveDrugResults([]);
       return;
     }
     const timer = setTimeout(async () => {
@@ -333,33 +158,21 @@ export default function PhysicianConsultationPage() {
             data.medicaments.map((m: any) => ({
               id: String(m.id),
               name: m.name,
-              genericName: m.active_substance || m.name,
-              strength: "Standard",
-              form: "Dose Unit",
-              defaultDose: "1 unit",
-              defaultRoute: "Oral",
-              defaultFrequency: "Daily",
-              defaultDuration: "7 Days",
-              category: "Formulary",
+              genericName: m.genericName || m.name,
+              strength: "",
+              form: "",
+              defaultDose: "",
+              defaultRoute: "",
+              defaultFrequency: "",
+              defaultDuration: "",
+              category: "",
             }))
           );
         } else {
-          setLiveDrugResults(
-            DRUG_FORMULARY.filter(
-              (d) =>
-                d.name.toLowerCase().includes(drugSearchTerm.toLowerCase()) ||
-                d.genericName.toLowerCase().includes(drugSearchTerm.toLowerCase())
-            )
-          );
+          setLiveDrugResults([]);
         }
       } catch {
-        setLiveDrugResults(
-          DRUG_FORMULARY.filter(
-            (d) =>
-              d.name.toLowerCase().includes(drugSearchTerm.toLowerCase()) ||
-              d.genericName.toLowerCase().includes(drugSearchTerm.toLowerCase())
-          )
-        );
+        setLiveDrugResults([]);
       } finally {
         setIsDrugSearching(false);
       }
@@ -375,31 +188,22 @@ export default function PhysicianConsultationPage() {
         const data = await res.json();
         if (data.success && Array.isArray(data.patients) && data.patients.length > 0) {
           setPatientsList(data.patients);
-          const match = data.patients.find((p: any) => p.id === 66) || data.patients[0];
-          setSelectedPatientId(match.id);
-          setPatient({
-            id: match.id,
-            puid: match.puid,
-            name: match.name,
-            age: match.age,
-            gender: match.gender,
-            bloodGroup: match.bloodGroup,
-            allergies: ["Penicillin (Moderate rash)"],
-            vitals: {
-              bp: "120/80",
-              bpm: 72,
-              temp: 37.0,
-              spo2: 98,
-              bmi: "22.86",
-            },
-          });
+          const match = data.patients.find((p: any) => p.id === initialPatientId) || data.patients[0];
+          if (match) {
+            setSelectedPatientId(match.id);
+            setPatient({
+              id: match.id, puid: match.puid || "", name: match.name || "", age: match.age || "",
+              gender: match.gender || "", bloodGroup: match.bloodGroup || "", allergies: match.allergies || [],
+              vitals: { bp: "", bpm: null, temp: null, spo2: null, bmi: "" },
+            });
+          }
         }
       } catch {
-        // Keep baseline
+        setErrorMessage("Could not load patient records from clinical system.");
       }
     }
     loadPatientData();
-  }, []);
+  }, [initialPatientId]);
 
   const handlePatientSelect = (patId: number) => {
     setSelectedPatientId(patId);
@@ -408,12 +212,15 @@ export default function PhysicianConsultationPage() {
       setPatient((prev) => ({
         ...prev,
         id: match.id,
-        puid: match.puid,
-        name: match.name,
-        age: match.age,
-        gender: match.gender,
-        bloodGroup: match.bloodGroup,
+        puid: match.puid || "",
+        name: match.name || "",
+        age: match.age || "",
+        gender: match.gender || "",
+        bloodGroup: match.bloodGroup || "",
+        allergies: match.allergies || [],
+        vitals: { bp: "", bpm: null, temp: null, spo2: null, bmi: "" },
       }));
+      setEvaluationId(0);
       setFeedback(null);
       setErrorMessage(null);
     }
@@ -453,7 +260,7 @@ export default function PhysicianConsultationPage() {
       route: newRx.route,
       frequency: newRx.frequency,
       duration: newRx.duration,
-      status: "approved",
+      status: "pending",
     };
     setPrescriptions([...prescriptions, line]);
     setIsRxModalOpen(false);
@@ -461,7 +268,7 @@ export default function PhysicianConsultationPage() {
     setErrorMessage(null);
   };
 
-  // Create / Issue Prescription (Resolves S4.8 - Real Tryton Persistence)
+  // Create / Issue Prescription (Resolves S4.8 - Real clinical system Persistence)
   const handleCreatePrescription = async () => {
     setIsSaving(true);
     setFeedback(null);
@@ -472,6 +279,7 @@ export default function PhysicianConsultationPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           patientId: patient.id,
+          evaluationId: evaluationId || undefined,
           lines: prescriptions.map((p) => ({
             medicament: p.medicament,
             dose: p.dose,
@@ -483,11 +291,11 @@ export default function PhysicianConsultationPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to persist prescription in GNU Health");
+        throw new Error(data.error || "Failed to persist prescription in clinical system");
       }
-      const ref = data.orderRef || prescriptionRef;
+      const ref = data.prescriptionId ? String(data.prescriptionId) : "";
       setPrescriptionRef(ref);
-      setFeedback(`Official Prescription ${ref} generated and signed in GNU Health for ${patient.name}. Transmitted to Hospital Dispensary.`);
+      setFeedback(`clinical system prescription record ${ref} created for ${patient.name}.`);
     } catch (err: any) {
       setErrorMessage(err.message || "Error issuing prescription order");
     } finally {
@@ -506,6 +314,7 @@ export default function PhysicianConsultationPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           patientId: patient.id,
+          evaluationId: evaluationId || undefined,
           chiefComplaint: soapData.chiefComplaint,
           physicalExam: soapData.physicalExam,
           diagnosisCode: soapData.diagnosisCode,
@@ -514,11 +323,12 @@ export default function PhysicianConsultationPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to save evaluation to GNU Health");
+        throw new Error(data.error || "Failed to save evaluation to clinical system");
       }
-      setFeedback("Clinical Evaluation saved successfully in GNU Health. Clinical notes and diagnosis recorded.");
+      if (data.evaluationId) setEvaluationId(data.evaluationId);
+      setFeedback(`clinical system evaluation ${data.evaluationId || ""} saved.`);
     } catch (err: any) {
-      setErrorMessage(err.message || "Failed to save evaluation to GNU Health");
+      setErrorMessage(err.message || "Failed to save evaluation to clinical system");
     } finally {
       setIsSaving(false);
     }
@@ -535,6 +345,7 @@ export default function PhysicianConsultationPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           patientId: patient.id,
+          evaluationId: evaluationId || undefined,
           chiefComplaint: soapData.chiefComplaint,
           physicalExam: soapData.physicalExam,
           diagnosisCode: soapData.diagnosisCode,
@@ -544,24 +355,24 @@ export default function PhysicianConsultationPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to complete evaluation in GNU Health");
+        throw new Error(data.error || "Failed to complete evaluation in clinical system");
       }
-      setFeedback("Clinical Evaluation completed and signed in GNU Health. Consultation status transitioned to Completed.");
+      setFeedback(`clinical system evaluation ${data.evaluationId || evaluationId || ""} completed.`);
     } catch (err: any) {
-      setErrorMessage(err.message || "Failed to complete evaluation in GNU Health");
+      setErrorMessage(err.message || "Failed to complete evaluation in clinical system");
     } finally {
       setIsSaving(false);
     }
   };
 
   // Filtered ICD-10
-  const filteredIcd10 = ICD10_CATALOG.filter((item) => {
+  const filteredIcd10 = liveIcdResults.filter((item) => {
     const q = icdSearchTerm.toLowerCase();
     return item.code.toLowerCase().includes(q) || item.name.toLowerCase().includes(q) || item.category.toLowerCase().includes(q);
   });
 
   // Filtered Drugs in Formulary
-  const filteredDrugs = DRUG_FORMULARY.filter((d) => {
+  const filteredDrugs = liveDrugResults.filter((d) => {
     const q = drugSearchTerm.toLowerCase();
     return (
       d.name.toLowerCase().includes(q) ||
@@ -580,8 +391,8 @@ export default function PhysicianConsultationPage() {
             Physician Consultation & Clinical Cockpit
           </h1>
           <p className="text-xs text-slate-600 mt-1">
-            Encounter ID: <span className="font-mono font-bold text-slate-900">EVAL-2026-0038</span> · Attending:{" "}
-            <span className="font-semibold text-slate-900">Dr. Alexander Wright, MD</span>
+            {evaluationId ? <>clinical system Evaluation ID: <span className="font-mono font-bold text-slate-900">{evaluationId}</span> · </> : null}
+            Attending clinician is resolved from the current clinical system session.
           </p>
         </div>
 
@@ -650,7 +461,7 @@ export default function PhysicianConsultationPage() {
                 <Badge variant="blue" dot>Consultation Active</Badge>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Age: {patient.age} Y · Sex: {patient.gender} · Blood Group: {patient.bloodGroup} · Attending: Dr. Alexander Wright
+                {[patient.age, patient.gender, patient.bloodGroup].filter(Boolean).join(" · ")}
               </p>
             </div>
           </div>
@@ -743,7 +554,7 @@ export default function PhysicianConsultationPage() {
                 <Stethoscope className="w-4 h-4 text-[#0F766E]" />
                 <span>Clinical Assessment & SOAP Protocol</span>
               </h3>
-              <Badge variant="teal">GNU Health Clinical Model</Badge>
+              <Badge variant="teal">clinical system Clinical Model</Badge>
             </div>
 
             <Textarea
@@ -800,7 +611,7 @@ export default function PhysicianConsultationPage() {
             />
 
             <div className="pt-2 flex items-center justify-between border-t border-slate-100">
-              <span className="text-[11px] font-mono text-slate-400">Model: gnuhealth.patient.evaluation</span>
+              <span className="text-[11px] text-slate-400">Clinical evaluation</span>
               <Button
                 type="button"
                 variant="primary"
@@ -935,7 +746,7 @@ export default function PhysicianConsultationPage() {
           <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 border border-slate-200 rounded-xl">
             {isIcdSearching && (
               <div className="p-4 text-center text-xs text-slate-500 font-mono">
-                Searching GNU Health ICD-10 database...
+                Searching clinical system ICD-10 database...
               </div>
             )}
             {!isIcdSearching && liveIcdResults.map((item) => (
@@ -996,7 +807,7 @@ export default function PhysicianConsultationPage() {
           <div className="max-h-44 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2 border border-slate-200 rounded-xl p-2 bg-slate-50">
             {isDrugSearching && (
               <div className="col-span-2 p-3 text-center text-xs text-slate-500 font-mono">
-                Searching GNU Health Formulary...
+                Searching clinical system Formulary...
               </div>
             )}
             {!isDrugSearching && liveDrugResults.map((d) => (
@@ -1004,14 +815,14 @@ export default function PhysicianConsultationPage() {
                 key={d.id}
                 onClick={() => handleSelectDrug(d)}
                 className={`p-2.5 rounded-lg border cursor-pointer transition-all ${
-                  selectedDrug.id === d.id
+                  selectedDrug?.id === d.id
                     ? "bg-teal-50 border-[#0F766E] shadow-2xs"
                     : "bg-white border-slate-200 hover:border-slate-300"
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-900">{d.name}</span>
-                  {selectedDrug.id === d.id && <Check className="w-3.5 h-3.5 text-[#0F766E]" />}
+                  {selectedDrug?.id === d.id && <Check className="w-3.5 h-3.5 text-[#0F766E]" />}
                 </div>
                 <div className="text-[10px] text-slate-500 font-mono mt-0.5">
                   {d.genericName} · {d.form}

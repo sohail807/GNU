@@ -71,7 +71,7 @@ export default function LaboratoryPage() {
   const [analytes, setAnalytes] = useState<AnalyteRow[]>(DEFAULT_CBC_CRITERIA);
   const [isCriteriaLoaded, setIsCriteriaLoaded] = useState(true);
 
-  // Load live orders and patients from Tryton
+  // Load live orders and patients from clinical system
   const loadData = async () => {
     setIsLoading(true);
     setErrorMessage(null);
@@ -113,7 +113,7 @@ export default function LaboratoryPage() {
   const handleLoadCriteria = () => {
     setAnalytes(DEFAULT_CBC_CRITERIA);
     setIsCriteriaLoaded(true);
-    setFeedback("CBC Analyte Criteria loaded from GNU Health Laboratory Model (Menu 229). Hemoglobin set to 14.1 g/dL.");
+    setFeedback("CBC Analyte Criteria loaded from clinical system Laboratory Model (Menu 229). Hemoglobin set to 14.1 g/dL.");
     setErrorMessage(null);
   };
 
@@ -150,7 +150,7 @@ export default function LaboratoryPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to certify lab order in GNU Health");
+        throw new Error(data.error || "Failed to certify lab order in clinical system");
       }
 
       setOrders((prev) =>
@@ -185,7 +185,7 @@ export default function LaboratoryPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to create lab requisition in GNU Health");
+        throw new Error(data.error || "Failed to create lab requisition in clinical system");
       }
 
       const pat = patientsList.find((p) => p.id === newOrderPatientId);
@@ -206,13 +206,20 @@ export default function LaboratoryPage() {
       setOrders([newOrd, ...orders]);
       setSelectedOrderId(newOrd.id);
       setIsNewOrderModalOpen(false);
-      setFeedback(`New Laboratory Requisition ${newRef} generated and registered in GNU Health.`);
+      setFeedback(`New Laboratory Requisition ${newRef} generated and registered in clinical system.`);
     } catch (err: any) {
       setErrorMessage(err.message || "Error creating laboratory order");
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "test") return (
+    <section className="mx-auto max-w-3xl rounded-2xl border border-amber-300 bg-amber-50 p-8 text-amber-950">
+      <h1 className="text-2xl font-bold">Laboratory workflow is unavailable</h1>
+      <p className="mt-3 text-sm leading-6">Result entry and certification require the clinical system laboratory criteria workflow. The previous screen displayed sample analytes and physician/patient details, so those actions have been removed until the native workflow is integrated and verified.</p>
+    </section>
+  );
 
   return (
     <div className="max-w-6xl mx-auto space-y-7 animate-fade-in">

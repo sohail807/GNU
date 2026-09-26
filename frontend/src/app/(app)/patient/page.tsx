@@ -78,7 +78,7 @@ export default function MasterPatientDirectoryPage() {
             Master Patient Registry & Charts
           </h1>
           <p className="text-xs text-slate-600 mt-1">
-            Authoritative GNU Health Patient Records Directory · Search by Name, PUID or Qatar ID.
+            Authoritative clinical system Patient Records Directory · Search by Name, PUID or Qatar ID.
           </p>
         </div>
 
@@ -139,14 +139,12 @@ export default function MasterPatientDirectoryPage() {
               Registered Patients ({filtered.length})
             </h3>
           </div>
-          <span className="text-[11px] font-mono text-slate-500">
-            Tryton Model: <strong className="text-teal-700">gnuhealth.patient</strong>
-          </span>
+          <span className="text-[11px] text-slate-500">Live records</span>
         </div>
 
         {isLoading ? (
           <div className="p-12 text-center text-xs text-slate-500 font-mono">
-            Loading master patient records from GNU Health...
+            Loading master patient records from clinical system...
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center space-y-3">

@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
         physicians: hps.map((hp) => ({
           id: hp.id,
           name: hp.rec_name,
-          specialty: Array.isArray(hp.main_specialty) ? hp.main_specialty[1] : "General Medicine",
+          specialty: Array.isArray(hp.main_specialty) ? hp.main_specialty[1] : "",
         })),
       });
     }
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.appointment",
       "search_read",
-      [domain, 0, 50, [["id", "DESC"]], ["id", "patient", "healthprof", "appointment_date", "state", "urgency"]]
+      [domain, 0, 50, [["id", "DESC"]], ["id", "name", "patient", "healthprof", "appointment_date", "state", "urgency"]]
     );
 
     // Resolve patient names
@@ -97,31 +97,31 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const appointments = rawAppts.map((a, idx) => {
+    const appointments = rawAppts.map((a) => {
       const pid = typeof a.patient === "number" ? a.patient : a.patient?.[0];
       const hpid = typeof a.healthprof === "number" ? a.healthprof : a.healthprof?.[0];
       const pat = patientsMap[pid] || {};
       const hp = hpMap[hpid] || {};
       const aptDate = a.appointment_date;
-      const timeStr = aptDate?.hour
-        ? `${aptDate.hour}:${String(aptDate.minute || 0).padStart(2, "0")} ${aptDate.hour >= 12 ? "PM" : "AM"}`
-        : `${9 + (idx % 6)}:00 AM`;
+      const timeStr = Number.isInteger(aptDate?.hour)
+        ? `${String(aptDate.hour).padStart(2, "0")}:${String(aptDate.minute || 0).padStart(2, "0")}`
+        : "";
       const dateStr = aptDate?.year
         ? `${aptDate.year}-${String(aptDate.month).padStart(2, "0")}-${String(aptDate.day).padStart(2, "0")}`
-        : "2026-09-25";
+        : null;
 
       return {
         id: a.id,
-        ref: `APT-2026-${String(a.id).padStart(4, "0")}`,
+        ref: a.name || String(a.id),
         patientId: pid,
-        puid: pat.puid || `P000${pid || idx + 10}`,
-        patientName: pat.rec_name || "Scheduled Patient",
-        physicianName: hp.rec_name || "Attending Physician",
+        puid: pat.puid || "",
+        patientName: pat.rec_name || "",
+        physicianName: hp.rec_name || "",
         physicianId: hpid,
         date: dateStr,
         time: timeStr,
-        state: a.state === "checked_in" ? "checkin" : a.state === "done" ? "done" : "confirmed",
-        urgency: a.urgency || "Routine",
+        state: a.state || "",
+        urgency: a.urgency || "",
       };
     });
 
@@ -141,16 +141,20 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { action, appointmentId, patientId, healthprofId, appointmentDate, urgency } = body;
+    const { action, appointmentId, patientId, healthprofId, appointmentDate, appointmentTime, urgency } = body;
 
     if (action === "checkin" && appointmentId) {
+      const aid = Number(appointmentId);
+      if (!Number.isSafeInteger(aid) || aid <= 0) {
+        return NextResponse.json({ error: "A valid appointment ID is required." }, { status: 400 });
+      }
       await TrytonClient.execute(
         session.username,
         session.userId,
         session.sessionToken,
         "gnuhealth.appointment",
-        "write",
-        [[parseInt(appointmentId, 10)], { state: "checked_in" }]
+        "check_in",
+        [[aid]]
       );
       return NextResponse.json({
         success: true,
@@ -159,28 +163,21 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "book" && patientId) {
-      const now = new Date();
-      const dtObj = appointmentDate
-        ? {
-            __class__: "datetime",
-            year: parseInt(appointmentDate.split("-")[0], 10),
-            month: parseInt(appointmentDate.split("-")[1], 10),
-            day: parseInt(appointmentDate.split("-")[2], 10),
-            hour: 9,
-            minute: 30,
-            second: 0,
-            microsecond: 0,
-          }
-        : {
-            __class__: "datetime",
-            year: now.getFullYear(),
-            month: now.getMonth() + 1,
-            day: now.getDate(),
-            hour: 10,
-            minute: 0,
-            second: 0,
-            microsecond: 0,
-          };
+      const pid = Number(patientId);
+      if (!Number.isSafeInteger(pid) || pid <= 0) {
+        return NextResponse.json({ error: "A valid patient ID is required." }, { status: 400 });
+      }
+      if (typeof appointmentDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)
+          || typeof appointmentTime !== "string" || !/^([01]\d|2[0-3]):[0-5]\d$/.test(appointmentTime)) {
+        return NextResponse.json({ error: "A valid appointment date and time are required." }, { status: 400 });
+      }
+      const [year, month, day] = appointmentDate.split("-").map(Number);
+      const [hour, minute] = appointmentTime.split(":").map(Number);
+      const checkDate = new Date(Date.UTC(year, month - 1, day));
+      if (checkDate.getUTCFullYear() !== year || checkDate.getUTCMonth() !== month - 1 || checkDate.getUTCDate() !== day) {
+        return NextResponse.json({ error: "The appointment date is invalid." }, { status: 400 });
+      }
+      const dtObj = { __class__: "datetime", year, month, day, hour, minute, second: 0, microsecond: 0 };
 
       // Dynamically resolve attending clinician
       const hp = await ClinicalLookupService.resolveClinician(session, healthprofId);
@@ -191,12 +188,14 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      let urgencyCode = "a";
-      if (urgency === "b" || urgency === "urgent") urgencyCode = "b";
-      else if (urgency === "c" || urgency === "emergency") urgencyCode = "c";
+      const urgencyMap: Record<string, string> = { normal: "a", urgent: "b", emergency: "c" };
+      const urgencyCode = typeof urgency === "string" ? urgencyMap[urgency] : undefined;
+      if (!urgencyCode) {
+        return NextResponse.json({ error: "Select a valid appointment urgency." }, { status: 400 });
+      }
 
       const apptPayload = {
-        patient: parseInt(patientId, 10),
+        patient: pid,
         healthprof: hp,
         appointment_date: dtObj,
         urgency: urgencyCode,

@@ -120,7 +120,7 @@ export default function RadiologyPage() {
       setOrders((prev) =>
         prev.map((o) => (o.id === activeOrder.id ? { ...o, state: "requested" } : o))
       );
-      setFeedback(`Radiological study ${activeOrder.orderRef} successfully transitioned to 'REQUESTED' in GNU Health.`);
+      setFeedback(`Radiological study ${activeOrder.orderRef} successfully transitioned to 'REQUESTED' in clinical system.`);
     } catch (err: any) {
       setErrorMessage(err.message || "Error requesting study");
     } finally {
@@ -155,7 +155,7 @@ export default function RadiologyPage() {
         )
       );
       setFeedback(
-        `Digital Radiology study ${activeOrder.orderRef} finalized and verified. Diagnostic report stamped as DONE in GNU Health PACS.`
+        `Digital Radiology study ${activeOrder.orderRef} finalized and verified. Diagnostic report stamped as DONE in clinical system PACS.`
       );
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to commit radiology findings");
@@ -204,13 +204,20 @@ export default function RadiologyPage() {
       setOrders([newReq, ...orders]);
       setSelectedOrderId(newReq.id);
       setIsNewModalOpen(false);
-      setFeedback(`New Imaging Request ${newRef} scheduled and recorded in GNU Health.`);
+      setFeedback(`New Imaging Request ${newRef} scheduled and recorded in clinical system.`);
     } catch (err: any) {
       setErrorMessage(err.message || "Error scheduling imaging request");
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "test") return (
+    <section className="mx-auto max-w-3xl rounded-2xl border border-amber-300 bg-amber-50 p-8 text-amber-950">
+      <h1 className="text-2xl font-bold">Imaging workflow is unavailable</h1>
+      <p className="mt-3 text-sm leading-6">clinical system imaging state changes and result generation must run through its native workflow. The previous screen included sample findings and a hard-coded patient, so imaging actions are hidden until the native lifecycle is integrated and verified.</p>
+    </section>
+  );
 
   return (
     <div className="max-w-6xl mx-auto space-y-7 animate-fade-in">
@@ -346,7 +353,7 @@ export default function RadiologyPage() {
               </span>
             </div>
             <p className="text-[11px] text-slate-600 leading-snug">
-              GNU Health Tryton model <code className="font-mono text-teal-900 bg-white px-1.5 py-0.2 rounded border border-teal-200">gnuhealth.imaging.test.result</code> stores radiologist findings in field <code className="font-mono text-teal-900 bg-white px-1.5 py-0.2 rounded border border-teal-200">comment</code> with screen label <strong>Additional Information</strong>.
+              Radiologist findings are stored in the report’s <strong>Additional Information</strong> field.
             </p>
           </div>
 

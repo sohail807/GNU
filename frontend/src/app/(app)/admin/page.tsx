@@ -16,7 +16,6 @@ import {
   Sliders,
   AlertTriangle,
   Search,
-  Check,
   X,
   RefreshCw,
   Eye,
@@ -30,15 +29,12 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import {
   APP_MODULES,
-  AppModule,
   HospitalRole,
   UserAccessProfile,
-  INITIAL_STAFF_USERS,
-  DEFAULT_ROLE_PERMISSIONS,
 } from "@/lib/access-control";
 
 export default function AdminPage() {
-  const [users, setUsers] = useState<UserAccessProfile[]>(INITIAL_STAFF_USERS);
+  const [users, setUsers] = useState<UserAccessProfile[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(false);
@@ -50,12 +46,10 @@ export default function AdminPage() {
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isResetPwdModalOpen, setIsResetPwdModalOpen] = useState(false);
+  const [credentialDisclosure, setCredentialDisclosure] = useState<{ username: string; password: string } | null>(null);
 
   // Selected User for Editing
   const [selectedUser, setSelectedUser] = useState<UserAccessProfile | null>(null);
-  const [tempPermissions, setTempPermissions] = useState<Record<AppModule, boolean>>(
-    {} as Record<AppModule, boolean>
-  );
 
   // Edit User Form State
   const [editFormData, setEditFormData] = useState({
@@ -72,30 +66,17 @@ export default function AdminPage() {
     username: "",
     name: "",
     role: "reception" as HospitalRole,
-    department: "Outpatient Services",
     email: "",
-    phone: "+974 4400 1099",
   });
 
   // Audit Logs
-  const [auditLogs, setAuditLogs] = useState<
-    { id: number; timestamp: string; action: string; operator: string; detail: string }[]
-  >([
-    {
-      id: 1,
-      timestamp: "Today, 10:45 AM",
-      action: "RBAC Re-Alignment",
-      operator: "admin",
-      detail: "Configured IST Access Control matrix for Doha Outpatient Clinic personas.",
-    },
-    {
-      id: 2,
-      timestamp: "Today, 09:30 AM",
-      action: "Zero-Trust Session Issued",
-      operator: "admin",
-      detail: "Generated authorized token for demo_frontdesk1 with restricted receptionist scope.",
-    },
-  ]);
+  const auditLogs: {
+    id: number;
+    timestamp: string;
+    action: string;
+    operator: string;
+    detail: string;
+  }[] = [];
 
   // Load live users from API
   const loadUsers = async () => {
@@ -106,9 +87,13 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok && data.users) {
         setUsers(data.users);
+      } else {
+        setUsers([]);
+        setErrorMsg(data.error || "Unable to load the live clinical system user directory.");
       }
     } catch {
-      // Keep baseline
+      setUsers([]);
+      setErrorMsg("Unable to reach the live clinical system user directory.");
     } finally {
       setIsLoading(false);
     }
@@ -121,61 +106,7 @@ export default function AdminPage() {
   // Open Permission Matrix Modal
   const handleOpenPermissions = (u: UserAccessProfile) => {
     setSelectedUser(u);
-    setTempPermissions({ ...u.permissions });
     setIsPermModalOpen(true);
-  };
-
-  // Toggle specific permission in matrix
-  const handleTogglePermission = (modKey: AppModule) => {
-    setTempPermissions((prev) => ({
-      ...prev,
-      [modKey]: !prev[modKey],
-    }));
-  };
-
-  // Save Permissions
-  const handleSavePermissions = async () => {
-    if (!selectedUser) return;
-    setIsLoading(true);
-    setFeedback(null);
-    setErrorMsg(null);
-
-    try {
-      const res = await fetch("/api/admin/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "update_permissions",
-          userId: selectedUser.id,
-          username: selectedUser.username,
-          permissions: tempPermissions,
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setUsers(data.users || users.map((u) => (u.id === selectedUser.id ? { ...u, permissions: tempPermissions } : u)));
-        setFeedback(`Permissions successfully updated for ${selectedUser.name} (@${selectedUser.username}).`);
-        setIsPermModalOpen(false);
-
-        setAuditLogs((prev) => [
-          {
-            id: Date.now(),
-            timestamp: "Just now",
-            action: "Permissions Modified",
-            operator: "admin",
-            detail: `Updated IST Access Control module permissions for @${selectedUser.username}.`,
-          },
-          ...prev,
-        ]);
-      } else {
-        setErrorMsg(data.error || "Failed to update permissions.");
-      }
-    } catch {
-      setErrorMsg("Network error saving permissions.");
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   // Open Edit User Modal
@@ -211,8 +142,8 @@ export default function AdminPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setUsers(data.users);
-        setFeedback(`Staff profile for ${editFormData.name} successfully updated.`);
+        await loadUsers();
+        setFeedback(`Supported clinical system account fields were updated for @${selectedUser.username}.`);
         setIsEditUserModalOpen(false);
       } else {
         setErrorMsg(data.error || "Failed to update user.");
@@ -241,16 +172,15 @@ export default function AdminPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setUsers(data.users);
-        setFeedback(`Staff member ${newUserData.name} provisioned with role ${newUserData.role.toUpperCase()}.`);
+        await loadUsers();
+        setFeedback(`Staff account @${newUserData.username} created in clinical system.`);
+        setCredentialDisclosure({ username: newUserData.username, password: data.temporaryPassword });
         setIsAddUserModalOpen(false);
         setNewUserData({
           username: "",
           name: "",
           role: "reception",
-          department: "Outpatient Services",
           email: "",
-          phone: "+974 4400 1099",
         });
       } else {
         setErrorMsg(data.error || "Failed to provision user.");
@@ -279,8 +209,8 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        const tempMsg = data.temporaryPassword ? ` Temporary password: ${data.temporaryPassword}` : "";
-        setFeedback(`Password reset successful for @${selectedUser.username}.${tempMsg}`);
+        setFeedback(`Password updated for @${selectedUser.username}.`);
+        setCredentialDisclosure({ username: selectedUser.username, password: data.temporaryPassword });
         setIsResetPwdModalOpen(false);
       } else {
         setErrorMsg(data.error || "Failed to reset password.");
@@ -307,13 +237,13 @@ export default function AdminPage() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200/90 gap-4">
         <div>
-          <div className="kicker text-[#0F766E] mb-1">SECURITY & GOVERNANCE · ADMIN CONSOLE</div>
+          <div className="kicker text-[#0F766E] mb-1">STAFF ACCOUNTS · ADMIN CONSOLE</div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            IST Access Control & Hospital User Directory
+            Staff User Directory
           </h1>
           <p className="text-xs text-slate-600 mt-1">
-            Governance Standard: <span className="font-semibold text-slate-900">ISO 27799 / Zero-Trust Healthcare RBAC</span> ·
-            Active Staff Accounts: <span className="font-mono text-emerald-700 font-bold">{users.length} Certified</span>
+            Roles and account status are managed by your organization. ·
+            Live accounts: <span className="font-mono text-emerald-700 font-bold">{users.length} loaded</span>
           </p>
         </div>
 
@@ -376,17 +306,17 @@ export default function AdminPage() {
           icon={<Lock className="w-5 h-5 text-[#0F766E]" />}
         />
         <StatCard
-          kicker="DISASTER RECOVERY"
-          label="Automated Daily Mirror"
-          value="100% Pass"
-          subtext="Encrypted Storage Vault"
+          kicker="DIRECTORY SOURCE"
+          label="Staff Accounts"
+          value={users.length}
+          subtext="Loaded from clinical system"
           icon={<Server className="w-5 h-5 text-[#0F766E]" />}
         />
         <StatCard
-          kicker="SECURITY STATUS"
-          label="Zero-Trust Auth"
-          value="Active"
-          subtext="Granular Module Clearance"
+          kicker="AUTHORIZATION"
+          label="Access Decisions"
+          value="Native"
+          subtext="Backend groups and model rules"
           icon={<KeyRound className="w-5 h-5 text-[#0F766E]" />}
         />
       </div>
@@ -520,15 +450,15 @@ export default function AdminPage() {
       <div className="bg-white border border-slate-200/90 rounded-xl shadow-2xs p-5 space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div>
-            <span className="kicker text-[#0F766E] block mb-0.5">GOVERNANCE & COMPLIANCE</span>
+            <span className="kicker text-[#0F766E] block mb-0.5">AUDITABILITY</span>
             <h3 className="text-xs font-bold text-slate-800 uppercase tracking-tight">
-              Real-Time Security & Access Control Audit Log
+              Account Administration Audit Events
             </h3>
           </div>
-          <Badge variant="teal" size="sm">Audit Stream Active</Badge>
+          <Badge variant="neutral" size="sm">Not Connected</Badge>
         </div>
 
-        <div className="divide-y divide-slate-100">
+        {auditLogs.length ? <div className="divide-y divide-slate-100">
           {auditLogs.map((log) => (
             <div key={log.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
               <div className="space-y-0.5">
@@ -541,7 +471,7 @@ export default function AdminPage() {
               <div className="font-mono text-[10px] text-slate-400 shrink-0">{log.timestamp}</div>
             </div>
           ))}
-        </div>
+        </div> : <p className="text-xs text-slate-600">This frontend does not yet read a persistent audit event stream from clinical system.</p>}
       </div>
 
       {/* MODAL 1: IST ACCESS CONTROL PERMISSION MATRIX */}
@@ -563,18 +493,17 @@ export default function AdminPage() {
               <span className="font-mono text-[#0F766E] font-bold uppercase">{selectedUser?.role}</span>
             </div>
             <p className="text-[11px] text-slate-500 pt-1 border-t border-slate-200">
-              Toggle checkboxes below to grant or revoke specific operational modules for this user. Changes take effect across navigation and route guards.
+              This is a read-only overview derived from the assigned role. Actual access is determined by the user’s native clinical system groups and model permissions. Change a user’s role in Edit; this screen cannot grant individual module permissions.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto p-1">
             {APP_MODULES.map((mod) => {
-              const isChecked = !!tempPermissions[mod.key];
+              const isChecked = !!selectedUser?.permissions?.[mod.key];
               return (
                 <div
                   key={mod.key}
-                  onClick={() => handleTogglePermission(mod.key)}
-                  className={`p-3.5 rounded-xl border transition-all cursor-pointer select-none flex items-start justify-between gap-3 ${
+                  className={`p-3.5 rounded-xl border flex items-start justify-between gap-3 ${
                     isChecked
                       ? "bg-teal-50/70 border-teal-300 shadow-2xs"
                       : "bg-slate-50 border-slate-200 opacity-60 hover:opacity-100"
@@ -591,47 +520,23 @@ export default function AdminPage() {
                   </div>
 
                   <div
-                    className={`w-5 h-5 rounded-md flex items-center justify-center border shrink-0 mt-0.5 transition-colors ${
+                    className={`px-2 py-1 rounded-md border shrink-0 mt-0.5 ${
                       isChecked
-                        ? "bg-[#0F766E] border-[#0F766E] text-white"
-                        : "border-slate-300 bg-white"
+                        ? "bg-teal-50 border-teal-200 text-teal-800"
+                        : "border-slate-300 bg-white text-slate-500"
                     }`}
                   >
-                    {isChecked && <Check className="w-3.5 h-3.5" />}
+                    <span className="text-[10px] font-semibold">{isChecked ? "Role profile" : "No role access"}</span>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (selectedUser) {
-                  setTempPermissions({ ...DEFAULT_ROLE_PERMISSIONS[selectedUser.role] });
-                }
-              }}
-            >
-              Reset to Role Defaults
+          <div className="pt-4 border-t border-slate-100 flex justify-end">
+            <Button type="button" variant="primary" size="sm" onClick={() => setIsPermModalOpen(false)}>
+              Close
             </Button>
-
-            <div className="flex items-center gap-2">
-              <Button type="button" variant="ghost" size="sm" onClick={() => setIsPermModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                onClick={handleSavePermissions}
-                isLoading={isLoading}
-              >
-                Save IST Permissions
-              </Button>
-            </div>
           </div>
         </div>
       </Modal>
@@ -680,11 +585,11 @@ export default function AdminPage() {
             />
           </div>
 
-          <Input
+              <Input
             label="Department / Unit"
             value={editFormData.department}
-            onChange={(e) => setEditFormData({ ...editFormData, department: e.target.value })}
-            required
+            disabled
+            helperText="Department is not stored on the clinical system user record."
           />
 
           <div className="grid grid-cols-2 gap-3">
@@ -693,13 +598,12 @@ export default function AdminPage() {
               type="email"
               value={editFormData.email}
               onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
-              required
             />
             <Input
               label="Phone Number"
               value={editFormData.phone}
-              onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
-              required
+              disabled
+              helperText="Phone is not stored on the clinical system user record."
             />
           </div>
 
@@ -772,28 +676,12 @@ export default function AdminPage() {
           />
 
           <Input
-            label="Department / Unit"
-            placeholder="e.g. Pediatric Outpatient Clinic"
-            value={newUserData.department}
-            onChange={(e) => setNewUserData({ ...newUserData, department: e.target.value })}
-            required
+            label="Email Address (optional)"
+            placeholder="name@clinic.qa"
+            type="email"
+            value={newUserData.email}
+            onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
           />
-
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="Email Address"
-              placeholder="name@ist-health.qa"
-              type="email"
-              value={newUserData.email}
-              onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
-            />
-            <Input
-              label="Phone Number"
-              placeholder="+974 4400 1099"
-              value={newUserData.phone}
-              onChange={(e) => setNewUserData({ ...newUserData, phone: e.target.value })}
-            />
-          </div>
 
           <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
             <Button type="button" variant="ghost" size="sm" onClick={() => setIsAddUserModalOpen(false)}>
@@ -824,7 +712,7 @@ export default function AdminPage() {
               <span>Zero-Trust Policy</span>
             </div>
             <p className="text-[11px] text-amber-700">
-              The user will be required to change their temporary credential on their next portal login.
+              The temporary credential is shown once to this administrator. Share it only through your approved secure channel. A forced password change at next login is not configured in this frontend.
             </p>
           </div>
 
@@ -840,6 +728,29 @@ export default function AdminPage() {
               isLoading={isLoading}
             >
               Issue Password Reset
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={!!credentialDisclosure}
+        onClose={() => setCredentialDisclosure(null)}
+        title="Temporary credential"
+        kicker="SHOWN ONCE"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-slate-700">
+            This credential is for <strong>@{credentialDisclosure?.username}</strong>. Copy it now and deliver it only through your approved secure channel. Closing this dialog clears it from this page.
+          </p>
+          <Input label="Temporary password" value={credentialDisclosure?.password || ""} readOnly autoComplete="off" />
+          <p className="text-[11px] text-amber-800">
+            The current frontend does not enforce a password change at next login. Complete that step through the authorized clinical system administration process.
+          </p>
+          <div className="flex justify-end">
+            <Button type="button" variant="primary" onClick={() => setCredentialDisclosure(null)}>
+              Close and clear
             </Button>
           </div>
         </div>

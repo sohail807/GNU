@@ -124,7 +124,7 @@ export default function CashierBillingPage() {
     loadData();
   }, []);
 
-  // Handle Save New Invoice (Resolves S7.2, S7.3, S7.4 - Real Tryton account.invoice)
+  // Handle Save New Invoice (Resolves S7.2, S7.3, S7.4 - Real clinical system account.invoice)
   const handleCreateNewInvoice = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
@@ -144,7 +144,7 @@ export default function CashierBillingPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to create invoice in GNU Health");
+        throw new Error(data.error || "Failed to create invoice in clinical system");
       }
 
       const pat = patientsList.find((p) => p.id === newInvPatientId);
@@ -190,14 +190,14 @@ export default function CashierBillingPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to post invoice in GNU Health");
+        throw new Error(data.error || "Failed to post invoice in clinical system");
       }
 
       setInvoices((prev) =>
         prev.map((i) => (i.id === activeInvoice.id ? { ...i, status: "posted" } : i))
       );
       setActiveInvoice((prev) => (prev ? { ...prev, status: "posted" } : null));
-      setFeedback(`Invoice ${activeInvoice.number} POSTED successfully in GNU Health. Official sequence committed to Accounts Receivable ledger.`);
+      setFeedback(`Invoice ${activeInvoice.number} POSTED successfully in clinical system. Official sequence committed to Accounts Receivable ledger.`);
       // Refresh ledger moves
       fetch("/api/clinical/ledger")
         .then((r) => r.json())
@@ -238,7 +238,7 @@ export default function CashierBillingPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to settle payment in GNU Health");
+        throw new Error(data.error || "Failed to settle payment in clinical system");
       }
 
       setInvoices((prev) =>
@@ -263,6 +263,14 @@ export default function CashierBillingPage() {
     }
   };
 
+  if (process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "test") return (
+    <section className="mx-auto max-w-3xl rounded-2xl border border-amber-300 bg-amber-50 p-8 text-amber-950">
+      <h1 className="text-2xl font-bold">Billing is unavailable</h1>
+      <p className="mt-3 text-sm leading-6">This screen contained sample USD prices, patients, payments, and ledger totals. Invoice creation, posting, and payment are disabled until the native clinical system accounting workflows and QAR configuration are integrated and verified.</p>
+      <p className="mt-3 text-sm font-semibold">No billing action was completed from this screen.</p>
+    </section>
+  );
+
   return (
     <div className="max-w-7xl mx-auto space-y-7 animate-fade-in">
       {/* HEADER */}
@@ -271,7 +279,7 @@ export default function CashierBillingPage() {
           <div className="flex items-center gap-2 mb-1">
             <span className="kicker text-[#0F766E]">FINANCIAL MANAGEMENT · FISCAL DESK</span>
             <span className="text-slate-300">/</span>
-            <span className="kicker text-slate-500">GNU HEALTH HMIS</span>
+            <span className="kicker text-slate-500">HEALTHCARE SYSTEM HMIS</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Patient Billing, Invoicing & General Ledger Audit
@@ -409,7 +417,7 @@ export default function CashierBillingPage() {
               <div>
                 <h3 className="text-base font-bold text-slate-900">No Invoices on File</h3>
                 <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                  No customer invoices have been issued yet. Click below to generate the first outpatient billing record in GNU Health.
+                  No customer invoices have been issued yet. Click below to generate the first outpatient billing record in clinical system.
                 </p>
               </div>
               <Button
@@ -523,7 +531,7 @@ export default function CashierBillingPage() {
             {/* Bottom Actions */}
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <span className="text-[11px] font-mono text-slate-500">
-                Official Tryton Move: <strong className="text-teal-700">MOV-INV-0012</strong>
+                Official clinical system Move: <strong className="text-teal-700">MOV-INV-0012</strong>
               </span>
 
               <div className="flex items-center gap-2">
@@ -839,7 +847,7 @@ export default function CashierBillingPage() {
           </div>
 
           <div className="pt-3 border-t border-dashed border-slate-300 flex items-center justify-between font-sans">
-            <span className="text-[10px] text-slate-400">GNU Health Tryton Financial Engine</span>
+            <span className="text-[10px] text-slate-400">Financial records</span>
             <Button variant="outline" size="xs" onClick={() => setIsReceiptModalOpen(false)}>
               Close
             </Button>

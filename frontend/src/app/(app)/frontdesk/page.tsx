@@ -283,7 +283,7 @@ export default function FrontDeskPage() {
         <div className="overflow-x-auto">
           {isLoading ? (
             <div className="p-12 text-center text-xs text-slate-500 font-mono">
-              Loading live arrival queue from Tryton backend...
+              Loading live arrival queue from clinical system backend...
             </div>
           ) : filteredPatients.length === 0 ? (
             <div className="p-12 text-center space-y-3">
@@ -318,8 +318,8 @@ export default function FrontDeskPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-sans">
-                {filteredPatients.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
+                {filteredPatients.map((p, idx) => (
+                  <tr key={`${p.id}-${p.appointmentId || idx}`} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3.5 px-5 font-mono font-bold text-[#0F766E]">
                       {p.puid}
                     </td>

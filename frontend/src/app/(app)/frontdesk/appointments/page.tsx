@@ -33,7 +33,7 @@ interface Appointment {
   phone: string;
   physicianName: string;
   specialty: string;
-  state: "confirmed" | "checkin" | "done" | "cancelled";
+  state: string;
   urgency: string;
   patientId: number;
 }
@@ -47,10 +47,7 @@ interface Doctor {
 export default function AppointmentCalendarPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [patients, setPatients] = useState<any[]>([]);
-  const [doctors, setDoctors] = useState<Doctor[]>([
-    { id: "71", name: "Dr. Alexander Wright, MD", specialty: "Internal Medicine" },
-    { id: "72", name: "Dr. Fatima Al-Kuwari, MD", specialty: "Cardiology" },
-  ]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,12 +59,13 @@ export default function AppointmentCalendarPage() {
   const [patientSearchQuery, setPatientSearchQuery] = useState("");
   const [selectedSpecialtyFilter, setSelectedSpecialtyFilter] = useState("all");
   const [selectedDoctorFilter, setSelectedDoctorFilter] = useState("all");
-  const [stateFilter, setStateFilter] = useState<"all" | "confirmed" | "checkin" | "done">("all");
+  const [stateFilter, setStateFilter] = useState("all");
 
   // Booking Modal States
   const [modalSelectedPatientId, setModalSelectedPatientId] = useState<number | null>(null);
-  const [modalDoctorId, setModalDoctorId] = useState("71");
-  const [modalDate, setModalDate] = useState("2026-09-25");
+  const [modalDoctorId, setModalDoctorId] = useState("");
+  const [modalDate, setModalDate] = useState("");
+  const [modalTime, setModalTime] = useState("");
   const [modalUrgency, setModalUrgency] = useState("normal");
 
   const loadData = async () => {
@@ -86,9 +84,6 @@ export default function AppointmentCalendarPage() {
       const dataPat = await resPat.json();
       if (dataPat.success && Array.isArray(dataPat.patients)) {
         setPatients(dataPat.patients);
-        if (dataPat.patients.length > 0) {
-          setModalSelectedPatientId(dataPat.patients[0].id);
-        }
       }
 
       // 3. Load physicians
@@ -129,9 +124,7 @@ export default function AppointmentCalendarPage() {
         throw new Error(data.error || "Failed to check in appointment.");
       }
 
-      setAppointments((prev) =>
-        prev.map((a) => (a.id === aptId ? { ...a, state: "checkin" } : a))
-      );
+      await loadData();
       setFeedback(`Encounter #${aptId} transitioned to 'Checked In'. Patient transferred to Nursing Triage.`);
       setTimeout(() => setFeedback(null), 4000);
     } catch (err: unknown) {
@@ -160,13 +153,14 @@ export default function AppointmentCalendarPage() {
           patientId: modalSelectedPatientId,
           healthprofId: parseInt(modalDoctorId, 10),
           appointmentDate: modalDate,
+          appointmentTime: modalTime,
           urgency: modalUrgency,
         }),
       });
 
       const data = await res.json();
       if (!res.ok || data.error) {
-        throw new Error(data.error || "Failed to book appointment in Tryton backend.");
+        throw new Error(data.error || "Failed to book appointment in clinical system backend.");
       }
 
       setFeedback("Appointment successfully booked and confirmed in Hospital Calendar.");
@@ -279,8 +273,11 @@ export default function AppointmentCalendarPage() {
             >
               <option value="all">All Statuses</option>
               <option value="confirmed">Confirmed</option>
-              <option value="checkin">In Triage</option>
+              <option value="checked_in">Checked in</option>
               <option value="done">Completed</option>
+              <option value="no_show">No show</option>
+              <option value="user_cancelled">Cancelled by patient</option>
+              <option value="center_cancelled">Cancelled by clinic</option>
             </select>
           </div>
         </div>
@@ -291,7 +288,7 @@ export default function AppointmentCalendarPage() {
         <div className="overflow-x-auto">
           {isLoading ? (
             <div className="p-12 text-center text-xs text-slate-500 font-mono">
-              Loading calendar bookings from Tryton backend...
+              Loading calendar bookings from clinical system backend...
             </div>
           ) : filteredAppointments.length === 0 ? (
             <div className="p-12 text-center space-y-3">
@@ -339,10 +336,10 @@ export default function AppointmentCalendarPage() {
                     </td>
                     <td className="py-3.5 px-5">
                       <Badge
-                        variant={apt.state === "checkin" ? "green" : apt.state === "done" ? "neutral" : "blue"}
+                        variant={apt.state === "checked_in" ? "green" : apt.state === "done" ? "neutral" : apt.state === "confirmed" ? "blue" : "neutral"}
                         dot
                       >
-                        {apt.state === "checkin" ? "In Triage" : apt.state === "done" ? "Completed" : "Confirmed"}
+                        {apt.state || "Unknown"}
                       </Badge>
                     </td>
                     <td className="py-3.5 px-5 text-right">
@@ -379,10 +376,11 @@ export default function AppointmentCalendarPage() {
             <label className="text-xs font-bold text-slate-700 block mb-1">Select Patient *</label>
             <select
               value={modalSelectedPatientId || ""}
-              onChange={(e) => setModalSelectedPatientId(parseInt(e.target.value, 10))}
+              onChange={(e) => setModalSelectedPatientId(e.target.value ? Number(e.target.value) : null)}
               className="w-full h-10 px-3 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:border-[#0F766E]"
               required
             >
+              <option value="">Select a patient</option>
               {patients.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name} ({p.puid}) — QID: {p.qid}
@@ -399,6 +397,7 @@ export default function AppointmentCalendarPage() {
               className="w-full h-10 px-3 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:border-[#0F766E]"
               required
             >
+              <option value="">Select a clinician</option>
               {doctors.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.name} ({d.specialty})
@@ -408,13 +407,8 @@ export default function AppointmentCalendarPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="Encounter Date"
-              type="date"
-              value={modalDate}
-              onChange={(e) => setModalDate(e.target.value)}
-              required
-            />
+            <Input label="Appointment Date" type="date" value={modalDate} onChange={(e) => setModalDate(e.target.value)} required />
+            <Input label="Appointment Time" type="time" value={modalTime} onChange={(e) => setModalTime(e.target.value)} required />
             <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">Clinical Urgency</label>
               <select

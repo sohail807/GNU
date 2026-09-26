@@ -27,13 +27,13 @@ export const AccessDeniedCard: React.FC<AccessDeniedCardProps> = ({
       <div className="space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-xs font-mono font-bold text-rose-700 uppercase tracking-wider">
           <Lock className="w-3 h-3" />
-          <span>IST Access Control · Role Boundary Enforced</span>
+          <span>Access Restricted</span>
         </div>
         <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
           Access Restricted: {moduleName}
         </h2>
         <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-          Your current authenticated staff role (<strong className="text-slate-900 uppercase font-mono">{userRole}</strong>) does not have operational clearance to access the <strong className="text-slate-900">{moduleName}</strong> module.
+          Your current staff role (<strong className="text-slate-900 uppercase font-mono">{userRole}</strong>) is not configured for <strong className="text-slate-900">{moduleName}</strong>. Backend permissions remain authoritative.
         </p>
       </div>
 
@@ -41,14 +41,6 @@ export const AccessDeniedCard: React.FC<AccessDeniedCardProps> = ({
         <div className="flex justify-between">
           <span className="text-slate-500">Required Clearance:</span>
           <span className="font-semibold text-slate-800">{requiredRole}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-slate-500">Security Standard:</span>
-          <span className="text-emerald-700 font-semibold">ISO 27799 / Zero-Trust RBAC</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-slate-500">Audit Status:</span>
-          <span className="text-slate-800">Violation Attempt Logged</span>
         </div>
       </div>
 

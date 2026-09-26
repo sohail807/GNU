@@ -30,53 +30,31 @@ export default function NursingTriagePage() {
   const searchParams = useSearchParams();
   const initialPatientId = searchParams.get("patientId");
 
-  const [patientsList, setPatientsList] = useState<any[]>([
-    { id: 66, name: "Alexander Wright", puid: "P00088", age: 42, gender: "Male", bloodGroup: "O+" },
-    { id: 73, name: "Ahmed Al-Mansoori", puid: "P00089", age: 35, gender: "Male", bloodGroup: "A+" },
-    { id: 76, name: "Mariam Al-Thani", puid: "P00090", age: 29, gender: "Female", bloodGroup: "B+" },
-  ]);
-  const [selectedPatientId, setSelectedPatientId] = useState<number>(66);
+  const [patientsList, setPatientsList] = useState<any[]>([]);
+  const [selectedPatientId, setSelectedPatientId] = useState<number>(0);
   const [patient, setPatient] = useState({
-    id: 66,
-    puid: "P00088",
-    name: "Alexander Wright",
-    age: 42,
-    gender: "Male",
-    bloodGroup: "O+",
-    allergies: ["Penicillin (Moderate rash)"],
+    id: 0, puid: "", name: "", age: "", gender: "", bloodGroup: "", allergies: [] as string[], allergiesLoaded: false,
   });
 
   // Evaluation Header States (Resolves S3.3: Evaluation Header)
-  const [attendingDoctor, setAttendingDoctor] = useState("Dr. Alexander Wright, MD");
-  const [evalDate, setEvalDate] = useState("2026-09-24");
-  const [evaluationRef, setEvaluationRef] = useState("EVAL-2026-0038");
+  const [evaluationRef, setEvaluationRef] = useState("");
 
   // Vitals & Anthropometry (Resolves S3.4, S3.5, S3.6: BP 120/80, HR 72, Temp 37.0, Wt 70, Ht 175, BMI 22.86)
   const [vitals, setVitals] = useState({
-    systolic: "120",
-    diastolic: "80",
-    bpm: "72",
-    temp: "37.0",
-    spo2: "98",
-    weight: "70",
-    height: "175",
+    systolic: "", diastolic: "", bpm: "", respiratoryRate: "", temp: "", spo2: "", weight: "", height: "",
   });
 
-  const [triageCategory, setTriageCategory] = useState("normal");
-  const [nurseNotes, setNurseNotes] = useState(
-    "Patient presents with sore throat and dry cough for 3 days. Elevated body temperature noted on arrival. Conscious, alert, oriented x 3."
-  );
+  const [nurseNotes, setNurseNotes] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Dynamic BMI Calculation
-  const heightM = parseFloat(vitals.height) / 100;
-  const bmiVal =
-    heightM > 0
-      ? (parseFloat(vitals.weight) / (heightM * heightM)).toFixed(2)
-      : "22.86";
+  const heightM = Number(vitals.height) / 100;
+  const weightKg = Number(vitals.weight);
+  const bmiVal = Number.isFinite(heightM) && heightM > 0 && Number.isFinite(weightKg) && weightKg > 0
+    ? (weightKg / (heightM * heightM)).toFixed(2) : "";
 
   // Load live patients
   useEffect(() => {
@@ -84,41 +62,35 @@ export default function NursingTriagePage() {
       try {
         const res = await fetch("/api/clinical/patients");
         const data = await res.json();
-        if (data.success && Array.isArray(data.patients) && data.patients.length > 0) {
+        if (data.success && Array.isArray(data.patients)) {
           setPatientsList(data.patients);
-          const targetId = initialPatientId ? parseInt(initialPatientId, 10) : data.patients[0].id;
+          const targetId = initialPatientId ? Number(initialPatientId) : 0;
           const match = data.patients.find((p: any) => p.id === targetId) || data.patients[0];
-          setSelectedPatientId(match.id);
-          setPatient({
-            id: match.id,
-            puid: match.puid,
-            name: match.name,
-            age: match.age,
-            gender: match.gender,
-            bloodGroup: match.bloodGroup,
-            allergies: ["Penicillin (Moderate rash)"],
-          });
+          if (match) selectPatient(match);
+        } else {
+          setErrorMessage(data.error || "Unable to load patients from clinical system.");
         }
-      } catch {
-        // Baseline fallback
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : "Unable to load patients from clinical system.");
       }
     }
     loadPatients();
   }, [initialPatientId]);
 
+  const selectPatient = (match: any) => {
+    setSelectedPatientId(match.id);
+    setPatient({
+      id: match.id, puid: match.puid || "", name: match.name || "", age: match.age || "",
+      gender: match.gender || "", bloodGroup: match.bloodGroup || "", allergies: match.allergies || [], allergiesLoaded: match.allergiesLoaded === true,
+    });
+    setVitals({ systolic: "", diastolic: "", bpm: "", respiratoryRate: "", temp: "", spo2: "", weight: "", height: "" });
+    setNurseNotes("");
+  };
+
   const handlePatientSelect = (patId: number) => {
-    setSelectedPatientId(patId);
     const match = patientsList.find((p) => p.id === patId);
     if (match) {
-      setPatient({
-        id: match.id,
-        puid: match.puid,
-        name: match.name,
-        age: match.age,
-        gender: match.gender,
-        bloodGroup: match.bloodGroup,
-        allergies: ["Penicillin (Moderate rash)"],
-      });
+      selectPatient(match);
       setFeedback(null);
       setErrorMessage(null);
     }
@@ -139,7 +111,7 @@ export default function NursingTriagePage() {
           diastolic: vitals.diastolic,
           bpm: vitals.bpm,
           temperature: vitals.temp,
-          respiratoryRate: "16",
+          respiratoryRate: vitals.respiratoryRate,
           osat: vitals.spo2,
           weight: vitals.weight,
           height: vitals.height,
@@ -150,13 +122,13 @@ export default function NursingTriagePage() {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to commit triage telemetry to GNU Health");
+        throw new Error(data.error || "Failed to commit triage telemetry to clinical system");
       }
 
-      const generatedRef = data.evaluationId ? `EVAL-2026-00${data.evaluationId}` : evaluationRef;
+      const generatedRef = data.evaluationId ? String(data.evaluationId) : "";
       setEvaluationRef(generatedRef);
       setFeedback(
-        `Evaluation ${generatedRef} committed successfully for ${patient.name}. Anthropometry & Vitals verified (BMI: ${bmiVal} kg/m²). Patient routed to Physician Consultation.`
+        `clinical system evaluation record ${generatedRef || ""} saved for ${patient.name}.`
       );
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to save triage evaluation");
@@ -173,19 +145,19 @@ export default function NursingTriagePage() {
           <div className="flex items-center gap-2 mb-1">
             <span className="kicker text-[#0F766E]">CLINICAL HEALTH · PATIENT EVALUATIONS</span>
             <span className="text-slate-300">/</span>
-            <span className="kicker text-slate-500">TRIAGE STATION 02</span>
+            <span className="kicker text-slate-500">TRIAGE</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Patient Evaluations & Clinical Triage
           </h1>
           <p className="text-xs text-slate-600 mt-1">
-            GNU Health Menu Sequence 25 (Menu ID 252) · Record Anthropometry, Vitals, BMI Telemetry & Acuity Level.
+            Record patient evaluation details in clinical system.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <Badge variant="green" size="md" dot>
-            Triage Station Online
+              Native clinical system workflow
           </Badge>
         </div>
       </div>
@@ -231,13 +203,13 @@ export default function NursingTriagePage() {
                 <Badge variant="teal" size="sm">Evaluation: {evaluationRef}</Badge>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Age: {patient.age} Y · Sex: {patient.gender} · Blood Group: {patient.bloodGroup} · Qatar Central Clinic
+                {[patient.age, patient.gender, patient.bloodGroup].filter(Boolean).join(" · ")}
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {patientsList.length > 1 && (
+            {patientsList.length > 0 && (
               <div className="flex items-center gap-2">
                 <span className="text-xs text-slate-500 font-medium">Select Patient:</span>
                 <select
@@ -263,42 +235,12 @@ export default function NursingTriagePage() {
                   {all}
                 </Badge>
               ))}
+              {patient.allergies.length === 0 && <span className="text-xs text-slate-500">{patient.allergiesLoaded ? "No allergy records returned by clinical system." : "Allergy information could not be loaded."}</span>}
             </div>
           </div>
         </div>
 
-        {/* Evaluation Header Parameters: Doctor, Date, Ref */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-          <div className="space-y-1">
-            <label className="text-[11px] font-bold text-slate-700">Attending Physician *</label>
-            <select
-              value={attendingDoctor}
-              onChange={(e) => setAttendingDoctor(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:outline-none focus:border-[#0F766E]"
-            >
-              <option value="Dr. Gregory House, MD">Dr. Gregory House, MD (Internal Medicine)</option>
-              <option value="Dr. Alexander Wright, MD">Dr. Alexander Wright, MD (General Practice)</option>
-              <option value="Dr. Fatima Al-Kuwari, MD">Dr. Fatima Al-Kuwari, MD (Cardiology)</option>
-            </select>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-[11px] font-bold text-slate-700">Evaluation Date *</label>
-            <input
-              type="date"
-              value={evalDate}
-              onChange={(e) => setEvalDate(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg font-mono focus:outline-none focus:border-[#0F766E]"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-[11px] font-bold text-slate-700">Evaluation Master Identifier</label>
-            <div className="px-3 py-2 text-xs bg-teal-50 border border-teal-200 rounded-lg font-mono font-bold text-[#0F766E]">
-              {evaluationRef}
-            </div>
-          </div>
-        </div>
+        {evaluationRef && <p className="text-xs text-slate-600">clinical system evaluation record ID: {evaluationRef}</p>}
       </div>
 
       {/* VITALS & ANTHROPOMETRY FORM (Resolves S3.4, S3.5, S3.6) */}
@@ -312,11 +254,11 @@ export default function NursingTriagePage() {
               </h3>
             </div>
             <span className="font-mono text-xs text-slate-500">
-              Calibrated Medical Gateway
+              Enter values measured for this patient.
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
             {/* Systolic BP */}
             <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
               <span className="kicker text-[10px] text-slate-500 block">SYSTOLIC BP</span>
@@ -375,6 +317,17 @@ export default function NursingTriagePage() {
                   required
                 />
                 <span className="text-[10px] text-slate-400">°C</span>
+              </div>
+            </div>
+
+            {/* Respiratory Rate */}
+            <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+              <span className="kicker text-[10px] text-slate-500 block">RESP. RATE</span>
+              <div className="flex items-baseline gap-1">
+                <input type="number" value={vitals.respiratoryRate}
+                  onChange={(e) => setVitals({ ...vitals, respiratoryRate: e.target.value })}
+                  className="font-mono text-xl font-extrabold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]" required />
+                <span className="text-[10px] text-slate-400">/min</span>
               </div>
             </div>
 
@@ -438,14 +391,12 @@ export default function NursingTriagePage() {
                   </span>
                 </div>
                 <div className="text-[11px] text-slate-600">
-                  Formula: Weight ({vitals.weight}kg) / Height² ({vitals.height}cm) · Clinical Range: Normal Weight (18.5 - 24.9)
+                  Formula: Weight ({vitals.weight} kg) / Height² ({vitals.height} cm)
                 </div>
               </div>
             </div>
 
-            <Badge variant="teal" size="md">
-              Acuity Score: Level 4 (Standard)
-            </Badge>
+            <Badge variant="teal" size="md">Acuity must be assessed by clinical staff.</Badge>
           </div>
 
           <Textarea
@@ -457,15 +408,14 @@ export default function NursingTriagePage() {
           />
 
           <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-            <div className="text-xs text-slate-500 font-mono">
-              Committed to GNU Health model: <strong className="text-slate-800">gnuhealth.patient.evaluation</strong>
-            </div>
+            <div className="text-xs text-slate-500">Evaluation details are saved to the organization’s gnuhealth.</div>
 
             <Button
               type="submit"
               variant="primary"
               size="md"
               isLoading={isSubmitting}
+              disabled={!patient.id || patientsList.length === 0}
               leftIcon={<Save className="w-4 h-4" />}
               className="bg-[#0F766E] hover:bg-[#115E59] font-bold"
             >

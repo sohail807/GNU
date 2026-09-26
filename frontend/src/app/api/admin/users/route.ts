@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomBytes } from "crypto";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import {
@@ -6,42 +7,116 @@ import {
   DEFAULT_ROLE_PERMISSIONS,
   HospitalRole,
   AppModule,
-  resolveRoleFromTrytonGroups,
+  resolveRoleFromTrytonGroupNames,
 } from "@/lib/access-control";
 
-// Map HospitalRole to Tryton Group IDs
-const ROLE_TO_TRYTON_GROUPS: Record<HospitalRole, number[]> = {
-  admin: [1, 11], // Administration, Health Administration
-  physician: [15], // Health Doctor
-  nursing: [13], // Health Nurse
-  reception: [14], // Health Front Desk
-  lab: [23], // Health Lab
-  radiology: [20, 21], // Health Imaging
-  cashier: [6], // Account
-  accountant: [8, 7], // Account Administration, Accounting Party
-  general: [14],
+const ROLE_TO_TRYTON_GROUP_NAMES: Record<HospitalRole, string[]> = {
+  admin: ["Administration", "Health Administration"],
+  physician: ["Health Doctor"],
+  nursing: ["Health Nurse"],
+  reception: ["Health Front Desk"],
+  lab: ["Health Lab"],
+  radiology: ["Health Imaging"],
+  cashier: ["Account"],
+  accountant: ["Account Administration", "Accounting Party"],
+  general: ["Health Front Desk"],
 };
 
-export async function GET(req: NextRequest) {
+async function hasLiveAdminRole(session: NonNullable<Awaited<ReturnType<typeof getSession>>>) {
+  const users = await TrytonClient.execute<any[]>(
+    session.username, session.userId, session.sessionToken,
+    "res.user", "read", [[session.userId], ["groups"]],
+    { company: session.companyId }, session.database
+  );
+  const ids = relationIds(users[0]?.groups);
+  if (!ids.length) return false;
+  const groups = await TrytonClient.execute<any[]>(
+    session.username, session.userId, session.sessionToken,
+    "res.group", "search_read",
+    [[ ["id", "in", ids] ], 0, ids.length, null, ["name"]],
+    { company: session.companyId }, session.database
+  );
+  return resolveRoleFromTrytonGroupNames(groups.map((group) => String(group.name || ""))).role === "admin";
+}
+
+function relationIds(value: unknown): number[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => (Array.isArray(item) ? item[0] : item))
+    .filter((id): id is number => Number.isSafeInteger(id));
+}
+
+async function readRoleGroupIds(
+  session: NonNullable<Awaited<ReturnType<typeof getSession>>>,
+  requiredRole: HospitalRole
+) {
+  const requestedNames = [...new Set(Object.values(ROLE_TO_TRYTON_GROUP_NAMES).flat())];
+  const rows = await TrytonClient.execute<any[]>(
+    session.username,
+    session.userId,
+    session.sessionToken,
+    "res.group",
+    "search_read",
+    [[["name", "in", requestedNames]], 0, requestedNames.length, null, ["id", "name"]],
+    { company: session.companyId },
+    session.database
+  );
+  const byName = new Map(rows.map((row) => [String(row.name).trim().toLowerCase(), row.id as number]));
+  const idsByRole = {} as Record<HospitalRole, number[]>;
+  for (const role of Object.keys(ROLE_TO_TRYTON_GROUP_NAMES) as HospitalRole[]) {
+    const roleIds = ROLE_TO_TRYTON_GROUP_NAMES[role]
+      .map((name) => byName.get(name.toLowerCase()))
+      .filter((id): id is number => Number.isSafeInteger(id));
+    if (role === requiredRole && roleIds.length !== ROLE_TO_TRYTON_GROUP_NAMES[role].length) {
+      throw new Error(`backend system security groups are missing or unreadable for role ${role}.`);
+    }
+    idsByRole[role] = roleIds;
+  }
+  return { idsByRole, managedIds: new Set(rows.map((row) => row.id as number)) };
+}
+
+export async function GET() {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
 
   try {
-    // Query genuine users from Tryton res.user
+    if (!(await hasLiveAdminRole(session))) {
+      return NextResponse.json({ error: "Current backend system administrator access is required." }, { status: 403 });
+    }
+    // Query genuine users from backend system res.user
     const usersRaw = await TrytonClient.execute<any[]>(
       session.username,
       session.userId,
       session.sessionToken,
       "res.user",
       "search_read",
-      [[[], 0, 50, [["id", "ASC"]], ["id", "login", "name", "active", "groups", "email"]]]
+      [[], 0, 50, [["id", "ASC"]], ["id", "login", "name", "active", "groups", "email"]],
+      { company: session.companyId },
+      session.database
     );
 
+    const allGroupIds = [...new Set(usersRaw.flatMap((user) => relationIds(user.groups)))];
+    const groupRows = allGroupIds.length
+      ? await TrytonClient.execute<any[]>(
+          session.username,
+          session.userId,
+          session.sessionToken,
+          "res.group",
+          "search_read",
+          [[["id", "in", allGroupIds]], 0, allGroupIds.length, null, ["id", "name"]],
+          { company: session.companyId },
+          session.database
+        )
+      : [];
+    const groupNameById = new Map(groupRows.map((group) => [group.id as number, String(group.name)]));
+
     const users: UserAccessProfile[] = usersRaw.map((u) => {
-      const groupIds = u.groups || [];
-      const resolved = resolveRoleFromTrytonGroups(groupIds);
+      const groupIds = relationIds(u.groups);
+      const resolved = resolveRoleFromTrytonGroupNames(
+        groupIds.map((id) => groupNameById.get(id)).filter((name): name is string => Boolean(name))
+      );
       const perms = { ...DEFAULT_ROLE_PERMISSIONS[resolved.role] };
 
       return {
@@ -50,27 +125,12 @@ export async function GET(req: NextRequest) {
         name: u.name || u.login,
         role: resolved.role,
         roleTitle: resolved.roleTitle,
-        department:
-          resolved.role === "physician"
-            ? "Clinical Medicine & Consultation"
-            : resolved.role === "nursing"
-            ? "Outpatient Nursing & Triage"
-            : resolved.role === "reception"
-            ? "Front Desk & Intake"
-            : resolved.role === "lab"
-            ? "Diagnostic Pathology"
-            : resolved.role === "radiology"
-            ? "Digital Radiology & PACS"
-            : resolved.role === "cashier"
-            ? "Patient Accounts & Invoicing"
-            : resolved.role === "accountant"
-            ? "Hospital General Ledger Audit"
-            : "Hospital Administration",
-        email: u.email || `${u.login}@ist-health.qa`,
-        phone: "+974 4400 1000",
+        department: "",
+        email: u.email || "",
+        phone: "",
         status: u.active ? "active" : "suspended",
         permissions: perms,
-        lastLogin: "Active Today",
+        lastLogin: "Unavailable",
       };
     });
 
@@ -96,38 +156,80 @@ export async function POST(req: NextRequest) {
   }
 
   // Only Administrator can execute mutations on staff users and access control
-  if (session.role !== "admin" && session.username !== "admin") {
-    return NextResponse.json(
-      { error: "Access Denied: Administrative privileges required to manage IST Health users." },
-      { status: 403 }
-    );
-  }
-
   try {
+    if (!(await hasLiveAdminRole(session))) {
+      return NextResponse.json({ error: "Current backend system administrator access is required." }, { status: 403 });
+    }
     const body = await req.json();
     const { action } = body;
 
-    // Action 1: Update User Permissions / Role
-    if (action === "update_permissions" || action === "update_user") {
-      const { userId, role, status, name } = body;
-      if (!userId) {
+    if (action === "update_permissions") {
+      return NextResponse.json(
+        { error: "Individual module overrides are not supported. Assign a native backend system role instead." },
+        { status: 400 }
+      );
+    }
+
+    // Update a native backend system account and its managed operational role group.
+    if (action === "update_user") {
+      const { userId, role, status, name, email } = body;
+      const uid = Number(userId);
+      if (!Number.isSafeInteger(uid) || uid <= 0) {
         return NextResponse.json({ error: "User ID is required." }, { status: 400 });
       }
 
-      const uid = parseInt(userId, 10);
       const writePayload: Record<string, unknown> = {};
 
-      if (typeof status === "string") {
+      if (status === "active" || status === "suspended") {
         writePayload.active = status === "active";
+      } else if (status !== undefined) {
+        return NextResponse.json({ error: "Status must be active or suspended." }, { status: 400 });
       }
 
-      if (name) {
-        writePayload.name = name;
+      if (typeof name === "string" && name.trim()) {
+        writePayload.name = name.trim();
       }
 
-      if (role && ROLE_TO_TRYTON_GROUPS[role as HospitalRole]) {
-        const groups = ROLE_TO_TRYTON_GROUPS[role as HospitalRole];
-        writePayload.groups = groups;
+      if (email !== undefined) {
+        if (typeof email !== "string" || (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+          return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
+        }
+        writePayload.email = email.trim();
+      }
+
+      if (role !== undefined) {
+        if (typeof role !== "string" || !Object.hasOwn(ROLE_TO_TRYTON_GROUP_NAMES, role)) {
+          return NextResponse.json({ error: "The selected backend system role is not supported." }, { status: 400 });
+        }
+        if (uid === session.userId && (role !== "admin" || status === "suspended")) {
+          return NextResponse.json(
+            { error: "You cannot remove or suspend your own administrator access." },
+            { status: 409 }
+          );
+        }
+
+        const { idsByRole, managedIds } = await readRoleGroupIds(session, role as HospitalRole);
+        const targetUsers = await TrytonClient.execute<any[]>(
+          session.username,
+          session.userId,
+          session.sessionToken,
+          "res.user",
+          "read",
+          [[uid], ["id", "groups"]],
+          { company: session.companyId },
+          session.database
+        );
+        const currentGroups: number[] = relationIds(targetUsers[0]?.groups);
+        writePayload.groups = [
+          ...new Set([
+            ...currentGroups.filter((groupId) => !managedIds.has(groupId)),
+            ...idsByRole[role as HospitalRole],
+          ]),
+        ];
+      }
+
+      if (Object.keys(writePayload).length === 0) {
+        return NextResponse.json({ error: "No supported profile changes were supplied." }, { status: 400 });
       }
 
       await TrytonClient.execute(
@@ -141,13 +243,13 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: `Staff user record updated and committed to Tryton security database.`,
+        message: `Staff user record updated and committed to backend system security database.`,
       });
     }
 
     // Action 2: Add New Staff User
     if (action === "add_user") {
-      const { username, name, role, email, password } = body;
+      const { username, name, role, email } = body;
       if (!username || !name || !role) {
         return NextResponse.json(
           { error: "Username, Full Name, and Clinical Role are required." },
@@ -155,14 +257,19 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const targetRole = (role as HospitalRole) || "reception";
-      const groups = ROLE_TO_TRYTON_GROUPS[targetRole] || [14];
+      if (typeof role !== "string" || !Object.hasOwn(ROLE_TO_TRYTON_GROUP_NAMES, role)) {
+        return NextResponse.json({ error: "The selected backend system role is not supported." }, { status: 400 });
+      }
+      const targetRole = role as HospitalRole;
+      const { idsByRole } = await readRoleGroupIds(session, targetRole);
+      const groups = idsByRole[targetRole];
+      const temporaryPassword = randomBytes(24).toString("base64url");
 
       const userPayload = {
         login: username.trim().toLowerCase(),
         name: name.trim(),
-        email: email || `${username.trim().toLowerCase()}@ist-health.qa`,
-        password: password || "Health2026!",
+        email: typeof email === "string" ? email.trim() : "",
+        password: temporaryPassword,
         groups: groups,
         active: true,
       };
@@ -177,7 +284,7 @@ export async function POST(req: NextRequest) {
       );
       const newUserId = res[0];
 
-      // If physician or nurse, also register health professional record
+      // Link clinicians to the account so appointment/clinical routes can resolve them.
       if (targetRole === "physician" || targetRole === "nursing") {
         try {
           const partyRes = await TrytonClient.execute<number[]>(
@@ -186,7 +293,9 @@ export async function POST(req: NextRequest) {
             session.sessionToken,
             "party.party",
             "create",
-            [[{ name: name.trim(), is_person: true }]]
+            [[{ name: name.trim(), is_person: true, internal_user: newUserId }]],
+            { company: session.companyId },
+            session.database
           );
           await TrytonClient.execute(
             session.username,
@@ -194,37 +303,53 @@ export async function POST(req: NextRequest) {
             session.sessionToken,
             "gnuhealth.healthprofessional",
             "create",
-            [[{ party: partyRes[0] }]]
+            [[{ party: partyRes[0] }]],
+            { company: session.companyId },
+            session.database
           );
-        } catch {
-          // Non-blocking
+        } catch (error) {
+          await TrytonClient.execute(
+            session.username,
+            session.userId,
+            session.sessionToken,
+            "res.user",
+            "write",
+            [[newUserId], { active: false }],
+            { company: session.companyId },
+            session.database
+          );
+          throw new Error(
+            `The account was created but its clinician profile could not be linked; the account has been disabled. ${error instanceof Error ? error.message : ""}`
+          );
         }
       }
 
       return NextResponse.json({
         success: true,
         userId: newUserId,
-        message: `Staff user @${username} provisioned successfully in Tryton database.`,
+        temporaryPassword,
+        message: `Staff user @${username} provisioned successfully in backend system database.`,
       });
     }
 
     // Action 3: Administrative Password Reset
     if (action === "reset_password") {
-      const { userId } = body;
-      let { newPassword } = body;
-      if (!userId) {
+      const userId = Number(body.userId);
+      if (!Number.isSafeInteger(userId) || userId <= 0) {
         return NextResponse.json(
           { error: "User ID is required." },
           { status: 400 }
         );
       }
 
-      if (!newPassword || typeof newPassword !== "string" || newPassword.trim() === "") {
-        // Auto-generate strong 12-char temporary credential
-        newPassword = "Temp" + Math.random().toString(36).slice(-6) + "!";
+      if (userId === session.userId) {
+        return NextResponse.json(
+          { error: "Use the account's native password-change process to change your own password." },
+          { status: 400 }
+        );
       }
 
-      const uid = parseInt(userId, 10);
+      const uid = userId;
 
       // Protect Platform Super-Admin (User ID 1) from tenant admin reset
       if (uid === 1 && session.userId !== 1) {
@@ -234,19 +359,22 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      const temporaryPassword = randomBytes(24).toString("base64url");
       await TrytonClient.execute(
         session.username,
         session.userId,
         session.sessionToken,
         "res.user",
         "write",
-        [[uid], { password: newPassword }]
+        [[uid], { password: temporaryPassword }],
+        { company: session.companyId },
+        session.database
       );
 
       return NextResponse.json({
         success: true,
-        temporaryPassword: newPassword,
-        message: "Staff account password updated successfully in Tryton security database.",
+        temporaryPassword,
+        message: "Password updated. This temporary credential is shown only once; share it through an approved secure channel.",
       });
     }
 

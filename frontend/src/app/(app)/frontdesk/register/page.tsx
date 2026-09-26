@@ -32,15 +32,10 @@ export default function PatientRegistrationPage() {
   // Clean initial state (resolves S1.4: "When we click on new registration, old Patient details still reflects")
   const initialFormData = {
     name: "",
-    arabicName: "",
     qid: "",
     dob: "",
-    gender: "m",
-    phone: "",
-    email: "",
-    address: "",
-    emergencyContact: "",
-    bloodType: "O+",
+    gender: "",
+    bloodType: "",
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -50,49 +45,32 @@ export default function PatientRegistrationPage() {
   const [isDuplicateError, setIsDuplicateError] = useState(false);
 
   // Update Permitted Info State (resolves S1.8: "Update Permitted Info: Functionality not found")
-  const [updatePatientSearch, setUpdatePatientSearch] = useState("Alexander Wright");
+  const [updatePatientSearch, setUpdatePatientSearch] = useState("");
+  const [updatePatientResults, setUpdatePatientResults] = useState<Array<{ id: number; name: string; puid: string }>>([]);
   const [updatePatientData, setUpdatePatientData] = useState({
-    patientId: "66",
-    puid: "P00088",
-    name: "Alexander Wright",
-    phone: "+974 5512 8492",
-    emergencyContact: "Elena Wright (+974 5512 8493)",
-    criticalInfo: "Allergic to Penicillin — Moderate erythematous rash",
+    patientId: "",
+    puid: "",
+    name: "",
+    criticalInfo: "",
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
 
-  // Demo synthetic data pre-fill helper
-  const handleFillDemoData = (type: "synthetic_new" | "alexander_wright") => {
+  const searchExistingPatients = async () => {
+    setUpdateSuccess(null);
     setErrorMessage(null);
-    setIsDuplicateError(false);
-    if (type === "alexander_wright") {
-      setFormData({
-        name: "Alexander Wright",
-        arabicName: "ألكسندر رايت",
-        qid: "28263401928",
-        dob: "1984-06-15",
-        gender: "m",
-        phone: "+974 5512 8492",
-        email: "alexander.wright@example.com",
-        address: "Zone 61, Street 840, West Bay, Doha, Qatar",
-        emergencyContact: "Elena Wright (+974 5512 8493)",
-        bloodType: "O+",
-      });
-    } else {
-      const randNum = Math.floor(1000 + Math.random() * 9000);
-      setFormData({
-        name: `Sultan Al-Kuwari ${randNum}`,
-        arabicName: "سلطان الكواري",
-        qid: `29${randNum}4019281`,
-        dob: "1992-08-20",
-        gender: "m",
-        phone: `+974 5512 ${randNum}`,
-        email: `sultan.${randNum}@example.com`,
-        address: "Al Sadd, Zone 38, Doha, Qatar",
-        emergencyContact: "Noura Al-Kuwari (+974 5512 9999)",
-        bloodType: "A+",
-      });
+    if (!updatePatientSearch.trim()) {
+      setErrorMessage("Enter a patient name or clinical system PUID to search.");
+      return;
+    }
+    try {
+      const response = await fetch(`/api/clinical/patients?q=${encodeURIComponent(updatePatientSearch.trim())}`);
+      const data = await response.json();
+      if (!response.ok || !Array.isArray(data.patients)) throw new Error(data.error || "Patient search failed.");
+      setUpdatePatientResults(data.patients.map((patient: { id: number; name: string; puid: string }) => ({ id: patient.id, name: patient.name, puid: patient.puid })));
+      if (data.patients.length === 0) setErrorMessage("No matching patient was found.");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Patient search failed.");
     }
   };
 
@@ -138,9 +116,11 @@ export default function PatientRegistrationPage() {
         throw new Error(data.error || "Failed to register patient in hospital registry");
       }
 
-      const assignedPUID = data.patient?.puid || "P00088";
+      const assignedPUID = data.patient?.puid;
       setSuccessMessage(
-        `Patient ${formData.name} successfully registered with official PUID ${assignedPUID}. Record committed to Hospital Master Index.`
+        assignedPUID
+          ? `Patient ${formData.name} registered with clinical system PUID ${assignedPUID}.`
+          : `Patient ${formData.name} registered. clinical system did not return a PUID; verify the record before continuing.`
       );
 
       setTimeout(() => {
@@ -166,20 +146,18 @@ export default function PatientRegistrationPage() {
         body: JSON.stringify({
           patientId: updatePatientData.patientId,
           criticalInfo: updatePatientData.criticalInfo,
-          phone: updatePatientData.phone,
-          emergencyContact: updatePatientData.emergencyContact,
         }),
       });
       const data = await res.json();
       if (res.ok) {
         setUpdateSuccess(
-          `Clinical record and permitted demographic details updated for ${updatePatientData.name} (${updatePatientData.puid}). Changes committed.`
+          `clinical system critical information updated for ${updatePatientData.name} (${updatePatientData.puid}).`
         );
       } else {
         setErrorMessage(data.error || "Update failed");
       }
     } catch {
-      setUpdateSuccess(`Clinical notes updated for ${updatePatientData.name} (${updatePatientData.puid}).`);
+      setErrorMessage("Could not reach the patient service. No update was confirmed; check the record before retrying.");
     } finally {
       setIsUpdating(false);
     }
@@ -279,12 +257,6 @@ export default function PatientRegistrationPage() {
                     >
                       Switch to Update Existing Record
                     </button>
-                    <Link
-                      href="/patient/66"
-                      className="text-amber-900 underline font-semibold text-xs hover:text-amber-950"
-                    >
-                      Open Master Chart (Alexander Wright)
-                    </Link>
                   </div>
                 )}
               </div>
@@ -312,27 +284,8 @@ export default function PatientRegistrationPage() {
               <p className="text-xs text-slate-500">All fields marked with an asterisk (*) are mandatory for MPI commit.</p>
             </div>
 
-            {/* Quick Demo Pre-fill & Clear Controls */}
+            {/* Clear Controls */}
             <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="xs"
-                onClick={() => handleFillDemoData("synthetic_new")}
-                leftIcon={<Sparkles className="w-3 h-3 text-teal-600" />}
-                title="Fill synthetic new patient"
-              >
-                Demo New
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="xs"
-                onClick={() => handleFillDemoData("alexander_wright")}
-                title="Test duplicate constraint with Alexander Wright"
-              >
-                Test Duplicate
-              </Button>
               <Button
                 type="button"
                 variant="ghost"
@@ -349,24 +302,18 @@ export default function PatientRegistrationPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Full Legal Name (English) *"
-                placeholder="e.g. Alexander Wright"
+                placeholder="Enter the patient’s legal name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
               />
 
-              <Input
-                label="Full Name (Arabic Script)"
-                placeholder="e.g. ألكسندر رايت"
-                value={formData.arabicName}
-                onChange={(e) => setFormData({ ...formData, arabicName: e.target.value })}
-              />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Input
                 label="Qatar Civil ID (QID - 11 Digits) *"
-                placeholder="e.g. 28263401928"
+                placeholder="11 digit Qatar Civil ID"
                 value={formData.qid}
                 onChange={(e) => setFormData({ ...formData, qid: e.target.value })}
                 required
@@ -392,22 +339,6 @@ export default function PatientRegistrationPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Input
-                label="Mobile Phone Number *"
-                placeholder="e.g. +974 5512 8492"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
-              />
-
-              <Input
-                label="Email Address"
-                placeholder="e.g. patient@example.com"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-
               <Select
                 label="Blood Group (ABO/Rh)"
                 value={formData.bloodType}
@@ -425,19 +356,7 @@ export default function PatientRegistrationPage() {
               />
             </div>
 
-            <Input
-              label="Residential Address"
-              placeholder="e.g. Zone 61, Street 840, West Bay, Doha, Qatar"
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-            />
-
-            <Input
-              label="Emergency Contact & Relationship"
-              placeholder="e.g. Elena Wright (Spouse) +974 5512 8493"
-              value={formData.emergencyContact}
-              onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.value })}
-            />
+            <p className="text-xs text-slate-600">This registration stores the demographic fields currently mapped to clinical system. Contact details and Arabic name are not collected here.</p>
 
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <span className="text-xs text-slate-500 font-mono">
@@ -471,9 +390,9 @@ export default function PatientRegistrationPage() {
         <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-2xs space-y-6">
           <div className="pb-4 border-b border-slate-100">
             <span className="kicker text-[#0F766E] block mb-0.5">EXISTING PATIENT MASTER FILE</span>
-            <h2 className="text-base font-bold text-slate-900">Update Permitted Clinical & Contact Information</h2>
+            <h2 className="text-base font-bold text-slate-900">Update Clinical Critical Information</h2>
             <p className="text-xs text-slate-500">
-              Update clinical allergy notes, emergency contacts, and phone details on the established master record without violating party constraints.
+              Select an existing patient, then update the clinical system critical information field.
             </p>
           </div>
 
@@ -488,32 +407,31 @@ export default function PatientRegistrationPage() {
           )}
 
           <form onSubmit={handleUpdatePermittedInfo} className="space-y-5">
+            <div className="flex items-end gap-3">
+              <Input label="Find Existing Patient" value={updatePatientSearch} onChange={(event) => setUpdatePatientSearch(event.target.value)} placeholder="Patient name or PUID" />
+              <Button type="button" variant="outline" onClick={searchExistingPatients} leftIcon={<Search className="w-4 h-4" />}>Search</Button>
+            </div>
+            {updatePatientResults.length > 0 && (
+              <div className="space-y-2" aria-label="Patient search results">
+                {updatePatientResults.map((patient) => (
+                  <button key={patient.id} type="button" onClick={() => { setUpdatePatientData((current) => ({ ...current, patientId: String(patient.id), name: patient.name, puid: patient.puid })); setUpdatePatientResults([]); setUpdateSuccess(null); }} className="w-full rounded-lg border border-slate-200 p-3 text-left text-sm hover:border-teal-600">
+                    {patient.name} <span className="ml-2 text-slate-500">{patient.puid}</span>
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="p-4 bg-slate-50 border border-slate-200/90 rounded-xl space-y-2">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold text-slate-900">{updatePatientData.name}</div>
                   <div className="text-[11px] font-mono text-[#0F766E]">PUID: {updatePatientData.puid}</div>
                 </div>
-                <span className="px-2.5 py-1 rounded bg-teal-100 text-[#0F766E] font-mono text-xs font-bold">
-                  Verified Active File
-                </span>
+                {updatePatientData.patientId && <span className="px-2.5 py-1 rounded bg-teal-100 text-[#0F766E] font-mono text-xs font-bold">Selected patient record</span>}
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Updated Mobile Number"
-                value={updatePatientData.phone}
-                onChange={(e) => setUpdatePatientData({ ...updatePatientData, phone: e.target.value })}
-                required
-              />
-
-              <Input
-                label="Emergency Contact & Kin"
-                value={updatePatientData.emergencyContact}
-                onChange={(e) => setUpdatePatientData({ ...updatePatientData, emergencyContact: e.target.value })}
-                required
-              />
+              <p className="text-xs text-slate-600">This action updates clinical system’s critical information field only. Phone, address, and emergency contact edits are not available in this frontend.</p>
             </div>
 
             <Textarea
@@ -522,19 +440,15 @@ export default function PatientRegistrationPage() {
               onChange={(e) => setUpdatePatientData({ ...updatePatientData, criticalInfo: e.target.value })}
               rows={3}
               placeholder="e.g. Allergic to Penicillin — Moderate rash"
-              required
+                required
             />
 
             <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-              <Link href="/patient/66">
-                <Button type="button" variant="outline">
-                  View Full Chart
-                </Button>
-              </Link>
               <Button
                 type="submit"
                 variant="primary"
                 isLoading={isUpdating}
+                disabled={!updatePatientData.patientId}
                 leftIcon={<CheckCircle2 className="w-4 h-4" />}
               >
                 Save Permitted Information

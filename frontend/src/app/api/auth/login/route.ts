@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { TrytonClient } from "@/lib/tryton-client";
 import { setSession } from "@/lib/auth-session";
-import { resolveRoleFromTrytonGroups } from "@/lib/access-control";
+import { resolveRoleFromTrytonGroupNames } from "@/lib/access-control";
 import { resolveTenant } from "@/lib/tenant";
 
 export async function POST(req: NextRequest) {
@@ -14,14 +14,14 @@ export async function POST(req: NextRequest) {
 
     const tenant = resolveTenant(tenantId || req.headers.get("x-tenant-id"));
 
-    // Authenticate with authoritative Tryton backend for the tenant's dedicated database
+    // Authenticate with authoritative backend system backend for the tenant's dedicated database
     const { userId, sessionToken } = await TrytonClient.login(username.trim(), password, tenant.database);
 
     // Fetch live user profile and security groups using the user's authentic session
     let role = "general";
     let roleTitle = "Clinical Staff";
     let redirect = "/frontdesk";
-    let displayName = username;
+    let displayName = username.trim();
     let groupIds: number[] = [];
     let healthprofId: number | undefined = undefined;
 
@@ -41,18 +41,29 @@ export async function POST(req: NextRequest) {
         const u = userRecords[0];
         displayName = u.name || username;
         groupIds = u.groups || [];
-        const resolved = resolveRoleFromTrytonGroups(groupIds);
+        const groupRecords = groupIds.length
+          ? await TrytonClient.execute<any[]>(
+              username.trim(),
+              userId,
+              sessionToken,
+              "res.group",
+              "search_read",
+              [[["id", "in", groupIds]], 0, groupIds.length, null, ["id", "name"]],
+              { company: tenant.defaultCompanyId },
+              tenant.database
+            )
+          : [];
+        const resolved = resolveRoleFromTrytonGroupNames(groupRecords.map((group) => group.name));
         role = resolved.role;
         roleTitle = resolved.roleTitle;
         redirect = resolved.redirect;
       }
-    } catch (err) {
-      console.warn("Could not read user groups from res.user, using fallback:", err);
-      if (username === "admin") {
-        role = "admin";
-        roleTitle = "System Administrator";
-        redirect = "/admin";
-      }
+    } catch {
+      // Never infer administrator privileges from a login name when group lookup fails.
+      role = "general";
+      roleTitle = "Staff member";
+      redirect = "/frontdesk";
+      groupIds = [];
     }
 
     // Attempt to locate associated Health Professional ID via party.internal_user relation
@@ -102,7 +113,8 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Authentication failed";
-    return NextResponse.json({ error: message }, { status: 401 });
+    // backend system may include internal host, database, or account details in its
+    // exception text. Keep those details in server logs only.
+    return NextResponse.json({ error: "Unable to sign in. Check your credentials or contact your administrator." }, { status: 401 });
   }
 }

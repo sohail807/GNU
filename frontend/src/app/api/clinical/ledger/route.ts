@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
       const dateVal = m.date;
       const dateStr = dateVal?.year
         ? `${dateVal.year}-${String(dateVal.month).padStart(2, "0")}-${String(dateVal.day).padStart(2, "0")}`
-        : "2026-09-25";
+        : null;
 
       const lines = (m.lines || []).map((lid: number) => {
         const l = linesMap[lid] || {};
@@ -87,8 +87,8 @@ export async function GET(req: NextRequest) {
 
         return {
           id: l.id,
-          account: acc.code || (accId === 2 ? "1010" : accId === 5 ? "1100" : "4000"),
-          accountName: acc.name || (accId === 2 ? "Main Cash on Hand" : accId === 5 ? "Accounts Receivable" : "Clinical Revenue"),
+          account: acc.code || "",
+          accountName: acc.name || "",
           debit: debitNum,
           credit: creditNum,
           description: l.description || "",
@@ -97,14 +97,11 @@ export async function GET(req: NextRequest) {
 
       return {
         id: m.id,
-        ref: `MOV-2026-${String(m.id).padStart(4, "0")}`,
+        ref: String(m.number || m.id),
         date: dateStr,
         description: m.description || `Account Move #${m.number || m.id}`,
-        state: m.state || "posted",
-        lines: lines.length > 0 ? lines : [
-          { account: "1010", accountName: "Main Cash on Hand Journal", debit: 150.0, credit: 0.0 },
-          { account: "1100", accountName: "Accounts Receivable (Settlement)", debit: 0.0, credit: 150.0 },
-        ],
+        state: m.state || "",
+        lines,
       };
     });
 
