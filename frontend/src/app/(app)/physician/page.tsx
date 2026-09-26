@@ -43,28 +43,40 @@ const ICD10_CATALOG: ICD10Item[] = [];
 
 // MASTER HOSPITAL DRUG DATABASE / FORMULARY (Resolves S4.5)
 interface DrugFormularyItem {
-  id: string;
+  id: number;
   name: string;
   genericName: string;
-  strength: string;
-  form: string;
-  defaultDose: string;
-  defaultRoute: string;
-  defaultFrequency: string;
-  defaultDuration: string;
-  category: string;
+  strength: number | null;
+  doseUnitId: number | null;
+  doseUnit: string | null;
+  routeId: number | null;
+  route: string | null;
+  formId: number | null;
+  form: string | null;
+  pregnancyWarning: boolean;
 }
 
 const DRUG_FORMULARY: DrugFormularyItem[] = [];
 
 interface PrescriptionLine {
   id: number;
+  medicamentId: number;
   medicament: string;
   dose: string;
+  doseUnitId: number;
+  doseUnit: string;
+  routeId: number;
   route: string;
   frequency: string;
+  frequencyUnit: string;
   duration: string;
-  status: "approved" | "pending";
+  durationPeriod: string;
+  status: "draft";
+}
+
+interface CatalogOption {
+  id: number;
+  name: string;
 }
 
 export default function PhysicianConsultationPage() {
@@ -87,7 +99,10 @@ export default function PhysicianConsultationPage() {
 
   // Prescriptions state (Resolves S4.6 & S4.8: RX-2026-0029)
   const [prescriptionRef, setPrescriptionRef] = useState("");
+  const [pendingPrescriptionId, setPendingPrescriptionId] = useState<number | null>(null);
   const [prescriptions, setPrescriptions] = useState<PrescriptionLine[]>([]);
+  const [routeOptions, setRouteOptions] = useState<CatalogOption[]>([]);
+  const [acknowledgeWarnings, setAcknowledgeWarnings] = useState(false);
 
   // Modal States
   const [isIcdModalOpen, setIsIcdModalOpen] = useState(false);
@@ -96,7 +111,9 @@ export default function PhysicianConsultationPage() {
   const [drugSearchTerm, setDrugSearchTerm] = useState("");
   const [selectedDrug, setSelectedDrug] = useState<DrugFormularyItem | null>(null);
   const [newRx, setNewRx] = useState({
-    medicament: "", dose: "", route: "", frequency: "", duration: "",
+    medicamentId: 0, medicament: "", dose: "", doseUnitId: 0, doseUnit: "",
+    routeId: 0, route: "", formId: 0, frequency: "", frequencyUnit: "hours",
+    duration: "", durationPeriod: "days",
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -154,20 +171,7 @@ export default function PhysicianConsultationPage() {
         const res = await fetch(`/api/clinical/medicaments?q=${encodeURIComponent(drugSearchTerm)}`);
         const data = await res.json();
         if (data.success && Array.isArray(data.medicaments) && data.medicaments.length > 0) {
-          setLiveDrugResults(
-            data.medicaments.map((m: any) => ({
-              id: String(m.id),
-              name: m.name,
-              genericName: m.genericName || m.name,
-              strength: "",
-              form: "",
-              defaultDose: "",
-              defaultRoute: "",
-              defaultFrequency: "",
-              defaultDuration: "",
-              category: "",
-            }))
-          );
+          setLiveDrugResults(data.medicaments);
         } else {
           setLiveDrugResults([]);
         }
@@ -179,6 +183,21 @@ export default function PhysicianConsultationPage() {
     }, 300);
     return () => clearTimeout(timer);
   }, [drugSearchTerm]);
+
+  useEffect(() => {
+    if (!isRxModalOpen) return;
+    fetch("/api/clinical/medicaments?catalog=routes")
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok || !data.success || !Array.isArray(data.items)) {
+          throw new Error(data.error || "Unable to load administration routes");
+        }
+        setRouteOptions(data.items);
+      })
+      .catch((error: unknown) => {
+        setErrorMessage(error instanceof Error ? error.message : "Unable to load administration routes");
+      });
+  }, [isRxModalOpen]);
 
   // Load live patients & triage telemetry
   useEffect(() => {
@@ -242,29 +261,49 @@ export default function PhysicianConsultationPage() {
   const handleSelectDrug = (drug: DrugFormularyItem) => {
     setSelectedDrug(drug);
     setNewRx({
+      medicamentId: drug.id,
       medicament: drug.name,
-      dose: drug.defaultDose,
-      route: drug.defaultRoute,
-      frequency: drug.defaultFrequency,
-      duration: drug.defaultDuration,
+      dose: drug.strength ? String(drug.strength) : "",
+      doseUnitId: drug.doseUnitId || 0,
+      doseUnit: drug.doseUnit || "",
+      routeId: drug.routeId || 0,
+      route: drug.route || "",
+      formId: drug.formId || 0,
+      frequency: "",
+      frequencyUnit: "hours",
+      duration: "",
+      durationPeriod: "days",
     });
   };
 
   // Add Prescription Line (Resolves S4.7)
   const handleAddPrescription = (e: React.FormEvent) => {
     e.preventDefault();
+    const doseValue = Number(newRx.dose);
+    const frequencyValue = Number(newRx.frequency);
+    const durationValue = Number(newRx.duration);
+    if (!selectedDrug || !newRx.doseUnitId || !newRx.routeId || !Number.isFinite(doseValue) || doseValue <= 0 || !Number.isSafeInteger(frequencyValue) || frequencyValue <= 0 || !Number.isSafeInteger(durationValue) || durationValue <= 0) {
+      setErrorMessage("Choose a medication and complete its dose, route, frequency, and duration.");
+      return;
+    }
     const line: PrescriptionLine = {
       id: prescriptions.length + 1,
+      medicamentId: newRx.medicamentId,
       medicament: newRx.medicament,
       dose: newRx.dose,
+      doseUnitId: newRx.doseUnitId,
+      doseUnit: newRx.doseUnit,
+      routeId: newRx.routeId,
       route: newRx.route,
       frequency: newRx.frequency,
+      frequencyUnit: newRx.frequencyUnit,
       duration: newRx.duration,
-      status: "pending",
+      durationPeriod: newRx.durationPeriod,
+      status: "draft",
     };
     setPrescriptions([...prescriptions, line]);
     setIsRxModalOpen(false);
-    setFeedback(`Prescription line added: ${line.medicament} (${line.dose}, ${line.frequency}).`);
+    setFeedback(`Draft medication line added: ${line.medicament}. It has not yet been issued.`);
     setErrorMessage(null);
   };
 
@@ -279,25 +318,55 @@ export default function PhysicianConsultationPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           patientId: patient.id,
-          evaluationId: evaluationId || undefined,
+          acknowledgeWarnings,
           lines: prescriptions.map((p) => ({
-            medicament: p.medicament,
+            medicamentId: p.medicamentId,
             dose: p.dose,
-            route: p.route,
+            routeId: p.routeId,
             frequency: p.frequency,
+            frequencyUnit: p.frequencyUnit,
             duration: p.duration,
+            durationPeriod: p.durationPeriod,
           })),
         }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
+        if (data.prescriptionId) setPendingPrescriptionId(Number(data.prescriptionId));
         throw new Error(data.error || "Failed to persist prescription in clinical system");
       }
-      const ref = data.prescriptionId ? String(data.prescriptionId) : "";
+      const ref = data.reference || String(data.prescriptionId || "");
+      setPendingPrescriptionId(null);
       setPrescriptionRef(ref);
-      setFeedback(`clinical system prescription record ${ref} created for ${patient.name}.`);
+      setPrescriptions([]);
+      setAcknowledgeWarnings(false);
+      setFeedback(`Prescription ${ref} was issued by the clinical system for ${patient.name}.`);
     } catch (err: any) {
       setErrorMessage(err.message || "Error issuing prescription order");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleIssuePrescriptionDraft = async () => {
+    if (!pendingPrescriptionId) return;
+    setIsSaving(true);
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/clinical/prescriptions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "issue", prescriptionId: pendingPrescriptionId }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "The draft could not be issued.");
+      setPrescriptionRef(data.reference || String(data.prescriptionId));
+      setPendingPrescriptionId(null);
+      setPrescriptions([]);
+      setAcknowledgeWarnings(false);
+      setFeedback(`Prescription ${data.reference || data.prescriptionId} was issued by the clinical system.`);
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : "The draft could not be issued.");
     } finally {
       setIsSaving(false);
     }
@@ -376,8 +445,7 @@ export default function PhysicianConsultationPage() {
     const q = drugSearchTerm.toLowerCase();
     return (
       d.name.toLowerCase().includes(q) ||
-      d.genericName.toLowerCase().includes(q) ||
-      d.category.toLowerCase().includes(q)
+      d.genericName.toLowerCase().includes(q)
     );
   });
 
@@ -665,15 +733,30 @@ export default function PhysicianConsultationPage() {
                       <Pill className="w-3.5 h-3.5 text-[#0F766E]" />
                       {rx.medicament}
                     </span>
-                    <Badge variant="green" size="sm">Approved</Badge>
+                    <Badge variant="amber" size="sm">Draft</Badge>
                   </div>
                   <div className="text-[11px] font-mono text-slate-500">
-                    Dose: <strong className="text-slate-700">{rx.dose}</strong> · Route: {rx.route} · Frequency: {rx.frequency} · Duration: {rx.duration}
+                    Dose: <strong className="text-slate-700">{rx.dose} {rx.doseUnit}</strong> · Route: {rx.route} · Frequency: {rx.frequency} per {rx.frequencyUnit} · Duration: {rx.duration} {rx.durationPeriod}
                   </div>
                 </div>
               ))}
             </div>
 
+            {prescriptions.length > 0 && (
+              <label className="flex items-start gap-2 text-xs text-slate-700">
+                <input type="checkbox" checked={acknowledgeWarnings} onChange={(event) => setAcknowledgeWarnings(event.target.checked)} className="mt-0.5 accent-[#0F766E]" />
+                <span>I reviewed the patient allergy/clinical warnings and each medication’s safety information before issuing this prescription.</span>
+              </label>
+            )}
+            {patient.allergies.length > 0 && (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900"><strong>Recorded allergies:</strong> {patient.allergies.join(", ")}. Verify these clinically before prescribing.</div>
+            )}
+            {pendingPrescriptionId && (
+              <div className="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                <span>Prescription draft {pendingPrescriptionId} is saved and needs issue confirmation.</span>
+                <Button type="button" variant="outline" size="xs" onClick={handleIssuePrescriptionDraft} isLoading={isSaving}>Retry issue</Button>
+              </div>
+            )}
             {/* CREATE PRESCRIPTION BUTTON (Resolves S4.8: Create Prescription) */}
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
               <span className="text-[11px] font-mono text-slate-500">{prescriptions.length} line(s)</span>
@@ -682,6 +765,8 @@ export default function PhysicianConsultationPage() {
                 variant="primary"
                 size="sm"
                 onClick={handleCreatePrescription}
+                disabled={!patient.id || prescriptions.length === 0 || !acknowledgeWarnings || Boolean(pendingPrescriptionId) || isSaving}
+                isLoading={isSaving}
                 leftIcon={<FileCheck className="w-4 h-4" />}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
               >
@@ -841,34 +926,36 @@ export default function PhysicianConsultationPage() {
             />
 
             <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="Dosage"
-                value={newRx.dose}
-                onChange={(e) => setNewRx({ ...newRx, dose: e.target.value })}
-                required
-              />
-              <Input
-                label="Route of Administration"
-                value={newRx.route}
-                onChange={(e) => setNewRx({ ...newRx, route: e.target.value })}
-                required
-              />
+              <Input label={"Dose" + (newRx.doseUnit ? " (" + newRx.doseUnit + ")" : "")} type="number" min="0.0001" step="any" value={newRx.dose} onChange={(e) => setNewRx({ ...newRx, dose: e.target.value })} required />
+              <Select label="Route of Administration" value={String(newRx.routeId || "")} onChange={(e) => { const routeId = Number(e.target.value); setNewRx({ ...newRx, routeId, route: routeOptions.find((item) => item.id === routeId)?.name || "" }); }} options={[{ value: "", label: "Select route" }, ...routeOptions.map((item) => ({ value: String(item.id), label: item.name }))]} required />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <Input
-                label="Dosing Frequency"
+                label="Doses per interval"
+                type="number"
+                min="1"
+                step="1"
                 value={newRx.frequency}
                 onChange={(e) => setNewRx({ ...newRx, frequency: e.target.value })}
                 required
               />
               <Input
-                label="Treatment Duration"
+                label="Duration"
+                type="number"
+                min="1"
+                step="1"
                 value={newRx.duration}
                 onChange={(e) => setNewRx({ ...newRx, duration: e.target.value })}
                 required
               />
             </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Select label="Frequency interval" value={newRx.frequencyUnit} onChange={(e) => setNewRx({ ...newRx, frequencyUnit: e.target.value })} options={["seconds", "minutes", "hours", "days", "weeks", "wr"].map((value) => ({ value, label: value }))} required />
+              <Select label="Duration unit" value={newRx.durationPeriod} onChange={(e) => setNewRx({ ...newRx, durationPeriod: e.target.value })} options={["minutes", "hours", "days", "months", "years", "indefinite"].map((value) => ({ value, label: value }))} required />
+            </div>
+            {selectedDrug?.pregnancyWarning && <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">This medication has a pregnancy warning in the clinical formulary. Review patient status and clinical guidance before prescribing.</p>}
 
             <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setIsRxModalOpen(false)}>

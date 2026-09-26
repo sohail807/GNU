@@ -9,47 +9,73 @@ export interface TenantConfig {
   status: "active" | "suspended" | "provisioning";
 }
 
-const QATAR_TENANT_ID = "qatar-outpatient";
-
-/** Public selector metadata only. Connection and company settings are server-only env vars. */
-export const TENANT_REGISTRY: Record<string, Pick<TenantConfig, "id" | "name" | "slug" | "currency" | "country" | "status">> = {
-  [QATAR_TENANT_ID]: {
-    id: QATAR_TENANT_ID,
-    name: "Health Workspace",
-    slug: QATAR_TENANT_ID,
+export const TENANT_REGISTRY: Record<string, TenantConfig> = {
+  "qatar-outpatient": {
+    id: "qatar-outpatient",
+    name: "IST Central Hospital (Qatar)",
+    slug: "qatar-central",
+    database: "gnuhealth",
+    defaultCompanyId: 2,
+    currency: "QAR",
+    country: "QAT",
+    status: "active",
+  },
+  "alpha-clinic": {
+    id: "alpha-clinic",
+    name: "IST Alpha Outpatient Center",
+    slug: "alpha-clinic",
+    database: "gnuhealth_test_alpha",
+    defaultCompanyId: 2,
+    currency: "QAR",
+    country: "QAT",
+    status: "active",
+  },
+  "beta-clinic": {
+    id: "beta-clinic",
+    name: "IST Beta Specialty Clinic",
+    slug: "beta-clinic",
+    database: "gnuhealth_test_beta",
+    defaultCompanyId: 2,
     currency: "QAR",
     country: "QAT",
     status: "active",
   },
 };
 
-export function resolveTenant(tenantIdentifier?: string | null): TenantConfig {
-  if (tenantIdentifier && tenantIdentifier !== QATAR_TENANT_ID) {
-    const error = new Error("The selected clinic is not configured on this server.");
-    (error as Error & { status?: number }).status = 400;
-    throw error;
-  }
+export const DEFAULT_TENANT_ID = "qatar-outpatient";
 
-  const database = process.env.GNUHEALTH_DATABASE;
-  const companyId = Number(process.env.GNUHEALTH_COMPANY_ID);
-  if (!database || !/^[A-Za-z0-9_-]+$/.test(database)) {
-    throw new Error("GNUHEALTH_DATABASE must be configured on the server.");
-  }
-  if (!Number.isSafeInteger(companyId) || companyId <= 0) {
-    throw new Error("GNUHEALTH_COMPANY_ID must be configured on the server.");
-  }
+export function resolveTenant(tenantIdentifier?: string | null): TenantConfig {
+  const selectedId = tenantIdentifier && TENANT_REGISTRY[tenantIdentifier]
+    ? tenantIdentifier
+    : DEFAULT_TENANT_ID;
+
+  const baseConfig = TENANT_REGISTRY[selectedId];
+
+  // Allow environment variable override for primary deployment
+  const database = (selectedId === DEFAULT_TENANT_ID && process.env.GNUHEALTH_DATABASE)
+    ? process.env.GNUHEALTH_DATABASE
+    : baseConfig.database;
+
+  const companyId = (selectedId === DEFAULT_TENANT_ID && process.env.GNUHEALTH_COMPANY_ID)
+    ? Number(process.env.GNUHEALTH_COMPANY_ID)
+    : baseConfig.defaultCompanyId;
 
   return {
-    ...TENANT_REGISTRY[QATAR_TENANT_ID],
+    ...baseConfig,
     database,
-    defaultCompanyId: companyId,
+    defaultCompanyId: Number.isSafeInteger(companyId) && companyId > 0 ? companyId : 2,
   };
 }
 
 export function validateTenantAccess(sessionTenantId?: string | null, requestedTenantId?: string | null): boolean {
   if (!requestedTenantId) return true;
-  if (requestedTenantId !== QATAR_TENANT_ID || (sessionTenantId && requestedTenantId !== sessionTenantId)) {
-    const error = new Error("Access to the requested clinic is not permitted.");
+  if (!TENANT_REGISTRY[requestedTenantId]) {
+    const error = new Error("The requested clinic is not recognized on this server.");
+    (error as Error & { status?: number }).status = 404;
+    throw error;
+  }
+  if (sessionTenantId && requestedTenantId !== sessionTenantId) {
+    const error = new Error("Access to the requested clinic is not permitted with your current session.");
     (error as Error & { status?: number }).status = 403;
     throw error;
   }

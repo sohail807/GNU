@@ -9,12 +9,10 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
-  UserCheck,
   Activity,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Modal } from "@/components/ui/Modal";
 import { TENANT_REGISTRY } from "@/lib/tenant";
 
 export default function LoginPage() {
@@ -25,8 +23,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,14 +186,7 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <div className="flex items-center justify-between text-xs pt-1">
-            <button
-              type="button"
-              onClick={() => setIsForgotModalOpen(true)}
-              className="text-[#0F766E] hover:underline font-semibold"
-            >
-              Forgot Password?
-            </button>
+          <div className="flex justify-end text-xs pt-1">
             <span className="text-slate-400 font-mono text-[11px]">Secure staff sign-in</span>
           </div>
 
@@ -215,75 +204,12 @@ export default function LoginPage() {
           </div>
         </form>
 
-        {/* Quick Role Fill Stations (Available in Development & Test Environments) */}
-        {process.env.NEXT_PUBLIC_DEPLOYMENT_MODE !== "production" && (
-          <div className="mt-8 pt-6 border-t border-slate-200">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
-                Verified Demo Stations (1-Click Fill)
-              </div>
-              <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-semibold">
-                Live Backend
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {[
-                { label: "Front Desk", user: "demo_frontdesk1", pass: "FrontDesk2026!", role: "Reception", color: "hover:border-blue-400 hover:bg-blue-50/50" },
-                { label: "Physician", user: "demo_dr1", pass: "Doctor2026!", role: "Clinical", color: "hover:border-teal-400 hover:bg-teal-50/50" },
-                { label: "Triage Nurse", user: "demo_nurse1", pass: "Nurse2026!", role: "Nursing", color: "hover:border-emerald-400 hover:bg-emerald-50/50" },
-                { label: "Cashier", user: "demo_cashier1", pass: "Cashier2026!", role: "Billing", color: "hover:border-amber-400 hover:bg-amber-50/50" },
-                { label: "Diagnostic Lab", user: "demo_lab1", pass: "Lab2026!", role: "Laboratory", color: "hover:border-purple-400 hover:bg-purple-50/50" },
-                { label: "Radiology Tech", user: "demo_rad1", pass: "Rad2026!", role: "Radiology", color: "hover:border-indigo-400 hover:bg-indigo-50/50" },
-                { label: "Administrator", user: "demo_admin1", pass: "DemoAdmin2026!", role: "Admin", color: "hover:border-slate-500 hover:bg-slate-100" },
-              ].map((p) => (
-                <button
-                  key={p.user}
-                  type="button"
-                  onClick={() => {
-                    setUsername(p.user);
-                    setPassword(p.pass);
-                    setErrorMessage(null);
-                  }}
-                  className={`p-2 rounded-lg border border-slate-200 bg-white text-left transition-all group ${p.color} cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20`}
-                >
-                  <div className="text-xs font-bold text-slate-800 group-hover:text-[#0F766E] truncate">
-                    {p.label}
-                  </div>
-                  <div className="text-[10px] font-mono text-slate-400 truncate">
-                    @{p.user}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         <div className="mt-6 text-center text-xs text-slate-600 flex items-center justify-center gap-2">
           <ShieldCheck className="w-3.5 h-3.5 text-slate-600" />
           <span>Use only with an authorized account.</span>
         </div>
       </div>
 
-      {/* Password recovery is intentionally not advertised until a secure recovery service is configured. */}
-      <Modal
-        isOpen={isForgotModalOpen}
-        onClose={() => setIsForgotModalOpen(false)}
-        title="Password recovery"
-        kicker="ACCOUNT SUPPORT"
-        size="sm"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-slate-700">
-            Self-service password recovery is not configured for this deployment. Contact your clinic administrator to request a reset.
-          </p>
-          <div className="flex justify-end">
-            <Button type="button" variant="primary" onClick={() => setIsForgotModalOpen(false)}>
-              Close
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 }

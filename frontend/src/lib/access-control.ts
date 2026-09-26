@@ -20,6 +20,9 @@ export type AppModule =
   | "appointments"
   | "nursing"
   | "physician"
+  | "inpatient"
+  | "surgery"
+  | "pharmacy"
   | "laboratory"
   | "radiology"
   | "billing"
@@ -40,6 +43,9 @@ export const APP_MODULES: ModulePermission[] = [
   { key: "appointments", label: "Appointment Desk", category: "Administrative", description: "Encounter booking and calendar scheduling" },
   { key: "nursing", label: "Nursing Triage & Vitals", category: "Clinical", description: "Anthropometry, vital signs and acuity triage" },
   { key: "physician", label: "Physician Consultation Cockpit", category: "Clinical", description: "Clinical assessment, ICD-10 diagnoses & prescriptions" },
+  { key: "inpatient", label: "Inpatient Care & Ward Census", category: "Clinical", description: "Bed allocation, hospital admissions, and ward care plans" },
+  { key: "surgery", label: "Operating Theatre & Surgeries", category: "Clinical", description: "Surgical case scheduling, sterile theatre suites, and operative notes" },
+  { key: "pharmacy", label: "Hospital Pharmacy & Dispensing", category: "Clinical", description: "Prescription fulfillment, drug verification, and formulary inventory" },
   { key: "laboratory", label: "Diagnostic Laboratory", category: "Clinical", description: "CBC validation, analyte criteria and pathology reports" },
   { key: "radiology", label: "Digital Radiology & PACS", category: "Clinical", description: "Imaging requisitions, findings reporting & PACS" },
   { key: "billing", label: "Cashier Invoicing & Payments", category: "Financial", description: "Patient invoicing, line items and cash collection" },
@@ -72,6 +78,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     appointments: true,
     nursing: true,
     physician: true,
+    inpatient: true,
+    surgery: true,
+    pharmacy: true,
     laboratory: true,
     radiology: true,
     billing: true,
@@ -85,6 +94,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     appointments: true,
     nursing: false,
     physician: false,
+    inpatient: true, // read-only bed census
+    surgery: false,
+    pharmacy: false,
     laboratory: false,
     radiology: false,
     billing: false,
@@ -98,6 +110,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     appointments: false,
     nursing: true,
     physician: false,
+    inpatient: true, // ward vitals & admissions
+    surgery: true, // pre-op & recovery monitoring
+    pharmacy: true, // medication administration record
     laboratory: true, // view lab worklist
     radiology: true, // view radiology worklist
     billing: false,
@@ -111,6 +126,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     appointments: true,
     nursing: true, // review vitals
     physician: true,
+    inpatient: true, // inpatient rounds & care plans
+    surgery: true, // operative scheduling
+    pharmacy: true, // e-prescriptions review
     laboratory: true, // order labs
     radiology: true, // order radiology
     billing: false,
@@ -124,6 +142,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     appointments: false,
     nursing: false,
     physician: false,
+    inpatient: false,
+    surgery: false,
+    pharmacy: false,
     laboratory: true,
     radiology: false,
     billing: false,
@@ -137,6 +158,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     appointments: false,
     nursing: false,
     physician: false,
+    inpatient: false,
+    surgery: false,
+    pharmacy: false,
     laboratory: false,
     radiology: true,
     billing: false,
@@ -150,6 +174,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     appointments: false,
     nursing: false,
     physician: false,
+    inpatient: false,
+    surgery: false,
+    pharmacy: true, // invoice prescription copays
     laboratory: false,
     radiology: false,
     billing: true,
@@ -163,6 +190,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     appointments: false,
     nursing: false,
     physician: false,
+    inpatient: false,
+    surgery: false,
+    pharmacy: true,
     laboratory: false,
     radiology: false,
     billing: true,
@@ -176,6 +206,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     appointments: false,
     nursing: false,
     physician: false,
+    inpatient: true,
+    surgery: false,
+    pharmacy: false,
     laboratory: false,
     radiology: false,
     billing: false,

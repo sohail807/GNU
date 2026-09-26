@@ -22,6 +22,9 @@ import {
   Lock,
   Landmark,
   ClipboardList,
+  Bed,
+  Scissors,
+  Pill,
 } from "lucide-react";
 import { SessionData } from "@/lib/auth-session";
 import { AppModule, hasModuleAccess } from "@/lib/access-control";
@@ -61,7 +64,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         { label: "Patient Registration", href: "/frontdesk/register", icon: UserPlus, moduleKey: "patient_register", badge: "New" },
         { label: "Appointment Desk", href: "/frontdesk/appointments", icon: Calendar, moduleKey: "appointments" },
         { label: "Nursing Triage & Vitals", href: "/nursing", icon: Activity, moduleKey: "nursing", badge: "Vitals" },
-        { label: "Patient Evaluations", href: "/nursing", icon: ClipboardList, moduleKey: "nursing", badge: "Eval" },
+        { label: "Inpatient Care & Beds", href: "/inpatient", icon: Bed, moduleKey: "inpatient", badge: "Wards" },
+        { label: "Operating Theatre", href: "/surgery", icon: Scissors, moduleKey: "surgery", badge: "OT" },
+        { label: "Hospital Pharmacy", href: "/pharmacy", icon: Pill, moduleKey: "pharmacy", badge: "Rx" },
         { label: "Physician Cockpit", href: "/physician", icon: Stethoscope, moduleKey: "physician", badge: "SOAP" },
         { label: "Diagnostic Lab", href: "/laboratory", icon: Microscope, moduleKey: "laboratory", badge: "CBC" },
         { label: "Digital Radiology", href: "/radiology", icon: Scan, moduleKey: "radiology", badge: "PACS" },
