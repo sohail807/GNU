@@ -24,13 +24,29 @@ def deploy():
     print(f"\n2. Streaming update archive to {VM_HOST}:{REMOTE_DIR} via SSH...")
     cmd_upload = [
         "ssh", "-i", SSH_KEY, "-o", "StrictHostKeyChecking=no", VM_HOST,
-        f"sudo tar -xzf - -C {REMOTE_DIR} && sudo chown -R MohammedSohail:MohammedSohail {REMOTE_DIR}/src"
+        f"sudo rm -rf {REMOTE_DIR}/src && sudo tar -xzf - -C {REMOTE_DIR} && sudo chown -R MohammedSohail:MohammedSohail {REMOTE_DIR}/src"
     ]
     p_upload = subprocess.run(cmd_upload, input=tar_bytes, capture_output=True)
     if p_upload.returncode != 0:
         print("Upload failed:", p_upload.stderr.decode("utf-8", errors="replace"))
         sys.exit(1)
     print("   Archive successfully extracted on VM.")
+
+    print("\n2.1. Ensuring environment configuration on VM...")
+    env_content = (
+        "NODE_ENV=production\n"
+        "PORT=3000\n"
+        "GNUHEALTH_HOST=http://127.0.0.1:8000\n"
+        "GNUHEALTH_DATABASE=gnuhealth\n"
+        "GNUHEALTH_COMPANY_ID=2\n"
+        "SESSION_ENCRYPTION_KEY=d7a96ef8b4382e753acbd2217c09c488319f3e4bc392815a\n"
+    )
+    cmd_env = [
+        "ssh", "-i", SSH_KEY, "-o", "StrictHostKeyChecking=no", VM_HOST,
+        f"cat << 'EOF' | sudo -u MohammedSohail tee {REMOTE_DIR}/.env.production\n{env_content}EOF"
+    ]
+    subprocess.run(cmd_env, capture_output=True, check=True)
+    print("   .env.production verified.")
 
     print("\n3. Building Next.js application on VM...")
     build_cmd = [
@@ -48,18 +64,17 @@ def deploy():
         sys.exit(1)
 
     print("\n4. Restarting Next.js service on VM...")
-    # Find existing next-server process, kill it, and launch fresh instance
     restart_cmd = [
         "ssh", "-i", SSH_KEY, "-o", "StrictHostKeyChecking=no", VM_HOST,
-        f"sudo pkill -f 'next-server' || true; sleep 1; cd {REMOTE_DIR} && sudo -u MohammedSohail nohup npm run start > /tmp/next-server.log 2>&1 &"
+        f"sudo fuser -k 3000/tcp || true; sleep 2; cd {REMOTE_DIR} && sudo -u MohammedSohail nohup npm run start -- --port 3000 --hostname 127.0.0.1 > /tmp/next-server.log 2>&1 &"
     ]
     p_restart = subprocess.run(restart_cmd, capture_output=True)
     print("Restart executed.")
 
-    print("\n5. Verifying server health on http://34.7.237.8/ ...")
+    print("\n5. Verifying server health...")
     health_cmd = [
         "ssh", "-i", SSH_KEY, "-o", "StrictHostKeyChecking=no", VM_HOST,
-        "sleep 3; curl -I http://127.0.0.1:3000/login"
+        "sleep 4; curl -I http://127.0.0.1:3000/login; sudo ss -tulpn | grep 3000"
     ]
     p_health = subprocess.run(health_cmd, capture_output=True)
     print(p_health.stdout.decode("utf-8", errors="replace"))
