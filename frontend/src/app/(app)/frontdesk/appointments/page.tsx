@@ -160,7 +160,7 @@ export default function AppointmentCalendarPage() {
 
       const data = await res.json();
       if (!res.ok || data.error) {
-        throw new Error(data.error || "Failed to book appointment in clinical system backend.");
+        throw new Error(data.error || "Failed to book appointment in GNU Health backend.");
       }
 
       setFeedback("Appointment successfully booked and confirmed in Hospital Calendar.");
@@ -203,7 +203,7 @@ export default function AppointmentCalendarPage() {
             <span className="text-slate-300">/</span>
             <span className="kicker text-slate-500">APPOINTMENT DESK</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
             Consultation Calendar & Booking
           </h1>
           <p className="text-xs text-slate-600 mt-1">
@@ -288,7 +288,7 @@ export default function AppointmentCalendarPage() {
         <div className="overflow-x-auto">
           {isLoading ? (
             <div className="p-12 text-center text-xs text-slate-500 font-mono">
-              Loading calendar bookings from clinical system backend...
+              Loading calendar bookings from GNU Health backend...
             </div>
           ) : filteredAppointments.length === 0 ? (
             <div className="p-12 text-center space-y-3">

@@ -28,6 +28,16 @@ export type AppModule =
   | "billing"
   | "ledger"
   | "patient_chart"
+  | "immunizations"
+  | "family"
+  | "insurance"
+  | "obstetrics"
+  | "lifestyle"
+  | "ambulatory"
+  | "socioeconomics"
+  | "womens_health"
+  | "facilities"
+  | "staff_directory"
   | "admin";
 
 export interface ModulePermission {
@@ -51,6 +61,16 @@ export const APP_MODULES: ModulePermission[] = [
   { key: "billing", label: "Cashier Invoicing & Payments", category: "Financial", description: "Patient invoicing, line items and cash collection" },
   { key: "ledger", label: "General Ledger Double-Entry Audit", category: "Financial", description: "Account moves audit, journal reconciliation & ledger audit" },
   { key: "patient_chart", label: "Unified Patient Medical Record", category: "Clinical", description: "360 longitudinal electronic health record audit" },
+  { key: "immunizations", label: "Immunizations & Vaccine Schedule", category: "Clinical", description: "Vaccination administration, dose tracking and next-dose scheduling" },
+  { key: "family", label: "Family & Household Registry", category: "Administrative", description: "Household grouping, family members and social context" },
+  { key: "insurance", label: "Patient Insurance & Coverage", category: "Administrative", description: "Insurance plan enrollment and coverage records" },
+  { key: "obstetrics", label: "Obstetrics & Pregnancy Tracking", category: "Clinical", description: "Gravida/pregnancy history, LMP tracking and outcome recording" },
+  { key: "lifestyle", label: "Lifestyle & Social History", category: "Clinical", description: "Diet, exercise, tobacco/alcohol/substance use, CAGE screening and sexual health history" },
+  { key: "ambulatory", label: "Ambulatory Procedures & ECG", category: "Clinical", description: "In-clinic minor procedures, ECG ordering and cardiac risk assessment" },
+  { key: "socioeconomics", label: "Socioeconomic Assessment", category: "Clinical", description: "Family functionality, occupation, ethnicity and housing/domiciliary assessment" },
+  { key: "womens_health", label: "Women's Health Screening", category: "Clinical", description: "Menstrual, PAP, colposcopy and mammography screening history" },
+  { key: "facilities", label: "Ward & Facility Management", category: "Governance", description: "Hospital ward setup, bed capacity planning and institution facilities" },
+  { key: "staff_directory", label: "Clinical Staff Directory", category: "Governance", description: "Health professional roster and specialty assignment" },
   { key: "admin", label: "Administration & User Governance", category: "Governance", description: "User directory, RBAC matrix, and system security" },
 ];
 
@@ -86,6 +106,16 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     billing: true,
     ledger: true,
     patient_chart: true,
+    immunizations: true,
+    obstetrics: true,
+    lifestyle: true,
+    ambulatory: true,
+    socioeconomics: true,
+    womens_health: true,
+    facilities: true,
+    staff_directory: true,
+    family: true,
+    insurance: true,
     admin: true,
   },
   reception: {
@@ -102,6 +132,16 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     billing: false,
     ledger: false,
     patient_chart: true,
+    immunizations: false,
+    obstetrics: false,
+    lifestyle: false,
+    ambulatory: false,
+    socioeconomics: false,
+    womens_health: false,
+    facilities: false,
+    staff_directory: false,
+    family: true,
+    insurance: true,
     admin: false,
   },
   nursing: {
@@ -118,6 +158,16 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     billing: false,
     ledger: false,
     patient_chart: true,
+    immunizations: true,
+    obstetrics: true,
+    lifestyle: true,
+    ambulatory: true,
+    socioeconomics: true,
+    womens_health: true,
+    facilities: false,
+    staff_directory: false,
+    family: true,
+    insurance: false,
     admin: false,
   },
   physician: {
@@ -134,6 +184,16 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     billing: false,
     ledger: false,
     patient_chart: true,
+    immunizations: true,
+    obstetrics: true,
+    lifestyle: true,
+    ambulatory: true,
+    socioeconomics: true,
+    womens_health: true,
+    facilities: false,
+    staff_directory: false,
+    family: true,
+    insurance: false,
     admin: false,
   },
   lab: {
@@ -150,6 +210,16 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     billing: false,
     ledger: false,
     patient_chart: true,
+    immunizations: false,
+    obstetrics: false,
+    lifestyle: false,
+    ambulatory: false,
+    socioeconomics: false,
+    womens_health: false,
+    facilities: false,
+    staff_directory: false,
+    family: false,
+    insurance: false,
     admin: false,
   },
   radiology: {
@@ -166,6 +236,16 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     billing: false,
     ledger: false,
     patient_chart: true,
+    immunizations: false,
+    obstetrics: false,
+    lifestyle: false,
+    ambulatory: false,
+    socioeconomics: false,
+    womens_health: false,
+    facilities: false,
+    staff_directory: false,
+    family: false,
+    insurance: false,
     admin: false,
   },
   cashier: {
@@ -182,6 +262,16 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     billing: true,
     ledger: false, // Strictly segregated: Cashiers cannot edit or audit GL moves
     patient_chart: true,
+    immunizations: false,
+    obstetrics: false,
+    lifestyle: false,
+    ambulatory: false,
+    socioeconomics: false,
+    womens_health: false,
+    facilities: false,
+    staff_directory: false,
+    family: false,
+    insurance: true,
     admin: false,
   },
   accountant: {
@@ -198,6 +288,16 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     billing: true,
     ledger: true,
     patient_chart: true,
+    immunizations: false,
+    obstetrics: false,
+    lifestyle: false,
+    ambulatory: false,
+    socioeconomics: false,
+    womens_health: false,
+    facilities: false,
+    staff_directory: false,
+    family: false,
+    insurance: true,
     admin: false,
   },
   general: {
@@ -214,6 +314,16 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     billing: false,
     ledger: false,
     patient_chart: true,
+    immunizations: false,
+    obstetrics: false,
+    lifestyle: false,
+    ambulatory: false,
+    socioeconomics: false,
+    womens_health: false,
+    facilities: false,
+    staff_directory: false,
+    family: true,
+    insurance: false,
     admin: false,
   },
 };

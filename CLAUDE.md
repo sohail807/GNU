@@ -103,8 +103,9 @@ PORT=3000
 GNUHEALTH_HOST=http://127.0.0.1:8000
 GNUHEALTH_DATABASE=gnuhealth
 GNUHEALTH_COMPANY_ID=2
-SESSION_ENCRYPTION_KEY=d7a96ef8b4382e753acbd2217c09c488319f3e4bc392815a
+SESSION_ENCRYPTION_KEY=<never committed - kept only in frontend/.env.production.local (gitignored) and on the VM>
 ```
+Rotated 2026-09-26 after the previous key was found committed in git history (leaked-secret finding from the full-codebase audit). Do not put the real value back in this file or any script - `scripts/deploy_frontend_update.py` now reads it from the gitignored `frontend/.env.production.local`.
 
 ---
 

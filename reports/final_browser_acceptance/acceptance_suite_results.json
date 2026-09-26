@@ -5,7 +5,7 @@
     "failed": 0,
     "warnings": 0,
     "success_rate": "100.0%",
-    "timestamp": "2026-09-25 13:32:30 UTC"
+    "timestamp": "2026-09-26 17:50:05 UTC"
   },
   "results": [
     {
@@ -13,322 +13,322 @@
       "status": "PASS",
       "category": "Multi-Tenancy",
       "details": "Verified central registry 'tenants.json' with 3 tenants ('main', 'test_alpha', 'test_beta') mapped to dedicated PostgreSQL databases.",
-      "timestamp": "2026-09-25 17:31:01"
+      "timestamp": "2026-09-26 21:48:50"
     },
     {
       "name": "Database-per-Client Direct Connectivity",
       "status": "PASS",
       "category": "Multi-Tenancy",
       "details": "Successfully authenticated independent sessions across all 3 databases: gnuhealth, gnuhealth_test_alpha, gnuhealth_test_beta.",
-      "timestamp": "2026-09-25 17:31:07"
+      "timestamp": "2026-09-26 21:48:55"
     },
     {
       "name": "Database-per-Client Data Isolation Boundary",
       "status": "PASS",
       "category": "Multi-Tenancy",
-      "details": "Created 'Alpha-Iso-Patient-1790343067' (ID: 268) in 'gnuhealth_test_alpha'. Queried 'gnuhealth_test_beta' (Found: 0) and 'gnuhealth' (Found: 0). Absolute physical isolation confirmed.",
-      "timestamp": "2026-09-25 17:31:10"
+      "details": "Created 'Alpha-Iso-Patient-1790444935' (ID: 275) in 'gnuhealth_test_alpha'. Queried 'gnuhealth_test_beta' (Found: 0) and 'gnuhealth' (Found: 0). Absolute physical isolation confirmed.",
+      "timestamp": "2026-09-26 21:48:56"
     },
     {
       "name": "Cross-Tenant Session Token Boundary",
       "status": "PASS",
       "category": "Multi-Tenancy",
       "details": "Dispatched Alpha session token to Beta database endpoint. Request rejected with 401 Unauthorized by Tryton.",
-      "timestamp": "2026-09-25 17:31:11"
+      "timestamp": "2026-09-26 21:48:57"
     },
     {
       "name": "Isolated Tenant Backup Execution",
       "status": "PASS",
       "category": "Multi-Tenancy",
-      "details": "Isolated pg_dump executed for 'gnuhealth_test_alpha'. Remote path: /var/backups/gnuhealth/gnuhealth_test_alpha_20260925_133128.dump (MD5: 6e94c622a36e71c9152c456f2e335f76).",
-      "timestamp": "2026-09-25 17:31:35"
+      "details": "Isolated pg_dump executed for 'gnuhealth_test_alpha'. Remote path: /var/backups/gnuhealth/gnuhealth_test_alpha_20260926_174857.dump (MD5: 5c43dc978b57b7a92ca0cd5320a7270e).",
+      "timestamp": "2026-09-26 21:49:04"
     },
     {
       "name": "BFF Authentication: demo_admin1",
       "status": "PASS",
       "category": "Authentication",
       "details": "Successfully authenticated as demo_admin1 (Role: admin). Session cookie issued.",
-      "timestamp": "2026-09-25 17:31:36"
+      "timestamp": "2026-09-26 21:49:06"
     },
     {
       "name": "BFF Authentication: demo_frontdesk1",
       "status": "PASS",
       "category": "Authentication",
       "details": "Successfully authenticated as demo_frontdesk1 (Role: reception). Session cookie issued.",
-      "timestamp": "2026-09-25 17:31:37"
+      "timestamp": "2026-09-26 21:49:07"
     },
     {
       "name": "BFF Authentication: demo_nurse1",
       "status": "PASS",
       "category": "Authentication",
       "details": "Successfully authenticated as demo_nurse1 (Role: nursing). Session cookie issued.",
-      "timestamp": "2026-09-25 17:31:38"
+      "timestamp": "2026-09-26 21:49:08"
     },
     {
       "name": "BFF Authentication: demo_dr1",
       "status": "PASS",
       "category": "Authentication",
       "details": "Successfully authenticated as demo_dr1 (Role: physician). Session cookie issued.",
-      "timestamp": "2026-09-25 17:31:39"
+      "timestamp": "2026-09-26 21:49:08"
     },
     {
       "name": "BFF Authentication: demo_lab1",
       "status": "PASS",
       "category": "Authentication",
       "details": "Successfully authenticated as demo_lab1 (Role: lab). Session cookie issued.",
-      "timestamp": "2026-09-25 17:31:40"
+      "timestamp": "2026-09-26 21:49:10"
     },
     {
       "name": "BFF Authentication: demo_rad1",
       "status": "PASS",
       "category": "Authentication",
       "details": "Successfully authenticated as demo_rad1 (Role: radiology). Session cookie issued.",
-      "timestamp": "2026-09-25 17:31:41"
+      "timestamp": "2026-09-26 21:49:10"
     },
     {
       "name": "BFF Authentication: demo_cashier1",
       "status": "PASS",
       "category": "Authentication",
       "details": "Successfully authenticated as demo_cashier1 (Role: ['cashier', 'accountant']). Session cookie issued.",
-      "timestamp": "2026-09-25 17:31:43"
+      "timestamp": "2026-09-26 21:49:12"
     },
     {
       "name": "BFF Authentication: admin (Brute-Force Rate Limiter & Tarpit)",
       "status": "PASS",
       "category": "Authentication",
       "details": "Tryton anti-brute-force rate limiter & tarpit actively protecting platform super-admin account.",
-      "timestamp": "2026-09-25 17:31:49"
+      "timestamp": "2026-09-26 21:49:14"
     },
     {
       "name": "Session Verification (/api/auth/me)",
       "status": "PASS",
       "category": "Authentication",
       "details": "Verified encrypted session cookie for demo_dr1 (Role: physician, UserID: 146).",
-      "timestamp": "2026-09-25 17:31:49"
+      "timestamp": "2026-09-26 21:49:15"
     },
     {
       "name": "Platform Super-Admin Reset Lockout",
       "status": "PASS",
       "category": "Security",
       "details": "Self-service password reset attempt on 'admin' rejected with HTTP 403 Forbidden. Out-of-band recovery enforced.",
-      "timestamp": "2026-09-25 17:31:49"
+      "timestamp": "2026-09-26 21:49:16"
     },
     {
       "name": "Tenant Admin Cannot Reset Platform Admin",
       "status": "PASS",
       "category": "Security",
       "details": "Tenant Admin attempt to reset Platform Super-Administrator (User ID 1) blocked with HTTP 403 Forbidden.",
-      "timestamp": "2026-09-25 17:31:49"
+      "timestamp": "2026-09-26 21:49:16"
     },
     {
       "name": "Persistent Reset-Token & Email Spooling",
       "status": "PASS",
       "category": "Security",
       "details": "Reset request initiated for 'demo_dr1'. Token securely hashed & persisted to .tokens/reset_tokens.json. Outbound email spooled to reports/mail_spool/.",
-      "timestamp": "2026-09-25 17:31:49"
+      "timestamp": "2026-09-26 21:49:16"
     },
     {
       "name": "RFC 6238 TOTP MFA Engine",
       "status": "PASS",
       "category": "Security",
-      "details": "Generated and verified standard RFC 6238 TOTP MFA token (437009) for privileged administrative roles.",
-      "timestamp": "2026-09-25 17:31:49"
+      "details": "Generated and verified standard RFC 6238 TOTP MFA token (201133) for privileged administrative roles.",
+      "timestamp": "2026-09-26 21:49:16"
     },
     {
       "name": "Session Revocation Blacklist",
       "status": "PASS",
       "category": "Security",
       "details": "Verified persistent session revocation blacklist storage in .tokens/revoked_sessions.json. Survives server restarts.",
-      "timestamp": "2026-09-25 17:31:49"
+      "timestamp": "2026-09-26 21:49:16"
     },
     {
       "name": "Emergency Admin Recovery CLI Tool",
       "status": "PASS",
       "category": "Security",
       "details": "Verified scripts/emergency_admin_recovery.py break-glass tool with SHA-256 audit trail in reports/security_audit_log.json.",
-      "timestamp": "2026-09-25 17:31:50"
+      "timestamp": "2026-09-26 21:49:17"
     },
     {
       "name": "Patient Registration (Front Desk)",
       "status": "PASS",
       "category": "Clinical Lifecycle",
-      "details": "Successfully created synthetic patient 'ALEXANDER WRIGHT ACCEPTANCE 487379' in PostgreSQL. Patient ID: 91, PUID: 28264873791.",
-      "timestamp": "2026-09-25 17:31:50"
+      "details": "Successfully created synthetic patient 'ALEXANDER WRIGHT ACCEPTANCE 182954' in PostgreSQL. Patient ID: 96, PUID: 28261829541.",
+      "timestamp": "2026-09-26 21:49:18"
     },
     {
       "name": "Appointment Booking (Front Desk)",
       "status": "PASS",
       "category": "Clinical Lifecycle",
-      "details": "Created appointment #82 in GNU Health for Patient #91.",
-      "timestamp": "2026-09-25 17:31:51"
+      "details": "Created appointment #85 in GNU Health for Patient #96.",
+      "timestamp": "2026-09-26 21:49:19"
     },
     {
       "name": "Patient Arrival & Check-In",
       "status": "PASS",
       "category": "Clinical Lifecycle",
-      "details": "Appointment #82 transitioned to state='checked_in'. Transferred to Nursing Triage.",
-      "timestamp": "2026-09-25 17:31:51"
+      "details": "Appointment #85 transitioned to state='checked_in'. Transferred to Nursing Triage.",
+      "timestamp": "2026-09-26 21:49:20"
     },
     {
       "name": "Nursing Triage Telemetry",
       "status": "PASS",
       "category": "Clinical Lifecycle",
-      "details": "Recorded triage evaluation for Patient #91. BP 120/80 mmHg, HR 72, Temp 37.0\u00b0C, BMI 22.86 kg/m\u00b2.",
-      "timestamp": "2026-09-25 17:31:52"
+      "details": "Recorded triage evaluation for Patient #96. BP 120/80 mmHg, HR 72, Temp 37.0\u00b0C, BMI 22.86 kg/m\u00b2.",
+      "timestamp": "2026-09-26 21:49:22"
     },
     {
       "name": "Physician SOAP & ICD-10 Diagnosis",
       "status": "PASS",
       "category": "Clinical Lifecycle",
-      "details": "Physician completed clinical consultation for Patient #91. Encoded ICD-10 'J06.9' (Acute URI).",
-      "timestamp": "2026-09-25 17:31:52"
+      "details": "Physician completed clinical consultation for Patient #96. Encoded ICD-10 'J06.9' (Acute URI).",
+      "timestamp": "2026-09-26 21:49:23"
     },
     {
       "name": "Electronic Prescription Order",
       "status": "PASS",
       "category": "Clinical Lifecycle",
-      "details": "Generated and signed prescription RX #None in Tryton backend. Transmitted to hospital dispensary.",
-      "timestamp": "2026-09-25 17:31:53"
+      "details": "Generated and signed prescription PRES 2026/000059 in Tryton backend. Transmitted to hospital dispensary.",
+      "timestamp": "2026-09-26 21:49:23"
     },
     {
       "name": "Diagnostic Laboratory Requisition",
       "status": "PASS",
       "category": "Clinical Lifecycle",
-      "details": "Created laboratory requisition #51 (CBC) for Patient #91.",
-      "timestamp": "2026-09-25 17:31:54"
+      "details": "Created laboratory requisition #54 (CBC) for Patient #96.",
+      "timestamp": "2026-09-26 21:49:25"
     },
     {
       "name": "Laboratory Certification & Release",
       "status": "PASS",
       "category": "Clinical Lifecycle",
-      "details": "Laboratory requisition #51 certified by technologist. State='done'.",
-      "timestamp": "2026-09-25 17:31:54"
+      "details": "Laboratory requisition #54 certified by technologist. State='done'.",
+      "timestamp": "2026-09-26 21:49:25"
     },
     {
       "name": "Digital Radiology Requisition",
       "status": "PASS",
       "category": "Clinical Lifecycle",
-      "details": "Created imaging study request #50 (Chest X-Ray) for Patient #91.",
-      "timestamp": "2026-09-25 17:31:55"
+      "details": "Created imaging study request #55 (Chest X-Ray) for Patient #96.",
+      "timestamp": "2026-09-26 21:49:26"
     },
     {
       "name": "Radiology PACS Diagnostic Report",
       "status": "PASS",
       "category": "Clinical Lifecycle",
-      "details": "Radiologist signed findings for imaging study #50. State='done'.",
-      "timestamp": "2026-09-25 17:31:55"
+      "details": "Radiologist signed findings for imaging study #55. State='done'.",
+      "timestamp": "2026-09-26 21:49:26"
     },
     {
       "name": "Customer Invoice Generation",
       "status": "PASS",
       "category": "Financial Ledger",
-      "details": "Generated customer invoice #40 for Patient #91 ($50.00).",
-      "timestamp": "2026-09-25 17:31:57"
+      "details": "Generated customer invoice #47 for Patient #96 ($50.00).",
+      "timestamp": "2026-09-26 21:49:27"
     },
     {
       "name": "Invoice General Ledger Posting",
       "status": "PASS",
       "category": "Financial Ledger",
-      "details": "Invoice #40 posted to GNU Health General Ledger. State='posted'.",
-      "timestamp": "2026-09-25 17:31:57"
+      "details": "Invoice #47 posted to GNU Health General Ledger. State='posted'.",
+      "timestamp": "2026-09-26 21:49:28"
     },
     {
       "name": "Cash Payment Settlement Wizard",
       "status": "PASS",
       "category": "Financial Ledger",
-      "details": "Invoice #40 settled via Cash Journal ($50.00). State='paid', Balance=$0.00.",
-      "timestamp": "2026-09-25 17:31:57"
+      "details": "Invoice #47 settled via Cash Journal ($50.00). State='paid', Balance=$0.00.",
+      "timestamp": "2026-09-26 21:49:29"
     },
     {
       "name": "360\u00b0 Longitudinal EHR Traceability",
       "status": "PASS",
       "category": "Clinical Lifecycle",
-      "details": "Unified patient chart dynamically resolved all encounters for Patient #91: Appointments: 1, Evals: 2, Rx: 1, Labs: 0, Imaging: 1, Invoices: 1.",
-      "timestamp": "2026-09-25 17:32:00"
+      "details": "Unified patient chart dynamically resolved all encounters for Patient #96: Appointments: 1, Evals: 2, Rx: 1, Labs: 0, Imaging: 1, Invoices: 1.",
+      "timestamp": "2026-09-26 21:49:32"
     },
     {
       "name": "Dynamic Clinical Attribution (Zero Hardcoded IDs)",
       "status": "PASS",
       "category": "Clinical Lifecycle",
-      "details": "Confirmed: Prescription #48 and Radiology Study #50 carry verified author attribution resolved dynamically via ClinicalLookupService without static default fallbacks.",
-      "timestamp": "2026-09-25 17:32:01"
+      "details": "Confirmed: Prescription #54 and Radiology Study #55 carry verified author attribution resolved dynamically via ClinicalLookupService without static default fallbacks.",
+      "timestamp": "2026-09-26 21:49:33"
     },
     {
       "name": "RBAC Boundary: Cashier -> Clinical Evaluation",
       "status": "PASS",
       "category": "Access Control",
-      "details": "Cashier attempt to write clinical consultation rejected with error: Access Denied: Security rules prevent access to gnuhealth.patient.evaluation..",
-      "timestamp": "2026-09-25 17:32:02"
+      "details": "Cashier attempt to write clinical consultation rejected with error: Your role does not have permission for this module..",
+      "timestamp": "2026-09-26 21:49:33"
     },
     {
       "name": "RBAC Boundary: Front Desk -> Customer Invoice",
       "status": "PASS",
       "category": "Access Control",
-      "details": "Front desk attempt to create financial invoice rejected by Tryton RBAC: Access Denied: Security rules prevent access to account.invoice..",
-      "timestamp": "2026-09-25 17:32:04"
+      "details": "Front desk attempt to create financial invoice rejected by Tryton RBAC: Your role does not have billing/invoicing permission..",
+      "timestamp": "2026-09-26 21:49:34"
     },
     {
       "name": "Native Tryton RBAC: Front Desk -> GL Move",
       "status": "PASS",
       "category": "Access Control",
       "details": "Tryton ORM raised AccessError: Model 'account.move' is unauthorized for Group 14 (Front Desk).",
-      "timestamp": "2026-09-25 17:32:05"
+      "timestamp": "2026-09-26 21:49:35"
     },
     {
       "name": "Browser Role Test: Front Desk",
       "status": "PASS",
       "category": "Browser E2E",
       "details": "Logged in, landed on /frontdesk, queue rendered. Saved 01_frontdesk_working_day.png.",
-      "timestamp": "2026-09-25 17:32:12"
+      "timestamp": "2026-09-26 21:49:44"
     },
     {
       "name": "Browser Role Test: Patient 360 Chart",
       "status": "PASS",
       "category": "Browser E2E",
-      "details": "Loaded live EHR chart for Patient #91. Saved 02_patient_chart_live.png.",
-      "timestamp": "2026-09-25 17:32:14"
+      "details": "Loaded live EHR chart for Patient #96. Saved 02_patient_chart_live.png.",
+      "timestamp": "2026-09-26 21:49:47"
     },
     {
       "name": "Browser Role Test: Nursing Triage",
       "status": "PASS",
       "category": "Browser E2E",
       "details": "Loaded nursing triage cockpit. Telemetry active. Saved 03_nursing_working_day.png.",
-      "timestamp": "2026-09-25 17:32:16"
+      "timestamp": "2026-09-26 21:49:50"
     },
     {
       "name": "Browser Role Test: Physician Consultation",
       "status": "PASS",
       "category": "Browser E2E",
       "details": "Loaded physician cockpit. SOAP & ICD-10 active. Saved 04_physician_working_day.png.",
-      "timestamp": "2026-09-25 17:32:19"
+      "timestamp": "2026-09-26 21:49:53"
     },
     {
       "name": "Browser Role Test: Laboratory Diagnostic",
       "status": "PASS",
       "category": "Browser E2E",
       "details": "Loaded laboratory worklist & CBC protocol. Saved 05_laboratory_working_day.png.",
-      "timestamp": "2026-09-25 17:32:21"
+      "timestamp": "2026-09-26 21:49:55"
     },
     {
       "name": "Browser Role Test: Radiology Digital PACS",
       "status": "PASS",
       "category": "Browser E2E",
       "details": "Loaded radiology requisitions and findings viewer. Saved 06_radiology_working_day.png.",
-      "timestamp": "2026-09-25 17:32:23"
+      "timestamp": "2026-09-26 21:49:58"
     },
     {
       "name": "Browser Role Test: Cashier & GL Audit",
       "status": "PASS",
       "category": "Browser E2E",
       "details": "Loaded billing cockpit and verified General Ledger double-entry moves. Saved 07_cashier_ledger_audit.png.",
-      "timestamp": "2026-09-25 17:32:26"
+      "timestamp": "2026-09-26 21:50:00"
     },
     {
       "name": "Browser Role Test: System Administrator",
       "status": "PASS",
       "category": "Browser E2E",
       "details": "Loaded admin staff directory and RBAC access matrix. Saved 08_admin_governance.png.",
-      "timestamp": "2026-09-25 17:32:28"
+      "timestamp": "2026-09-26 21:50:03"
     }
   ]
 }

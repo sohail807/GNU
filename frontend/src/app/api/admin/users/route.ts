@@ -238,7 +238,9 @@ export async function POST(req: NextRequest) {
         session.sessionToken,
         "res.user",
         "write",
-        [[uid], writePayload]
+        [[uid], writePayload],
+        { company: session.companyId },
+        session.database
       );
 
       return NextResponse.json({
@@ -280,7 +282,9 @@ export async function POST(req: NextRequest) {
         session.sessionToken,
         "res.user",
         "create",
-        [[userPayload]]
+        [[userPayload]],
+        { company: session.companyId },
+        session.database
       );
       const newUserId = res[0];
 

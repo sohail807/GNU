@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { hasModuleAccess } from "@/lib/access-control";
+
+// Tryton datetime/date fields deserialize as { __class__, year, month, day, hour?, minute? }
+// objects, not strings - rendering one directly as a React child crashes the page.
+function formatTrytonDateTime(v: any): string | null {
+  if (!v || typeof v !== "object" || !v.year) return null;
+  const datePart = `${v.year}-${String(v.month).padStart(2, "0")}-${String(v.day).padStart(2, "0")}`;
+  if (typeof v.hour !== "number") return datePart;
+  return `${datePart}T${String(v.hour).padStart(2, "0")}:${String(v.minute || 0).padStart(2, "0")}`;
+}
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -8,6 +18,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!hasModuleAccess(session.role, "surgery")) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   try {
     const context = { company: session.companyId };
 
@@ -65,15 +78,38 @@ export async function GET(req: NextRequest) {
       console.warn("Could not fetch surgeries:", e);
     }
 
-    // Default OR rooms if database table is empty
-    if (operatingRooms.length === 0) {
-      operatingRooms = [
-        { id: 1, name: "OR Suite 01 - General & Laparoscopic", state: "available" },
-        { id: 2, name: "OR Suite 02 - Orthopedics & Trauma", state: "in_use" },
-        { id: 3, name: "OR Suite 03 - Cardiovascular & Thoracic", state: "available" },
-        { id: 4, name: "OR Suite 04 - Day Surgery / Ambulatory", state: "available" },
-      ];
-    }
+    // Resolve patient/surgeon/anesthetist/OR names via explicit lookups rather
+    // than assuming search_read inlines many2one fields as [id, name] tuples -
+    // that shape isn't guaranteed, and silently falling back to fabricated
+    // placeholder names ("Synthetic Patient", "Dr. UAT Surgeon") misrepresented
+    // real (or missing) data as if it were populated.
+    const idOf = (v: unknown) => (typeof v === "number" ? v : Array.isArray(v) ? v[0] : null);
+    const patientIds = surgeries.map((s) => idOf(s.patient)).filter(Boolean);
+    const surgeonIds = surgeries.map((s) => idOf(s.surgeon)).filter(Boolean);
+    const anesthetistIds = surgeries.map((s) => idOf(s.anesthetist)).filter(Boolean);
+    const orIds = surgeries.map((s) => idOf(s.operating_room)).filter(Boolean);
+
+    const lookup = async (model: string, ids: unknown[], fields: string[]) => {
+      if (ids.length === 0) return {} as Record<number, any>;
+      try {
+        const rows = await TrytonClient.execute<any[]>(
+          session.username, session.userId, session.sessionToken,
+          model, "search_read",
+          [[["id", "in", ids]], 0, ids.length, null, fields],
+          context, session.database
+        );
+        return rows.reduce((acc, r) => { acc[r.id] = r; return acc; }, {} as Record<number, any>);
+      } catch {
+        return {} as Record<number, any>;
+      }
+    };
+
+    const [patientsMap, surgeonsMap, anesthetistsMap, orMap] = await Promise.all([
+      lookup("gnuhealth.patient", patientIds, ["id", "rec_name"]),
+      lookup("gnuhealth.healthprofessional", surgeonIds, ["id", "rec_name"]),
+      lookup("gnuhealth.healthprofessional", anesthetistIds, ["id", "rec_name"]),
+      lookup("gnuhealth.hospital.or", orIds, ["id", "name"]),
+    ]);
 
     return NextResponse.json({
       success: true,
@@ -81,24 +117,30 @@ export async function GET(req: NextRequest) {
       operatingRooms: operatingRooms.map((or) => ({
         id: or.id,
         name: or.name,
-        state: or.state || "available",
+        state: or.state || null,
       })),
-      surgeries: surgeries.map((s) => ({
-        id: s.id,
-        code: s.code || `SRG-${s.id}`,
-        description: s.description || "General Surgical Procedure",
-        patientId: Array.isArray(s.patient) ? s.patient[0] : s.patient,
-        patientName: Array.isArray(s.patient) ? s.patient[1] : "Synthetic Patient",
-        operatingRoomId: Array.isArray(s.operating_room) ? s.operating_room[0] : s.operating_room,
-        operatingRoomName: Array.isArray(s.operating_room) ? s.operating_room[1] : "OR Suite 01",
-        surgeon: Array.isArray(s.surgeon) ? s.surgeon[1] : "Dr. UAT Surgeon",
-        anesthetist: Array.isArray(s.anesthetist) ? s.anesthetist[1] : "Dr. Anesthesiologist",
-        surgeryDate: s.surgery_date,
-        anesthesiaType: s.anesthesia_type || "general",
-        classification: s.classification || "elective",
-        state: s.state || "confirmed",
-        postopGuidelines: s.postoperative_guidelines || "Standard post-operative recovery monitoring.",
-      })),
+      surgeries: surgeries.map((s) => {
+        const pid = idOf(s.patient);
+        const orid = idOf(s.operating_room);
+        const surgeonId = idOf(s.surgeon);
+        const anesthetistId = idOf(s.anesthetist);
+        return {
+          id: s.id,
+          code: s.code || `SRG-${s.id}`,
+          description: s.description || null,
+          patientId: pid,
+          patientName: patientsMap[pid as number]?.rec_name || null,
+          operatingRoomId: orid,
+          operatingRoomName: orMap[orid as number]?.name || null,
+          surgeon: surgeonsMap[surgeonId as number]?.rec_name || null,
+          anesthetist: anesthetistsMap[anesthetistId as number]?.rec_name || null,
+          surgeryDate: formatTrytonDateTime(s.surgery_date),
+          anesthesiaType: s.anesthesia_type || null,
+          classification: s.classification || null,
+          state: s.state || "draft",
+          postopGuidelines: s.postoperative_guidelines || null,
+        };
+      }),
       stats: {
         totalTheatres: operatingRooms.length,
         scheduledToday: surgeries.length,
@@ -121,6 +163,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!hasModuleAccess(session.role, "surgery")) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   try {
     const body = await req.json();
     const { patientId, description, operatingRoomId, surgeryDate, anesthesiaType, classification } = body;
@@ -176,6 +221,9 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!hasModuleAccess(session.role, "surgery")) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   try {
     const body = await req.json();
     const { surgeryId, state, postopGuidelines } = body;
@@ -184,7 +232,21 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Surgery ID is required" }, { status: 400 });
     }
 
+    // Whitelist to the model's real state selection - never let a client write
+    // an arbitrary string into gnuhealth.surgery.state.
+    const VALID_STATES = ["draft", "confirmed", "cancelled", "in_progress", "done", "signed"];
+    if (state !== undefined && !VALID_STATES.includes(state)) {
+      return NextResponse.json(
+        { error: `Invalid surgery state "${state}". Must be one of: ${VALID_STATES.join(", ")}.` },
+        { status: 400 }
+      );
+    }
+
     const context = { company: session.companyId };
+
+    const writeValues: Record<string, unknown> = {};
+    if (state !== undefined) writeValues.state = state;
+    if (postopGuidelines !== undefined) writeValues.postoperative_guidelines = postopGuidelines;
 
     await TrytonClient.execute(
       session.username,
@@ -192,13 +254,7 @@ export async function PATCH(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.surgery",
       "write",
-      [
-        [parseInt(surgeryId, 10)],
-        {
-          state: state || "done",
-          postoperative_guidelines: postopGuidelines || undefined,
-        },
-      ],
+      [[parseInt(surgeryId, 10)], writeValues],
       context,
       session.database
     );

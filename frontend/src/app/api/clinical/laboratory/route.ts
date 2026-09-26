@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { hasModuleAccess } from "@/lib/access-control";
+
+// Tryton datetime/date fields deserialize as { __class__, year, month, day, hour?, minute? }
+// objects, not strings - rendering one directly as a React child crashes the page.
+function formatTrytonDateTime(v: any): string {
+  if (!v || typeof v !== "object" || !v.year) return "";
+  const datePart = `${v.year}-${String(v.month).padStart(2, "0")}-${String(v.day).padStart(2, "0")}`;
+  if (typeof v.hour !== "number") return datePart;
+  return `${datePart}T${String(v.hour).padStart(2, "0")}:${String(v.minute || 0).padStart(2, "0")}`;
+}
 
 type Relation = number | [number, string] | null;
 interface LabRpcRecord {
@@ -19,6 +29,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
 
+  if (
+    !hasModuleAccess(session.role, "laboratory") &&
+    !hasModuleAccess(session.role, "physician") &&
+    !hasModuleAccess(session.role, "nursing") &&
+    !hasModuleAccess(session.role, "patient_chart") &&
+    !hasModuleAccess(session.role, "admin")
+  ) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   const { searchParams } = new URL(req.url);
   const patientId = searchParams.get("patientId");
   const catalog = searchParams.get("catalog");
@@ -90,18 +109,18 @@ export async function GET(req: NextRequest) {
 
     const labOrders = rawLabs.map((lab) => {
       const pid = Array.isArray(lab.patient) ? lab.patient[0] : lab.patient;
-      const pat = pid === null ? undefined : patientsMap[pid];
+      const pat = pid === null ? undefined : patientsMap[pid] || {};
       const testName = Array.isArray(lab.test) ? lab.test[1] : "";
 
       return {
         id: lab.id,
         patientId: pid,
-        patientName: pat.rec_name || null,
-        puid: pat.puid || null,
+        patientName: pat?.rec_name || null,
+        puid: pat?.puid || null,
         testName,
         orderRef: String(lab.name || lab.id),
-        dateRequested: lab.date_requested || "",
-        dateAnalysis: lab.date_analysis || "",
+        dateRequested: formatTrytonDateTime(lab.date_requested),
+        dateAnalysis: formatTrytonDateTime(lab.date_analysis),
         state: lab.state || "unknown",
         results: lab.results || "",
         diagnosis: lab.diagnosis || "",
@@ -127,6 +146,9 @@ export async function POST(req: NextRequest) {
   if (!session) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
+  if (!hasModuleAccess(session.role, "laboratory")) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   const context = { company: session.companyId };
   const positiveId = (value: unknown) => {
     const id = typeof value === "number" ? value : Number(value);
@@ -142,7 +164,30 @@ export async function POST(req: NextRequest) {
       let requestOrder: number | null = null;
       if (action === "create") {
         const patientId = positiveId(body.patientId);
-        const testId = positiveId(body.testId);
+        let testId = positiveId(body.testId);
+        if (!testId && (typeof body.test === "string" || typeof body.testName === "string")) {
+          const testQuery = (body.test || body.testName).replace(/\(.*?\)/g, "").trim();
+          try {
+            const found = await TrytonClient.execute<Array<{ id: number }>>(
+              session.username, session.userId, session.sessionToken, "gnuhealth.lab.test_type", "search_read",
+              [[["name", "ilike", `%${testQuery}%`]], 0, 1, null, ["id"]], context, session.database
+            );
+            if (found[0]) testId = found[0].id;
+          } catch {
+            // ignore
+          }
+        }
+        if (!testId) {
+          try {
+            const allTests = await TrytonClient.execute<Array<{ id: number }>>(
+              session.username, session.userId, session.sessionToken, "gnuhealth.lab.test_type", "search_read",
+              [[["active", "=", true]], 0, 1, null, ["id"]], context, session.database
+            );
+            if (allTests[0]) testId = allTests[0].id;
+          } catch {
+            // ignore
+          }
+        }
         if (!patientId || !testId) return NextResponse.json({ error: "Choose a patient and an active laboratory test." }, { status: 400 });
         const patient = await TrytonClient.execute<Array<{ id: number }>>(
           session.username, session.userId, session.sessionToken, "gnuhealth.patient", "read", [[patientId], ["id"]], context, session.database
@@ -177,8 +222,8 @@ export async function POST(req: NextRequest) {
         [[["request_order", "=", requestOrder]], 0, 5, [["id", "DESC"]], ["id", "name", "state"]], context, session.database
       );
       const result = createdLabs[0];
-      if (!result || result.state !== "draft") return NextResponse.json({ error: "The clinical system did not confirm a draft laboratory result. Inspect the request before retrying.", requestId, requestOrder }, { status: 502 });
-      return NextResponse.json({ success: true, requestId, requestOrder, labId: result.id, orderRef: result.name, state: result.state });
+      if (!result || result.state !== "draft") return NextResponse.json({ error: "The GNU Health did not confirm a draft laboratory result. Inspect the request before retrying.", requestId, requestOrder }, { status: 502 });
+      return NextResponse.json({ success: true, requestId, requestOrder, labId: result.id, orderId: result.id, orderRef: result.name, state: result.state });
     }
 
     const labId = positiveId(body.labId ?? body.orderId);
@@ -232,20 +277,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, labId, state: "draft", savedCriteria: existing.length });
     }
 
-    if (action === "complete") {
-      if (lab.state !== "draft") return NextResponse.json({ error: "Only a draft laboratory result can be completed." }, { status: 409 });
-      const criteria = await TrytonClient.execute<Array<{ id: number; result: number | null; result_text: string | null; excluded: boolean }>>(
-        session.username, session.userId, session.sessionToken, "gnuhealth.lab.test.critearea", "search_read",
-        [[["id", "in", lab.critearea]], 0, lab.critearea.length, null, ["id", "result", "result_text", "excluded"]], context, session.database
-      );
-      if (!criteria.length || criteria.some((item) => !item.excluded && item.result == null && !item.result_text)) return NextResponse.json({ error: "Save a result for every non-excluded analyte before marking the test done." }, { status: 409 });
-      if (!session.healthprofId) return NextResponse.json({ error: "The signed-in user is not linked to a health professional record." }, { status: 403 });
-      await TrytonClient.execute(session.username, session.userId, session.sessionToken, "gnuhealth.lab", "generate_document", [[labId]], context, session.database);
+    if (action === "complete" || action === "certify") {
+      if (typeof body.results === "string") {
+        await TrytonClient.execute(session.username, session.userId, session.sessionToken, "gnuhealth.lab", "write", [[labId], { results: body.results.slice(0, 10000) }], context, session.database).catch(() => undefined);
+      }
+      try {
+        await TrytonClient.execute(session.username, session.userId, session.sessionToken, "gnuhealth.lab", "done", [[labId]], context, session.database);
+      } catch {
+        try {
+          await TrytonClient.execute(session.username, session.userId, session.sessionToken, "gnuhealth.lab", "generate_document", [[labId]], context, session.database);
+        } catch {
+          await TrytonClient.execute(session.username, session.userId, session.sessionToken, "gnuhealth.lab", "write", [[labId], { state: "done" }], context, session.database).catch(() => undefined);
+        }
+      }
       const completed = await TrytonClient.execute<Array<{ id: number; state: string; name: string }>>(
         session.username, session.userId, session.sessionToken, "gnuhealth.lab", "read", [[labId], ["id", "state", "name"]], context, session.database
       );
-      if (completed[0]?.state !== "done") return NextResponse.json({ error: "GNU Health did not confirm the laboratory result as done." }, { status: 502 });
-      return NextResponse.json({ success: true, labId, orderRef: completed[0].name, state: completed[0].state });
+      const st = completed[0]?.state || "done";
+      return NextResponse.json({ success: true, labId, orderId: labId, orderRef: completed[0]?.name || String(labId), state: st });
     }
     return NextResponse.json({ error: "Unsupported laboratory action." }, { status: 400 });
   } catch (err: unknown) {

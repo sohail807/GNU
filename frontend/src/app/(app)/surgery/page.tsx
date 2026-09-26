@@ -143,10 +143,10 @@ export default function SurgeryPage() {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return (
-      s.description.toLowerCase().includes(q) ||
-      s.patientName.toLowerCase().includes(q) ||
-      s.code.toLowerCase().includes(q) ||
-      s.surgeon.toLowerCase().includes(q)
+      (s.description || "").toLowerCase().includes(q) ||
+      (s.patientName || "").toLowerCase().includes(q) ||
+      (s.code || "").toLowerCase().includes(q) ||
+      (s.surgeon || "").toLowerCase().includes(q)
     );
   });
 
@@ -196,7 +196,7 @@ export default function SurgeryPage() {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Active Theatres</span>
             <Scissors className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 font-mono">{stats.totalTheatres}</div>
+          <div className="text-2xl font-semibold text-slate-900 font-mono">{stats.totalTheatres}</div>
           <div className="text-[11px] text-slate-400 mt-1">Sterile suites configured</div>
         </div>
 
@@ -205,7 +205,7 @@ export default function SurgeryPage() {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Scheduled Today</span>
             <Calendar className="w-4 h-4 text-blue-500" />
           </div>
-          <div className="text-2xl font-extrabold text-blue-600 font-mono">{stats.scheduledToday}</div>
+          <div className="text-2xl font-semibold text-blue-600 font-mono">{stats.scheduledToday}</div>
           <div className="text-[11px] text-blue-600/80 font-medium mt-1">Planned operative cases</div>
         </div>
 
@@ -214,7 +214,7 @@ export default function SurgeryPage() {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider">In Progress</span>
             <Activity className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="text-2xl font-extrabold text-amber-600 font-mono">{stats.inProgress}</div>
+          <div className="text-2xl font-semibold text-amber-600 font-mono">{stats.inProgress}</div>
           <div className="text-[11px] text-amber-600/80 font-medium mt-1">Under active operation</div>
         </div>
 
@@ -223,7 +223,7 @@ export default function SurgeryPage() {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Procedures Completed</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           </div>
-          <div className="text-2xl font-extrabold text-emerald-600 font-mono">{stats.completed}</div>
+          <div className="text-2xl font-semibold text-emerald-600 font-mono">{stats.completed}</div>
           <div className="text-[11px] text-emerald-600/80 font-medium mt-1">Transferred to PACU / Ward</div>
         </div>
       </div>

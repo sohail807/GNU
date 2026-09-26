@@ -89,11 +89,11 @@ export default function AdminPage() {
         setUsers(data.users);
       } else {
         setUsers([]);
-        setErrorMsg(data.error || "Unable to load the live clinical system user directory.");
+        setErrorMsg(data.error || "Unable to load the live GNU Health user directory.");
       }
     } catch {
       setUsers([]);
-      setErrorMsg("Unable to reach the live clinical system user directory.");
+      setErrorMsg("Unable to reach the live GNU Health user directory.");
     } finally {
       setIsLoading(false);
     }
@@ -143,7 +143,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         await loadUsers();
-        setFeedback(`Supported clinical system account fields were updated for @${selectedUser.username}.`);
+        setFeedback(`Supported GNU Health account fields were updated for @${selectedUser.username}.`);
         setIsEditUserModalOpen(false);
       } else {
         setErrorMsg(data.error || "Failed to update user.");
@@ -173,7 +173,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         await loadUsers();
-        setFeedback(`Staff account @${newUserData.username} created in clinical system.`);
+        setFeedback(`Staff account @${newUserData.username} created in GNU Health.`);
         setCredentialDisclosure({ username: newUserData.username, password: data.temporaryPassword });
         setIsAddUserModalOpen(false);
         setNewUserData({
@@ -238,7 +238,7 @@ export default function AdminPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200/90 gap-4">
         <div>
           <div className="kicker text-[#0F766E] mb-1">STAFF ACCOUNTS · ADMIN CONSOLE</div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
             Staff User Directory
           </h1>
           <p className="text-xs text-slate-600 mt-1">
@@ -309,7 +309,7 @@ export default function AdminPage() {
           kicker="DIRECTORY SOURCE"
           label="Staff Accounts"
           value={users.length}
-          subtext="Loaded from clinical system"
+          subtext="Loaded from GNU Health"
           icon={<Server className="w-5 h-5 text-[#0F766E]" />}
         />
         <StatCard
@@ -471,7 +471,7 @@ export default function AdminPage() {
               <div className="font-mono text-[10px] text-slate-400 shrink-0">{log.timestamp}</div>
             </div>
           ))}
-        </div> : <p className="text-xs text-slate-600">This frontend does not yet read a persistent audit event stream from clinical system.</p>}
+        </div> : <p className="text-xs text-slate-600">This frontend does not yet read a persistent audit event stream from GNU Health.</p>}
       </div>
 
       {/* MODAL 1: IST ACCESS CONTROL PERMISSION MATRIX */}
@@ -493,7 +493,7 @@ export default function AdminPage() {
               <span className="font-mono text-[#0F766E] font-bold uppercase">{selectedUser?.role}</span>
             </div>
             <p className="text-[11px] text-slate-500 pt-1 border-t border-slate-200">
-              This is a read-only overview derived from the assigned role. Actual access is determined by the user’s native clinical system groups and model permissions. Change a user’s role in Edit; this screen cannot grant individual module permissions.
+              This is a read-only overview derived from the assigned role. Actual access is determined by the user’s native GNU Health groups and model permissions. Change a user’s role in Edit; this screen cannot grant individual module permissions.
             </p>
           </div>
 
@@ -589,7 +589,7 @@ export default function AdminPage() {
             label="Department / Unit"
             value={editFormData.department}
             disabled
-            helperText="Department is not stored on the clinical system user record."
+            helperText="Department is not stored on the GNU Health user record."
           />
 
           <div className="grid grid-cols-2 gap-3">
@@ -603,7 +603,7 @@ export default function AdminPage() {
               label="Phone Number"
               value={editFormData.phone}
               disabled
-              helperText="Phone is not stored on the clinical system user record."
+              helperText="Phone is not stored on the GNU Health user record."
             />
           </div>
 
@@ -746,7 +746,7 @@ export default function AdminPage() {
           </p>
           <Input label="Temporary password" value={credentialDisclosure?.password || ""} readOnly autoComplete="off" />
           <p className="text-[11px] text-amber-800">
-            The current frontend does not enforce a password change at next login. Complete that step through the authorized clinical system administration process.
+            The current frontend does not enforce a password change at next login. Complete that step through the authorized GNU Health administration process.
           </p>
           <div className="flex justify-end">
             <Button type="button" variant="primary" onClick={() => setCredentialDisclosure(null)}>

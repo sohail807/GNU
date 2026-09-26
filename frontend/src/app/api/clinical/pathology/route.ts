@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { hasModuleAccess } from "@/lib/access-control";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -8,6 +9,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
 
+  // ICD-10 pathology codes are reference data used across several clinical
+  // workflows (lab diagnoses, physician SOAP notes, inpatient admission/
+  // discharge diagnoses) - gate on any of those modules, not just laboratory.
+  const canLookup =
+    hasModuleAccess(session.role, "laboratory") ||
+    hasModuleAccess(session.role, "physician") ||
+    hasModuleAccess(session.role, "inpatient") ||
+    hasModuleAccess(session.role, "nursing");
+  if (!canLookup) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") || "";
 
@@ -28,6 +40,9 @@ export async function GET(req: NextRequest) {
       "gnuhealth.pathology",
       "search_read",
       [domain, 0, 30, [["code", "ASC"]], ["id", "code", "name"]]
+    ,
+      { company: session.companyId },
+      session.database
     );
 
     return NextResponse.json({

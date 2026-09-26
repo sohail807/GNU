@@ -33,7 +33,7 @@ interface RadiologyOrder {
   doctor: string;
   requestDate: string;
   state: "draft" | "requested" | "done";
-  findings: string;
+  findings: string | null;
 }
 
 export default function RadiologyPage() {
@@ -47,15 +47,16 @@ export default function RadiologyPage() {
 
   // New Request Modal (Resolves S6.3)
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
-  const [newPatientId, setNewPatientId] = useState<number>(66);
-  const [newStudy, setNewStudy] = useState("Chest X-Ray (PA & Lateral)");
+  const [newPatientId, setNewPatientId] = useState<number>(0);
+  // Imaging test catalog, loaded live from the tenant's own catalog - never hardcoded
+  const [testTypes, setTestTypes] = useState<{ id: number; name: string }[]>([]);
+  const [newTestId, setNewTestId] = useState<number>(0);
 
-  // Additional Information Field (Resolves S6.4 & S6.5: Locate Findings Field & Enter Findings)
-  const [additionalInformation, setAdditionalInformation] = useState(
-    "Clear lung fields bilaterally. Normal cardiac silhouette. No focal consolidation, pneumothorax, or pleural effusion."
-  );
+  // Diagnostic findings the radiologist enters before finalizing a study. Never
+  // pre-filled with sample text - a real finding must be typed for a real patient.
+  const [additionalInformation, setAdditionalInformation] = useState("");
 
-  // Fetch live orders and patients
+  // Fetch live orders, patients, and the imaging test catalog
   const loadData = async () => {
     setIsLoading(true);
     setErrorMessage(null);
@@ -70,7 +71,14 @@ export default function RadiologyPage() {
       if (patData.success && Array.isArray(patData.patients)) {
         setPatientsList(patData.patients);
         if (patData.patients.length > 0) {
-          setNewPatientId(patData.patients[0].id);
+          setNewPatientId((prev) => prev || patData.patients[0].id);
+        }
+      }
+
+      if (Array.isArray(radsData.testTypes)) {
+        setTestTypes(radsData.testTypes);
+        if (radsData.testTypes.length > 0) {
+          setNewTestId((prev) => prev || radsData.testTypes[0].id);
         }
       }
 
@@ -78,9 +86,6 @@ export default function RadiologyPage() {
         setOrders(radsData.radiologyOrders);
         if (radsData.radiologyOrders.length > 0 && !selectedOrderId) {
           setSelectedOrderId(radsData.radiologyOrders[0].id);
-          if (radsData.radiologyOrders[0].findings) {
-            setAdditionalInformation(radsData.radiologyOrders[0].findings);
-          }
         }
       }
     } catch (err: any) {
@@ -96,41 +101,20 @@ export default function RadiologyPage() {
 
   const activeOrder = orders.find((o) => o.id === selectedOrderId) || orders[0];
 
-  // Step 1: REQUEST Action (Resolves S6.6 - Real Backend Call)
-  const handleExecuteRequest = async () => {
-    if (!activeOrder) return;
-    setIsProcessing(true);
-    setFeedback(null);
-    setErrorMessage(null);
+  // Sync the findings textarea to whichever order is selected, never leaving a
+  // previous order's (or a fabricated) finding attached to a different patient.
+  useEffect(() => {
+    setAdditionalInformation(activeOrder?.findings || "");
+  }, [activeOrder?.id]);
 
-    try {
-      const res = await fetch("/api/clinical/radiology", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "request",
-          orderId: activeOrder.id,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to transition study state");
-      }
-
-      setOrders((prev) =>
-        prev.map((o) => (o.id === activeOrder.id ? { ...o, state: "requested" } : o))
-      );
-      setFeedback(`Radiological study ${activeOrder.orderRef} successfully transitioned to 'REQUESTED' in clinical system.`);
-    } catch (err: any) {
-      setErrorMessage(err.message || "Error requesting study");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Step 2: GENERATE RESULTS Action (Resolves S6.6 & S6.7 - Real Backend Call)
+  // Finalize the study: commits the radiologist's real diagnostic findings and
+  // marks the request DONE in the native imaging workflow.
   const handleGenerateResults = async () => {
     if (!activeOrder) return;
+    if (!additionalInformation.trim()) {
+      setErrorMessage("Enter the diagnostic findings before finalizing this study.");
+      return;
+    }
     setIsProcessing(true);
     setFeedback(null);
     setErrorMessage(null);
@@ -140,7 +124,8 @@ export default function RadiologyPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          orderId: activeOrder.id,
+          action: "finalize",
+          requestId: activeOrder.id,
           findings: additionalInformation,
         }),
       });
@@ -149,13 +134,9 @@ export default function RadiologyPage() {
         throw new Error(data.error || "Failed to commit diagnostic report");
       }
 
-      setOrders((prev) =>
-        prev.map((o) =>
-          o.id === activeOrder.id ? { ...o, state: "done", findings: additionalInformation } : o
-        )
-      );
+      await loadData();
       setFeedback(
-        `Digital Radiology study ${activeOrder.orderRef} finalized and verified. Diagnostic report stamped as DONE in clinical system PACS.`
+        `Digital Radiology study ${activeOrder.orderRef} finalized and verified. Diagnostic report stamped as DONE in GNU Health PACS.`
       );
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to commit radiology findings");
@@ -167,6 +148,10 @@ export default function RadiologyPage() {
   // Submit New Request
   const handleCreateNewRequest = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newPatientId || !newTestId) {
+      setErrorMessage("Select a patient and an imaging study before scheduling.");
+      return;
+    }
     setIsLoading(true);
     setFeedback(null);
     setErrorMessage(null);
@@ -178,6 +163,7 @@ export default function RadiologyPage() {
         body: JSON.stringify({
           action: "create",
           patientId: newPatientId,
+          testId: newTestId,
         }),
       });
       const data = await res.json();
@@ -185,39 +171,16 @@ export default function RadiologyPage() {
         throw new Error(data.error || "Failed to create radiology request");
       }
 
-      const pat = patientsList.find((p) => p.id === newPatientId);
-      const newRef = data.orderRef || `RAD-2026-${String(data.orderId).padStart(4, "0")}`;
-      const newReq: RadiologyOrder = {
-        id: data.orderId || Date.now(),
-        orderRef: newRef,
-        patientId: newPatientId,
-        patientName: pat?.name || "Patient",
-        puid: pat?.puid || "P00088",
-        procedureName: newStudy,
-        modality: "Digital Radiography (DX)",
-        doctor: "Dr. Alexander Wright, MD",
-        requestDate: new Date().toISOString().split("T")[0],
-        state: "draft",
-        findings: "Clear lung fields bilaterally.",
-      };
-
-      setOrders([newReq, ...orders]);
-      setSelectedOrderId(newReq.id);
+      await loadData();
+      setSelectedOrderId(data.orderId);
       setIsNewModalOpen(false);
-      setFeedback(`New Imaging Request ${newRef} scheduled and recorded in clinical system.`);
+      setFeedback(`New Imaging Request #${data.orderId} scheduled and recorded in GNU Health.`);
     } catch (err: any) {
       setErrorMessage(err.message || "Error scheduling imaging request");
     } finally {
       setIsLoading(false);
     }
   };
-
-  if (process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "test") return (
-    <section className="mx-auto max-w-3xl rounded-2xl border border-amber-300 bg-amber-50 p-8 text-amber-950">
-      <h1 className="text-2xl font-bold">Imaging workflow is unavailable</h1>
-      <p className="mt-3 text-sm leading-6">clinical system imaging state changes and result generation must run through its native workflow. The previous screen included sample findings and a hard-coded patient, so imaging actions are hidden until the native lifecycle is integrated and verified.</p>
-    </section>
-  );
 
   return (
     <div className="max-w-6xl mx-auto space-y-7 animate-fade-in">
@@ -229,12 +192,11 @@ export default function RadiologyPage() {
             <span className="text-slate-300">/</span>
             <span className="kicker text-slate-500">DIGITAL PACS</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
             Diagnostic Radiology & Medical Imaging Requests
           </h1>
           <p className="text-xs text-slate-600 mt-1">
-            Requisition: <span className="font-mono font-bold text-[#0F766E]">{activeOrder?.orderRef}</span> · Modality:{" "}
-            <span className="font-semibold text-slate-900">{activeOrder?.modality}</span>
+            Requisition: <span className="font-mono font-bold text-[#0F766E]">{activeOrder?.orderRef}</span>
           </p>
         </div>
 
@@ -247,18 +209,6 @@ export default function RadiologyPage() {
             leftIcon={<Plus className="w-4 h-4 text-[#0F766E]" />}
           >
             + New Imaging Request
-          </Button>
-
-          {/* REQUEST ACTION BUTTON (Resolves S6.6) */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExecuteRequest}
-            disabled={activeOrder?.state !== "draft"}
-            leftIcon={<Play className="w-4 h-4 text-teal-600" />}
-            className="font-bold border-teal-300 bg-teal-50/70 text-teal-800"
-          >
-            REQUEST
           </Button>
 
           {/* GENERATE RESULTS ACTION BUTTON (Resolves S6.6 & S6.7) */}
@@ -380,14 +330,6 @@ export default function RadiologyPage() {
 
             <div className="flex items-center gap-2">
               <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExecuteRequest}
-                disabled={activeOrder?.state !== "draft"}
-              >
-                1. REQUEST
-              </Button>
-              <Button
                 variant="primary"
                 size="sm"
                 onClick={handleGenerateResults}
@@ -395,7 +337,7 @@ export default function RadiologyPage() {
                 isLoading={isProcessing}
                 className="bg-[#0F766E] hover:bg-[#115E59] font-bold"
               >
-                2. GENERATE RESULTS
+                GENERATE RESULTS
               </Button>
             </div>
           </div>
@@ -423,25 +365,27 @@ export default function RadiologyPage() {
                   {p.name} (PUID: {p.puid})
                 </option>
               ))}
-              {patientsList.length === 0 && (
-                <option value={66}>Alexander Wright (PUID: P00088)</option>
-              )}
+              {patientsList.length === 0 && <option value={0}>No patients found in this tenant</option>}
             </select>
           </div>
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-700">Radiology Study / Procedure *</label>
-            <select
-              value={newStudy}
-              onChange={(e) => setNewStudy(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:outline-none focus:border-[#0F766E]"
-            >
-              <option value="Chest X-Ray (PA & Lateral)">Chest X-Ray (PA & Lateral)</option>
-              <option value="Lumbar Spine (AP & Lateral)">Lumbar Spine (AP & Lateral)</option>
-              <option value="CT Scan Head without contrast">CT Scan Head without contrast</option>
-              <option value="Abdominal Ultrasound">Abdominal Ultrasound</option>
-              <option value="MRI Brain Screening">MRI Brain Screening</option>
-            </select>
+            {testTypes.length === 0 ? (
+              <p className="text-xs text-red-600 font-medium">No imaging study types are configured in this tenant's catalog.</p>
+            ) : (
+              <select
+                value={newTestId}
+                onChange={(e) => setNewTestId(parseInt(e.target.value, 10))}
+                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:outline-none focus:border-[#0F766E]"
+              >
+                {testTypes.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">

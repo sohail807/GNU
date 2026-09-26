@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { ClinicalLookupService } from "@/lib/clinical-lookup";
+import { hasModuleAccess } from "@/lib/access-control";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
+  }
+  if (!hasModuleAccess(session.role, "appointments") && !hasModuleAccess(session.role, "frontdesk")) {
+    return NextResponse.json({ error: "Your role does not have appointment desk permission." }, { status: 403 });
   }
 
   const { searchParams } = new URL(req.url);
@@ -22,7 +26,9 @@ export async function GET(req: NextRequest) {
         session.sessionToken,
         "gnuhealth.healthprofessional",
         "search_read",
-        [[[], 0, 50, null, ["id", "rec_name", "main_specialty"]]]
+        [[], 0, 50, null, ["id", "rec_name", "main_specialty"]],
+        { company: session.companyId },
+        session.database
       );
       return NextResponse.json({
         success: true,
@@ -45,7 +51,9 @@ export async function GET(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.appointment",
       "search_read",
-      [domain, 0, 50, [["id", "DESC"]], ["id", "name", "patient", "healthprof", "appointment_date", "state", "urgency"]]
+      [domain, 0, 50, [["id", "DESC"]], ["id", "name", "patient", "healthprof", "appointment_date", "state", "urgency"]],
+      { company: session.companyId },
+      session.database
     );
 
     // Resolve patient names
@@ -62,7 +70,9 @@ export async function GET(req: NextRequest) {
           session.sessionToken,
           "gnuhealth.patient",
           "search_read",
-          [[["id", "in", patientIds]], 0, patientIds.length, null, ["id", "puid", "rec_name"]]
+          [[["id", "in", patientIds]], 0, patientIds.length, null, ["id", "puid", "rec_name", "party"]],
+          { company: session.companyId },
+          session.database
         );
         patientsMap = patients.reduce((acc, p) => {
           acc[p.id] = p;
@@ -70,6 +80,33 @@ export async function GET(req: NextRequest) {
         }, {} as Record<number, any>);
       } catch {
         // Fallback
+      }
+    }
+
+    // Resolve real patient phone numbers from their party's contact mechanisms.
+    // Never fabricated - a patient with no phone on file shows null, not a fake number.
+    const partyIds = Object.values(patientsMap)
+      .map((p: any) => (typeof p.party === "number" ? p.party : p.party?.[0]))
+      .filter(Boolean);
+    let phoneByParty: Record<number, string> = {};
+    if (partyIds.length > 0) {
+      try {
+        const contacts = await TrytonClient.execute<any[]>(
+          session.username,
+          session.userId,
+          session.sessionToken,
+          "party.contact_mechanism",
+          "search_read",
+          [[["party", "in", partyIds], ["type", "in", ["mobile", "phone"]]], 0, partyIds.length * 2, null, ["party", "value"]],
+          { company: session.companyId },
+          session.database
+        );
+        for (const c of contacts || []) {
+          const pid = typeof c.party === "number" ? c.party : c.party?.[0];
+          if (pid && !phoneByParty[pid]) phoneByParty[pid] = c.value;
+        }
+      } catch {
+        // Fallback: leave phoneByParty empty
       }
     }
 
@@ -86,7 +123,9 @@ export async function GET(req: NextRequest) {
           session.sessionToken,
           "gnuhealth.healthprofessional",
           "search_read",
-          [[["id", "in", hpIds]], 0, hpIds.length, null, ["id", "rec_name"]]
+          [[["id", "in", hpIds]], 0, hpIds.length, null, ["id", "rec_name"]],
+          { company: session.companyId },
+          session.database
         );
         hpMap = hps.reduce((acc, hp) => {
           acc[hp.id] = hp;
@@ -101,6 +140,7 @@ export async function GET(req: NextRequest) {
       const pid = typeof a.patient === "number" ? a.patient : a.patient?.[0];
       const hpid = typeof a.healthprof === "number" ? a.healthprof : a.healthprof?.[0];
       const pat = patientsMap[pid] || {};
+      const patPartyId = typeof pat.party === "number" ? pat.party : pat.party?.[0];
       const hp = hpMap[hpid] || {};
       const aptDate = a.appointment_date;
       const timeStr = Number.isInteger(aptDate?.hour)
@@ -116,6 +156,7 @@ export async function GET(req: NextRequest) {
         patientId: pid,
         puid: pat.puid || "",
         patientName: pat.rec_name || "",
+        patientPhone: (patPartyId && phoneByParty[patPartyId]) || null,
         physicianName: hp.rec_name || "",
         physicianId: hpid,
         date: dateStr,
@@ -138,6 +179,9 @@ export async function POST(req: NextRequest) {
   if (!session) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
+  if (!hasModuleAccess(session.role, "appointments") && !hasModuleAccess(session.role, "frontdesk")) {
+    return NextResponse.json({ error: "Your role does not have appointment desk permission." }, { status: 403 });
+  }
 
   try {
     const body = await req.json();
@@ -154,7 +198,9 @@ export async function POST(req: NextRequest) {
         session.sessionToken,
         "gnuhealth.appointment",
         "check_in",
-        [[aid]]
+        [[aid]],
+        { company: session.companyId },
+        session.database
       );
       return NextResponse.json({
         success: true,
@@ -167,12 +213,14 @@ export async function POST(req: NextRequest) {
       if (!Number.isSafeInteger(pid) || pid <= 0) {
         return NextResponse.json({ error: "A valid patient ID is required." }, { status: 400 });
       }
-      if (typeof appointmentDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)
-          || typeof appointmentTime !== "string" || !/^([01]\d|2[0-3]):[0-5]\d$/.test(appointmentTime)) {
-        return NextResponse.json({ error: "A valid appointment date and time are required." }, { status: 400 });
+      if (typeof appointmentDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)) {
+        return NextResponse.json({ error: "A valid appointment date (YYYY-MM-DD) is required." }, { status: 400 });
       }
+      const resolvedTime = (typeof appointmentTime === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(appointmentTime))
+        ? appointmentTime
+        : "10:00";
       const [year, month, day] = appointmentDate.split("-").map(Number);
-      const [hour, minute] = appointmentTime.split(":").map(Number);
+      const [hour, minute] = resolvedTime.split(":").map(Number);
       const checkDate = new Date(Date.UTC(year, month - 1, day));
       if (checkDate.getUTCFullYear() !== year || checkDate.getUTCMonth() !== month - 1 || checkDate.getUTCDate() !== day) {
         return NextResponse.json({ error: "The appointment date is invalid." }, { status: 400 });

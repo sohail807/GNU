@@ -74,11 +74,11 @@ export default function MasterPatientDirectoryPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200/90 gap-4">
         <div>
           <div className="kicker text-[#0F766E] mb-1">HEALTH INFORMATION MANAGEMENT · MASTER EHR</div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
             Master Patient Registry & Charts
           </h1>
           <p className="text-xs text-slate-600 mt-1">
-            Authoritative clinical system Patient Records Directory · Search by Name, PUID or Qatar ID.
+            Authoritative GNU Health Patient Records Directory · Search by Name, PUID or Qatar ID.
           </p>
         </div>
 
@@ -144,7 +144,7 @@ export default function MasterPatientDirectoryPage() {
 
         {isLoading ? (
           <div className="p-12 text-center text-xs text-slate-500 font-mono">
-            Loading master patient records from clinical system...
+            Loading master patient records from GNU Health...
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center space-y-3">
@@ -192,7 +192,7 @@ export default function MasterPatientDirectoryPage() {
                       {pat.bloodGroup || "—"}
                     </td>
                     <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px]">
-                      {pat.phone || "+974 5512 8492"}
+                      {pat.phone || <span className="text-slate-400 italic">Not on file</span>}
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">

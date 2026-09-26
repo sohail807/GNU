@@ -128,7 +128,7 @@ export default function PhysicianConsultationPage() {
   const [liveDrugResults, setLiveDrugResults] = useState<DrugFormularyItem[]>([]);
   const [isDrugSearching, setIsDrugSearching] = useState(false);
 
-  // Live ICD-10 debounced search against clinical system gnuhealth.pathology
+  // Live ICD-10 debounced search against GNU Health gnuhealth.pathology
   useEffect(() => {
     if (!icdSearchTerm || icdSearchTerm.length < 2) {
       setLiveIcdResults([]);
@@ -144,7 +144,7 @@ export default function PhysicianConsultationPage() {
             data.pathologies.map((p: any) => ({
               code: p.code,
               name: p.name,
-              category: "clinical system Pathology",
+              category: "GNU Health Pathology",
             }))
           );
         } else {
@@ -159,7 +159,7 @@ export default function PhysicianConsultationPage() {
     return () => clearTimeout(timer);
   }, [icdSearchTerm]);
 
-  // Live Formulary debounced search against clinical system gnuhealth.medicament
+  // Live Formulary debounced search against GNU Health gnuhealth.medicament
   useEffect(() => {
     if (!drugSearchTerm || drugSearchTerm.length < 2) {
       setLiveDrugResults([]);
@@ -215,14 +215,40 @@ export default function PhysicianConsultationPage() {
               gender: match.gender || "", bloodGroup: match.bloodGroup || "", allergies: match.allergies || [],
               vitals: { bp: "", bpm: null, temp: null, spo2: null, bmi: "" },
             });
+            loadLatestVitals(match.id);
           }
         }
       } catch {
-        setErrorMessage("Could not load patient records from clinical system.");
+        setErrorMessage("Could not load patient records from GNU Health.");
       }
     }
     loadPatientData();
   }, [initialPatientId]);
+
+  // Load the patient's most recent nursing triage vitals, if any. Never
+  // fabricated - a patient with no triage evaluation on file shows blank
+  // vitals, not made-up numbers.
+  const loadLatestVitals = async (patientId: number) => {
+    try {
+      const res = await fetch(`/api/clinical/triage?patientId=${patientId}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.evaluations) && data.evaluations.length > 0) {
+        const latest = data.evaluations[0];
+        setPatient((prev) => ({
+          ...prev,
+          vitals: {
+            bp: latest.systolic != null && latest.diastolic != null ? `${latest.systolic}/${latest.diastolic}` : "",
+            bpm: latest.bpm ?? null,
+            temp: latest.temperature ?? null,
+            spo2: latest.osat ?? null,
+            bmi: latest.bmi != null ? String(latest.bmi) : "",
+          },
+        }));
+      }
+    } catch {
+      // Leave vitals blank rather than show stale/wrong data
+    }
+  };
 
   const handlePatientSelect = (patId: number) => {
     setSelectedPatientId(patId);
@@ -242,6 +268,7 @@ export default function PhysicianConsultationPage() {
       setEvaluationId(0);
       setFeedback(null);
       setErrorMessage(null);
+      loadLatestVitals(match.id);
     }
   };
 
@@ -307,7 +334,7 @@ export default function PhysicianConsultationPage() {
     setErrorMessage(null);
   };
 
-  // Create / Issue Prescription (Resolves S4.8 - Real clinical system Persistence)
+  // Create / Issue Prescription (Resolves S4.8 - Real GNU Health Persistence)
   const handleCreatePrescription = async () => {
     setIsSaving(true);
     setFeedback(null);
@@ -333,14 +360,14 @@ export default function PhysicianConsultationPage() {
       const data = await res.json();
       if (!res.ok || !data.success) {
         if (data.prescriptionId) setPendingPrescriptionId(Number(data.prescriptionId));
-        throw new Error(data.error || "Failed to persist prescription in clinical system");
+        throw new Error(data.error || "Failed to persist prescription in GNU Health");
       }
       const ref = data.reference || String(data.prescriptionId || "");
       setPendingPrescriptionId(null);
       setPrescriptionRef(ref);
       setPrescriptions([]);
       setAcknowledgeWarnings(false);
-      setFeedback(`Prescription ${ref} was issued by the clinical system for ${patient.name}.`);
+      setFeedback(`Prescription ${ref} was issued by GNU Health for ${patient.name}.`);
     } catch (err: any) {
       setErrorMessage(err.message || "Error issuing prescription order");
     } finally {
@@ -364,7 +391,7 @@ export default function PhysicianConsultationPage() {
       setPendingPrescriptionId(null);
       setPrescriptions([]);
       setAcknowledgeWarnings(false);
-      setFeedback(`Prescription ${data.reference || data.prescriptionId} was issued by the clinical system.`);
+      setFeedback(`Prescription ${data.reference || data.prescriptionId} was issued by GNU Health.`);
     } catch (error: unknown) {
       setErrorMessage(error instanceof Error ? error.message : "The draft could not be issued.");
     } finally {
@@ -392,12 +419,12 @@ export default function PhysicianConsultationPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to save evaluation to clinical system");
+        throw new Error(data.error || "Failed to save evaluation to GNU Health");
       }
       if (data.evaluationId) setEvaluationId(data.evaluationId);
-      setFeedback(`clinical system evaluation ${data.evaluationId || ""} saved.`);
+      setFeedback(`GNU Health evaluation ${data.evaluationId || ""} saved.`);
     } catch (err: any) {
-      setErrorMessage(err.message || "Failed to save evaluation to clinical system");
+      setErrorMessage(err.message || "Failed to save evaluation to GNU Health");
     } finally {
       setIsSaving(false);
     }
@@ -424,11 +451,11 @@ export default function PhysicianConsultationPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to complete evaluation in clinical system");
+        throw new Error(data.error || "Failed to complete evaluation in GNU Health");
       }
-      setFeedback(`clinical system evaluation ${data.evaluationId || evaluationId || ""} completed.`);
+      setFeedback(`GNU Health evaluation ${data.evaluationId || evaluationId || ""} completed.`);
     } catch (err: any) {
-      setErrorMessage(err.message || "Failed to complete evaluation in clinical system");
+      setErrorMessage(err.message || "Failed to complete evaluation in GNU Health");
     } finally {
       setIsSaving(false);
     }
@@ -455,12 +482,12 @@ export default function PhysicianConsultationPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200/90 gap-4">
         <div>
           <div className="kicker text-[#0F766E] mb-1">CLINICAL HEALTH · CONSULTING ROOM 04</div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
             Physician Consultation & Clinical Cockpit
           </h1>
           <p className="text-xs text-slate-600 mt-1">
-            {evaluationId ? <>clinical system Evaluation ID: <span className="font-mono font-bold text-slate-900">{evaluationId}</span> · </> : null}
-            Attending clinician is resolved from the current clinical system session.
+            {evaluationId ? <>GNU Health Evaluation ID: <span className="font-mono font-bold text-slate-900">{evaluationId}</span> · </> : null}
+            Attending clinician is resolved from the current GNU Health session.
           </p>
         </div>
 
@@ -569,7 +596,7 @@ export default function PhysicianConsultationPage() {
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1">
           <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
             <span className="kicker text-[10px] text-slate-400 block mb-1">BLOOD PRESSURE</span>
-            <div className="font-mono text-lg font-extrabold text-slate-900 flex items-center gap-1.5">
+            <div className="font-mono text-lg font-semibold text-slate-900 flex items-center gap-1.5">
               <Heart className="w-3.5 h-3.5 text-red-500" />
               <span>{patient.vitals.bp}</span>
               <span className="text-[10px] text-slate-400 font-normal">mmHg</span>
@@ -578,7 +605,7 @@ export default function PhysicianConsultationPage() {
 
           <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
             <span className="kicker text-[10px] text-slate-400 block mb-1">HEART RATE</span>
-            <div className="font-mono text-lg font-extrabold text-[#0F766E] flex items-center gap-1.5">
+            <div className="font-mono text-lg font-semibold text-[#0F766E] flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5 text-[#0F766E]" />
               <span>{patient.vitals.bpm}</span>
               <span className="text-[10px] text-slate-400 font-normal">BPM</span>
@@ -587,7 +614,7 @@ export default function PhysicianConsultationPage() {
 
           <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
             <span className="kicker text-[10px] text-slate-400 block mb-1">BODY TEMP</span>
-            <div className="font-mono text-lg font-extrabold text-slate-900 flex items-center gap-1.5">
+            <div className="font-mono text-lg font-semibold text-slate-900 flex items-center gap-1.5">
               <Thermometer className="w-3.5 h-3.5 text-emerald-600" />
               <span>{patient.vitals.temp}</span>
               <span className="text-[10px] text-slate-400 font-normal">°C</span>
@@ -596,7 +623,7 @@ export default function PhysicianConsultationPage() {
 
           <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
             <span className="kicker text-[10px] text-slate-400 block mb-1">OXYGEN SAT (SPO2)</span>
-            <div className="font-mono text-lg font-extrabold text-blue-600 flex items-center gap-1.5">
+            <div className="font-mono text-lg font-semibold text-blue-600 flex items-center gap-1.5">
               <Wind className="w-3.5 h-3.5 text-blue-500" />
               <span>{patient.vitals.spo2}</span>
               <span className="text-[10px] text-slate-400 font-normal">%</span>
@@ -605,7 +632,7 @@ export default function PhysicianConsultationPage() {
 
           <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
             <span className="kicker text-[10px] text-slate-400 block mb-1">BODY MASS INDEX</span>
-            <div className="font-mono text-lg font-extrabold text-slate-900">
+            <div className="font-mono text-lg font-semibold text-slate-900">
               {patient.vitals.bmi} <span className="text-[10px] text-slate-400 font-normal">kg/m²</span>
             </div>
           </div>
@@ -622,7 +649,7 @@ export default function PhysicianConsultationPage() {
                 <Stethoscope className="w-4 h-4 text-[#0F766E]" />
                 <span>Clinical Assessment & SOAP Protocol</span>
               </h3>
-              <Badge variant="teal">clinical system Clinical Model</Badge>
+              <Badge variant="teal">GNU Health Clinical Model</Badge>
             </div>
 
             <Textarea
@@ -831,7 +858,7 @@ export default function PhysicianConsultationPage() {
           <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 border border-slate-200 rounded-xl">
             {isIcdSearching && (
               <div className="p-4 text-center text-xs text-slate-500 font-mono">
-                Searching clinical system ICD-10 database...
+                Searching GNU Health ICD-10 database...
               </div>
             )}
             {!isIcdSearching && liveIcdResults.map((item) => (
@@ -892,7 +919,7 @@ export default function PhysicianConsultationPage() {
           <div className="max-h-44 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2 border border-slate-200 rounded-xl p-2 bg-slate-50">
             {isDrugSearching && (
               <div className="col-span-2 p-3 text-center text-xs text-slate-500 font-mono">
-                Searching clinical system Formulary...
+                Searching GNU Health Formulary...
               </div>
             )}
             {!isDrugSearching && liveDrugResults.map((d) => (

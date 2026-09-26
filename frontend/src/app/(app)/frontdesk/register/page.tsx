@@ -34,7 +34,12 @@ export default function PatientRegistrationPage() {
     name: "",
     qid: "",
     dob: "",
-    gender: "",
+    // Must match the Select's first rendered <option> ("m") - a blank
+    // default here desyncs React state from the DOM's auto-selected first
+    // option, so the browser visually shows "Male" while formData.gender
+    // stays "" and the required party.party gender field is silently
+    // omitted from the create payload.
+    gender: "m",
     bloodType: "",
   };
 
@@ -60,7 +65,7 @@ export default function PatientRegistrationPage() {
     setUpdateSuccess(null);
     setErrorMessage(null);
     if (!updatePatientSearch.trim()) {
-      setErrorMessage("Enter a patient name or clinical system PUID to search.");
+      setErrorMessage("Enter a patient name or GNU Health PUID to search.");
       return;
     }
     try {
@@ -119,8 +124,8 @@ export default function PatientRegistrationPage() {
       const assignedPUID = data.patient?.puid;
       setSuccessMessage(
         assignedPUID
-          ? `Patient ${formData.name} registered with clinical system PUID ${assignedPUID}.`
-          : `Patient ${formData.name} registered. clinical system did not return a PUID; verify the record before continuing.`
+          ? `Patient ${formData.name} registered with GNU Health PUID ${assignedPUID}.`
+          : `Patient ${formData.name} registered. GNU Health did not return a PUID; verify the record before continuing.`
       );
 
       setTimeout(() => {
@@ -151,7 +156,7 @@ export default function PatientRegistrationPage() {
       const data = await res.json();
       if (res.ok) {
         setUpdateSuccess(
-          `clinical system critical information updated for ${updatePatientData.name} (${updatePatientData.puid}).`
+          `GNU Health critical information updated for ${updatePatientData.name} (${updatePatientData.puid}).`
         );
       } else {
         setErrorMessage(data.error || "Update failed");
@@ -176,7 +181,7 @@ export default function PatientRegistrationPage() {
             <span>Back to Intake Queue</span>
           </Link>
           <div className="kicker text-[#0F766E] mb-1">CIVIL REGISTRATION · PATIENT ONBOARDING</div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
             Patient Demographic Registration & File Management
           </h1>
         </div>
@@ -356,7 +361,7 @@ export default function PatientRegistrationPage() {
               />
             </div>
 
-            <p className="text-xs text-slate-600">This registration stores the demographic fields currently mapped to clinical system. Contact details and Arabic name are not collected here.</p>
+            <p className="text-xs text-slate-600">This registration stores the demographic fields currently mapped to GNU Health. Contact details and Arabic name are not collected here.</p>
 
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <span className="text-xs text-slate-500 font-mono">
@@ -392,7 +397,7 @@ export default function PatientRegistrationPage() {
             <span className="kicker text-[#0F766E] block mb-0.5">EXISTING PATIENT MASTER FILE</span>
             <h2 className="text-base font-bold text-slate-900">Update Clinical Critical Information</h2>
             <p className="text-xs text-slate-500">
-              Select an existing patient, then update the clinical system critical information field.
+              Select an existing patient, then update the GNU Health critical information field.
             </p>
           </div>
 
@@ -431,7 +436,7 @@ export default function PatientRegistrationPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <p className="text-xs text-slate-600">This action updates clinical system’s critical information field only. Phone, address, and emergency contact edits are not available in this frontend.</p>
+              <p className="text-xs text-slate-600">This action updates GNU Health’s critical information field only. Phone, address, and emergency contact edits are not available in this frontend.</p>
             </div>
 
             <Textarea

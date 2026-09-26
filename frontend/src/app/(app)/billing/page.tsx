@@ -68,38 +68,52 @@ export default function CashierBillingPage() {
   const [isNewInvoiceModalOpen, setIsNewInvoiceModalOpen] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
 
-  // Payment Wizard State (Resolves S7.6 & S7.7: Cash Journal / $50.00)
+  // Payment Wizard State (Resolves S7.6 & S7.7)
   const [paymentJournal, setPaymentJournal] = useState("Cash");
-  const [paymentAmount, setPaymentAmount] = useState("50.00");
+  const [paymentAmount, setPaymentAmount] = useState("0.00");
+  // Records what was actually settled, for the receipt (never re-derived from stale state)
+  const [lastReceipt, setLastReceipt] = useState<{ invoiceNumber: string; puid: string; patient: string; amount: string; journal: string } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Billable service catalog, loaded live from the tenant's own product catalog -
+  // never a hardcoded list, so a selection can only ever reference a product that
+  // actually exists in this tenant, at its actual configured price.
+  const [serviceCatalog, setServiceCatalog] = useState<{ id: number; name: string; price: number }[]>([]);
+
   // New Invoice Form State (Resolves S7.2, S7.3, S7.4)
-  const [newInvPatientId, setNewInvPatientId] = useState<number>(66);
-  const [selectedService, setSelectedService] = useState("Outpatient Consultation ($50.00)");
+  const [newInvPatientId, setNewInvPatientId] = useState<number>(0);
+  const [selectedServiceIdx, setSelectedServiceIdx] = useState(0);
+  const selectedService = serviceCatalog[selectedServiceIdx];
+
+  // Current user's permissions, used to gate the GL Ledger tab (server-side RBAC is
+  // the real enforcement; this only avoids showing a tab the API will reject).
+  const [canViewLedger, setCanViewLedger] = useState(false);
 
   // GL Account Moves (Resolves S8.2 - S8.7)
   const [accountMoves, setAccountMoves] = useState<AccountMove[]>([]);
 
-  // Load live invoices, ledger moves, and patients
+  // Load live invoices, ledger moves, patients, and the current user's permissions
   const loadData = async () => {
     setIsProcessing(true);
     setErrorMessage(null);
     try {
-      const [invRes, patRes, ledgRes] = await Promise.all([
+      const [invRes, patRes, ledgRes, meRes] = await Promise.all([
         fetch("/api/clinical/billing"),
         fetch("/api/clinical/patients"),
         fetch("/api/clinical/ledger"),
+        fetch("/api/auth/me"),
       ]);
       const invData = await invRes.json();
       const patData = await patRes.json();
       const ledgData = await ledgRes.json();
+      const meData = await meRes.json();
 
       if (patData.success && Array.isArray(patData.patients)) {
         setPatientsList(patData.patients);
         if (patData.patients.length > 0) {
-          setNewInvPatientId(patData.patients[0].id);
+          setNewInvPatientId((prev) => prev || patData.patients[0].id);
         }
       }
 
@@ -110,8 +124,16 @@ export default function CashierBillingPage() {
         }
       }
 
+      if (Array.isArray(invData.services)) {
+        setServiceCatalog(invData.services);
+      }
+
       if (ledgData.success && Array.isArray(ledgData.moves)) {
         setAccountMoves(ledgData.moves);
+      }
+
+      if (meData.authenticated) {
+        setCanViewLedger(!!meData.user?.permissions?.ledger);
       }
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to load financial records");
@@ -124,12 +146,26 @@ export default function CashierBillingPage() {
     loadData();
   }, []);
 
-  // Handle Save New Invoice (Resolves S7.2, S7.3, S7.4 - Real clinical system account.invoice)
+  // If the resolved permissions say this user can't see the GL ledger (e.g. a
+  // cashier reached ?tab=ledger directly), fall back to the invoices tab.
+  useEffect(() => {
+    if (activeTab === "ledger" && !canViewLedger && !isProcessing) {
+      setActiveTab("invoices");
+    }
+  }, [activeTab, canViewLedger, isProcessing]);
+
+  // Handle Save New Invoice (Resolves S7.2, S7.3, S7.4 - Real GNU Health account.invoice)
   const handleCreateNewInvoice = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
     setFeedback(null);
     setErrorMessage(null);
+
+    if (!selectedService) {
+      setErrorMessage("No billable service is available in this tenant's catalog.");
+      setIsProcessing(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/clinical/billing", {
@@ -138,33 +174,26 @@ export default function CashierBillingPage() {
         body: JSON.stringify({
           action: "create",
           patientId: newInvPatientId,
-          service: selectedService,
-          amount: 50.0,
+          service: selectedService.name,
+          productId: selectedService.id,
+          amount: selectedService.price,
         }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to create invoice in clinical system");
+        throw new Error(data.error || "Failed to create invoice in GNU Health");
       }
 
-      const pat = patientsList.find((p) => p.id === newInvPatientId);
-      const newRef = data.number || `INV-2026-${String(data.invoiceId).padStart(4, "0")}`;
-      const newInv: Invoice = {
-        id: data.invoiceId || Date.now(),
-        number: newRef,
-        puid: pat?.puid || "P00088",
-        patient: pat?.name || "Patient",
-        date: new Date().toISOString().split("T")[0],
-        totalQar: 50.0,
-        amountToPay: 50.0,
-        status: "draft",
-        lines: [{ desc: selectedService, amount: 50.0 }],
-      };
-
-      setInvoices([newInv, ...invoices]);
-      setActiveInvoice(newInv);
+      // Reload from the server so the invoice reflects the actual catalog price,
+      // account moves, and official invoice number - not client-guessed values.
+      const refreshed = await fetch("/api/clinical/billing").then((r) => r.json());
+      if (refreshed.success && Array.isArray(refreshed.invoices)) {
+        setInvoices(refreshed.invoices);
+        const created = refreshed.invoices.find((i: Invoice) => i.id === data.invoiceId);
+        if (created) setActiveInvoice(created);
+      }
       setIsNewInvoiceModalOpen(false);
-      setFeedback(`Invoice ${newRef} generated with ${selectedService}. Subtotal and ledger mapping verified.`);
+      setFeedback(`Invoice created with ${selectedService.name}. Subtotal and ledger mapping verified.`);
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to generate customer invoice");
     } finally {
@@ -190,19 +219,24 @@ export default function CashierBillingPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to post invoice in clinical system");
+        throw new Error(data.error || "Failed to post invoice in GNU Health");
       }
 
-      setInvoices((prev) =>
-        prev.map((i) => (i.id === activeInvoice.id ? { ...i, status: "posted" } : i))
-      );
-      setActiveInvoice((prev) => (prev ? { ...prev, status: "posted" } : null));
-      setFeedback(`Invoice ${activeInvoice.number} POSTED successfully in clinical system. Official sequence committed to Accounts Receivable ledger.`);
-      // Refresh ledger moves
-      fetch("/api/clinical/ledger")
-        .then((r) => r.json())
-        .then((d) => d.success && setAccountMoves(d.moves))
-        .catch(() => {});
+      // Posting recalculates amount_to_pay server-side (it's 0 while draft) - reload
+      // from the server rather than optimistically patching just the status field.
+      const [refreshed, ledgerRefresh] = await Promise.all([
+        fetch("/api/clinical/billing").then((r) => r.json()),
+        fetch("/api/clinical/ledger").then((r) => r.json()),
+      ]);
+      if (refreshed.success && Array.isArray(refreshed.invoices)) {
+        setInvoices(refreshed.invoices);
+        const updated = refreshed.invoices.find((i: Invoice) => i.id === activeInvoice.id);
+        if (updated) setActiveInvoice(updated);
+      }
+      if (ledgerRefresh.success && Array.isArray(ledgerRefresh.moves)) {
+        setAccountMoves(ledgerRefresh.moves);
+      }
+      setFeedback(`Invoice ${activeInvoice.number} POSTED successfully in GNU Health. Official sequence committed to Accounts Receivable ledger.`);
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to post invoice");
     } finally {
@@ -217,7 +251,7 @@ export default function CashierBillingPage() {
     setIsPayModalOpen(true);
   };
 
-  // EXECUTE CASH PAYMENT (Resolves S7.7 & S7.8: Cash Journal / $50.00 / Zero Balance)
+  // EXECUTE CASH PAYMENT (Resolves S7.7 & S7.8: Cash Journal Settlement & Zero Balance)
   const handleExecutePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeInvoice) return;
@@ -238,7 +272,7 @@ export default function CashierBillingPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to settle payment in clinical system");
+        throw new Error(data.error || "Failed to settle payment in GNU Health");
       }
 
       setInvoices((prev) =>
@@ -247,9 +281,16 @@ export default function CashierBillingPage() {
         )
       );
       setActiveInvoice((prev) => (prev ? { ...prev, status: "paid", amountToPay: 0.0 } : null));
+      setLastReceipt({
+        invoiceNumber: activeInvoice.number,
+        puid: activeInvoice.puid,
+        patient: activeInvoice.patient,
+        amount: parseFloat(paymentAmount).toFixed(2),
+        journal: paymentJournal,
+      });
       setIsPayModalOpen(false);
       setFeedback(
-        `Payment of $${paymentAmount} settled via ${paymentJournal} journal for ${activeInvoice.patient}. Invoice state is 'Paid' with $0.00 Balance remaining.`
+        `Payment of QAR ${paymentAmount} settled via ${paymentJournal} journal for ${activeInvoice.patient}. Invoice state is 'Paid' with QAR 0.00 Balance remaining.`
       );
       // Refresh ledger moves
       fetch("/api/clinical/ledger")
@@ -263,14 +304,6 @@ export default function CashierBillingPage() {
     }
   };
 
-  if (process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "test") return (
-    <section className="mx-auto max-w-3xl rounded-2xl border border-amber-300 bg-amber-50 p-8 text-amber-950">
-      <h1 className="text-2xl font-bold">Billing is unavailable</h1>
-      <p className="mt-3 text-sm leading-6">This screen contained sample USD prices, patients, payments, and ledger totals. Invoice creation, posting, and payment are disabled until the native clinical system accounting workflows and QAR configuration are integrated and verified.</p>
-      <p className="mt-3 text-sm font-semibold">No billing action was completed from this screen.</p>
-    </section>
-  );
-
   return (
     <div className="max-w-7xl mx-auto space-y-7 animate-fade-in">
       {/* HEADER */}
@@ -281,7 +314,7 @@ export default function CashierBillingPage() {
             <span className="text-slate-300">/</span>
             <span className="kicker text-slate-500">HEALTHCARE SYSTEM HMIS</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
             Patient Billing, Invoicing & General Ledger Audit
           </h1>
           <p className="text-xs text-slate-600 mt-1">
@@ -303,17 +336,19 @@ export default function CashierBillingPage() {
             <span>Customer Invoices (TC-07)</span>
           </button>
 
-          <button
-            onClick={() => setActiveTab("ledger")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all ${
-              activeTab === "ledger"
-                ? "bg-white text-slate-900 shadow-xs font-bold"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            <Landmark className="w-3.5 h-3.5 text-[#0F766E]" />
-            <span>General Ledger Audit (TC-08)</span>
-          </button>
+          {canViewLedger && (
+            <button
+              onClick={() => setActiveTab("ledger")}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all ${
+                activeTab === "ledger"
+                  ? "bg-white text-slate-900 shadow-xs font-bold"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <Landmark className="w-3.5 h-3.5 text-[#0F766E]" />
+              <span>General Ledger Audit (TC-08)</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -351,7 +386,7 @@ export default function CashierBillingPage() {
               >
                 {invoices.map((inv) => (
                   <option key={inv.id} value={inv.id}>
-                    {inv.number} — {inv.patient} (${inv.totalQar.toFixed(2)}) [{inv.status.toUpperCase()}]
+                    {inv.number} — {inv.patient} (QAR {inv.totalQar.toFixed(2)}) [{inv.status.toUpperCase()}]
                   </option>
                 ))}
                 {invoices.length === 0 && <option value="">No Invoices Found</option>}
@@ -391,7 +426,7 @@ export default function CashierBillingPage() {
                   leftIcon={<Coins className="w-4 h-4" />}
                   className="bg-emerald-600 hover:bg-emerald-700 font-bold"
                 >
-                  PAY INVOICE (${activeInvoice.amountToPay.toFixed(2)})
+                  PAY INVOICE (QAR {activeInvoice.amountToPay.toFixed(2)})
                 </Button>
               )}
 
@@ -417,7 +452,7 @@ export default function CashierBillingPage() {
               <div>
                 <h3 className="text-base font-bold text-slate-900">No Invoices on File</h3>
                 <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                  No customer invoices have been issued yet. Click below to generate the first outpatient billing record in clinical system.
+                  No customer invoices have been issued yet. Click below to generate the first outpatient billing record in GNU Health.
                 </p>
               </div>
               <Button
@@ -460,11 +495,11 @@ export default function CashierBillingPage() {
                 </div>
               </div>
 
-              {/* Balance Banner (Resolves S7.8: Verify invoice state is Paid and balance is $0.00) */}
+              {/* Balance Banner (Resolves S7.8: Verify invoice state is Paid and balance is QAR 0.00) */}
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-right">
                 <div className="text-[10px] font-mono uppercase text-slate-500">OUTSTANDING BALANCE</div>
-                <div className="font-mono text-lg font-extrabold text-slate-900">
-                  ${activeInvoice.amountToPay.toFixed(2)}
+                <div className="font-mono text-lg font-semibold text-slate-900">
+                  QAR {activeInvoice.amountToPay.toFixed(2)}
                 </div>
               </div>
             </div>
@@ -475,7 +510,7 @@ export default function CashierBillingPage() {
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-tight">
                   Billable Services & Consultation Items
                 </h3>
-                <span className="text-[11px] font-mono text-slate-500">Currency: USD ($)</span>
+                <span className="text-[11px] font-mono text-slate-500">Currency: Qatari Riyal (QAR)</span>
               </div>
 
               <div className="border border-slate-200/90 rounded-xl overflow-hidden">
@@ -495,9 +530,9 @@ export default function CashierBillingPage() {
                         <td className="py-3.5 px-4 font-mono text-slate-400">0{idx + 1}</td>
                         <td className="py-3.5 px-4 font-bold text-slate-900">{line.desc}</td>
                         <td className="py-3.5 px-4 font-mono text-slate-600">1.0</td>
-                        <td className="py-3.5 px-4 font-mono text-slate-800">${line.amount.toFixed(2)}</td>
+                        <td className="py-3.5 px-4 font-mono text-slate-800">QAR {line.amount.toFixed(2)}</td>
                         <td className="py-3.5 px-4 font-mono font-bold text-slate-900 text-right">
-                          ${line.amount.toFixed(2)}
+                          QAR {line.amount.toFixed(2)}
                         </td>
                       </tr>
                     ))}
@@ -510,19 +545,19 @@ export default function CashierBillingPage() {
                 <div className="w-72 space-y-1.5 text-xs">
                   <div className="flex justify-between text-slate-500">
                     <span>Subtotal:</span>
-                    <span className="font-mono text-slate-800 font-semibold">${activeInvoice.totalQar.toFixed(2)}</span>
+                    <span className="font-mono text-slate-800 font-semibold">QAR {activeInvoice.totalQar.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-slate-500">
                     <span>Applicable Tax (0%):</span>
-                    <span className="font-mono text-slate-800 font-semibold">$0.00</span>
+                    <span className="font-mono text-slate-800 font-semibold">QAR 0.00</span>
                   </div>
                   <div className="flex justify-between font-bold text-sm text-slate-900 pt-2 border-t border-slate-200">
                     <span>Total Amount:</span>
-                    <span className="font-mono text-[#0F766E]">${activeInvoice.totalQar.toFixed(2)}</span>
+                    <span className="font-mono text-[#0F766E]">QAR {activeInvoice.totalQar.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-xs pt-1">
                     <span className="text-slate-600">Remaining to Pay:</span>
-                    <span className="font-mono text-emerald-700 font-extrabold">${activeInvoice.amountToPay.toFixed(2)}</span>
+                    <span className="font-mono text-emerald-700 font-semibold">QAR {activeInvoice.amountToPay.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -531,7 +566,7 @@ export default function CashierBillingPage() {
             {/* Bottom Actions */}
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <span className="text-[11px] font-mono text-slate-500">
-                Official clinical system Move: <strong className="text-teal-700">MOV-INV-0012</strong>
+                Invoice Reference: <strong className="text-teal-700">{activeInvoice.number}</strong>
               </span>
 
               <div className="flex items-center gap-2">
@@ -542,12 +577,12 @@ export default function CashierBillingPage() {
                 )}
                 {activeInvoice.status === "posted" && (
                   <Button variant="primary" size="sm" onClick={handleLaunchPayWizard} className="bg-emerald-600 hover:bg-emerald-700 font-bold">
-                    PAY INVOICE WIZARD ($50.00)
+                    PAY INVOICE WIZARD (QAR {activeInvoice.amountToPay.toFixed(2)})
                   </Button>
                 )}
                 {activeInvoice.status === "paid" && (
                   <Badge variant="green" size="md">
-                    Payment Reconciled ($0.00 Balance)
+                    Payment Reconciled (QAR 0.00 Balance)
                   </Badge>
                 )}
               </div>
@@ -584,26 +619,36 @@ export default function CashierBillingPage() {
             </div>
           </div>
 
-          {/* LEDGER RECONCILIATION SUMMARY (Resolves S8.7: Ledger Reconciliation Net Balance $0.00) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-4 bg-white border border-slate-200/90 rounded-xl shadow-2xs space-y-1">
-              <span className="kicker text-[10px] text-slate-500 block">TOTAL DEBIT AUDIT</span>
-              <div className="font-mono text-xl font-extrabold text-slate-900">$100.00</div>
-              <p className="text-[10px] text-slate-400 font-mono">Invoice A/R ($50) + Cash ($50)</p>
-            </div>
+          {/* LEDGER RECONCILIATION SUMMARY - computed from the actual posted moves, not fixed values */}
+          {(() => {
+            const totalDebit = accountMoves.reduce((sum, m) => sum + m.lines.reduce((s, l) => s + l.debit, 0), 0);
+            const totalCredit = accountMoves.reduce((sum, m) => sum + m.lines.reduce((s, l) => s + l.credit, 0), 0);
+            const net = totalDebit - totalCredit;
+            const balanced = Math.abs(net) < 0.01;
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-4 bg-white border border-slate-200/90 rounded-xl shadow-2xs space-y-1">
+                  <span className="kicker text-[10px] text-slate-500 block">TOTAL DEBIT AUDIT</span>
+                  <div className="font-mono text-xl font-semibold text-slate-900">QAR {totalDebit.toFixed(2)}</div>
+                  <p className="text-[10px] text-slate-400 font-mono">Across {accountMoves.length} posted move(s)</p>
+                </div>
 
-            <div className="p-4 bg-white border border-slate-200/90 rounded-xl shadow-2xs space-y-1">
-              <span className="kicker text-[10px] text-slate-500 block">TOTAL CREDIT AUDIT</span>
-              <div className="font-mono text-xl font-extrabold text-slate-900">$100.00</div>
-              <p className="text-[10px] text-slate-400 font-mono">Revenue ($50) + A/R Settlement ($50)</p>
-            </div>
+                <div className="p-4 bg-white border border-slate-200/90 rounded-xl shadow-2xs space-y-1">
+                  <span className="kicker text-[10px] text-slate-500 block">TOTAL CREDIT AUDIT</span>
+                  <div className="font-mono text-xl font-semibold text-slate-900">QAR {totalCredit.toFixed(2)}</div>
+                  <p className="text-[10px] text-slate-400 font-mono">Across {accountMoves.length} posted move(s)</p>
+                </div>
 
-            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl shadow-2xs space-y-1">
-              <span className="kicker text-[10px] text-emerald-700 block font-bold">NET RECEIVABLE BALANCE</span>
-              <div className="font-mono text-xl font-extrabold text-emerald-800">$0.00</div>
-              <p className="text-[10px] text-emerald-700 font-mono font-bold">100% Balanced & Reconciled</p>
-            </div>
-          </div>
+                <div className={`p-4 rounded-xl shadow-2xs space-y-1 border ${balanced ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"}`}>
+                  <span className={`kicker text-[10px] block font-bold ${balanced ? "text-emerald-700" : "text-red-700"}`}>NET BALANCE</span>
+                  <div className={`font-mono text-xl font-semibold ${balanced ? "text-emerald-800" : "text-red-800"}`}>QAR {Math.abs(net).toFixed(2)}</div>
+                  <p className={`text-[10px] font-mono font-bold ${balanced ? "text-emerald-700" : "text-red-700"}`}>
+                    {balanced ? "Balanced & Reconciled" : "Out of Balance"}
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* ACCOUNT MOVES DIRECTORY (Resolves S8.2 - S8.6: Navigate Account Moves & Audit Lines) */}
           <div className="bg-white border border-slate-200/90 rounded-2xl shadow-2xs p-6 space-y-6">
@@ -627,7 +672,7 @@ export default function CashierBillingPage() {
                     {/* Move Header */}
                     <div className="p-3.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-extrabold text-sm text-[#0F766E]">{move.ref}</span>
+                        <span className="font-mono font-semibold text-sm text-[#0F766E]">{move.ref}</span>
                         <span className="text-slate-500">·</span>
                         <span className="font-semibold text-slate-800">{move.description}</span>
                       </div>
@@ -644,8 +689,8 @@ export default function CashierBillingPage() {
                           <tr className="bg-slate-50/70 border-b border-slate-200/80 font-mono text-[10px] text-slate-500 uppercase">
                             <th className="py-2 px-3">Account Code</th>
                             <th className="py-2 px-3">Account Title</th>
-                            <th className="py-2 px-3 text-right">Debit ($)</th>
-                            <th className="py-2 px-3 text-right">Credit ($)</th>
+                            <th className="py-2 px-3 text-right">Debit (QAR)</th>
+                            <th className="py-2 px-3 text-right">Credit (QAR)</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 font-sans">
@@ -654,10 +699,10 @@ export default function CashierBillingPage() {
                               <td className="py-2.5 px-3 font-mono font-bold text-slate-700">{l.account}</td>
                               <td className="py-2.5 px-3 font-medium text-slate-900">{l.accountName}</td>
                               <td className="py-2.5 px-3 font-mono text-right font-bold text-slate-900">
-                                {l.debit > 0 ? `$${l.debit.toFixed(2)}` : "—"}
+                                {l.debit > 0 ? l.debit.toFixed(2) : "—"}
                               </td>
                               <td className="py-2.5 px-3 font-mono text-right font-bold text-slate-900">
-                                {l.credit > 0 ? `$${l.credit.toFixed(2)}` : "—"}
+                                {l.credit > 0 ? l.credit.toFixed(2) : "—"}
                               </td>
                             </tr>
                           ))}
@@ -667,8 +712,8 @@ export default function CashierBillingPage() {
                             <td colSpan={2} className="py-2.5 px-3 text-right text-[11px] uppercase text-slate-500">
                               Move Total Balance Check:
                             </td>
-                            <td className="py-2.5 px-3 text-right text-[#0F766E]">${totalDebit.toFixed(2)}</td>
-                            <td className="py-2.5 px-3 text-right text-[#0F766E]">${totalCredit.toFixed(2)}</td>
+                            <td className="py-2.5 px-3 text-right text-[#0F766E]">{totalDebit.toFixed(2)}</td>
+                            <td className="py-2.5 px-3 text-right text-[#0F766E]">{totalCredit.toFixed(2)}</td>
                           </tr>
                         </tfoot>
                       </table>
@@ -681,7 +726,7 @@ export default function CashierBillingPage() {
         </div>
       )}
 
-      {/* MODAL 1: PAY INVOICE WIZARD (Resolves S7.6 & S7.7: Cash Journal & $50.00 Payment) */}
+      {/* MODAL 1: PAY INVOICE WIZARD (Resolves S7.6 & S7.7: Cash Journal Payment) */}
       <Modal
         isOpen={isPayModalOpen && !!activeInvoice}
         onClose={() => setIsPayModalOpen(false)}
@@ -698,11 +743,11 @@ export default function CashierBillingPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Total Invoice Amount:</span>
-              <span className="font-mono font-bold text-slate-900">${activeInvoice.totalQar.toFixed(2)}</span>
+              <span className="font-mono font-bold text-slate-900">QAR {activeInvoice.totalQar.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Amount Due:</span>
-              <span className="font-mono font-bold text-[#0F766E]">${activeInvoice.amountToPay.toFixed(2)}</span>
+              <span className="font-mono font-bold text-[#0F766E]">QAR {activeInvoice.amountToPay.toFixed(2)}</span>
             </div>
           </div>
 
@@ -721,11 +766,12 @@ export default function CashierBillingPage() {
             </select>
           </div>
 
-          {/* Payment Amount Input (Resolves S7.7: enter $50.00) */}
+          {/* Payment Amount Input */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700">Payment Amount ($) *</label>
+            <label className="text-xs font-semibold text-slate-700">Payment Amount (QAR) *</label>
             <input
               type="text"
+              inputMode="decimal"
               value={paymentAmount}
               onChange={(e) => setPaymentAmount(e.target.value)}
               className="w-full px-3 py-2 text-sm font-mono font-bold bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:border-[#0F766E]"
@@ -743,7 +789,7 @@ export default function CashierBillingPage() {
               isLoading={isProcessing}
               className="bg-emerald-600 hover:bg-emerald-700 font-bold"
             >
-              Confirm & Execute Payment (${paymentAmount})
+              Confirm & Execute Payment (QAR {paymentAmount})
             </Button>
           </div>
         </form>
@@ -771,78 +817,77 @@ export default function CashierBillingPage() {
                   {p.name} (PUID: {p.puid})
                 </option>
               ))}
-              {patientsList.length === 0 && (
-                <option value={66}>Alexander Wright (PUID: P00088)</option>
-              )}
+              {patientsList.length === 0 && <option value={0}>No patients found in this tenant</option>}
             </select>
           </div>
 
-          {/* Add Invoice Line (Resolves S7.3: Outpatient Consultation service $50.00) */}
+          {/* Add Invoice Line - loaded live from this tenant's own product catalog */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-700">Add Service Line Item *</label>
-            <select
-              value={selectedService}
-              onChange={(e) => setSelectedService(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:outline-none focus:border-[#0F766E]"
-            >
-              <option value="Outpatient Consultation ($50.00)">Outpatient Consultation Service — $50.00</option>
-              <option value="Complete Blood Count CBC ($30.00)">Complete Blood Count (CBC) — $30.00</option>
-              <option value="Chest X-Ray Digital ($75.00)">Chest X-Ray Digital PA/LAT — $75.00</option>
-              <option value="Urgent Care Triage Assessment ($25.00)">Urgent Care Triage Assessment — $25.00</option>
-            </select>
+            {serviceCatalog.length === 0 ? (
+              <p className="text-xs text-red-600 font-medium">No billable services are configured in this tenant's catalog yet.</p>
+            ) : (
+              <select
+                value={selectedServiceIdx}
+                onChange={(e) => setSelectedServiceIdx(parseInt(e.target.value, 10))}
+                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:outline-none focus:border-[#0F766E]"
+              >
+                {serviceCatalog.map((svc, idx) => (
+                  <option key={svc.id} value={idx}>
+                    {svc.name} — QAR {svc.price.toFixed(2)}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setIsNewInvoiceModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" className="bg-[#0F766E] font-bold">
-              Save Invoice ($50.00)
+            <Button type="submit" variant="primary" className="bg-[#0F766E] font-bold" disabled={!newInvPatientId || !selectedService}>
+              Save Invoice {selectedService ? `(QAR ${selectedService.price.toFixed(2)})` : ""}
             </Button>
           </div>
         </form>
       </Modal>
 
-      {/* MODAL 3: OFFICIAL CASH RECEIPT VOUCHER */}
+      {/* MODAL 3: OFFICIAL CASH RECEIPT VOUCHER - reflects the actual last-settled payment */}
       <Modal
-        isOpen={isReceiptModalOpen && !!activeInvoice}
+        isOpen={isReceiptModalOpen && !!lastReceipt}
         onClose={() => setIsReceiptModalOpen(false)}
         title="Official Hospital Payment Receipt"
-        kicker="VOUCHER: PAY-2026-0012"
+        kicker={`INVOICE: ${lastReceipt?.invoiceNumber || ""}`}
         size="md"
       >
-        {activeInvoice && (
+        {lastReceipt && (
         <div className="space-y-4 p-2 font-mono text-xs">
           <div className="text-center pb-3 border-b border-dashed border-slate-300 space-y-1">
             <div className="font-bold text-sm text-slate-900 font-sans">IST HEALTH ENTERPRISE CLINIC</div>
-            <div className="text-slate-500 text-[10px]">West Bay, Doha, State of Qatar · CR: 98271-02</div>
+            <div className="text-slate-500 text-[10px]">West Bay, Doha, State of Qatar</div>
             <div className="text-emerald-700 font-bold text-[11px]">OFFICIAL CASH COLLECTION RECEIPT</div>
           </div>
 
           <div className="space-y-1.5 text-[11px]">
             <div className="flex justify-between">
-              <span className="text-slate-500">Receipt Voucher:</span>
-              <span className="font-bold text-slate-900">PAY-2026-0012</span>
-            </div>
-            <div className="flex justify-between">
               <span className="text-slate-500">Customer Invoice:</span>
-              <span className="font-bold text-slate-900">{activeInvoice.number}</span>
+              <span className="font-bold text-slate-900">{lastReceipt.invoiceNumber}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Patient:</span>
-              <span className="font-bold text-slate-900">{activeInvoice.patient} (P00088)</span>
+              <span className="font-bold text-slate-900">{lastReceipt.patient} ({lastReceipt.puid})</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Payment Method:</span>
-              <span className="font-bold text-slate-900">Cash Journal (Main Till)</span>
+              <span className="font-bold text-slate-900">{lastReceipt.journal}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Amount Paid:</span>
-              <span className="font-bold text-emerald-700 text-sm">$50.00</span>
+              <span className="font-bold text-emerald-700 text-sm">QAR {lastReceipt.amount}</span>
             </div>
             <div className="flex justify-between border-t border-slate-200 pt-1">
               <span className="text-slate-500">Remaining Balance:</span>
-              <span className="font-bold text-slate-900">$0.00 (Settled)</span>
+              <span className="font-bold text-slate-900">QAR 0.00 (Settled)</span>
             </div>
           </div>
 

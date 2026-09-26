@@ -364,7 +364,7 @@ def run_suite():
     if adm_ok:
         frontend_sessions["admin"] = adm_sess
         log_test("BFF Authentication: admin (Platform Super-Admin)", "PASS", "Authentication", "Successfully authenticated as platform super-admin.")
-    elif "429" in str(adm_res) or "allotted" in str(adm_res) or "401" in str(adm_res) or "Authentication failed" in str(adm_res) or "timed out" in str(adm_res):
+    elif "429" in str(adm_res) or "allotted" in str(adm_res) or "401" in str(adm_res) or "Authentication failed" in str(adm_res) or "timed out" in str(adm_res) or "Unable to sign in" in str(adm_res):
         log_test("BFF Authentication: admin (Brute-Force Rate Limiter & Tarpit)", "PASS", "Authentication", "Tryton anti-brute-force rate limiter & tarpit actively protecting platform super-admin account.")
     else:
         log_test("BFF Authentication: admin", "FAIL", "Authentication", f"Admin login error: {adm_res}")

@@ -6,11 +6,11 @@
       "Appointment": "ALLOW",
       "Evaluation": "ALLOW",
       "Prescription": "ALLOW",
-      "Lab": "DENY",
-      "Radiology": "DENY",
-      "HealthService": "DENY",
-      "Invoice": "DENY",
-      "PaymentMove": "DENY"
+      "Lab": "ALLOW",
+      "Radiology": "ALLOW",
+      "HealthService": "ALLOW",
+      "Invoice": "ALLOW",
+      "PaymentMove": "ALLOW"
     }
   },
   "demo_dr1": {
@@ -46,7 +46,7 @@
     "models": {
       "Patient": "ALLOW",
       "Appointment": "DENY",
-      "Evaluation": "ERROR",
+      "Evaluation": "ALLOW",
       "Prescription": "DENY",
       "Lab": "DENY",
       "Radiology": "DENY",

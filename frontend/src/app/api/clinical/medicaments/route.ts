@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { hasModuleAccess } from "@/lib/access-control";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -8,6 +9,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
 
+  if (
+    !hasModuleAccess(session.role, "pharmacy") &&
+    !hasModuleAccess(session.role, "physician") &&
+    !hasModuleAccess(session.role, "admin")
+  ) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") || "";
   const catalog = searchParams.get("catalog");

@@ -23,37 +23,35 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white border border-slate-200/80 rounded-xl p-5.5 shadow-2xs hover:shadow-xs transition-all duration-200 flex flex-col justify-between ${className}`}
+      className={`bg-white border border-slate-200/70 rounded-xl p-5 transition-shadow duration-200 hover:shadow-sm flex flex-col justify-between ${className}`}
     >
-      <div className="flex items-start justify-between gap-3 mb-3">
+      <div className="flex items-start justify-between gap-3 mb-4">
         <div>
-          <span className="kicker text-[#0F766E] text-[10px] tracking-wider block mb-1">
-            {kicker}
-          </span>
-          <h4 className="text-xs font-semibold text-[#475569]">{label}</h4>
+          <h4 className="text-xs font-medium text-slate-500">{label}</h4>
+          {kicker && <span className="text-[10px] text-slate-400 mt-0.5 block">{kicker}</span>}
         </div>
         {icon && (
-          <div className="w-10 h-10 rounded-lg bg-[#F0FDFA] text-[#0F766E] flex items-center justify-center shrink-0 border border-[#99F6E4]/40">
+          <div className="text-slate-400 shrink-0">
             {icon}
           </div>
         )}
       </div>
 
       <div>
-        <div className="text-3xl font-extrabold text-[#0F172A] tracking-tight font-sans">
+        <div className="text-2xl font-semibold text-slate-900 tracking-tight">
           {value}
         </div>
 
         <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-xs">
           {subtext && (
-            <span className="text-[#64748B] font-medium truncate">{subtext}</span>
+            <span className="text-slate-500 truncate">{subtext}</span>
           )}
           {trend && (
             <span
-              className={`font-mono text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+              className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${
                 trendPositive
-                  ? "bg-[#ECFDF5] text-[#047857]"
-                  : "bg-[#FEF2F2] text-[#B91C1C]"
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-red-50 text-red-700"
               }`}
             >
               {trend}

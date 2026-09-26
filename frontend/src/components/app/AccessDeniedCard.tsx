@@ -19,28 +19,28 @@ export const AccessDeniedCard: React.FC<AccessDeniedCardProps> = ({
   defaultPath = "/frontdesk",
 }) => {
   return (
-    <div className="max-w-2xl mx-auto my-12 p-8 bg-white border border-rose-200 rounded-2xl shadow-sm text-center space-y-6 animate-fade-in">
-      <div className="w-16 h-16 mx-auto rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shadow-xs">
-        <ShieldAlert className="w-8 h-8" />
+    <div className="max-w-md mx-auto my-12 p-8 bg-white border border-slate-200 rounded-2xl shadow-sm text-center space-y-5 animate-fade-in">
+      <div className="w-12 h-12 mx-auto rounded-full bg-rose-50 flex items-center justify-center text-rose-500">
+        <ShieldAlert className="w-6 h-6" />
       </div>
 
       <div className="space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-xs font-mono font-bold text-rose-700 uppercase tracking-wider">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-50 text-xs font-medium text-rose-600">
           <Lock className="w-3 h-3" />
-          <span>Access Restricted</span>
+          <span>Access restricted</span>
         </div>
-        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-          Access Restricted: {moduleName}
+        <h2 className="text-lg font-semibold text-slate-900 tracking-tight">
+          {moduleName}
         </h2>
-        <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-          Your current staff role (<strong className="text-slate-900 uppercase font-mono">{userRole}</strong>) is not configured for <strong className="text-slate-900">{moduleName}</strong>. Backend permissions remain authoritative.
+        <p className="text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
+          Your current role (<span className="text-slate-700 font-medium capitalize">{userRole}</span>) isn't configured for {moduleName}. Backend permissions remain authoritative.
         </p>
       </div>
 
-      <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-left font-mono space-y-1.5 max-w-md mx-auto">
+      <div className="px-4 py-3 bg-slate-50 rounded-xl text-xs text-left space-y-1 max-w-sm mx-auto">
         <div className="flex justify-between">
-          <span className="text-slate-500">Required Clearance:</span>
-          <span className="font-semibold text-slate-800">{requiredRole}</span>
+          <span className="text-slate-400">Required role</span>
+          <span className="font-medium text-slate-700">{requiredRole}</span>
         </div>
       </div>
 

@@ -20,11 +20,20 @@ def deploy():
     
     tar_bytes = tar_stream.getvalue()
     print(f"   Archive size: {len(tar_bytes):,} bytes.")
+    if len(tar_bytes) < 1024:
+        print("Archive suspiciously small (<1KB) - aborting before touching the remote src/.")
+        sys.exit(1)
 
     print(f"\n2. Streaming update archive to {VM_HOST}:{REMOTE_DIR} via SSH...")
+    # Extract into a staging dir first and verify it's non-empty before replacing the live src/,
+    # so a truncated/failed tar stream can never leave the remote with src/ deleted and nothing to restore.
     cmd_upload = [
         "ssh", "-i", SSH_KEY, "-o", "StrictHostKeyChecking=no", VM_HOST,
-        f"sudo rm -rf {REMOTE_DIR}/src && sudo tar -xzf - -C {REMOTE_DIR} && sudo chown -R MohammedSohail:MohammedSohail {REMOTE_DIR}/src"
+        f"sudo rm -rf {REMOTE_DIR}/src.staging && sudo mkdir -p {REMOTE_DIR}/src.staging && sudo chown debian:debian {REMOTE_DIR}/src.staging && "
+        f"tar -xzf - -C {REMOTE_DIR}/src.staging && "
+        f"[ -n \"$(ls -A {REMOTE_DIR}/src.staging/src 2>/dev/null)\" ] && "
+        f"sudo rm -rf {REMOTE_DIR}/src && sudo mv {REMOTE_DIR}/src.staging/src {REMOTE_DIR}/src && "
+        f"sudo rm -rf {REMOTE_DIR}/src.staging && sudo chown -R MohammedSohail:MohammedSohail {REMOTE_DIR}/src"
     ]
     p_upload = subprocess.run(cmd_upload, input=tar_bytes, capture_output=True)
     if p_upload.returncode != 0:
@@ -33,14 +42,14 @@ def deploy():
     print("   Archive successfully extracted on VM.")
 
     print("\n2.1. Ensuring environment configuration on VM...")
-    env_content = (
-        "NODE_ENV=production\n"
-        "PORT=3000\n"
-        "GNUHEALTH_HOST=http://127.0.0.1:8000\n"
-        "GNUHEALTH_DATABASE=gnuhealth\n"
-        "GNUHEALTH_COMPANY_ID=2\n"
-        "SESSION_ENCRYPTION_KEY=d7a96ef8b4382e753acbd2217c09c488319f3e4bc392815a\n"
-    )
+    env_path = os.path.join(LOCAL_FRONTEND, ".env.production.local")
+    if not os.path.exists(env_path):
+        print(f"   ERROR: {env_path} not found. Create it locally (gitignored) with "
+              f"NODE_ENV/PORT/GNUHEALTH_HOST/GNUHEALTH_DATABASE/GNUHEALTH_COMPANY_ID/SESSION_ENCRYPTION_KEY "
+              f"before deploying. Secrets are never hardcoded in this script.")
+        sys.exit(1)
+    with open(env_path, "r", encoding="utf-8") as f:
+        env_content = f.read()
     cmd_env = [
         "ssh", "-i", SSH_KEY, "-o", "StrictHostKeyChecking=no", VM_HOST,
         f"cat << 'EOF' | sudo -u MohammedSohail tee {REMOTE_DIR}/.env.production\n{env_content}EOF"
@@ -69,6 +78,9 @@ def deploy():
         f"sudo fuser -k 3000/tcp || true; sleep 2; cd {REMOTE_DIR} && sudo -u MohammedSohail nohup npm run start -- --port 3000 --hostname 127.0.0.1 > /tmp/next-server.log 2>&1 &"
     ]
     p_restart = subprocess.run(restart_cmd, capture_output=True)
+    if p_restart.returncode != 0:
+        print("Restart command failed:", p_restart.stderr.decode("utf-8", errors="replace"))
+        sys.exit(1)
     print("Restart executed.")
 
     print("\n5. Verifying server health...")

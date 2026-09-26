@@ -68,10 +68,10 @@ export default function NursingTriagePage() {
           const match = data.patients.find((p: any) => p.id === targetId) || data.patients[0];
           if (match) selectPatient(match);
         } else {
-          setErrorMessage(data.error || "Unable to load patients from clinical system.");
+          setErrorMessage(data.error || "Unable to load patients from GNU Health.");
         }
       } catch (error) {
-        setErrorMessage(error instanceof Error ? error.message : "Unable to load patients from clinical system.");
+        setErrorMessage(error instanceof Error ? error.message : "Unable to load patients from GNU Health.");
       }
     }
     loadPatients();
@@ -122,13 +122,13 @@ export default function NursingTriagePage() {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to commit triage telemetry to clinical system");
+        throw new Error(data.error || "Failed to commit triage telemetry to GNU Health");
       }
 
       const generatedRef = data.evaluationId ? String(data.evaluationId) : "";
       setEvaluationRef(generatedRef);
       setFeedback(
-        `clinical system evaluation record ${generatedRef || ""} saved for ${patient.name}.`
+        `GNU Health evaluation record ${generatedRef || ""} saved for ${patient.name}.`
       );
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to save triage evaluation");
@@ -147,17 +147,17 @@ export default function NursingTriagePage() {
             <span className="text-slate-300">/</span>
             <span className="kicker text-slate-500">TRIAGE</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
             Patient Evaluations & Clinical Triage
           </h1>
           <p className="text-xs text-slate-600 mt-1">
-            Record patient evaluation details in clinical system.
+            Record patient evaluation details in GNU Health.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <Badge variant="green" size="md" dot>
-              Native clinical system workflow
+              Native GNU Health workflow
           </Badge>
         </div>
       </div>
@@ -235,12 +235,12 @@ export default function NursingTriagePage() {
                   {all}
                 </Badge>
               ))}
-              {patient.allergies.length === 0 && <span className="text-xs text-slate-500">{patient.allergiesLoaded ? "No allergy records returned by clinical system." : "Allergy information could not be loaded."}</span>}
+              {patient.allergies.length === 0 && <span className="text-xs text-slate-500">{patient.allergiesLoaded ? "No allergy records returned by GNU Health." : "Allergy information could not be loaded."}</span>}
             </div>
           </div>
         </div>
 
-        {evaluationRef && <p className="text-xs text-slate-600">clinical system evaluation record ID: {evaluationRef}</p>}
+        {evaluationRef && <p className="text-xs text-slate-600">GNU Health evaluation record ID: {evaluationRef}</p>}
       </div>
 
       {/* VITALS & ANTHROPOMETRY FORM (Resolves S3.4, S3.5, S3.6) */}
@@ -267,7 +267,7 @@ export default function NursingTriagePage() {
                   type="number"
                   value={vitals.systolic}
                   onChange={(e) => setVitals({ ...vitals, systolic: e.target.value })}
-                  className="font-mono text-xl font-extrabold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
+                  className="font-mono text-xl font-semibold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
                   required
                 />
                 <span className="text-[10px] text-slate-400">mmHg</span>
@@ -282,7 +282,7 @@ export default function NursingTriagePage() {
                   type="number"
                   value={vitals.diastolic}
                   onChange={(e) => setVitals({ ...vitals, diastolic: e.target.value })}
-                  className="font-mono text-xl font-extrabold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
+                  className="font-mono text-xl font-semibold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
                   required
                 />
                 <span className="text-[10px] text-slate-400">mmHg</span>
@@ -297,7 +297,7 @@ export default function NursingTriagePage() {
                   type="number"
                   value={vitals.bpm}
                   onChange={(e) => setVitals({ ...vitals, bpm: e.target.value })}
-                  className="font-mono text-xl font-extrabold text-[#0F766E] w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
+                  className="font-mono text-xl font-semibold text-[#0F766E] w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
                   required
                 />
                 <span className="text-[10px] text-slate-400">BPM</span>
@@ -313,7 +313,7 @@ export default function NursingTriagePage() {
                   step="0.1"
                   value={vitals.temp}
                   onChange={(e) => setVitals({ ...vitals, temp: e.target.value })}
-                  className="font-mono text-xl font-extrabold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
+                  className="font-mono text-xl font-semibold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
                   required
                 />
                 <span className="text-[10px] text-slate-400">°C</span>
@@ -326,7 +326,7 @@ export default function NursingTriagePage() {
               <div className="flex items-baseline gap-1">
                 <input type="number" value={vitals.respiratoryRate}
                   onChange={(e) => setVitals({ ...vitals, respiratoryRate: e.target.value })}
-                  className="font-mono text-xl font-extrabold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]" required />
+                  className="font-mono text-xl font-semibold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]" required />
                 <span className="text-[10px] text-slate-400">/min</span>
               </div>
             </div>
@@ -339,7 +339,7 @@ export default function NursingTriagePage() {
                   type="number"
                   value={vitals.spo2}
                   onChange={(e) => setVitals({ ...vitals, spo2: e.target.value })}
-                  className="font-mono text-xl font-extrabold text-blue-600 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
+                  className="font-mono text-xl font-semibold text-blue-600 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
                   required
                 />
                 <span className="text-[10px] text-slate-400">%</span>
@@ -354,7 +354,7 @@ export default function NursingTriagePage() {
                   type="number"
                   value={vitals.weight}
                   onChange={(e) => setVitals({ ...vitals, weight: e.target.value })}
-                  className="font-mono text-xl font-extrabold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
+                  className="font-mono text-xl font-semibold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
                   required
                 />
                 <span className="text-[10px] text-slate-400">kg</span>
@@ -369,7 +369,7 @@ export default function NursingTriagePage() {
                   type="number"
                   value={vitals.height}
                   onChange={(e) => setVitals({ ...vitals, height: e.target.value })}
-                  className="font-mono text-xl font-extrabold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
+                  className="font-mono text-xl font-semibold text-slate-900 w-16 bg-transparent border-b border-slate-300 focus:outline-none focus:border-[#0F766E]"
                   required
                 />
                 <span className="text-[10px] text-slate-400">cm</span>
@@ -386,7 +386,7 @@ export default function NursingTriagePage() {
               <div>
                 <div className="text-xs font-bold text-slate-900">
                   Computed Body Mass Index (BMI):{" "}
-                  <span className="font-mono text-base font-extrabold text-[#0F766E]">
+                  <span className="font-mono text-base font-semibold text-[#0F766E]">
                     {bmiVal} kg/m²
                   </span>
                 </div>

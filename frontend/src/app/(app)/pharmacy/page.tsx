@@ -120,8 +120,8 @@ export default function PharmacyPage() {
     const q = searchQuery.toLowerCase();
     return (
       rx.orderNumber.toLowerCase().includes(q) ||
-      rx.patientName.toLowerCase().includes(q) ||
-      rx.prescribingDoctor.toLowerCase().includes(q)
+      (rx.patientName || "").toLowerCase().includes(q) ||
+      (rx.prescribingDoctor || "").toLowerCase().includes(q)
     );
   });
 
@@ -130,8 +130,8 @@ export default function PharmacyPage() {
     const q = searchQuery.toLowerCase();
     return (
       m.activeComponent.toLowerCase().includes(q) ||
-      m.indications.toLowerCase().includes(q) ||
-      m.presentation.toLowerCase().includes(q)
+      (m.indications || "").toLowerCase().includes(q) ||
+      (m.presentation || "").toLowerCase().includes(q)
     );
   });
 
@@ -172,7 +172,7 @@ export default function PharmacyPage() {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Pending Orders</span>
             <Clock className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="text-2xl font-extrabold text-amber-600 font-mono">{stats.pendingDispensation}</div>
+          <div className="text-2xl font-semibold text-amber-600 font-mono">{stats.pendingDispensation}</div>
           <div className="text-[11px] text-amber-600/80 font-medium mt-1">Awaiting pharmacist verification</div>
         </div>
 
@@ -181,7 +181,7 @@ export default function PharmacyPage() {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Dispensed Today</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           </div>
-          <div className="text-2xl font-extrabold text-emerald-600 font-mono">{stats.dispensed}</div>
+          <div className="text-2xl font-semibold text-emerald-600 font-mono">{stats.dispensed}</div>
           <div className="text-[11px] text-emerald-600/80 font-medium mt-1">Medications handed to patients</div>
         </div>
 
@@ -190,7 +190,7 @@ export default function PharmacyPage() {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Total Rx Orders</span>
             <FileCheck className="w-4 h-4 text-blue-500" />
           </div>
-          <div className="text-2xl font-extrabold text-blue-600 font-mono">{stats.totalOrders}</div>
+          <div className="text-2xl font-semibold text-blue-600 font-mono">{stats.totalOrders}</div>
           <div className="text-[11px] text-blue-600/80 font-medium mt-1">All clinical prescriptions</div>
         </div>
 
@@ -199,7 +199,7 @@ export default function PharmacyPage() {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider">Hospital Formulary</span>
             <Package className="w-4 h-4 text-teal-600" />
           </div>
-          <div className="text-2xl font-extrabold text-teal-700 font-mono">{stats.formularyCount}</div>
+          <div className="text-2xl font-semibold text-teal-700 font-mono">{stats.formularyCount}</div>
           <div className="text-[11px] text-slate-400 mt-1">Active pharmaceutical items</div>
         </div>
       </div>

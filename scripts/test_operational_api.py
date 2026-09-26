@@ -6,7 +6,6 @@ import time
 BASE_URL = "http://34.7.237.8"
 
 USER_PASSWORDS = {
-    'admin': 'Admin12345!',
     'demo_admin1': 'DemoAdmin2026!',
     'demo_dr1': 'Doctor2026!',
     'demo_dr2': 'Doctor2026!',

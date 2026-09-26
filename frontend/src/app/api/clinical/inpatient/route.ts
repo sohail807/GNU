@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { hasModuleAccess } from "@/lib/access-control";
+
+// Tryton datetime/date fields deserialize as { __class__, year, month, day, hour?, minute? }
+// objects, not strings - rendering one directly as a React child crashes the page.
+function formatTrytonDateTime(v: any): string | null {
+  if (!v || typeof v !== "object" || !v.year) return null;
+  const datePart = `${v.year}-${String(v.month).padStart(2, "0")}-${String(v.day).padStart(2, "0")}`;
+  if (typeof v.hour !== "number") return datePart;
+  return `${datePart}T${String(v.hour).padStart(2, "0")}:${String(v.minute || 0).padStart(2, "0")}`;
+}
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -8,6 +18,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!hasModuleAccess(session.role, "inpatient")) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   try {
     const context = { company: session.companyId };
 
@@ -80,11 +93,39 @@ export async function GET(req: NextRequest) {
       console.warn("Could not fetch admissions:", e);
     }
 
-    // 4. Calculate Census Statistics
-    const totalBeds = beds.length || 24;
-    const occupiedBeds = beds.filter((b) => b.state === "occupied").length || admissions.filter((a) => a.state === "hospitalized").length;
-    const availableBeds = Math.max(0, totalBeds - occupiedBeds);
+    // 4. Calculate Census Statistics (from real data only - never fabricated)
+    const totalBeds = beds.length;
+    const occupiedBeds = beds.filter((b) => b.state === "occupied").length;
+    // Only beds actually in "free" state are ready for a new admission - beds
+    // "to_clean" (post-discharge) or "na" are neither occupied nor available.
+    const availableBeds = beds.filter((b) => b.state === "free").length;
     const occupancyRate = totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0;
+
+    // Resolve patient/bed/physician names via explicit lookups rather than
+    // assuming search_read inlines many2one fields as [id, name] tuples -
+    // falling back to fabricated names ("Synthetic Patient", "Dr. UAT
+    // Physician") misrepresented real or missing data as if it were populated.
+    const idOf = (v: unknown) => (typeof v === "number" ? v : Array.isArray(v) ? v[0] : null);
+    const lookup = async (model: string, ids: unknown[], fields: string[]) => {
+      const uniq = [...new Set(ids.filter(Boolean))];
+      if (uniq.length === 0) return {} as Record<number, any>;
+      try {
+        const rows = await TrytonClient.execute<any[]>(
+          session.username, session.userId, session.sessionToken,
+          model, "search_read",
+          [[["id", "in", uniq]], 0, uniq.length, null, fields],
+          context, session.database
+        );
+        return rows.reduce((acc, r) => { acc[r.id] = r; return acc; }, {} as Record<number, any>);
+      } catch {
+        return {} as Record<number, any>;
+      }
+    };
+    const [patientsMap, physiciansMap, admBedsMap] = await Promise.all([
+      lookup("gnuhealth.patient", admissions.map((a) => idOf(a.patient)), ["id", "rec_name"]),
+      lookup("gnuhealth.healthprofessional", admissions.map((a) => idOf(a.attending_physician)), ["id", "rec_name"]),
+      lookup("gnuhealth.hospital.bed", admissions.map((a) => idOf(a.bed)), ["id", "rec_name"]),
+    ]);
 
     return NextResponse.json({
       success: true,
@@ -92,36 +133,41 @@ export async function GET(req: NextRequest) {
       wards: wards.map((w) => ({
         id: w.id,
         name: w.name,
-        floor: w.floor || 1,
-        numberOfBeds: w.number_of_beds || 6,
-        state: w.state || "operational",
-        gender: w.gender || "unisex",
+        floor: w.floor ?? null,
+        numberOfBeds: w.number_of_beds ?? null,
+        state: w.state || null,
+        gender: w.gender || null,
         isPrivate: !!w.private,
       })),
       beds: beds.map((b) => ({
         id: b.id,
         name: b.rec_name || `Bed ${b.id}`,
         wardId: Array.isArray(b.ward) ? b.ward[0] : b.ward,
-        wardName: Array.isArray(b.ward) ? b.ward[1] : "General Ward",
-        bedType: b.bed_type || "standard",
-        state: b.state || "free",
+        wardName: Array.isArray(b.ward) ? b.ward[1] : null,
+        bedType: b.bed_type || null,
+        state: b.state || null,
         telephone: b.telephone_number || null,
       })),
-      admissions: admissions.map((a) => ({
-        id: a.id,
-        registrationNumber: a.name || `ADM-${a.id}`,
-        patientId: Array.isArray(a.patient) ? a.patient[0] : a.patient,
-        patientName: Array.isArray(a.patient) ? a.patient[1] : "Synthetic Patient",
-        bedId: Array.isArray(a.bed) ? a.bed[0] : a.bed,
-        bedName: Array.isArray(a.bed) ? a.bed[1] : "Unassigned Bed",
-        hospitalizationDate: a.hospitalization_date,
-        dischargeDate: a.discharge_date,
-        admissionType: a.admission_type || "routine",
-        attendingPhysician: Array.isArray(a.attending_physician) ? a.attending_physician[1] : "Dr. UAT Physician",
-        state: a.state || "hospitalized",
-        nursingPlan: a.nursing_plan || "Standard Inpatient Monitoring Protocol",
-        dischargePlan: a.discharge_plan || null,
-      })),
+      admissions: admissions.map((a) => {
+        const pid = idOf(a.patient);
+        const bid = idOf(a.bed);
+        const docId = idOf(a.attending_physician);
+        return {
+          id: a.id,
+          registrationNumber: a.name || `ADM-${a.id}`,
+          patientId: pid,
+          patientName: patientsMap[pid as number]?.rec_name || null,
+          bedId: bid,
+          bedName: admBedsMap[bid as number]?.rec_name || null,
+          hospitalizationDate: formatTrytonDateTime(a.hospitalization_date),
+          dischargeDate: formatTrytonDateTime(a.discharge_date),
+          admissionType: a.admission_type || null,
+          attendingPhysician: physiciansMap[docId as number]?.rec_name || null,
+          state: a.state || "hospitalized",
+          nursingPlan: a.nursing_plan || null,
+          dischargePlan: a.discharge_plan || null,
+        };
+      }),
       stats: {
         totalBeds,
         occupiedBeds,
@@ -145,12 +191,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!hasModuleAccess(session.role, "inpatient")) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   try {
     const body = await req.json();
-    const { patientId, bedId, admissionType, nursingPlan } = body;
+    const { patientId, bedId, admissionType, nursingPlan, expectedDischargeDate } = body;
 
     if (!patientId) {
       return NextResponse.json({ error: "Patient ID is required" }, { status: 400 });
+    }
+
+    // GNU Health requires an expected discharge date at admission time (used
+    // for bed/capacity planning); it's later overwritten with the actual
+    // discharge date when the patient is discharged. Default to 3 days out
+    // if the caller didn't supply one.
+    let dischargeDateStr: string;
+    if (typeof expectedDischargeDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(expectedDischargeDate)) {
+      dischargeDateStr = `${expectedDischargeDate} 12:00:00`;
+    } else {
+      const fallback = new Date();
+      fallback.setDate(fallback.getDate() + 3);
+      dischargeDateStr = fallback.toISOString().slice(0, 19).replace("T", " ");
     }
 
     const context = { company: session.companyId };
@@ -161,6 +223,7 @@ export async function POST(req: NextRequest) {
       bed: bedId ? parseInt(bedId, 10) : undefined,
       admission_type: admissionType || "routine",
       hospitalization_date: new Date().toISOString().slice(0, 19).replace("T", " "),
+      discharge_date: dischargeDateStr,
       attending_physician: session.healthprofId || undefined,
       nursing_plan: nursingPlan || "Standard Nursing Observation Plan",
       state: "hospitalized",
@@ -215,17 +278,66 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!hasModuleAccess(session.role, "inpatient")) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   try {
     const body = await req.json();
-    const { admissionId, bedId, dischargePlan, dischargeReason } = body;
+    const action = body.action || "discharge";
+    const context = { company: session.companyId };
+
+    // Bed cleaning step: GNU Health's discharge() button never frees the bed
+    // directly - it moves it to "to_clean" first, and a separate bedclean()
+    // step (housekeeping confirming the room is ready) moves the registration
+    // to "finished" and the bed to "free".
+    if (action === "bedclean") {
+      const { admissionId, bedId } = body;
+      if (!admissionId || !bedId) {
+        return NextResponse.json({ error: "Admission ID and bed ID are required" }, { status: 400 });
+      }
+      await TrytonClient.execute(
+        session.username, session.userId, session.sessionToken,
+        "gnuhealth.inpatient.registration", "write",
+        [[parseInt(admissionId, 10)], { state: "finished" }],
+        context, session.database
+      );
+      await TrytonClient.execute(
+        session.username, session.userId, session.sessionToken,
+        "gnuhealth.hospital.bed", "write",
+        [[parseInt(bedId, 10)], { state: "free" }],
+        context, session.database
+      );
+      return NextResponse.json({ success: true, message: "Bed cleaned and marked available." });
+    }
+
+    const { admissionId, bedId, dischargePlan, dischargeReason, dischargeDxId, admissionReasonId } = body;
 
     if (!admissionId) {
       return NextResponse.json({ error: "Admission ID is required" }, { status: 400 });
     }
 
-    const context = { company: session.companyId };
+    // GNU Health's own discharge validation (check_discharge_context) requires
+    // discharge_reason, discharge_dx AND admission_reason to all be set before
+    // the registration can move to state "done" - reject early with a clear
+    // message rather than letting the Tryton UserError surface raw.
+    const VALID_DISCHARGE_REASONS = ["home", "transfer", "death", "against_advice"];
+    if (!VALID_DISCHARGE_REASONS.includes(dischargeReason)) {
+      return NextResponse.json(
+        { error: `Discharge reason must be one of: ${VALID_DISCHARGE_REASONS.join(", ")}.` },
+        { status: 400 }
+      );
+    }
+    const dischargeDx = dischargeDxId ? parseInt(dischargeDxId, 10) : null;
+    const admissionReason = admissionReasonId ? parseInt(admissionReasonId, 10) : null;
+    if (!dischargeDx) {
+      return NextResponse.json({ error: "A discharge diagnosis (ICD-10) is required." }, { status: 400 });
+    }
+    if (!admissionReason) {
+      return NextResponse.json({ error: "A reason for admission (ICD-10) is required." }, { status: 400 });
+    }
 
-    // Discharge patient
+    // Discharge patient - GNU Health state "done" means "Discharged - needs
+    // cleaning" (there is no "discharged" state in the health_inpatient module).
     await TrytonClient.execute(
       session.username,
       session.userId,
@@ -235,17 +347,21 @@ export async function PATCH(req: NextRequest) {
       [
         [parseInt(admissionId, 10)],
         {
-          state: "discharged",
+          state: "done",
+          discharged_by: session.healthprofId || undefined,
           discharge_date: new Date().toISOString().slice(0, 19).replace("T", " "),
           discharge_plan: dischargePlan || "Discharged home with outpatient follow-up in 7 days.",
-          discharge_reason: dischargeReason || "improved",
+          discharge_reason: dischargeReason,
+          discharge_dx: dischargeDx,
+          admission_reason: admissionReason,
         },
       ],
       context,
       session.database
     );
 
-    // Release bed if provided
+    // Bed moves to "to_clean" on discharge, not straight to "free" - matches
+    // the real GNU Health discharge()/bedclean() two-step state machine.
     if (bedId) {
       try {
         await TrytonClient.execute(
@@ -254,18 +370,18 @@ export async function PATCH(req: NextRequest) {
           session.sessionToken,
           "gnuhealth.hospital.bed",
           "write",
-          [[parseInt(bedId, 10)], { state: "free" }],
+          [[parseInt(bedId, 10)], { state: "to_clean" }],
           context,
           session.database
         );
       } catch (e) {
-        console.warn("Could not free bed:", e);
+        console.warn("Could not update bed state:", e);
       }
     }
 
     return NextResponse.json({
       success: true,
-      message: "Patient discharged and bed marked available",
+      message: "Patient discharged. Bed marked as needing cleaning before it can be reassigned.",
     });
   } catch (error: any) {
     console.error("Error discharging patient:", error);

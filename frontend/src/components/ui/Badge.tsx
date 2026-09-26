@@ -16,34 +16,35 @@ export const Badge: React.FC<BadgeProps> = ({
   className = "",
 }) => {
   const sizeStyles = {
-    sm: "px-2.5 py-0.5 text-[11px] gap-1.5",
-    md: "px-3 py-1 text-xs gap-1.5",
-    lg: "px-3.5 py-1.5 text-xs gap-2 font-semibold",
+    sm: "px-2 py-0.5 text-[11px] gap-1.25",
+    md: "px-2.5 py-1 text-xs gap-1.5",
+    lg: "px-3 py-1 text-xs gap-1.5 font-medium",
   };
 
+  // Softer tints, no border shout - a quiet status cue rather than a label.
   const variantStyles = {
-    green: "bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0]",
-    teal: "bg-[#F0FDFA] text-[#0F766E] border border-[#99F6E4]",
-    amber: "bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]",
-    blue: "bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE]",
-    red: "bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA]",
-    neutral: "bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]",
-    purple: "bg-[#FAF5FF] text-[#7E22CE] border border-[#E9D5FF]",
+    green: "bg-emerald-50 text-emerald-700",
+    teal: "bg-teal-50 text-teal-700",
+    amber: "bg-amber-50 text-amber-700",
+    blue: "bg-blue-50 text-blue-700",
+    red: "bg-red-50 text-red-700",
+    neutral: "bg-slate-100 text-slate-600",
+    purple: "bg-purple-50 text-purple-700",
   };
 
   const dotStyles = {
-    green: "bg-[#10B981]",
-    teal: "bg-[#0D9488]",
-    amber: "bg-[#F59E0B]",
-    blue: "bg-[#3B82F6]",
-    red: "bg-[#EF4444]",
-    neutral: "bg-[#64748B]",
-    purple: "bg-[#A855F7]",
+    green: "bg-emerald-500",
+    teal: "bg-teal-500",
+    amber: "bg-amber-500",
+    blue: "bg-blue-500",
+    red: "bg-red-500",
+    neutral: "bg-slate-400",
+    purple: "bg-purple-500",
   };
 
   return (
     <span
-      className={`inline-flex items-center font-medium font-mono uppercase tracking-wider rounded-full shrink-0 ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      className={`inline-flex items-center font-medium rounded-full shrink-0 ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
     >
       {dot && (
         <span

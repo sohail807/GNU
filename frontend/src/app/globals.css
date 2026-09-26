@@ -133,13 +133,14 @@ body {
   animation: pulseGlow 2s ease-in-out infinite;
 }
 
-/* Enterprise Kicker Label Utility */
+/* Quiet eyebrow label - a small section cue, not a shout. Sans, not mono;
+   modest weight and tracking so it reads as a caption, not a badge. */
 .kicker {
-  font-family: var(--font-mono), monospace;
+  font-family: var(--font-sans);
   font-size: 0.6875rem; /* 11px */
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-tertiary);
 }
 
 /* Glassmorphism for Modals and Floating Panels */

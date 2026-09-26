@@ -265,6 +265,32 @@ export class ClinicalLookupService {
   }
 
   /**
+   * Dynamically resolves the accounting journal for customer (out) invoices.
+   * NEVER hardcodes journal 1.
+   */
+  static async resolveInvoiceJournal(
+    session: SessionData,
+    journalType: "revenue" | "expense" = "revenue"
+  ): Promise<number | null> {
+    try {
+      const journals = await TrytonClient.execute<any[]>(
+        session.username,
+        session.userId,
+        session.sessionToken,
+        "account.journal",
+        "search_read",
+        [[["type", "=", journalType]], 0, 1, null, ["id"]],
+        { company: session.companyId },
+        session.database
+      );
+      if (journals && journals.length > 0) return journals[0].id;
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Dynamically resolves a product and its default UoM for billing line items.
    * NEVER hardcodes product 15 or unit 1.
    */
@@ -272,7 +298,21 @@ export class ClinicalLookupService {
     session: SessionData,
     serviceName?: string,
     explicitProductId?: number | string | null
-  ): Promise<{ productId: number; uomId: number } | null> {
+  ): Promise<{ productId: number; uomId: number; listPrice: number | null } | null> {
+    const fields = ["id", "default_uom", "list_price"];
+    const toResult = (p: any): { productId: number; uomId: number; listPrice: number | null } => {
+      const rawUom = p.default_uom;
+      const uomId = Array.isArray(rawUom) ? rawUom[0] : (typeof rawUom === "object" && rawUom ? rawUom.id : (rawUom || 1));
+      const rawPrice = p.list_price;
+      const listPrice =
+        typeof rawPrice === "object" && rawPrice?.decimal
+          ? parseFloat(rawPrice.decimal)
+          : rawPrice != null
+          ? Number(rawPrice)
+          : null;
+      return { productId: p.id, uomId, listPrice: Number.isFinite(listPrice as number) && (listPrice as number) > 0 ? listPrice : null };
+    };
+
     try {
       if (explicitProductId) {
         const pid = typeof explicitProductId === "string" ? parseInt(explicitProductId, 10) : explicitProductId;
@@ -283,15 +323,11 @@ export class ClinicalLookupService {
             session.sessionToken,
             "product.product",
             "search_read",
-            [[["id", "=", pid]], 0, 1, null, ["id", "default_uom"]],
+            [[["id", "=", pid]], 0, 1, null, fields],
             { company: session.companyId },
             session.database
           );
-          if (prods && prods.length > 0) {
-            const rawUom = prods[0].default_uom;
-            const uomId = Array.isArray(rawUom) ? rawUom[0] : (typeof rawUom === "object" && rawUom ? rawUom.id : (rawUom || 1));
-            return { productId: prods[0].id, uomId };
-          }
+          if (prods && prods.length > 0) return toResult(prods[0]);
         }
       }
 
@@ -303,15 +339,11 @@ export class ClinicalLookupService {
           session.sessionToken,
           "product.product",
           "search_read",
-          [[["name", "ilike", `%${serviceName.trim()}%`]], 0, 1, null, ["id", "default_uom"]],
+          [[["name", "ilike", `%${serviceName.trim()}%`]], 0, 1, null, fields],
           { company: session.companyId },
           session.database
         );
-        if (prods && prods.length > 0) {
-          const rawUom = prods[0].default_uom;
-          const uomId = Array.isArray(rawUom) ? rawUom[0] : (typeof rawUom === "object" && rawUom ? rawUom.id : (rawUom || 1));
-          return { productId: prods[0].id, uomId };
-        }
+        if (prods && prods.length > 0) return toResult(prods[0]);
       }
 
       // Dynamic search for any active clinical consultation product in the catalog
@@ -321,15 +353,11 @@ export class ClinicalLookupService {
         session.sessionToken,
         "product.product",
         "search_read",
-        [[["type", "=", "service"]], 0, 1, null, ["id", "default_uom"]],
+        [[["type", "=", "service"]], 0, 1, null, fields],
         { company: session.companyId },
         session.database
       );
-      if (anyProds && anyProds.length > 0) {
-        const rawUom = anyProds[0].default_uom;
-        const uomId = Array.isArray(rawUom) ? rawUom[0] : (typeof rawUom === "object" && rawUom ? rawUom.id : (rawUom || 1));
-        return { productId: anyProds[0].id, uomId };
-      }
+      if (anyProds && anyProds.length > 0) return toResult(anyProds[0]);
 
       return null;
     } catch {

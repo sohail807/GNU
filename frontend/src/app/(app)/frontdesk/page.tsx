@@ -51,7 +51,7 @@ export default function FrontDeskPage() {
             appointmentId: a.id,
             puid: a.puid,
             name: a.patientName,
-            phone: "+974 4400 1000",
+            phone: a.patientPhone || undefined,
             doctor: a.physicianName || "Attending Physician",
             appointmentTime: a.time,
             state: a.state,
@@ -131,7 +131,7 @@ export default function FrontDeskPage() {
             <span className="text-slate-300">/</span>
             <span className="kicker text-slate-500">CLINIC DESK 01</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
             Patient Intake & Arrival Queue
           </h1>
           <p className="text-xs text-slate-600 mt-1">
@@ -283,7 +283,7 @@ export default function FrontDeskPage() {
         <div className="overflow-x-auto">
           {isLoading ? (
             <div className="p-12 text-center text-xs text-slate-500 font-mono">
-              Loading live arrival queue from clinical system backend...
+              Loading live arrival queue from GNU Health backend...
             </div>
           ) : filteredPatients.length === 0 ? (
             <div className="p-12 text-center space-y-3">

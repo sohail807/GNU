@@ -63,6 +63,11 @@ test_output.docx
 ~$*.xlsx
 ~$*.pptx
 
+# Mail Spool & Scratch Files
+reports/mail_spool/
+scripts/scratch_*.py
+.claude/
+
 # OS Metadata
 Thumbs.db
 ehthumbs.db

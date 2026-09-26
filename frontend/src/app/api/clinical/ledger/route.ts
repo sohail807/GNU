@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { hasModuleAccess } from "@/lib/access-control";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
+  }
+  if (!hasModuleAccess(session.role, "ledger")) {
+    // Per RBAC policy, cashiers are segregated from GL journal entries - only
+    // accountants/admins may view account moves. Degrade gracefully rather than
+    // error, consistent with how the billing route handles restricted access.
+    return NextResponse.json({ success: true, moves: [], accessRestricted: true });
   }
 
   try {
@@ -15,7 +22,9 @@ export async function GET(req: NextRequest) {
       session.sessionToken,
       "account.move",
       "search_read",
-      [[[], 0, 20, [["id", "DESC"]], ["id", "number", "date", "description", "state", "lines"]]]
+      [[], 0, 20, [["id", "DESC"]], ["id", "number", "date", "description", "state", "lines"]],
+      { company: session.companyId },
+      session.database
     );
 
     // Resolve move lines
@@ -30,7 +39,9 @@ export async function GET(req: NextRequest) {
           session.sessionToken,
           "account.move.line",
           "search_read",
-          [[["id", "in", allLineIds]], 0, allLineIds.length, null, ["id", "account", "debit", "credit", "description"]]
+          [[["id", "in", allLineIds]], 0, allLineIds.length, null, ["id", "account", "debit", "credit", "description"]],
+          { company: session.companyId },
+          session.database
         );
         linesMap = rawLines.reduce((acc, l) => {
           acc[l.id] = l;
@@ -55,7 +66,9 @@ export async function GET(req: NextRequest) {
           session.sessionToken,
           "account.account",
           "search_read",
-          [[["id", "in", accountIds]], 0, accountIds.length, null, ["id", "code", "name"]]
+          [[["id", "in", accountIds]], 0, accountIds.length, null, ["id", "code", "name"]],
+          { company: session.companyId },
+          session.database
         );
         accountsMap = accounts.reduce((acc, a) => {
           acc[a.id] = a;

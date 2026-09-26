@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { hasModuleAccess } from "@/lib/access-control";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -8,6 +9,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
 
+  if (!hasModuleAccess(session.role, "patient_chart")) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   const { searchParams } = new URL(req.url);
   const query = searchParams.get("q") || "";
   const idParam = searchParams.get("id");
@@ -30,7 +34,9 @@ export async function GET(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.patient",
       "search_read",
-      [domain, 0, 50, [["id", "DESC"]], ["id", "puid", "rec_name", "party", "dob", "age", "gender", "blood_type", "rh", "active"]]
+      [domain, 0, 50, [["id", "DESC"]], ["id", "puid", "rec_name", "party", "dob", "age", "gender", "blood_type", "rh", "active"]],
+      { company: session.companyId },
+      session.database
     );
 
     // Retrieve party metadata for each patient
@@ -47,7 +53,9 @@ export async function GET(req: NextRequest) {
           session.sessionToken,
           "party.party",
           "search_read",
-          [[["id", "in", partyIds]], 0, partyIds.length, null, ["id", "name", "ref", "gender", "dob"]]
+          [[["id", "in", partyIds]], 0, partyIds.length, null, ["id", "name", "ref", "gender", "dob"]],
+          { company: session.companyId },
+          session.database
         );
         partiesMap = parties.reduce((acc, party) => {
           acc[party.id] = party;
@@ -55,6 +63,30 @@ export async function GET(req: NextRequest) {
         }, {} as Record<number, any>);
       } catch {
         // Continue with available patient data
+      }
+    }
+
+    // Resolve real phone numbers from each party's contact mechanisms. Never
+    // fabricated - a patient with no phone on file returns null, not a fake number.
+    let phoneByParty: Record<number, string> = {};
+    if (partyIds.length > 0) {
+      try {
+        const contacts = await TrytonClient.execute<any[]>(
+          session.username,
+          session.userId,
+          session.sessionToken,
+          "party.contact_mechanism",
+          "search_read",
+          [[["party", "in", partyIds], ["type", "in", ["mobile", "phone"]]], 0, partyIds.length * 2, null, ["party", "value"]],
+          { company: session.companyId },
+          session.database
+        );
+        for (const c of contacts || []) {
+          const pid = typeof c.party === "number" ? c.party : c.party?.[0];
+          if (pid && !phoneByParty[pid]) phoneByParty[pid] = c.value;
+        }
+      } catch {
+        // Fallback: leave phoneByParty empty
       }
     }
 
@@ -85,9 +117,11 @@ export async function GET(req: NextRequest) {
 
       return {
         id: p.id,
+        partyId: partyId || null,
         puid: p.puid || "",
         name: party.name || p.rec_name || "",
         qid: party.ref || "",
+        phone: (partyId && phoneByParty[partyId]) || null,
         gender: p.gender || "",
         dob: dobStr,
         age: p.age || null,
@@ -116,6 +150,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
 
+  if (!hasModuleAccess(session.role, "patient_register")) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   try {
     const body = await req.json();
     const { name, qid, dob, gender, bloodType } = body;
@@ -157,7 +194,9 @@ export async function POST(req: NextRequest) {
       session.sessionToken,
       "party.party",
       "create",
-      [[partyPayload]]
+      [[partyPayload]],
+      { company: session.companyId },
+      session.database
     );
     const partyId = partyRes[0];
 
@@ -176,7 +215,9 @@ export async function POST(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.patient",
       "create",
-      [[patientPayload]]
+      [[patientPayload]],
+      { company: session.companyId },
+      session.database
     );
     const patientId = patientRes[0];
 
@@ -187,7 +228,9 @@ export async function POST(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.patient",
       "read",
-      [[patientId], ["id", "puid", "rec_name", "blood_type"]]
+      [[patientId], ["id", "puid", "rec_name", "blood_type"]],
+      { company: session.companyId },
+      session.database
     );
     const pat = created[0];
 
@@ -234,6 +277,9 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
 
+  if (!hasModuleAccess(session.role, "patient_register")) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   try {
     const body = await req.json();
     const { patientId, criticalInfo } = body;
@@ -252,7 +298,9 @@ export async function PUT(req: NextRequest) {
         session.sessionToken,
         "gnuhealth.patient",
         "write",
-        [[parseInt(patientId, 10)], { critical_info: criticalInfo.trim() }]
+        [[parseInt(patientId, 10)], { critical_info: criticalInfo.trim() }],
+        { company: session.companyId },
+        session.database
     );
 
     return NextResponse.json({

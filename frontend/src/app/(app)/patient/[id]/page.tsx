@@ -54,7 +54,7 @@ export default function UnifiedPatientChartPage() {
   const [radiologyOrders, setRadiologyOrders] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
 
-  // Load all live patient data from clinical system backend via API routes
+  // Load all live patient data from GNU Health backend via API routes
   useEffect(() => {
     let isMounted = true;
     async function loadAllPatientData() {
@@ -193,7 +193,7 @@ export default function UnifiedPatientChartPage() {
             <span>Back to Master Patient Directory</span>
           </Link>
           <div className="kicker text-[#0F766E] mb-1">LONGITUDINAL ELECTRONIC HEALTH RECORD · RECORD ID {patient.id}</div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
             Master Patient Chart & 360° EHR Directory
           </h1>
           <p className="text-xs text-slate-600 mt-1">
@@ -328,7 +328,7 @@ export default function UnifiedPatientChartPage() {
             </div>
           </div>
           <Badge variant="green" size="md">
-            Authoritative clinical system Record
+            Authoritative GNU Health Record
           </Badge>
         </div>
 
@@ -392,7 +392,7 @@ export default function UnifiedPatientChartPage() {
                 <span className="font-mono text-xs px-2.5 py-0.5 rounded-md bg-teal-50 border border-teal-200 text-[#0F766E] font-bold">
                   {patient.puid}
                 </span>
-                <Badge variant="green" dot>clinical system patient record</Badge>
+                <Badge variant="green" dot>GNU Health patient record</Badge>
               </div>
               <p className="text-xs text-slate-500 mt-1">
                 QID: <span className="font-mono text-slate-700 font-bold">{patient.qid || "Not recorded"}</span> · DOB: {patient.dob || "Not recorded"} · Age: {patient.age || "Not recorded"} · Blood Group: {patient.bloodGroup || "Not recorded"}
@@ -409,7 +409,7 @@ export default function UnifiedPatientChartPage() {
                 {all}
               </Badge>
             ))}
-            {patient.allergies.length === 0 && <span className="text-xs text-slate-500">{patient.allergiesLoaded ? "No allergy records returned by clinical system." : "Allergy information could not be loaded."}</span>}
+            {patient.allergies.length === 0 && <span className="text-xs text-slate-500">{patient.allergiesLoaded ? "No allergy records returned by GNU Health." : "Allergy information could not be loaded."}</span>}
           </div>
         </div>
 
@@ -697,7 +697,7 @@ export default function UnifiedPatientChartPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Amount Due:</span>
-                    <span className="font-mono font-extrabold text-emerald-700">{inv.amountToPay == null ? "Not available" : formatQar(inv.amountToPay)}</span>
+                    <span className="font-mono font-semibold text-emerald-700">{inv.amountToPay == null ? "Not available" : formatQar(inv.amountToPay)}</span>
                   </div>
                 </div>
               ))}

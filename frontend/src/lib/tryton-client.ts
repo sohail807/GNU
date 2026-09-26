@@ -218,7 +218,7 @@ export class TrytonClient {
       if (data.error) {
         const errText = JSON.stringify(data.error);
         const status = errText.includes("AccessError") || errText.includes("not allowed to access") ? 403 : 502;
-        const error = new Error(status === 403 ? "Access denied while running the laboratory workflow." : "The clinical system rejected the laboratory workflow.");
+        const error = new Error(status === 403 ? "Access denied while running the laboratory workflow." : "The GNU Health rejected the laboratory workflow.");
         (error as Error & { status?: number }).status = status;
         throw error;
       }
@@ -229,7 +229,7 @@ export class TrytonClient {
     const wizardSessionId = created?.[0];
     const startingState = created?.[1];
     if (!((typeof wizardSessionId === "number" && Number.isSafeInteger(wizardSessionId) && wizardSessionId > 0) || (typeof wizardSessionId === "string" && wizardSessionId.length > 0)) || startingState !== "start" || created?.[2] !== "end") {
-      throw new Error("The clinical system returned an unsupported laboratory wizard state.");
+      throw new Error("The GNU Health returned an unsupported laboratory wizard state.");
     }
     try {
       await call("execute", [wizardSessionId, {}, "create_lab_test"]);

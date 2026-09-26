@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { ClinicalLookupService } from "@/lib/clinical-lookup";
+import { hasModuleAccess } from "@/lib/access-control";
 
 const EVALUATION_FIELDS = [
   "id", "code", "patient", "healthprof", "evaluation_start", "chief_complaint",
@@ -23,6 +24,14 @@ export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
 
+  if (
+    !hasModuleAccess(session.role, "physician") &&
+    !hasModuleAccess(session.role, "nursing") &&
+    !hasModuleAccess(session.role, "patient_chart") &&
+    !hasModuleAccess(session.role, "admin")
+  ) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   const rawPatientId = new URL(req.url).searchParams.get("patientId");
   const patientId = rawPatientId ? Number(rawPatientId) : null;
   if (rawPatientId && (!Number.isSafeInteger(patientId) || patientId! <= 0)) {
@@ -48,6 +57,9 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
 
+  if (!hasModuleAccess(session.role, "physician")) {
+    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  }
   try {
     const body = await req.json();
     const patientId = Number(body.patientId);
