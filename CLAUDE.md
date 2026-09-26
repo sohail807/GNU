@@ -29,6 +29,9 @@ The live portal is accessible at `http://34.7.237.8/login` (and locally at `http
 | :--- | :--- | :--- | :--- | :--- |
 | **Front Desk / Reception** | `demo_frontdesk1` | `FrontDesk2026!` | `/frontdesk` | Queue management, arrival check-in, appointments |
 | **Outpatient Physician** | `demo_dr1` | `Doctor2026!` | `/physician` | Consultation, SOAP clinical notes, prescriptions, diagnostics |
+| **Inpatient Department** | `demo_dr1` / `demo_nurse1` | `Doctor2026!` | `/inpatient` | Bed census, ward management, admissions & discharges |
+| **Surgical Suite / OT** | `demo_dr1` | `Doctor2026!` | `/surgery` | Operating theatre scheduling, surgical case logs |
+| **Hospital Pharmacy** | `demo_dr1` / `demo_cashier1` | `Doctor2026!` | `/pharmacy` | E-prescription fulfillment, drug formulary |
 | **Triage Nurse** | `demo_nurse1` | `Nurse2026!` | `/nursing` | Vital signs triage (BP, HR, SpO2, Temp, RR), nursing assessments |
 | **Cashier / Billing** | `demo_cashier1` | `Cashier2026!` | `/billing` | Patient invoice settlement, POS cash/card payment collection |
 | **Diagnostic Lab** | `demo_lab1` | `Lab2026!` | `/laboratory` | Test criteria entry, lab results verification |
