@@ -80,6 +80,28 @@ These are point-in-time copies. If you change nginx/systemd/the backup script di
 the VM, re-pull the file into this directory so the repo doesn't silently go stale. There
 is no CI/CD wiring these back together automatically yet.
 
+## Known gap this snapshot already caught once
+
+On 2026-09-27, production's *actual* `.env.production` never had `NEXT_PUBLIC_DEPLOYMENT_MODE`
+set — it only ever existed in `CLAUDE.md` as a documented example, never in the real deployed
+file. This let a client-side login page ship real demo account passwords to production
+undetected (see `frontend/src/app/login/page.tsx`'s `DEMO_STATIONS`, gated on that exact env
+var). Fixed by adding it to the live file and rebuilding. If you ever regenerate
+`.env.production` from scratch on the VM, cross-check it against
+`env-templates/frontend.env.production.example` in this directory — don't assume the doc and
+the deployed file agree.
+
+## Known go-live blocker: demo accounts are real backend credentials
+
+The `demo_frontdesk1` / `demo_dr1` / `demo_admin1` / etc. accounts (with the passwords
+documented in `CLAUDE.md` and dozens of report files in this repo) are **real, working Tryton
+user accounts in the live `gnuhealth` database**, independent of anything the frontend shows
+or hides. Removing the login page's one-click buttons stops the passwords from being *handed
+out*, but anyone who already has them (which includes anyone with read access to this repo's
+history) can still log in directly, including as `demo_admin1`. Before onboarding any real
+hospital's data into this database, these accounts need to be deleted or have their passwords
+rotated to values that are never committed to source control.
+
 ## Pending
 
 TLS/HTTPS is not yet configured — `certbot` is installed and ready
