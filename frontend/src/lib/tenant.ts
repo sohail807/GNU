@@ -2,6 +2,8 @@ export interface TenantConfig {
   id: string;
   name: string;
   slug: string;
+  /** DNS subdomain label this tenant is reached at once subdomain-per-tenant routing is live, e.g. "central" for central.<APP_BASE_DOMAIN>. */
+  subdomain: string;
   database: string;
   defaultCompanyId: number;
   currency: string;
@@ -9,32 +11,15 @@ export interface TenantConfig {
   status: "active" | "suspended" | "provisioning";
 }
 
+// Provision a new tenant with scripts/provision_tenant_database.py, then add its entry here
+// (and give it a unique `subdomain`) to bring it onto subdomain-based routing.
 export const TENANT_REGISTRY: Record<string, TenantConfig> = {
   "qatar-outpatient": {
     id: "qatar-outpatient",
     name: "IST Central Hospital (Qatar)",
     slug: "qatar-central",
+    subdomain: "central",
     database: "gnuhealth",
-    defaultCompanyId: 2,
-    currency: "QAR",
-    country: "QAT",
-    status: "active",
-  },
-  "alpha-clinic": {
-    id: "alpha-clinic",
-    name: "IST Alpha Outpatient Center",
-    slug: "alpha-clinic",
-    database: "gnuhealth_test_alpha",
-    defaultCompanyId: 2,
-    currency: "QAR",
-    country: "QAT",
-    status: "active",
-  },
-  "beta-clinic": {
-    id: "beta-clinic",
-    name: "IST Beta Specialty Clinic",
-    slug: "beta-clinic",
-    database: "gnuhealth_test_beta",
     defaultCompanyId: 2,
     currency: "QAR",
     country: "QAT",
@@ -43,6 +28,29 @@ export const TENANT_REGISTRY: Record<string, TenantConfig> = {
 };
 
 export const DEFAULT_TENANT_ID = "qatar-outpatient";
+
+/** Base domain subdomain-per-tenant routing is anchored to, e.g. "isthealth.com". Unset until the domain is live. */
+export const APP_BASE_DOMAIN = process.env.APP_BASE_DOMAIN || "";
+
+const SUBDOMAIN_TO_TENANT_ID: Record<string, string> = Object.fromEntries(
+  Object.values(TENANT_REGISTRY).map((t) => [t.subdomain, t.id])
+);
+
+/**
+ * Resolves a tenant from the request Host header once APP_BASE_DOMAIN is configured, e.g.
+ * "central.isthealth.com" -> the "qatar-outpatient" tenant. Returns null when the host isn't
+ * a recognized tenant subdomain (bare IP access, the apex domain, or an unknown subdomain) so
+ * callers can fall back to manual tenant selection.
+ */
+export function resolveTenantFromHost(host?: string | null): TenantConfig | null {
+  if (!host || !APP_BASE_DOMAIN) return null;
+  const hostname = host.split(":")[0].toLowerCase();
+  const suffix = `.${APP_BASE_DOMAIN.toLowerCase()}`;
+  if (!hostname.endsWith(suffix)) return null;
+  const subdomain = hostname.slice(0, -suffix.length);
+  const tenantId = SUBDOMAIN_TO_TENANT_ID[subdomain];
+  return tenantId ? TENANT_REGISTRY[tenantId] : null;
+}
 
 export function resolveTenant(tenantIdentifier?: string | null): TenantConfig {
   const selectedId = tenantIdentifier && TENANT_REGISTRY[tenantIdentifier]

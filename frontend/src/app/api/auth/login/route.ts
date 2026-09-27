@@ -12,7 +12,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Username and password are required" }, { status: 400 });
     }
 
-    const tenant = resolveTenant(tenantId || req.headers.get("x-tenant-id"));
+    // Host-resolved tenant (set by middleware from the request's subdomain) is authoritative
+    // once subdomain-per-tenant routing is live — a client can't override it via the POST body.
+    // The body-supplied tenantId is only honored as a fallback for manual tenant selection
+    // (bare-IP / pre-domain access, where there's no subdomain to resolve from).
+    const tenant = resolveTenant(req.headers.get("x-tenant-id") || tenantId);
 
     // Authenticate with authoritative backend system backend for the tenant's dedicated database
     const { userId, sessionToken } = await TrytonClient.login(username.trim(), password, tenant.database);

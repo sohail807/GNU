@@ -28,21 +28,37 @@ import {
 } from "lucide-react";
 import { TENANT_REGISTRY } from "@/lib/tenant";
 
-// Verified demo stations for rapid hospital workflow validation
-const DEMO_STATIONS = [
-  { label: "Front Desk", username: "demo_frontdesk1", password: "FrontDesk2026!", role: "reception", icon: User },
-  { label: "Triage Nurse", username: "demo_nurse1", password: "Nurse2026!", role: "nursing", icon: Activity },
-  { label: "Physician", username: "demo_dr1", password: "Doctor2026!", role: "physician", icon: Stethoscope },
-  { label: "Diagnostic Lab", username: "demo_lab1", password: "Lab2026!", role: "lab", icon: Microscope },
-  { label: "Radiology", username: "demo_rad1", password: "Rad2026!", role: "radiology", icon: Scan },
-  { label: "Cashier", username: "demo_cashier1", password: "Cashier2026!", role: "cashier", icon: Receipt },
-  { label: "Administrator", username: "demo_admin1", password: "DemoAdmin2026!", role: "admin", icon: Shield },
-];
+// Verified demo stations for rapid hospital workflow validation.
+// Never populated in a production deployment: these are real, documented credentials against
+// the demo dataset, and must not ship to a client-facing build. Gated on a build-time constant
+// (not a runtime check) so bundlers dead-code-eliminate the whole array, passwords included,
+// out of a NEXT_PUBLIC_DEPLOYMENT_MODE=production build.
+const DEMO_STATIONS =
+  process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "production"
+    ? []
+    : [
+        { label: "Front Desk", username: "demo_frontdesk1", password: "FrontDesk2026!", role: "reception", icon: User },
+        { label: "Triage Nurse", username: "demo_nurse1", password: "Nurse2026!", role: "nursing", icon: Activity },
+        { label: "Physician", username: "demo_dr1", password: "Doctor2026!", role: "physician", icon: Stethoscope },
+        { label: "Diagnostic Lab", username: "demo_lab1", password: "Lab2026!", role: "lab", icon: Microscope },
+        { label: "Radiology", username: "demo_rad1", password: "Rad2026!", role: "radiology", icon: Scan },
+        { label: "Cashier", username: "demo_cashier1", password: "Cashier2026!", role: "cashier", icon: Receipt },
+        { label: "Administrator", username: "demo_admin1", password: "DemoAdmin2026!", role: "admin", icon: Shield },
+      ];
+
+function readCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
 
 export default function LoginPage() {
   const router = useRouter();
-  const [tenantId, setTenantId] = useState("qatar-outpatient");
-  const [username, setUsername] = useState("demo_frontdesk1");
+  // When middleware resolves the tenant from the request's subdomain (once subdomain-per-tenant
+  // routing is live), it's locked in via this cookie and the manual picker below is hidden.
+  const [hostResolvedTenantId] = useState(() => readCookie("resolved_tenant_id"));
+  const [tenantId, setTenantId] = useState(() => readCookie("resolved_tenant_id") || "qatar-outpatient");
+  const [username, setUsername] = useState(process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "production" ? "" : "demo_frontdesk1");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -235,7 +251,7 @@ export default function LoginPage() {
               </div>
               <div className="min-w-0">
                 <div className="text-xs font-semibold text-white truncate">{currentTenant.name}</div>
-                <div className="text-[10px] text-slate-400 truncate">Database: <code className="text-teal-300 font-mono">{currentTenant.database}</code> · Currency: {currentTenant.currency}</div>
+                <div className="text-[10px] text-slate-400 truncate">{currentTenant.country} · Currency: {currentTenant.currency}</div>
               </div>
             </div>
             <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30 uppercase shrink-0">
@@ -270,30 +286,36 @@ export default function LoginPage() {
           <div className="bg-slate-900/80 border border-slate-800/90 rounded-2xl p-4 sm:p-6 shadow-2xl backdrop-blur-xl">
             <form onSubmit={handleLogin} className="space-y-3 sm:space-y-3.5">
               
-              {/* Hospital Tenant Selector */}
-              <div>
-                <label htmlFor="login-tenant" className="text-xs font-semibold text-slate-300 block mb-1 flex items-center justify-between">
-                  <span>Hospital Facility / Tenant</span>
-                  <span className="text-[10px] text-teal-400 font-normal">Database Partition</span>
-                </label>
-                <div className="relative">
-                  <select
-                    id="login-tenant"
-                    name="database"
-                    value={tenantId}
-                    onChange={(e) => setTenantId(e.target.value)}
-                    className="w-full h-10 px-3 pl-9 pr-8 text-xs sm:text-sm bg-slate-950 border border-slate-700/80 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white transition-all appearance-none cursor-pointer truncate"
-                  >
-                    {Object.values(TENANT_REGISTRY).map((t) => (
-                      <option key={t.id} value={t.id} className="bg-slate-900 text-white">
-                        {t.name} ({t.currency}) — DB: {t.database}
-                      </option>
-                    ))}
-                  </select>
-                  <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3 pointer-events-none" />
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3 pointer-events-none" />
+              {/* Hospital Facility: locked to the subdomain's tenant once resolved, otherwise a manual picker */}
+              {hostResolvedTenantId ? (
+                <div className="flex items-center gap-2 px-3 h-10 rounded-xl bg-slate-950/70 border border-slate-800 text-xs sm:text-sm text-slate-200">
+                  <Building2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                  <span className="truncate">{TENANT_REGISTRY[hostResolvedTenantId]?.name ?? "Your Facility"}</span>
                 </div>
-              </div>
+              ) : (
+                <div>
+                  <label htmlFor="login-tenant" className="text-xs font-semibold text-slate-300 block mb-1">
+                    Hospital Facility
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="login-tenant"
+                      name="database"
+                      value={tenantId}
+                      onChange={(e) => setTenantId(e.target.value)}
+                      className="w-full h-10 px-3 pl-9 pr-8 text-xs sm:text-sm bg-slate-950 border border-slate-700/80 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white transition-all appearance-none cursor-pointer truncate"
+                    >
+                      {Object.values(TENANT_REGISTRY).map((t) => (
+                        <option key={t.id} value={t.id} className="bg-slate-900 text-white">
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                    <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3 pointer-events-none" />
+                  </div>
+                </div>
+              )}
 
               {/* Username Input */}
               <div>
@@ -307,7 +329,7 @@ export default function LoginPage() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="e.g. demo_dr1, demo_admin1"
+                    placeholder="Your staff username"
                     required
                     autoComplete="username"
                     className="w-full h-10 px-3 pl-9 text-xs sm:text-sm bg-slate-950 border border-slate-700/80 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder-slate-500 transition-all"
@@ -372,36 +394,38 @@ export default function LoginPage() {
             </form>
           </div>
 
-          {/* Quick-Switch Verified Staff Stations */}
-          <div className="mt-3.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800/80">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                Verified Hospital Stations
-              </span>
-              <span className="text-[10px] text-teal-400/90 font-medium">One-Click Fill</span>
+          {/* Quick-Switch Verified Staff Stations — demo/staging only, never in production (see DEMO_STATIONS above) */}
+          {DEMO_STATIONS.length > 0 && (
+            <div className="mt-3.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800/80">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                  Verified Hospital Stations
+                </span>
+                <span className="text-[10px] text-teal-400/90 font-medium">One-Click Fill</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                {DEMO_STATIONS.map((s) => {
+                  const SIcon = s.icon;
+                  const isCurrent = username === s.username;
+                  return (
+                    <button
+                      key={s.username}
+                      type="button"
+                      onClick={() => fillStation(s.username, s.password)}
+                      className={`inline-flex items-center justify-center sm:justify-start gap-1.5 px-2 py-1.5 rounded-lg text-[11px] font-medium border transition-all cursor-pointer truncate ${
+                        isCurrent
+                          ? "bg-teal-500/20 text-teal-300 border-teal-500/50 shadow-sm"
+                          : "bg-slate-950/70 text-slate-400 border-slate-800/90 hover:border-slate-700 hover:text-slate-200"
+                      }`}
+                    >
+                      <SIcon className="w-3 h-3 shrink-0" />
+                      <span className="truncate">{s.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
-              {DEMO_STATIONS.map((s) => {
-                const SIcon = s.icon;
-                const isCurrent = username === s.username;
-                return (
-                  <button
-                    key={s.username}
-                    type="button"
-                    onClick={() => fillStation(s.username, s.password)}
-                    className={`inline-flex items-center justify-center sm:justify-start gap-1.5 px-2 py-1.5 rounded-lg text-[11px] font-medium border transition-all cursor-pointer truncate ${
-                      isCurrent
-                        ? "bg-teal-500/20 text-teal-300 border-teal-500/50 shadow-sm"
-                        : "bg-slate-950/70 text-slate-400 border-slate-800/90 hover:border-slate-700 hover:text-slate-200"
-                    }`}
-                  >
-                    <SIcon className="w-3 h-3 shrink-0" />
-                    <span className="truncate">{s.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          )}
 
           {/* Security Guarantee Notice */}
           <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] text-slate-400 text-center px-1">
