@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
   ShieldCheck,
@@ -128,7 +129,16 @@ export const OnboardingTourModal: React.FC<OnboardingTourModalProps> = ({
 }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-  if (!isOpen) return null;
+  // Portal to document.body: a page's .animate-fade-in wrapper leaves a lingering CSS
+  // `transform` after its entrance animation finishes, which creates a new containing block
+  // and silently breaks this dialog's `position: fixed` if rendered inline in the page tree
+  // (it ends up positioned in the document instead of pinned to the viewport). See Modal.tsx.
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setPortalTarget(document.body);
+  }, []);
+
+  if (!isOpen || !portalTarget) return null;
 
   const currentStep = TOUR_STEPS[currentStepIndex];
   const IconComponent = currentStep.icon;
@@ -149,7 +159,7 @@ export const OnboardingTourModal: React.FC<OnboardingTourModalProps> = ({
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in">
       <div className="w-full max-w-2xl bg-white border border-slate-200/90 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Top Header & Progress Indicator */}
@@ -280,6 +290,7 @@ export const OnboardingTourModal: React.FC<OnboardingTourModalProps> = ({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    portalTarget
   );
 };

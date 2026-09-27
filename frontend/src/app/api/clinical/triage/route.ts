@@ -19,7 +19,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
 
-  if (!hasModuleAccess(session.role, "nursing")) {
+  // Reading vitals is broader than recording them: the physician consultation cockpit pulls
+  // the nurse's triage evaluation for the same patient, so a physician session must be able to
+  // read here even though only nursing can create/update via POST below.
+  if (!hasModuleAccess(session.role, "nursing") && !hasModuleAccess(session.role, "physician")) {
     return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
   }
   const { searchParams } = new URL(req.url);

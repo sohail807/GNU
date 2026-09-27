@@ -35,7 +35,9 @@ export async function GET(req: NextRequest) {
         session.sessionToken,
         definition.model,
         "search_read",
-        [[ ["id", ">", 0] ], 0, 200, [["rec_name", "ASC"]], definition.fields],
+        // rec_name isn't a sortable column on these models either -- see the note below. Let
+        // each model apply its own default _order instead.
+        [[ ["id", ">", 0] ], 0, 200, null, definition.fields],
         { company: session.companyId },
         session.database
       );
@@ -54,7 +56,10 @@ export async function GET(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.medicament",
       "search_read",
-      [domain, 0, 30, [["rec_name", "ASC"]], ["id", "rec_name", "active_component", "strength", "unit", "route", "form", "pregnancy_warning"]],
+      // rec_name is a computed field on this model, not a real column -- ordering by it makes
+      // the underlying SQL query fail with an opaque, empty Tryton error. `null` lets Tryton
+      // apply the model's own default _order instead of a column that can't be sorted on.
+      [domain, 0, 30, null, ["id", "rec_name", "active_component", "strength", "unit", "route", "form", "pregnancy_warning"]],
       { company: session.companyId },
       session.database
     );

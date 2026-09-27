@@ -44,7 +44,7 @@ export default function UnifiedPatientChartPage() {
   const [patient, setPatient] = useState<any>({
     id: Number(patientId), puid: "", name: "", arabicName: "", qid: "", dob: "",
     age: "", gender: "", bloodGroup: "", phone: "", email: "", address: "",
-    emergencyContact: "", allergies: [], allergiesLoaded: false, attending: "",
+    emergencyContact: "", allergies: [], allergiesLoaded: false, allergiesRestricted: false, attending: "",
   });
 
   const [appointments, setAppointments] = useState<any[]>([]);
@@ -93,6 +93,7 @@ export default function UnifiedPatientChartPage() {
               emergencyContact: p.emergencyContact || "",
               allergies: p.allergies || [],
               allergiesLoaded: p.allergiesLoaded === true,
+              allergiesRestricted: p.allergiesRestricted === true,
               attending: p.attending || "",
             });
           }
@@ -409,7 +410,15 @@ export default function UnifiedPatientChartPage() {
                 {all}
               </Badge>
             ))}
-            {patient.allergies.length === 0 && <span className="text-xs text-slate-500">{patient.allergiesLoaded ? "No allergy records returned by GNU Health." : "Allergy information could not be loaded."}</span>}
+            {patient.allergies.length === 0 && (
+              <span className="text-xs text-slate-500">
+                {patient.allergiesLoaded
+                  ? "No allergy records returned by GNU Health."
+                  : patient.allergiesRestricted
+                    ? "Not visible to your role — ask a physician or nurse to review."
+                    : "Allergy information could not be loaded."}
+              </span>
+            )}
           </div>
         </div>
 
@@ -737,7 +746,7 @@ export default function UnifiedPatientChartPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Active Allergy:</span>
-                <span className="font-bold text-slate-600">{patient.allergies[0] || (patient.allergiesLoaded ? "No allergy records" : "Not loaded")}</span>
+                <span className="font-bold text-slate-600">{patient.allergies[0] || (patient.allergiesLoaded ? "No allergy records" : patient.allergiesRestricted ? "Restricted for your role" : "Not loaded")}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Prescriptions:</span>

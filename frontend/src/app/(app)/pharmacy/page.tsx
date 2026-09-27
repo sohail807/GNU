@@ -57,6 +57,7 @@ export default function PharmacyPage() {
     formularyCount: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [accessError, setAccessError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"queue" | "formulary">("queue");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -70,14 +71,23 @@ export default function PharmacyPage() {
     setIsLoading(true);
     try {
       const res = await fetch("/api/clinical/pharmacy");
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        const data = await res.json();
+        setAccessError(null);
         setPrescriptions(data.prescriptions || []);
         setMedicaments(data.medicaments || []);
         if (data.stats) setStats(data.stats);
+      } else {
+        // A blocked request used to fail silently here, leaving an empty "no prescriptions
+        // found" dashboard that looked identical to a genuinely empty queue -- indistinguishable
+        // from "you don't have permission to see this".
+        setAccessError(data.error || `Unable to load pharmacy data (HTTP ${res.status}).`);
+        setPrescriptions([]);
+        setMedicaments([]);
       }
     } catch (e) {
       console.error("Failed to load pharmacy data:", e);
+      setAccessError("Unable to load pharmacy data. Check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -164,6 +174,13 @@ export default function PharmacyPage() {
           </Button>
         </div>
       </div>
+
+      {accessError && (
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800 flex items-center gap-2 font-medium">
+          <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+          <span>{accessError}</span>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

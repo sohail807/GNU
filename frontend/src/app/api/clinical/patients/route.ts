@@ -93,6 +93,10 @@ export async function GET(req: NextRequest) {
     const patientIds = patientsRaw.map((patient) => patient.id);
     let diseasesRaw: any[] = [];
     let allergiesLoaded = false;
+    // Distinguished from a generic load failure: GNU Health's own ACL legitimately restricts
+    // "Patient Conditions History" (diagnoses/allergies) to clinical roles -- reception/cashier
+    // staff are correctly denied here, and the UI should say so rather than imply a system fault.
+    let allergiesRestricted = false;
     if (patientIds.length > 0) {
       try {
         diseasesRaw = await TrytonClient.execute<any[]>(
@@ -102,8 +106,8 @@ export async function GET(req: NextRequest) {
           { company: session.companyId }, session.database
         );
         allergiesLoaded = true;
-      } catch {
-        // Do not interpret unavailable allergy data as an empty allergy list.
+      } catch (err) {
+        allergiesRestricted = (err as { status?: number })?.status === 403;
       }
     }
 
@@ -128,6 +132,7 @@ export async function GET(req: NextRequest) {
         bloodGroup: p.blood_type ? `${p.blood_type}${p.rh || ""}` : "",
         status: p.active === true ? "active" : p.active === false ? "inactive" : "unknown",
         allergiesLoaded,
+        allergiesRestricted,
         allergies: allergiesLoaded ? diseasesRaw
           .filter((disease) => disease.is_allergy && disease.is_active && !["h", "healed"].includes(String(disease.status || "")))
           .filter((disease) => Array.isArray(disease.patient) ? disease.patient[0] === p.id : disease.patient === p.id)

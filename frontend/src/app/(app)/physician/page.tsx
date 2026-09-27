@@ -88,6 +88,7 @@ export default function PhysicianConsultationPage() {
   const [evaluationId, setEvaluationId] = useState<number>(initialEvaluationId);
   const [patient, setPatient] = useState({
     id: 0, puid: "", name: "", age: "", gender: "", bloodGroup: "", allergies: [] as string[],
+    allergiesLoaded: false, allergiesRestricted: false,
     vitals: {
       bp: "", bpm: null as number | null, temp: null as number | null, spo2: null as number | null, bmi: "",
     },
@@ -102,6 +103,7 @@ export default function PhysicianConsultationPage() {
   const [pendingPrescriptionId, setPendingPrescriptionId] = useState<number | null>(null);
   const [prescriptions, setPrescriptions] = useState<PrescriptionLine[]>([]);
   const [routeOptions, setRouteOptions] = useState<CatalogOption[]>([]);
+  const [doseUnitOptions, setDoseUnitOptions] = useState<CatalogOption[]>([]);
   const [acknowledgeWarnings, setAcknowledgeWarnings] = useState(false);
 
   // Modal States
@@ -197,6 +199,17 @@ export default function PhysicianConsultationPage() {
       .catch((error: unknown) => {
         setErrorMessage(error instanceof Error ? error.message : "Unable to load administration routes");
       });
+    fetch("/api/clinical/medicaments?catalog=doseUnits")
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok || !data.success || !Array.isArray(data.items)) {
+          throw new Error(data.error || "Unable to load dose units");
+        }
+        setDoseUnitOptions(data.items);
+      })
+      .catch((error: unknown) => {
+        setErrorMessage(error instanceof Error ? error.message : "Unable to load dose units");
+      });
   }, [isRxModalOpen]);
 
   // Load live patients & triage telemetry
@@ -213,6 +226,7 @@ export default function PhysicianConsultationPage() {
             setPatient({
               id: match.id, puid: match.puid || "", name: match.name || "", age: match.age || "",
               gender: match.gender || "", bloodGroup: match.bloodGroup || "", allergies: match.allergies || [],
+              allergiesLoaded: match.allergiesLoaded === true, allergiesRestricted: match.allergiesRestricted === true,
               vitals: { bp: "", bpm: null, temp: null, spo2: null, bmi: "" },
             });
             loadLatestVitals(match.id);
@@ -263,6 +277,7 @@ export default function PhysicianConsultationPage() {
         gender: match.gender || "",
         bloodGroup: match.bloodGroup || "",
         allergies: match.allergies || [],
+        allergiesLoaded: match.allergiesLoaded === true, allergiesRestricted: match.allergiesRestricted === true,
         vitals: { bp: "", bpm: null, temp: null, spo2: null, bmi: "" },
       }));
       setEvaluationId(0);
@@ -588,6 +603,15 @@ export default function PhysicianConsultationPage() {
                   {all}
                 </Badge>
               ))}
+              {patient.allergies.length === 0 && (
+                <span className="text-xs text-slate-500">
+                  {patient.allergiesLoaded
+                    ? "No known allergies on file."
+                    : patient.allergiesRestricted
+                      ? "Not visible to your role."
+                      : "Allergy information could not be loaded."}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -952,8 +976,22 @@ export default function PhysicianConsultationPage() {
               required
             />
 
-            <div className="grid grid-cols-2 gap-3">
-              <Input label={"Dose" + (newRx.doseUnit ? " (" + newRx.doseUnit + ")" : "")} type="number" min="0.0001" step="any" value={newRx.dose} onChange={(e) => setNewRx({ ...newRx, dose: e.target.value })} required />
+            <div className="grid grid-cols-3 gap-3">
+              <Input label="Dose" type="number" min="0.0001" step="any" value={newRx.dose} onChange={(e) => setNewRx({ ...newRx, dose: e.target.value })} required />
+              {/* The selected medicament's own catalog record supplies a default unit, but that
+                  record can leave it blank (as GNU Health's own seed data does for at least one
+                  demo medicament) -- without a manual override here, prescribing that drug was
+                  permanently blocked with no way for the physician to recover. */}
+              <Select
+                label="Dose Unit"
+                value={String(newRx.doseUnitId || "")}
+                onChange={(e) => {
+                  const doseUnitId = Number(e.target.value);
+                  setNewRx({ ...newRx, doseUnitId, doseUnit: doseUnitOptions.find((item) => item.id === doseUnitId)?.name || "" });
+                }}
+                options={[{ value: "", label: "Select unit" }, ...doseUnitOptions.map((item) => ({ value: String(item.id), label: item.name }))]}
+                required
+              />
               <Select label="Route of Administration" value={String(newRx.routeId || "")} onChange={(e) => { const routeId = Number(e.target.value); setNewRx({ ...newRx, routeId, route: routeOptions.find((item) => item.id === routeId)?.name || "" }); }} options={[{ value: "", label: "Select route" }, ...routeOptions.map((item) => ({ value: String(item.id), label: item.name }))]} required />
             </div>
 
@@ -983,6 +1021,15 @@ export default function PhysicianConsultationPage() {
               <Select label="Duration unit" value={newRx.durationPeriod} onChange={(e) => setNewRx({ ...newRx, durationPeriod: e.target.value })} options={["minutes", "hours", "days", "months", "years", "indefinite"].map((value) => ({ value, label: value }))} required />
             </div>
             {selectedDrug?.pregnancyWarning && <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">This medication has a pregnancy warning in the clinical formulary. Review patient status and clinical guidance before prescribing.</p>}
+
+            {/* Validation failures here used to only surface in a banner far above this modal,
+                so the "Add to Prescription Order" button appeared to silently do nothing. */}
+            {errorMessage && (
+              <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
 
             <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setIsRxModalOpen(false)}>

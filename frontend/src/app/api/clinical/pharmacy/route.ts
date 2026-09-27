@@ -38,7 +38,11 @@ export async function GET(req: NextRequest) {
           0,
           50,
           [["prescription_date", "DESC"]],
-          ["id", "name", "patient", "healthprof", "prescription_date", "state", "notes"],
+          // "name" isn't a real field on this model (it's "prescription_id") -- requesting it
+          // made the whole search_read throw a KeyError, which the catch below silently
+          // swallowed, so the pharmacy queue always came back empty for every role, on every
+          // prescription, regardless of permissions.
+          ["id", "prescription_id", "patient", "healthprof", "prescription_date", "state", "notes"],
         ],
         context,
         session.database
@@ -103,7 +107,7 @@ export async function GET(req: NextRequest) {
         const docId = idOf(rx.healthprof);
         return {
           id: rx.id,
-          orderNumber: rx.name || `RX-${rx.id}`,
+          orderNumber: rx.prescription_id || `RX-${rx.id}`,
           patientId: pid,
           patientName: patientsMap[pid as number]?.rec_name || null,
           prescribingDoctor: physiciansMap[docId as number]?.rec_name || null,

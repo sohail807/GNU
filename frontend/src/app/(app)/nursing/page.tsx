@@ -33,7 +33,7 @@ export default function NursingTriagePage() {
   const [patientsList, setPatientsList] = useState<any[]>([]);
   const [selectedPatientId, setSelectedPatientId] = useState<number>(0);
   const [patient, setPatient] = useState({
-    id: 0, puid: "", name: "", age: "", gender: "", bloodGroup: "", allergies: [] as string[], allergiesLoaded: false,
+    id: 0, puid: "", name: "", age: "", gender: "", bloodGroup: "", allergies: [] as string[], allergiesLoaded: false, allergiesRestricted: false,
   });
 
   // Evaluation Header States (Resolves S3.3: Evaluation Header)
@@ -81,7 +81,7 @@ export default function NursingTriagePage() {
     setSelectedPatientId(match.id);
     setPatient({
       id: match.id, puid: match.puid || "", name: match.name || "", age: match.age || "",
-      gender: match.gender || "", bloodGroup: match.bloodGroup || "", allergies: match.allergies || [], allergiesLoaded: match.allergiesLoaded === true,
+      gender: match.gender || "", bloodGroup: match.bloodGroup || "", allergies: match.allergies || [], allergiesLoaded: match.allergiesLoaded === true, allergiesRestricted: match.allergiesRestricted === true,
     });
     setVitals({ systolic: "", diastolic: "", bpm: "", respiratoryRate: "", temp: "", spo2: "", weight: "", height: "" });
     setNurseNotes("");
@@ -235,7 +235,15 @@ export default function NursingTriagePage() {
                   {all}
                 </Badge>
               ))}
-              {patient.allergies.length === 0 && <span className="text-xs text-slate-500">{patient.allergiesLoaded ? "No allergy records returned by GNU Health." : "Allergy information could not be loaded."}</span>}
+              {patient.allergies.length === 0 && (
+                <span className="text-xs text-slate-500">
+                  {patient.allergiesLoaded
+                    ? "No allergy records returned by GNU Health."
+                    : patient.allergiesRestricted
+                      ? "Not visible to your role — ask a physician to review."
+                      : "Allergy information could not be loaded."}
+                </span>
+              )}
             </div>
           </div>
         </div>

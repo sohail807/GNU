@@ -349,6 +349,10 @@ export default function PatientRegistrationPage() {
                 value={formData.bloodType}
                 onChange={(e) => setFormData({ ...formData, bloodType: e.target.value })}
                 options={[
+                  // Real placeholder (not just a blank initial state) so the option the browser
+                  // visually shows always matches formData.bloodType -- see the note on `gender`
+                  // above for why a mismatch here silently drops the field from the create payload.
+                  { value: "", label: "Not recorded / unknown" },
                   { value: "O+", label: "O Positive (O+)" },
                   { value: "O-", label: "O Negative (O-)" },
                   { value: "A+", label: "A Positive (A+)" },

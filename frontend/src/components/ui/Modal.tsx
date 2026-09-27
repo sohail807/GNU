@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 interface ModalProps {
@@ -34,7 +35,13 @@ export const Modal: React.FC<ModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  // Portal target must be resolved client-side only (SSR has no document.body).
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setPortalTarget(document.body);
+  }, []);
+
+  if (!isOpen || !portalTarget) return null;
 
   const resolvedWidth = maxWidth
     ? {
@@ -52,7 +59,13 @@ export const Modal: React.FC<ModalProps> = ({
         lg: "max-w-3xl",
       }[size];
 
-  return (
+  // Rendered via a portal straight to document.body: a modal nested inside ordinary page
+  // content inherits whatever CSS the page applies to its ancestors, and a `transform`
+  // anywhere above it (even the identity matrix a `forwards`-filled CSS animation like
+  // .animate-fade-in leaves behind after finishing) creates a new containing block --
+  // silently breaking `position: fixed` so the dialog renders inside the page's document
+  // flow instead of pinned to the viewport. Portaling sidesteps that class of bug entirely.
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
       <div
         className={`w-full ${resolvedWidth} bg-white border border-slate-200/90 rounded-2xl shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]`}
@@ -72,6 +85,7 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
         <div className="p-6 overflow-y-auto">{children}</div>
       </div>
-    </div>
+    </div>,
+    portalTarget
   );
 };
