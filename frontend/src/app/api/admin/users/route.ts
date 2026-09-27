@@ -220,11 +220,15 @@ export async function POST(req: NextRequest) {
           session.database
         );
         const currentGroups: number[] = relationIds(targetUsers[0]?.groups);
+        // Many2Many fields take Tryton's write-command tuples, not a plain array of the final
+        // desired ids -- passing a flat array here previously made Tryton throw a raw Python
+        // TypeError for every role change. "remove" drops the old role's managed groups (leaving
+        // any unmanaged ones the user already had untouched); "add" attaches the new role's groups.
+        const groupsToRemove = currentGroups.filter((groupId) => managedIds.has(groupId));
+        const groupsToAdd = idsByRole[role as HospitalRole];
         writePayload.groups = [
-          ...new Set([
-            ...currentGroups.filter((groupId) => !managedIds.has(groupId)),
-            ...idsByRole[role as HospitalRole],
-          ]),
+          ["remove", groupsToRemove],
+          ["add", groupsToAdd],
         ];
       }
 
@@ -272,7 +276,11 @@ export async function POST(req: NextRequest) {
         name: name.trim(),
         email: typeof email === "string" ? email.trim() : "",
         password: temporaryPassword,
-        groups: groups,
+        // Many2Many fields need Tryton's write-command format on create, not a plain array of
+        // ids -- passing groups directly made res.user.create throw a raw Python TypeError
+        // ("'int' object is not subscriptable") for every single role, since nothing had ever
+        // exercised this code path successfully before.
+        groups: [["add", groups]],
         active: true,
       };
 
