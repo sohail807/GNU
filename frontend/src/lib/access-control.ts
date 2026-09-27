@@ -282,7 +282,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     physician: false,
     inpatient: false,
     surgery: false,
-    pharmacy: true,
+    pharmacy: false,
     laboratory: false,
     radiology: false,
     billing: true,
