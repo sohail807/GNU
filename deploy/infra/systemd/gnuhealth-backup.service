@@ -1,0 +1,8 @@
+[Unit]
+Description=GNU Health Automated Daily Backup
+After=postgresql.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/gnuhealth-backup.sh
+User=root

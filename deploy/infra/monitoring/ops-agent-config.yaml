@@ -1,0 +1,38 @@
+logging:
+  receivers:
+    default:
+      type: files
+      include_paths:
+        - /var/log/syslog
+        - /var/log/messages
+    nginx_access:
+      type: nginx_access
+    nginx_error:
+      type: nginx_error
+    postgresql_general:
+      type: files
+      include_paths:
+        - /var/log/postgresql/postgresql-15-main.log
+    gnuhealth_backup:
+      type: files
+      include_paths:
+        - /var/log/gnuhealth_backup.log
+  service:
+    pipelines:
+      default_pipeline:
+        receivers: [default]
+      nginx:
+        receivers: [nginx_access, nginx_error]
+      postgresql:
+        receivers: [postgresql_general]
+      gnuhealth_backup:
+        receivers: [gnuhealth_backup]
+metrics:
+  receivers:
+    hostmetrics:
+      type: hostmetrics
+      collection_interval: 60s
+  service:
+    pipelines:
+      default_pipeline:
+        receivers: [hostmetrics]
