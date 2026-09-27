@@ -19,7 +19,6 @@ import {
   Sparkles,
   X,
   Building2,
-  Lock,
   Landmark,
   ClipboardList,
   Bed,

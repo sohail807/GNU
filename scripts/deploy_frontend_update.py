@@ -17,6 +17,11 @@ def deploy():
         src_path = os.path.join(LOCAL_FRONTEND, "src")
         tar.add(src_path, arcname="src")
         print("   Added src/ directory tree.")
+        # Add next.config.ts
+        next_config_path = os.path.join(LOCAL_FRONTEND, "next.config.ts")
+        if os.path.exists(next_config_path):
+            tar.add(next_config_path, arcname="next.config.ts")
+            print("   Added next.config.ts.")
     
     tar_bytes = tar_stream.getvalue()
     print(f"   Archive size: {len(tar_bytes):,} bytes.")
@@ -33,7 +38,8 @@ def deploy():
         f"tar -xzf - -C {REMOTE_DIR}/src.staging && "
         f"[ -n \"$(ls -A {REMOTE_DIR}/src.staging/src 2>/dev/null)\" ] && "
         f"sudo rm -rf {REMOTE_DIR}/src && sudo mv {REMOTE_DIR}/src.staging/src {REMOTE_DIR}/src && "
-        f"sudo rm -rf {REMOTE_DIR}/src.staging && sudo chown -R MohammedSohail:MohammedSohail {REMOTE_DIR}/src"
+        f"([ ! -f {REMOTE_DIR}/src.staging/next.config.ts ] || sudo mv {REMOTE_DIR}/src.staging/next.config.ts {REMOTE_DIR}/next.config.ts) && "
+        f"sudo rm -rf {REMOTE_DIR}/src.staging && sudo chown -R MohammedSohail:MohammedSohail {REMOTE_DIR}/src {REMOTE_DIR}/next.config.ts"
     ]
     p_upload = subprocess.run(cmd_upload, input=tar_bytes, capture_output=True)
     if p_upload.returncode != 0:

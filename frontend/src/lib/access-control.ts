@@ -145,54 +145,54 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     admin: false,
   },
   nursing: {
-    frontdesk: true, // read-only arrival queue
+    frontdesk: false,
     patient_register: false,
     appointments: false,
     nursing: true,
     physician: false,
     inpatient: true, // ward vitals & admissions
-    surgery: true, // pre-op & recovery monitoring
-    pharmacy: true, // medication administration record
-    laboratory: true, // view lab worklist
-    radiology: true, // view radiology worklist
+    surgery: false,
+    pharmacy: false,
+    laboratory: false,
+    radiology: false,
     billing: false,
     ledger: false,
     patient_chart: true,
     immunizations: true,
-    obstetrics: true,
-    lifestyle: true,
-    ambulatory: true,
-    socioeconomics: true,
-    womens_health: true,
+    obstetrics: false,
+    lifestyle: false,
+    ambulatory: false,
+    socioeconomics: false,
+    womens_health: false,
     facilities: false,
     staff_directory: false,
-    family: true,
+    family: false,
     insurance: false,
     admin: false,
   },
   physician: {
-    frontdesk: true,
+    frontdesk: false,
     patient_register: false,
     appointments: true,
-    nursing: true, // review vitals
+    nursing: false,
     physician: true,
-    inpatient: true, // inpatient rounds & care plans
-    surgery: true, // operative scheduling
-    pharmacy: true, // e-prescriptions review
-    laboratory: true, // order labs
-    radiology: true, // order radiology
+    inpatient: true,
+    surgery: false,
+    pharmacy: false,
+    laboratory: true,
+    radiology: true,
     billing: false,
     ledger: false,
     patient_chart: true,
-    immunizations: true,
-    obstetrics: true,
-    lifestyle: true,
-    ambulatory: true,
-    socioeconomics: true,
-    womens_health: true,
+    immunizations: false,
+    obstetrics: false,
+    lifestyle: false,
+    ambulatory: false,
+    socioeconomics: false,
+    womens_health: false,
     facilities: false,
     staff_directory: false,
-    family: true,
+    family: false,
     insurance: false,
     admin: false,
   },
@@ -256,7 +256,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     physician: false,
     inpatient: false,
     surgery: false,
-    pharmacy: true, // invoice prescription copays
+    pharmacy: false,
     laboratory: false,
     radiology: false,
     billing: true,
