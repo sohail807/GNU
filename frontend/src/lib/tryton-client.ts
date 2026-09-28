@@ -175,6 +175,14 @@ export class TrytonClient {
         error.status = 409;
         throw error;
       }
+      // res.user raises this as a model-level UserError before it ever reaches the database's
+      // own unique constraint, so it never matches the IntegrityError patterns above -- it needs
+      // its own translation or callers see the raw JSON-RPC error array.
+      if (errStr.includes("two users with the same login")) {
+        const error = new Error("That username is already in use. Choose a different one.") as HttpStatusError;
+        error.status = 409;
+        throw error;
+      }
       throw new Error(`Tryton RPC error on ${model}.${method}: ${errStr}`);
     }
 
