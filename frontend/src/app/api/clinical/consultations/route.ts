@@ -10,6 +10,12 @@ const EVALUATION_FIELDS = [
   "systolic", "diastolic", "bpm", "temperature", "bmi",
 ];
 
+// Front desk can see that an evaluation exists and whether it's done (to know a patient is
+// ready to bill) but not the clinical content -- SOAP notes, diagnosis, vitals stay visible
+// only to clinical roles. This is enforced here, in the fields actually requested/returned,
+// rather than by widening what the "Health Front Desk" Tryton group can read.
+const EVALUATION_STATUS_FIELDS = ["id", "patient", "state", "evaluation_start"];
+
 function relationId(value: unknown): number | null {
   const id = Array.isArray(value) ? value[0] : value;
   return Number.isSafeInteger(id) ? Number(id) : null;
@@ -38,15 +44,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "A valid patient ID is required." }, { status: 400 });
   }
 
+  const statusOnly = session.role === "reception";
+
   try {
     const domain: unknown[] = patientId ? [["patient", "=", patientId]] : [];
     const consultations = await TrytonClient.execute<unknown[]>(
       session.username, session.userId, session.sessionToken,
       "gnuhealth.patient.evaluation", "search_read",
-      [domain, 0, 50, [["id", "DESC"]], EVALUATION_FIELDS],
+      [domain, 0, 50, [["id", "DESC"]], statusOnly ? EVALUATION_STATUS_FIELDS : EVALUATION_FIELDS],
       { company: session.companyId }, session.database
     );
-    return NextResponse.json({ success: true, consultations });
+    return NextResponse.json({ success: true, consultations, statusOnly });
   } catch (error) {
     const status = rpcStatus(error);
     return NextResponse.json({ error: status === 403 ? "You do not have permission to view these evaluations." : "Unable to load evaluations from health records system." }, { status });

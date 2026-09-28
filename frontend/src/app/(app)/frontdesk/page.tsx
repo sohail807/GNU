@@ -26,6 +26,7 @@ interface PatientQueueItem {
   doctor: string;
   appointmentTime: string;
   state: "draft" | "confirmed" | "checkin" | "in_consultation" | "done";
+  readyToBill: boolean;
 }
 
 export default function FrontDeskPage() {
@@ -55,6 +56,7 @@ export default function FrontDeskPage() {
             doctor: a.physicianName || "Attending Physician",
             appointmentTime: a.time,
             state: a.state,
+            readyToBill: Boolean(a.readyToBill),
           }))
         );
       } else if (data.error) {
@@ -339,7 +341,9 @@ export default function FrontDeskPage() {
                       </span>
                     </td>
                     <td className="py-3.5 px-5">
-                      {p.state === "checkin" ? (
+                      {p.readyToBill ? (
+                        <Badge variant="green">Ready to Bill</Badge>
+                      ) : p.state === "checkin" ? (
                         <Badge variant="green" dot>In Triage</Badge>
                       ) : p.state === "confirmed" ? (
                         <Badge variant="amber" dot>Arrived</Badge>
@@ -350,7 +354,13 @@ export default function FrontDeskPage() {
                       )}
                     </td>
                     <td className="py-3.5 px-5 text-right">
-                      {p.state === "confirmed" || p.state === "draft" ? (
+                      {p.readyToBill ? (
+                        <Link href="/billing">
+                          <Button variant="primary" size="xs" rightIcon={<ArrowUpRight className="w-3 h-3" />}>
+                            Bill
+                          </Button>
+                        </Link>
+                      ) : p.state === "confirmed" || p.state === "draft" ? (
                         <Button
                           variant="primary"
                           size="xs"

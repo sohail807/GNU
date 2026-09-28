@@ -110,6 +110,30 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // A patient is "ready to bill" once a physician has completed at least one evaluation --
+    // front desk needs this signal to know when to route them to the cashier, but (per the
+    // consultations route) never sees the clinical content behind it, just this derived flag.
+    let readyToBillPatientIds = new Set<number>();
+    if (patientIds.length > 0) {
+      try {
+        const doneEvaluations = await TrytonClient.execute<any[]>(
+          session.username,
+          session.userId,
+          session.sessionToken,
+          "gnuhealth.patient.evaluation",
+          "search_read",
+          [[["patient", "in", patientIds], ["state", "=", "done"]], 0, patientIds.length, null, ["patient"]],
+          { company: session.companyId },
+          session.database
+        );
+        readyToBillPatientIds = new Set(
+          doneEvaluations.map((e) => (typeof e.patient === "number" ? e.patient : e.patient?.[0])).filter(Boolean)
+        );
+      } catch {
+        // Fallback: nobody flagged ready to bill rather than failing the whole appointment list
+      }
+    }
+
     // Resolve health professional names
     const hpIds = rawAppts
       .map((a) => (typeof a.healthprof === "number" ? a.healthprof : a.healthprof?.[0]))
@@ -163,6 +187,7 @@ export async function GET(req: NextRequest) {
         time: timeStr,
         state: a.state || "",
         urgency: a.urgency || "",
+        readyToBill: readyToBillPatientIds.has(pid),
       };
     });
 

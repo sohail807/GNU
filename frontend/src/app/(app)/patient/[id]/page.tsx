@@ -49,6 +49,7 @@ export default function UnifiedPatientChartPage() {
 
   const [appointments, setAppointments] = useState<any[]>([]);
   const [evaluations, setEvaluations] = useState<any[]>([]);
+  const [evaluationsStatusOnly, setEvaluationsStatusOnly] = useState(false);
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [labOrders, setLabOrders] = useState<any[]>([]);
   const [radiologyOrders, setRadiologyOrders] = useState<any[]>([]);
@@ -112,6 +113,7 @@ export default function UnifiedPatientChartPage() {
           const evalData = await evalRes.value.json();
           if (evalData.success && Array.isArray(evalData.consultations)) {
             setEvaluations(evalData.consultations);
+            setEvaluationsStatusOnly(Boolean(evalData.statusOnly));
           }
         }
 
@@ -521,6 +523,18 @@ export default function UnifiedPatientChartPage() {
           {evaluations.length === 0 ? (
             <div className="p-8 text-center text-slate-500 text-xs bg-slate-50 rounded-xl">
               No clinical evaluations recorded yet for this patient.
+            </div>
+          ) : evaluationsStatusOnly ? (
+            <div className="space-y-3">
+              <div className="p-3 rounded-lg border border-slate-200 bg-slate-50 text-[11px] text-slate-500">
+                Clinical details (diagnosis, vitals, notes) are visible only to physician and nursing roles. This shows completion status only, so you know when a patient is ready to bill.
+              </div>
+              {evaluations.map((ev) => (
+                <div key={ev.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                  <span className="font-mono font-bold text-[#0F766E]">EVAL #{ev.id}</span>
+                  <Badge variant={ev.state === "done" ? "teal" : "blue"}>{ev.state === "done" ? "Complete" : "In Progress"}</Badge>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="space-y-3">

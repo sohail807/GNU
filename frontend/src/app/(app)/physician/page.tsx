@@ -105,6 +105,7 @@ export default function PhysicianConsultationPage() {
   const [routeOptions, setRouteOptions] = useState<CatalogOption[]>([]);
   const [doseUnitOptions, setDoseUnitOptions] = useState<CatalogOption[]>([]);
   const [acknowledgeWarnings, setAcknowledgeWarnings] = useState(false);
+  const [isOrderingWorkup, setIsOrderingWorkup] = useState<"lab" | "radiology" | null>(null);
 
   // Modal States
   const [isIcdModalOpen, setIsIcdModalOpen] = useState(false);
@@ -411,6 +412,51 @@ export default function PhysicianConsultationPage() {
       setErrorMessage(error instanceof Error ? error.message : "The draft could not be issued.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Diagnostic Workup Requisitions: these used to be plain navigation links to /laboratory
+  // and /radiology that created nothing and dropped the patient's consultation context --
+  // they now place the order directly from here, the same way prescriptions are issued.
+  const handleOrderLabTest = async () => {
+    if (!patient.id) return;
+    setIsOrderingWorkup("lab");
+    setFeedback(null);
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/clinical/laboratory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ patientId: patient.id, test: "CBC" }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "The lab order could not be created.");
+      setFeedback(`CBC lab order ${data.orderRef || data.labId} was requested for ${patient.name}.`);
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : "The lab order could not be created.");
+    } finally {
+      setIsOrderingWorkup(null);
+    }
+  };
+
+  const handleOrderImaging = async () => {
+    if (!patient.id) return;
+    setIsOrderingWorkup("radiology");
+    setFeedback(null);
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/clinical/radiology", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create", patientId: patient.id, studyName: "Chest X-Ray" }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "The imaging request could not be created.");
+      setFeedback(`Chest X-Ray request #${data.orderId} was scheduled for ${patient.name}.`);
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : "The imaging request could not be created.");
+    } finally {
+      setIsOrderingWorkup(null);
     }
   };
 
@@ -834,25 +880,35 @@ export default function PhysicianConsultationPage() {
             </h3>
 
             <div className="grid grid-cols-2 gap-3">
-              <Link href="/laboratory" className="block">
-                <div className="p-3.5 bg-slate-50 border border-slate-200/80 hover:border-[#0F766E] rounded-xl transition-all group">
-                  <div className="flex items-center gap-2">
-                    <Microscope className="w-4 h-4 text-[#0F766E]" />
-                    <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F766E]">CBC Lab Test</span>
-                  </div>
-                  <div className="text-[10px] text-slate-500 mt-1">Diagnostic Pathology</div>
+              <button
+                type="button"
+                onClick={handleOrderLabTest}
+                disabled={!patient.id || isOrderingWorkup !== null}
+                className="p-3.5 bg-slate-50 border border-slate-200/80 hover:border-[#0F766E] rounded-xl transition-all group text-left disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-center gap-2">
+                  <Microscope className="w-4 h-4 text-[#0F766E]" />
+                  <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F766E]">
+                    {isOrderingWorkup === "lab" ? "Ordering…" : "CBC Lab Test"}
+                  </span>
                 </div>
-              </Link>
+                <div className="text-[10px] text-slate-500 mt-1">Diagnostic Pathology</div>
+              </button>
 
-              <Link href="/radiology" className="block">
-                <div className="p-3.5 bg-slate-50 border border-slate-200/80 hover:border-[#0F766E] rounded-xl transition-all group">
-                  <div className="flex items-center gap-2">
-                    <Scan className="w-4 h-4 text-[#0F766E]" />
-                    <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F766E]">Chest X-Ray</span>
-                  </div>
-                  <div className="text-[10px] text-slate-500 mt-1">Digital PACS Suite</div>
+              <button
+                type="button"
+                onClick={handleOrderImaging}
+                disabled={!patient.id || isOrderingWorkup !== null}
+                className="p-3.5 bg-slate-50 border border-slate-200/80 hover:border-[#0F766E] rounded-xl transition-all group text-left disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <div className="flex items-center gap-2">
+                  <Scan className="w-4 h-4 text-[#0F766E]" />
+                  <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F766E]">
+                    {isOrderingWorkup === "radiology" ? "Ordering…" : "Chest X-Ray"}
+                  </span>
                 </div>
-              </Link>
+                <div className="text-[10px] text-slate-500 mt-1">Digital PACS Suite</div>
+              </button>
             </div>
           </div>
         </div>
