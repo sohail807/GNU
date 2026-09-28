@@ -177,7 +177,11 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     nursing: false,
     physician: true,
     inpatient: true,
-    surgery: false,
+    // CLAUDE.md documents the "Surgical Suite / OT" persona as demo_dr1 (physician role)
+    // landing at /surgery -- the page rendered but every API call 403'd because this was
+    // false, confirmed live (booking a surgical case failed silently with "Your role does
+    // not have permission for this module.").
+    surgery: true,
     pharmacy: true,
     laboratory: true,
     radiology: true,

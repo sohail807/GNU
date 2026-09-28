@@ -12,6 +12,37 @@ function formatTrytonDateTime(v: any): string | null {
   return `${datePart}T${String(v.hour).padStart(2, "0")}:${String(v.minute || 0).padStart(2, "0")}`;
 }
 
+// The booking form's field is labelled "Patient PUID or Record ID" and its placeholder
+// literally shows both forms ("e.g. 101 or 28264873791") -- but the handler only ever did
+// parseInt(patientId) and used it as the internal record id directly. A PUID is ~11 digits,
+// which parses fine in JS but overflows Postgres's 32-bit integer column for the foreign key,
+// so entering a PUID (the example the placeholder itself suggests) failed with a raw
+// "integer out of range" error. Resolve properly: try it as a record id first, then as a PUID.
+async function resolvePatientId(
+  session: { username: string; userId: number; sessionToken: string; companyId: number; database: string },
+  rawInput: string
+): Promise<number | null> {
+  const trimmed = String(rawInput).trim();
+  const asInt = Number(trimmed);
+  const context = { company: session.companyId };
+  if (Number.isSafeInteger(asInt) && asInt > 0 && asInt <= 2147483647) {
+    const byId = await TrytonClient.execute<Array<{ id: number }>>(
+      session.username, session.userId, session.sessionToken,
+      "gnuhealth.patient", "search_read",
+      [[["id", "=", asInt]], 0, 1, null, ["id"]],
+      context, session.database
+    );
+    if (byId[0]) return byId[0].id;
+  }
+  const byPuid = await TrytonClient.execute<Array<{ id: number }>>(
+    session.username, session.userId, session.sessionToken,
+    "gnuhealth.patient", "search_read",
+    [[["puid", "=", trimmed]], 0, 1, null, ["id"]],
+    context, session.database
+  );
+  return byPuid[0]?.id ?? null;
+}
+
 export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session) {
@@ -179,8 +210,16 @@ export async function POST(req: NextRequest) {
 
     const context = { company: session.companyId };
 
+    const resolvedPatientId = await resolvePatientId(session, patientId);
+    if (!resolvedPatientId) {
+      return NextResponse.json(
+        { error: "No patient found matching that PUID or record ID." },
+        { status: 404 }
+      );
+    }
+
     const surgeryData = {
-      patient: parseInt(patientId, 10),
+      patient: resolvedPatientId,
       description,
       operating_room: operatingRoomId ? parseInt(operatingRoomId, 10) : undefined,
       surgery_date: surgeryDate || new Date().toISOString().slice(0, 19).replace("T", " "),

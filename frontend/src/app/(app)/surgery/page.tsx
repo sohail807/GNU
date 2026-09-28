@@ -53,7 +53,7 @@ export default function SurgeryPage() {
   const [operatingRooms, setOperatingRooms] = useState<OperatingRoom[]>([]);
   const [surgeries, setSurgeries] = useState<Surgery[]>([]);
   const [stats, setStats] = useState<SurgeryStats>({
-    totalTheatres: 4,
+    totalTheatres: 0,
     scheduledToday: 0,
     inProgress: 0,
     completed: 0,
@@ -65,7 +65,7 @@ export default function SurgeryPage() {
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [patientId, setPatientId] = useState("");
   const [description, setDescription] = useState("");
-  const [operatingRoomId, setOperatingRoomId] = useState("1");
+  const [operatingRoomId, setOperatingRoomId] = useState("");
   const [surgeryDate, setSurgeryDate] = useState("");
   const [anesthesiaType, setAnesthesiaType] = useState("general");
   const [classification, setClassification] = useState("elective");
@@ -77,7 +77,9 @@ export default function SurgeryPage() {
       const res = await fetch("/api/clinical/surgery");
       if (res.ok) {
         const data = await res.json();
-        setOperatingRooms(data.operatingRooms || []);
+        const rooms: OperatingRoom[] = data.operatingRooms || [];
+        setOperatingRooms(rooms);
+        setOperatingRoomId((prev) => (prev ? prev : rooms[0] ? String(rooms[0].id) : ""));
         setSurgeries(data.surgeries || []);
         if (data.stats) setStats(data.stats);
       }
@@ -389,6 +391,9 @@ export default function SurgeryPage() {
                 onChange={(e) => setOperatingRoomId(e.target.value)}
                 className="w-full h-10 px-3 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#0F766E]"
               >
+                <option value="">
+                  {operatingRooms.length ? "Select a theatre" : "No theatres configured"}
+                </option>
                 {operatingRooms.map((or) => (
                   <option key={or.id} value={or.id}>
                     {or.name}
