@@ -35,6 +35,7 @@ import {
 
 export default function AdminPage() {
   const [users, setUsers] = useState<UserAccessProfile[]>([]);
+  const [hospitalName, setHospitalName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(false);
@@ -87,6 +88,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok && data.users) {
         setUsers(data.users);
+        setHospitalName(data.hospitalName || "");
       } else {
         setUsers([]);
         setErrorMsg(data.error || "Unable to load the live GNU Health user directory.");
@@ -364,7 +366,7 @@ export default function AdminPage() {
             </h3>
           </div>
           <span className="font-mono text-xs text-slate-500">
-            Doha Central Hospital (Facility #02)
+            {hospitalName || "This Facility"}
           </span>
         </div>
 

@@ -134,9 +134,25 @@ export async function GET() {
       };
     });
 
+    // Read this tenant's own company/facility name rather than assuming any fixed hospital --
+    // a newly onboarded tenant starts with its own placeholder company, not the original one.
+    let hospitalName = "";
+    try {
+      const companies = await TrytonClient.execute<any[]>(
+        session.username, session.userId, session.sessionToken,
+        "company.company", "read",
+        [[session.companyId], ["rec_name"]],
+        { company: session.companyId }, session.database
+      );
+      hospitalName = companies[0]?.rec_name || "";
+    } catch {
+      // Non-fatal: the directory still loads, just without a facility label.
+    }
+
     return NextResponse.json({
       success: true,
       users,
+      hospitalName,
       currentUser: {
         username: session.username,
         role: session.role,
