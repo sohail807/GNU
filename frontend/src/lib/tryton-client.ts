@@ -175,12 +175,25 @@ export class TrytonClient {
         error.status = 409;
         throw error;
       }
-      // res.user raises this as a model-level UserError before it ever reaches the database's
-      // own unique constraint, so it never matches the IntegrityError patterns above -- it needs
-      // its own translation or callers see the raw JSON-RPC error array.
-      if (errStr.includes("two users with the same login")) {
-        const error = new Error("That username is already in use. Choose a different one.") as HttpStatusError;
-        error.status = 409;
+      // Tryton's JSON-RPC shape for a business-rule rejection is
+      // [errorType, [humanMessage, description, domain]] -- e.g.
+      // ["UserError", ["You can not have two users with the same login!", "", null]].
+      // Extract just the human message instead of dumping the raw array to the client. This
+      // covers every UserError/UserWarning/ConcurrencyException the backend can raise -- not
+      // just the specific ones we've happened to hit and special-cased above -- so a new kind
+      // of validation rejection (an invoice in the wrong state, a required field, a blocked
+      // discharge, a name already in use, ...) reads as a normal message instead of leaking
+      // raw JSON-RPC text into the UI.
+      if (
+        Array.isArray(data.error) &&
+        typeof data.error[0] === "string" &&
+        ["UserError", "UserWarning", "ConcurrencyException"].includes(data.error[0]) &&
+        Array.isArray(data.error[1]) &&
+        typeof data.error[1][0] === "string" &&
+        data.error[1][0].trim()
+      ) {
+        const error = new Error(data.error[1][0]) as HttpStatusError;
+        error.status = 400;
         throw error;
       }
       throw new Error(`Tryton RPC error on ${model}.${method}: ${errStr}`);
