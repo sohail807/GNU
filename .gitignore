@@ -18,6 +18,14 @@ id_dsa*
 *token*
 *secret*
 *password*
+# The three broad patterns above are meant to catch credential-shaped files (dumped tokens,
+# secret configs), but they also match source files that merely mention the word in their
+# name -- frontend/src/lib/reset-tokens.ts is real, imported application code, not a secret,
+# and was silently never committed to git until this was caught. Un-ignore source code
+# explicitly rather than narrowing the patterns, so a new *.ts/*.tsx file is never silently
+# dropped the same way again.
+!frontend/src/**/*.ts
+!frontend/src/**/*.tsx
 *.credentials
 credentials.db
 access_tokens.db

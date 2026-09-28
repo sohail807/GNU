@@ -255,13 +255,13 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: unknown) {
     const rawMessage = err instanceof Error ? err.message : String(err);
-    if (
-      rawMessage.includes("PUID must be unique") ||
-      rawMessage.includes("gnuhealth_patient_name_uniq") ||
-      rawMessage.includes("unique") ||
-      rawMessage.includes("duplicate key") ||
-      rawMessage.includes("IntegrityError")
-    ) {
+    const status = (err as any)?.status || 500;
+    // TrytonClient.execute() already translates any unique-constraint violation (including a
+    // duplicate PUID or the gnuhealth_patient_name_uniq constraint) into a 409 before this catch
+    // ever sees it, so keying off that status is reliable -- matching on the raw constraint text
+    // here never fires, since what reaches this block is already TrytonClient's own translated
+    // message, not the original database error string.
+    if (status === 409) {
       return NextResponse.json(
         {
           error:
@@ -271,7 +271,6 @@ export async function POST(req: NextRequest) {
         { status: 409 }
       );
     }
-    const status = (err as any)?.status || 500;
     return NextResponse.json({ error: rawMessage }, { status });
   }
 }

@@ -118,19 +118,3 @@ export function resolveTenant(tenantIdentifier?: string | null): TenantConfig {
     defaultCompanyId: Number.isSafeInteger(companyId) && companyId > 0 ? companyId : 2,
   };
 }
-
-export function validateTenantAccess(sessionTenantId?: string | null, requestedTenantId?: string | null): boolean {
-  if (!requestedTenantId) return true;
-  const registry = getTenantRegistry();
-  if (!registry[requestedTenantId]) {
-    const error = new Error("The requested clinic is not recognized on this server.");
-    (error as Error & { status?: number }).status = 404;
-    throw error;
-  }
-  if (sessionTenantId && requestedTenantId !== sessionTenantId) {
-    const error = new Error("Access to the requested clinic is not permitted with your current session.");
-    (error as Error & { status?: number }).status = 403;
-    throw error;
-  }
-  return true;
-}

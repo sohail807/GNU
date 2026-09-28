@@ -11,12 +11,6 @@ export interface TrytonLoginResult {
   sessionToken: string;
 }
 
-export interface TrytonRPCError {
-  code: number | string;
-  message: string;
-  data?: unknown;
-}
-
 interface HttpStatusError extends Error { status?: number }
 
 export type TrytonWorkflowWizard = "gnuhealth.lab.test.create";
@@ -172,6 +166,16 @@ export class TrytonClient {
       }
       if (errStr.includes("unique") || errStr.includes("duplicate key") || errStr.includes("IntegrityError")) {
         const error = new Error(`Data Integrity Error: Duplicate record or constraint violation on ${model}.`) as HttpStatusError;
+        error.status = 409;
+        throw error;
+      }
+      // Tryton's model layer normally rejects a delete that would orphan a reference with its
+      // own UserError before the database is even touched (verified live: deleting a
+      // base-config-protected or cross-referenced record both come back as a clean UserError,
+      // not a raw DB error). This is a safety net for the rare case a raw Postgres foreign-key
+      // violation slips through uncaught instead.
+      if (errStr.includes("violates foreign key constraint") || errStr.includes("ForeignKeyError") || errStr.includes("is still referenced")) {
+        const error = new Error(`This ${model} record is still referenced elsewhere and can't be deleted.`) as HttpStatusError;
         error.status = 409;
         throw error;
       }
