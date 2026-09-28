@@ -82,6 +82,17 @@ python scripts/verify_live_frontend_full.py
 python scripts/test_vm_login.py
 ```
 
+### VM Health Preflight Check
+Runs entirely on the production VM (systemd, PostgreSQL, socket, and data-census checks) — copy it up and
+run it over SSH, don't run it locally:
+```bash
+ssh -i "C:\Users\MohammedSohail\.ssh\gnuhealth_deploy" debian@34.7.237.8 "bash -s" < scripts/preflight_check.sh
+```
+Reports: systemd status for postgresql/gnuhealth/nginx/gnuhealth-backup.timer, listening sockets on
+22/80/443/8000/5432, PostgreSQL `listen_addresses` and active `pg_hba.conf` rules, and a row-count census
+across every core clinical/financial table (patients, invoices, moves, users, etc.) — useful as a single
+before/after snapshot around a deploy, backup restore, or infra change.
+
 ---
 
 ## 5. Environment Variables Structure
