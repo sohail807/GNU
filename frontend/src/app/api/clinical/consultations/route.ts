@@ -140,11 +140,16 @@ export async function POST(req: NextRequest) {
         { company: session.companyId }, session.database
       );
     } else {
+      // GNU Health stores/compares naive datetimes as UTC - use UTC getters,
+      // not local ones, or a Next.js process running in a non-UTC timezone
+      // (e.g. GST, UTC+4) writes an evaluation_start hours in Tryton's own
+      // future, which then rejects completing it (SM-CORE-0008: end time
+      // before start). See the identical fix in triage/route.ts.
       const now = new Date();
       const dateTime = {
-        __class__: "datetime", year: now.getFullYear(), month: now.getMonth() + 1,
-        day: now.getDate(), hour: now.getHours(), minute: now.getMinutes(),
-        second: now.getSeconds(), microsecond: 0,
+        __class__: "datetime", year: now.getUTCFullYear(), month: now.getUTCMonth() + 1,
+        day: now.getUTCDate(), hour: now.getUTCHours(), minute: now.getUTCMinutes(),
+        second: now.getUTCSeconds(), microsecond: 0,
       };
       const created = await TrytonClient.execute<number[]>(
         session.username, session.userId, session.sessionToken,

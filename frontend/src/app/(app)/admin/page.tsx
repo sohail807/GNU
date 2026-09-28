@@ -68,6 +68,7 @@ export default function AdminPage() {
     name: "",
     role: "reception" as HospitalRole,
     email: "",
+    gender: "",
   });
 
   // Audit Logs
@@ -160,6 +161,15 @@ export default function AdminPage() {
   // Add New User Submit
   const handleAddUserSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // GNU Health's party.party model requires Gender for any clinician
+    // profile (confirmed live: omitting it fails create with "A value is
+    // required for field Gender") - only physician/nursing roles get a
+    // linked party.party + gnuhealth.healthprofessional record, so only
+    // they need it collected up front.
+    if ((newUserData.role === "physician" || newUserData.role === "nursing") && !newUserData.gender) {
+      setErrorMsg("Gender is required to provision a physician or nursing account (GNU Health requires it on the linked clinician profile).");
+      return;
+    }
     setIsLoading(true);
 
     try {
@@ -183,6 +193,7 @@ export default function AdminPage() {
           name: "",
           role: "reception",
           email: "",
+          gender: "",
         });
       } else {
         setErrorMsg(data.error || "Failed to provision user.");
@@ -676,6 +687,20 @@ export default function AdminPage() {
             onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
             required
           />
+
+          {(newUserData.role === "physician" || newUserData.role === "nursing") && (
+            <Select
+              label="Gender"
+              value={newUserData.gender}
+              onChange={(e) => setNewUserData({ ...newUserData, gender: e.target.value })}
+              options={[
+                { value: "", label: "Select gender..." },
+                { value: "m", label: "Male" },
+                { value: "f", label: "Female" },
+              ]}
+              required
+            />
+          )}
 
           <Input
             label="Email Address (optional)"

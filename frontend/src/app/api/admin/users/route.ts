@@ -271,7 +271,7 @@ export async function POST(req: NextRequest) {
 
     // Action 2: Add New Staff User
     if (action === "add_user") {
-      const { username, name, role, email } = body;
+      const { username, name, role, email, gender } = body;
       if (!username || !name || !role) {
         return NextResponse.json(
           { error: "Username, Full Name, and Clinical Role are required." },
@@ -283,6 +283,17 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "The selected backend system role is not supported." }, { status: 400 });
       }
       const targetRole = role as HospitalRole;
+
+      // GNU Health's party.party requires Gender on any person record, and
+      // physician/nursing accounts get one linked below - reject up front
+      // with a clear message instead of creating a disabled orphaned
+      // account (confirmed live: that's exactly what happens otherwise).
+      if ((targetRole === "physician" || targetRole === "nursing") && gender !== "m" && gender !== "f") {
+        return NextResponse.json(
+          { error: "Gender ('m' or 'f') is required to provision a physician or nursing account." },
+          { status: 400 }
+        );
+      }
       const { idsByRole } = await readRoleGroupIds(session, targetRole);
       const groups = idsByRole[targetRole];
       const temporaryPassword = randomBytes(24).toString("base64url");
@@ -315,13 +326,40 @@ export async function POST(req: NextRequest) {
       // Link clinicians to the account so appointment/clinical routes can resolve them.
       if (targetRole === "physician" || targetRole === "nursing") {
         try {
+          // party.party's own create() override unconditionally reads
+          // values['fed_country'] (health.py, building the federation
+          // account ID) - Tryton only auto-fills a field's default when a
+          // client goes through default_get() first (as the desktop client
+          // and wizards do), not on a raw model.party.party.create RPC call
+          // like this one. Confirmed live: omitting it throws a bare
+          // KeyError ("'fed_country'") instead of a readable UserError.
+          // Resolve the tenant's configured federation country code the
+          // same way default_fed_country() does, falling back to GNU
+          // Health's own documented "unidentified nationality" code.
+          let fedCountry = "XXX";
+          try {
+            const fedConfig = await TrytonClient.execute<Array<{ code?: string }>>(
+              session.username, session.userId, session.sessionToken,
+              "gnuhealth.federation.country.config", "read", [[1], ["code"]],
+              { company: session.companyId }, session.database
+            );
+            if (fedConfig[0]?.code) fedCountry = fedConfig[0].code;
+          } catch {
+            // Fall back to "XXX" - never block staff provisioning on this.
+          }
+
           const partyRes = await TrytonClient.execute<number[]>(
             session.username,
             session.userId,
             session.sessionToken,
             "party.party",
             "create",
-            [[{ name: name.trim(), is_person: true, internal_user: newUserId }]],
+            // gnuhealth.healthprofessional.party is domain-restricted to
+            // [('is_healthprof', '=', True), ('is_person', '=', True)]
+            // (health.py) - confirmed live: without is_healthprof set here,
+            // the healthprofessional create below fails with "the value ...
+            // is not valid according to its domain".
+            [[{ name: name.trim(), is_person: true, is_healthprof: true, internal_user: newUserId, fed_country: fedCountry, gender }]],
             { company: session.companyId },
             session.database
           );

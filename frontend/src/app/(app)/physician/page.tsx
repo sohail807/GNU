@@ -284,6 +284,15 @@ export default function PhysicianConsultationPage() {
   // Load the patient's most recent nursing triage vitals, if any. Never
   // fabricated - a patient with no triage evaluation on file shows blank
   // vitals, not made-up numbers.
+  //
+  // This also resumes the same GNU Health evaluation record nursing already
+  // opened for this encounter (when it's still "in_progress"), rather than
+  // always starting a fresh one on save. Without this, saving SOAP notes
+  // forked a second, orphaned evaluation with no vitals on it, while the
+  // nurse's original evaluation was left with vitals but no diagnosis/notes -
+  // confirmed live: two separate "in_progress" evaluations for one visit
+  // instead of the single combined record this same model already produces
+  // when a physician's own evaluation carries both vitals and SOAP content.
   const loadLatestVitals = async (patientId: number) => {
     try {
       const res = await fetch(`/api/clinical/triage?patientId=${patientId}`);
@@ -300,9 +309,13 @@ export default function PhysicianConsultationPage() {
             bmi: latest.bmi != null ? String(latest.bmi) : "",
           },
         }));
+        setEvaluationId(latest.state === "in_progress" ? latest.id : 0);
+      } else {
+        setEvaluationId(0);
       }
     } catch {
       // Leave vitals blank rather than show stale/wrong data
+      setEvaluationId(0);
     }
   };
 

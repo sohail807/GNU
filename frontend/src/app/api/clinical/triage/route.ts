@@ -124,15 +124,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Patient ID is required." }, { status: 400 });
     }
 
+    // GNU Health stores/compares naive datetimes as UTC (confirmed live: a
+    // record written with this server's *local* time components - e.g. GST,
+    // UTC+4 - landed hours in Tryton's future relative to its own clock,
+    // which then rejected completing the evaluation with "End time ...
+    // BEFORE evaluation start ..."). Use UTC getters so this is correct
+    // regardless of which timezone the Next.js process happens to run in.
     const now = new Date();
     const dtObj = {
       __class__: "datetime",
-      year: now.getFullYear(),
-      month: now.getMonth() + 1,
-      day: now.getDate(),
-      hour: now.getHours(),
-      minute: now.getMinutes(),
-      second: now.getSeconds(),
+      year: now.getUTCFullYear(),
+      month: now.getUTCMonth() + 1,
+      day: now.getUTCDate(),
+      hour: now.getUTCHours(),
+      minute: now.getUTCMinutes(),
+      second: now.getUTCSeconds(),
       microsecond: 0,
     };
 
