@@ -169,20 +169,43 @@ export async function POST(req: NextRequest) {
     if (bmi) evalPayload.bmi = parseFloat(bmi);
     if (chiefComplaint) evalPayload.chief_complaint = chiefComplaint;
 
-    const res = await TrytonClient.execute<number[]>(
-      session.username,
-      session.userId,
-      session.sessionToken,
-      "gnuhealth.patient.evaluation",
-      "create",
-      [[evalPayload]],
-      { company: session.companyId },
-      session.database
+    // Re-measuring vitals or correcting a typo and saving again used to always
+    // create a brand-new evaluation - confirmed live: submitting triage twice
+    // for the same patient left two separate "in_progress" evaluations, one
+    // of them silently orphaned (whichever wasn't the highest id). Resume the
+    // patient's existing in_progress evaluation instead, the same fix already
+    // applied on the physician side for the identical bug class.
+    let evaluationId: number;
+    const existing = await TrytonClient.execute<Array<{ id: number }>>(
+      session.username, session.userId, session.sessionToken,
+      "gnuhealth.patient.evaluation", "search_read",
+      [[["patient", "=", parseInt(patientId, 10)], ["state", "=", "in_progress"]], 0, 1, [["id", "DESC"]], ["id"]],
+      { company: session.companyId }, session.database
     );
+
+    if (existing[0]) {
+      evaluationId = existing[0].id;
+      delete evalPayload.patient;
+      delete evalPayload.evaluation_start;
+      await TrytonClient.execute(
+        session.username, session.userId, session.sessionToken,
+        "gnuhealth.patient.evaluation", "write",
+        [[evaluationId], evalPayload],
+        { company: session.companyId }, session.database
+      );
+    } else {
+      const res = await TrytonClient.execute<number[]>(
+        session.username, session.userId, session.sessionToken,
+        "gnuhealth.patient.evaluation", "create",
+        [[evalPayload]],
+        { company: session.companyId }, session.database
+      );
+      evaluationId = res[0];
+    }
 
     return NextResponse.json({
       success: true,
-      evaluationId: res[0],
+      evaluationId,
       message: "Triage telemetry and vitals committed to Patient Medical Record.",
     });
   } catch (err: unknown) {

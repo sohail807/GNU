@@ -167,7 +167,50 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({ success: true, invoices, services });
+    // Resolve this tenant's own facility name/address for receipt printouts,
+    // rather than a hardcoded hospital name - a newly onboarded tenant has
+    // its own company, not the original demo one (same pattern already
+    // fixed for the admin staff directory header).
+    let hospitalName = "";
+    let hospitalAddress: string | null = null;
+    try {
+      const companies = await TrytonClient.execute<any[]>(
+        session.username, session.userId, session.sessionToken,
+        "company.company", "read", [[session.companyId], ["rec_name", "party"]],
+        { company: session.companyId }, session.database
+      );
+      hospitalName = companies[0]?.rec_name || "";
+      const partyId = typeof companies[0]?.party === "number" ? companies[0].party : companies[0]?.party?.[0];
+      if (partyId) {
+        const parties = await TrytonClient.execute<any[]>(
+          session.username, session.userId, session.sessionToken,
+          "party.party", "read", [[partyId], ["addresses"]],
+          { company: session.companyId }, session.database
+        );
+        const addressId = parties[0]?.addresses?.[0];
+        if (addressId) {
+          const addresses = await TrytonClient.execute<any[]>(
+            session.username, session.userId, session.sessionToken,
+            "party.address", "read", [[addressId], ["street", "city"]],
+            { company: session.companyId }, session.database
+          );
+          const street = addresses[0]?.street;
+          const city = addresses[0]?.city;
+          // Tenant onboarding seeds this address with literal placeholder
+          // tokens (e.g. "<STREET>, Zone <ZONE>...") until someone actually
+          // configures it - never print that on a receipt as if it were a
+          // real address.
+          const isPlaceholder = (v: unknown) => typeof v !== "string" || !v.trim() || v.includes("<");
+          if (!isPlaceholder(street) && !isPlaceholder(city)) {
+            hospitalAddress = `${street}, ${city}`;
+          }
+        }
+      }
+    } catch {
+      // Non-fatal: the receipt still prints, just without a facility line.
+    }
+
+    return NextResponse.json({ success: true, invoices, services, hospitalName, hospitalAddress });
   } catch (err: unknown) {
     const status = (err as any)?.status || 500;
     const message = err instanceof Error ? err.message : "Failed to load invoices";
@@ -223,6 +266,55 @@ export async function POST(req: NextRequest) {
           { error: "A valid patient or billing party is required to generate a clinical invoice." },
           { status: 400 }
         );
+      }
+
+      const requestedLines: Array<{ desc?: string; amount?: unknown; productId?: string | number | null }> =
+        lines && Array.isArray(lines) && lines.length > 0
+          ? lines
+          : [{ desc: body.service, amount: body.amount, productId: body.productId }];
+      const requestedDescs = requestedLines.map((li) => (li.desc || body.service || "Clinical Consultation").trim());
+
+      // A double-click (or a slow network prompting a retry) on "Create
+      // Invoice" used to silently generate two identical invoices for the
+      // same patient and the same service - nothing checked for one already
+      // pending. Block it: same party, same unpaid/undecided invoice, a line
+      // with the exact same description, dated today.
+      try {
+        const todayStart = { __class__: "date", year: new Date().getUTCFullYear(), month: new Date().getUTCMonth() + 1, day: new Date().getUTCDate() };
+        const existingInvoices = await TrytonClient.execute<Array<{ id: number; number: string | null; lines: number[] }>>(
+          session.username, session.userId, session.sessionToken,
+          "account.invoice", "search_read",
+          [[
+            ["party", "=", targetPartyId],
+            ["type", "=", "out"],
+            ["state", "in", ["draft", "posted"]],
+            ["invoice_date", "=", todayStart],
+          ], 0, 20, null, ["id", "number", "lines"]],
+          { company: session.companyId }, session.database
+        );
+        if (existingInvoices.length > 0) {
+          const lineIds = existingInvoices.flatMap((inv) => inv.lines || []);
+          if (lineIds.length > 0) {
+            const existingLines = await TrytonClient.execute<Array<{ invoice: unknown; description: string }>>(
+              session.username, session.userId, session.sessionToken,
+              "account.invoice.line", "read", [lineIds, ["invoice", "description"]],
+              { company: session.companyId }, session.database
+            );
+            const dupInvoiceId = existingLines.find((l) =>
+              requestedDescs.includes((l.description || "").trim())
+            )?.invoice;
+            const dupId = typeof dupInvoiceId === "number" ? dupInvoiceId : Array.isArray(dupInvoiceId) ? dupInvoiceId[0] : null;
+            if (dupId) {
+              const dup = existingInvoices.find((inv) => inv.id === dupId);
+              return NextResponse.json(
+                { error: `An invoice for this patient with the same service already exists today (${dup?.number || `#${dup?.id}`}). Use that invoice instead of creating a duplicate.` },
+                { status: 409 }
+              );
+            }
+          }
+        }
+      } catch {
+        // Non-fatal: if the duplicate check itself fails, don't block legitimate billing on it.
       }
 
       // Resolve or create invoice address for the party
@@ -285,12 +377,8 @@ export async function POST(req: NextRequest) {
       // catalog's own list_price for the resolved product, and only fall back to a
       // client-supplied amount (validated as a finite positive number) when the
       // catalog product has no price configured.
-      const lineItems = lines && Array.isArray(lines) && lines.length > 0
-        ? lines
-        : [{ desc: body.service, amount: body.amount, productId: body.productId }];
-
       const linePayloads = [];
-      for (const li of lineItems) {
+      for (const li of requestedLines) {
         const prodInfo = await ClinicalLookupService.resolveProductAndUom(session, li.desc || body.service, li.productId);
         if (!prodInfo) {
           return NextResponse.json(

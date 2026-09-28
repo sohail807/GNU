@@ -62,6 +62,8 @@ export default function CashierBillingPage() {
 
   // Invoices State (TC-UAT-07)
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [hospitalName, setHospitalName] = useState("");
+  const [hospitalAddress, setHospitalAddress] = useState<string | null>(null);
   const [patientsList, setPatientsList] = useState<any[]>([]);
   const [activeInvoice, setActiveInvoice] = useState<Invoice | null>(null);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
@@ -127,6 +129,11 @@ export default function CashierBillingPage() {
       if (Array.isArray(invData.services)) {
         setServiceCatalog(invData.services);
       }
+
+      if (typeof invData.hospitalName === "string") {
+        setHospitalName(invData.hospitalName);
+      }
+      setHospitalAddress(typeof invData.hospitalAddress === "string" ? invData.hospitalAddress : null);
 
       if (ledgData.success && Array.isArray(ledgData.moves)) {
         setAccountMoves(ledgData.moves);
@@ -410,6 +417,8 @@ export default function CashierBillingPage() {
                   variant="outline"
                   size="sm"
                   onClick={handlePostInvoice}
+                  isLoading={isProcessing}
+                  disabled={isProcessing}
                   leftIcon={<FileCheck className="w-4 h-4 text-blue-600" />}
                   className="font-bold border-blue-300 bg-blue-50 text-blue-900"
                 >
@@ -845,7 +854,13 @@ export default function CashierBillingPage() {
             <Button type="button" variant="outline" onClick={() => setIsNewInvoiceModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" className="bg-[#0F766E] font-bold" disabled={!newInvPatientId || !selectedService}>
+            <Button
+              type="submit"
+              variant="primary"
+              className="bg-[#0F766E] font-bold"
+              isLoading={isProcessing}
+              disabled={isProcessing || !newInvPatientId || !selectedService}
+            >
               Save Invoice {selectedService ? `(QAR ${selectedService.price.toFixed(2)})` : ""}
             </Button>
           </div>
@@ -863,8 +878,8 @@ export default function CashierBillingPage() {
         {lastReceipt && (
         <div className="space-y-4 p-2 font-mono text-xs">
           <div className="text-center pb-3 border-b border-dashed border-slate-300 space-y-1">
-            <div className="font-bold text-sm text-slate-900 font-sans">IST HEALTH ENTERPRISE CLINIC</div>
-            <div className="text-slate-500 text-[10px]">West Bay, Doha, State of Qatar</div>
+            <div className="font-bold text-sm text-slate-900 font-sans">{hospitalName || "This Facility"}</div>
+            {hospitalAddress && <div className="text-slate-500 text-[10px]">{hospitalAddress}</div>}
             <div className="text-emerald-700 font-bold text-[11px]">OFFICIAL CASH COLLECTION RECEIPT</div>
           </div>
 
