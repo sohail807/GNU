@@ -9,9 +9,10 @@ import { SessionData } from "@/lib/auth-session";
 interface AppShellProps {
   user: SessionData;
   children: React.ReactNode;
+  isSuperAdmin?: boolean;
 }
 
-export const AppShell: React.FC<AppShellProps> = ({ user, children }) => {
+export const AppShell: React.FC<AppShellProps> = ({ user, children, isSuperAdmin = false }) => {
   const isTestInstance = process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "test";
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -47,6 +48,7 @@ export const AppShell: React.FC<AppShellProps> = ({ user, children }) => {
       {/* Collapsible Persistent Sidebar */}
       <AppSidebar
         user={user}
+        isSuperAdmin={isSuperAdmin}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         isMobileOpen={isMobileOpen}

@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { resolveTenantFromHost } from "@/lib/tenant";
 
+// The tenant registry lib/tenant.ts reads from now lives in a runtime-writable file (fs),
+// which isn't available in the default Edge middleware runtime -- this opts into the
+// Node.js runtime so that read works.
+export const runtime = "nodejs";
+
 // Resolves the tenant from the request's Host header (e.g. central.isthealth.com) once
 // APP_BASE_DOMAIN is configured, so each hospital's staff reach their own subdomain with no
 // manual tenant picker. Falls back to unset (manual selection on /login) when the host isn't

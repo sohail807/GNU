@@ -42,6 +42,7 @@ interface AppSidebarProps {
   isMobileOpen: boolean;
   onCloseMobile: () => void;
   onOpenOnboarding: () => void;
+  isSuperAdmin?: boolean;
 }
 
 interface NavItem {
@@ -59,6 +60,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   isMobileOpen,
   onCloseMobile,
   onOpenOnboarding,
+  isSuperAdmin = false,
 }) => {
   const pathname = usePathname();
 
@@ -107,6 +109,19 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         { label: "Staff Directory", href: "/staff", icon: Stethoscope, moduleKey: "staff_directory", badge: "Roster" },
       ],
     },
+    // Sits above any single hospital's RBAC -- shown only for the allow-listed platform-operator
+    // identity (see lib/platform.ts), never derived from the "admin" role bypass every other
+    // section here gets, since a hospital's own local admin must never see or reach this.
+    ...(isSuperAdmin
+      ? [
+          {
+            title: "PLATFORM",
+            items: [
+              { label: "Onboard Hospital", href: "/platform", icon: Building2, moduleKey: "admin" as AppModule, badge: "New" },
+            ],
+          },
+        ]
+      : []),
   ];
 
   const sidebarContent = (

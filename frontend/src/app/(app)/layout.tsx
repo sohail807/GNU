@@ -2,6 +2,7 @@ import React from "react";
 import { getSession } from "@/lib/auth-session";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app/AppShell";
+import { isSuperAdmin } from "@/lib/platform";
 
 export default async function AppLayout({
   children,
@@ -15,5 +16,12 @@ export default async function AppLayout({
     redirect("/login");
   }
 
-  return <AppShell user={session}>{children}</AppShell>;
+  // Computed server-side (it reads SUPER_ADMIN_USERNAMES, a non-public env var) and passed down
+  // as a plain boolean -- the client sidebar never sees the allow-list itself, just whether this
+  // particular session is on it.
+  return (
+    <AppShell user={session} isSuperAdmin={isSuperAdmin(session)}>
+      {children}
+    </AppShell>
+  );
 }

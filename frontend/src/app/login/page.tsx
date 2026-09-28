@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Building2,
@@ -26,7 +26,12 @@ import {
   ChevronDown,
   CheckCircle2,
 } from "lucide-react";
-import { TENANT_REGISTRY } from "@/lib/tenant";
+interface PublicTenant {
+  id: string;
+  name: string;
+  currency: string;
+  country: string;
+}
 
 // Verified demo stations for rapid hospital workflow validation.
 // Never populated in a production deployment: these are real, documented credentials against
@@ -58,6 +63,20 @@ export default function LoginPage() {
   // routing is live), it's locked in via this cookie and the manual picker below is hidden.
   const [hostResolvedTenantId] = useState(() => readCookie("resolved_tenant_id"));
   const [tenantId, setTenantId] = useState(() => readCookie("resolved_tenant_id") || "qatar-outpatient");
+  // The registry itself now lives server-side in a runtime-writable file (so new tenants can be
+  // onboarded without a rebuild) -- this pre-auth page can't read that file directly, so it
+  // fetches the public, name-only subset instead of importing it.
+  const [tenants, setTenants] = useState<PublicTenant[]>([]);
+  useEffect(() => {
+    fetch("/api/tenants")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data.tenants)) setTenants(data.tenants);
+      })
+      .catch(() => {
+        // Leave the picker empty rather than show stale/fabricated facility names.
+      });
+  }, []);
   const [username, setUsername] = useState(process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "production" ? "" : "demo_frontdesk1");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -132,7 +151,7 @@ export default function LoginPage() {
     }
   };
 
-  const currentTenant = Object.values(TENANT_REGISTRY).find((t) => t.id === tenantId) || Object.values(TENANT_REGISTRY)[0];
+  const currentTenant = tenants.find((t) => t.id === tenantId) || tenants[0];
 
   return (
     <div className="min-h-screen w-full bg-slate-950 flex flex-col justify-between text-slate-100 font-sans selection:bg-teal-500 selection:text-white relative">
@@ -250,8 +269,8 @@ export default function LoginPage() {
                 <Globe className="w-3.5 h-3.5 xl:w-4 xl:h-4" />
               </div>
               <div className="min-w-0">
-                <div className="text-xs font-semibold text-white truncate">{currentTenant.name}</div>
-                <div className="text-[10px] text-slate-400 truncate">{currentTenant.country} · Currency: {currentTenant.currency}</div>
+                <div className="text-xs font-semibold text-white truncate">{currentTenant?.name ?? "Loading facility…"}</div>
+                <div className="text-[10px] text-slate-400 truncate">{currentTenant ? `${currentTenant.country} · Currency: ${currentTenant.currency}` : ""}</div>
               </div>
             </div>
             <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30 uppercase shrink-0">
@@ -290,7 +309,7 @@ export default function LoginPage() {
               {hostResolvedTenantId ? (
                 <div className="flex items-center gap-2 px-3 h-10 rounded-xl bg-slate-950/70 border border-slate-800 text-xs sm:text-sm text-slate-200">
                   <Building2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                  <span className="truncate">{TENANT_REGISTRY[hostResolvedTenantId]?.name ?? "Your Facility"}</span>
+                  <span className="truncate">{tenants.find((t) => t.id === hostResolvedTenantId)?.name ?? "Your Facility"}</span>
                 </div>
               ) : (
                 <div>
@@ -305,7 +324,7 @@ export default function LoginPage() {
                       onChange={(e) => setTenantId(e.target.value)}
                       className="w-full h-10 px-3 pl-9 pr-8 text-xs sm:text-sm bg-slate-950 border border-slate-700/80 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white transition-all appearance-none cursor-pointer truncate"
                     >
-                      {Object.values(TENANT_REGISTRY).map((t) => (
+                      {tenants.map((t) => (
                         <option key={t.id} value={t.id} className="bg-slate-900 text-white">
                           {t.name}
                         </option>

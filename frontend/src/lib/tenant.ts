@@ -1,3 +1,6 @@
+import fs from "fs";
+import path from "path";
+
 export interface TenantConfig {
   id: string;
   name: string;
@@ -11,11 +14,14 @@ export interface TenantConfig {
   status: "active" | "suspended" | "provisioning";
 }
 
-// Provision a new tenant with scripts/provision_tenant_database.py, then add its entry here
-// (and give it a unique `subdomain`) to bring it onto subdomain-based routing.
-export const TENANT_REGISTRY: Record<string, TenantConfig> = {
-  "qatar-outpatient": {
-    id: "qatar-outpatient",
+export const DEFAULT_TENANT_ID = "qatar-outpatient";
+
+// Seed used only the very first time the app runs and no registry file exists yet on disk.
+// After that, the file at REGISTRY_PATH is authoritative -- edit tenants through the
+// platform onboarding screen (super-admin only), not by changing this constant.
+const SEED_REGISTRY: Record<string, TenantConfig> = {
+  [DEFAULT_TENANT_ID]: {
+    id: DEFAULT_TENANT_ID,
     name: "IST Central Hospital (Qatar)",
     slug: "qatar-central",
     subdomain: "central",
@@ -27,14 +33,50 @@ export const TENANT_REGISTRY: Record<string, TenantConfig> = {
   },
 };
 
-export const DEFAULT_TENANT_ID = "qatar-outpatient";
+// Deliberately outside src/ (which is deployed read-only in production) so the platform
+// onboarding flow can write new tenants at runtime without needing a rebuild or redeploy.
+// Resolved relative to the process's working directory, which for both the production and
+// staging PM2 processes is the app root (/var/www/ist-health-frontend[-staging]).
+const REGISTRY_PATH = path.join(process.cwd(), "data", "tenants-registry.json");
+
+function readRegistryFile(): Record<string, TenantConfig> {
+  try {
+    const raw = fs.readFileSync(REGISTRY_PATH, "utf-8");
+    return JSON.parse(raw);
+  } catch {
+    try {
+      fs.mkdirSync(path.dirname(REGISTRY_PATH), { recursive: true });
+      fs.writeFileSync(REGISTRY_PATH, JSON.stringify(SEED_REGISTRY, null, 2));
+    } catch {
+      // Best effort: if the directory isn't writable, fall through and just serve the seed
+      // from memory for this request rather than failing the whole app.
+    }
+    return SEED_REGISTRY;
+  }
+}
+
+let cache: { data: Record<string, TenantConfig>; loadedAt: number } | null = null;
+// Short TTL: a newly-onboarded tenant should become reachable within a few seconds across
+// all PM2/worker processes without requiring a restart, but every request re-reading the
+// file from disk would be wasteful for a value that changes maybe a few times a year.
+const CACHE_TTL_MS = 5000;
+
+export function getTenantRegistry(): Record<string, TenantConfig> {
+  const now = Date.now();
+  if (cache && now - cache.loadedAt < CACHE_TTL_MS) return cache.data;
+  const data = readRegistryFile();
+  cache = { data, loadedAt: now };
+  return data;
+}
+
+export function saveTenantRegistry(data: Record<string, TenantConfig>): void {
+  fs.mkdirSync(path.dirname(REGISTRY_PATH), { recursive: true });
+  fs.writeFileSync(REGISTRY_PATH, JSON.stringify(data, null, 2));
+  cache = { data, loadedAt: Date.now() };
+}
 
 /** Base domain subdomain-per-tenant routing is anchored to, e.g. "isthealth.com". Unset until the domain is live. */
 export const APP_BASE_DOMAIN = process.env.APP_BASE_DOMAIN || "";
-
-const SUBDOMAIN_TO_TENANT_ID: Record<string, string> = Object.fromEntries(
-  Object.values(TENANT_REGISTRY).map((t) => [t.subdomain, t.id])
-);
 
 /**
  * Resolves a tenant from the request Host header once APP_BASE_DOMAIN is configured, e.g.
@@ -48,16 +90,18 @@ export function resolveTenantFromHost(host?: string | null): TenantConfig | null
   const suffix = `.${APP_BASE_DOMAIN.toLowerCase()}`;
   if (!hostname.endsWith(suffix)) return null;
   const subdomain = hostname.slice(0, -suffix.length);
-  const tenantId = SUBDOMAIN_TO_TENANT_ID[subdomain];
-  return tenantId ? TENANT_REGISTRY[tenantId] : null;
+  const registry = getTenantRegistry();
+  const match = Object.values(registry).find((t) => t.subdomain === subdomain);
+  return match || null;
 }
 
 export function resolveTenant(tenantIdentifier?: string | null): TenantConfig {
-  const selectedId = tenantIdentifier && TENANT_REGISTRY[tenantIdentifier]
+  const registry = getTenantRegistry();
+  const selectedId = tenantIdentifier && registry[tenantIdentifier]
     ? tenantIdentifier
     : DEFAULT_TENANT_ID;
 
-  const baseConfig = TENANT_REGISTRY[selectedId];
+  const baseConfig = registry[selectedId] || SEED_REGISTRY[DEFAULT_TENANT_ID];
 
   // Allow environment variable override for primary deployment
   const database = (selectedId === DEFAULT_TENANT_ID && process.env.GNUHEALTH_DATABASE)
@@ -77,7 +121,8 @@ export function resolveTenant(tenantIdentifier?: string | null): TenantConfig {
 
 export function validateTenantAccess(sessionTenantId?: string | null, requestedTenantId?: string | null): boolean {
   if (!requestedTenantId) return true;
-  if (!TENANT_REGISTRY[requestedTenantId]) {
+  const registry = getTenantRegistry();
+  if (!registry[requestedTenantId]) {
     const error = new Error("The requested clinic is not recognized on this server.");
     (error as Error & { status?: number }).status = 404;
     throw error;
