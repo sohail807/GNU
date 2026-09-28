@@ -3,6 +3,23 @@ import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { hasModuleAccess } from "@/lib/access-control";
 
+// gnuhealth.surgery's "classification" field (labelled "Urgency" in Tryton) only accepts
+// the single-letter selection codes below - the booking form's "elective"/"urgent"/"emergency"
+// values were being sent as-is, so every create() call was rejected with
+// `The value "elective" for field "Urgency" ... is not one of the allowed options.`
+// ('r' / Required has no corresponding option in the booking form, so it's omitted here.)
+const CLASSIFICATION_TO_TRYTON: Record<string, string> = {
+  elective: "o",
+  urgent: "u",
+  emergency: "e",
+};
+const TRYTON_TO_CLASSIFICATION: Record<string, string> = {
+  o: "elective",
+  r: "required",
+  u: "urgent",
+  e: "emergency",
+};
+
 // Tryton datetime/date fields deserialize as { __class__, year, month, day, hour?, minute? }
 // objects, not strings - rendering one directly as a React child crashes the page.
 function formatTrytonDateTime(v: any): string | null {
@@ -167,7 +184,7 @@ export async function GET(req: NextRequest) {
           anesthetist: anesthetistsMap[anesthetistId as number]?.rec_name || null,
           surgeryDate: formatTrytonDateTime(s.surgery_date),
           anesthesiaType: s.anesthesia_type || null,
-          classification: s.classification || null,
+          classification: (s.classification && TRYTON_TO_CLASSIFICATION[s.classification]) || s.classification || null,
           state: s.state || "draft",
           postopGuidelines: s.postoperative_guidelines || null,
         };
@@ -224,7 +241,7 @@ export async function POST(req: NextRequest) {
       operating_room: operatingRoomId ? parseInt(operatingRoomId, 10) : undefined,
       surgery_date: surgeryDate || new Date().toISOString().slice(0, 19).replace("T", " "),
       anesthesia_type: anesthesiaType || "general",
-      classification: classification || "elective",
+      classification: CLASSIFICATION_TO_TRYTON[classification] || CLASSIFICATION_TO_TRYTON.elective,
       surgeon: session.healthprofId || undefined,
       state: "confirmed",
     };
