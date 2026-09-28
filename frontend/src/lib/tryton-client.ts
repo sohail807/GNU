@@ -13,7 +13,7 @@ export interface TrytonLoginResult {
 
 interface HttpStatusError extends Error { status?: number }
 
-export type TrytonWorkflowWizard = "gnuhealth.lab.test.create";
+export type TrytonWorkflowWizard = "gnuhealth.lab.test.create" | "account.invoice.pay";
 
 export class TrytonClient {
   private static encodeBase64(str: string): string {
@@ -258,6 +258,109 @@ export class TrytonClient {
     }
     try {
       await call("execute", [wizardSessionId, {}, "create_lab_test"]);
+    } finally {
+      await call("delete", [wizardSessionId]).catch(() => undefined);
+    }
+  }
+
+  /**
+   * Runs GNU Health's real account.invoice.pay wizard for a full settlement
+   * (the invoice's entire amount_to_pay, paid in one go). This is the only
+   * safe automated case: the wizard's own transition_choice() takes the
+   * "ask" branch (partial payment / write-off / overpayment resolution)
+   * whenever the amount doesn't exactly clear the balance, and this method
+   * deliberately does not attempt to guess a resolution for that - it
+   * surfaces a clear error instead so a human handles the reconciliation.
+   */
+  static async payInvoiceFull(
+    username: string,
+    userId: number,
+    sessionToken: string,
+    invoiceId: number,
+    paymentMethodId: number,
+    description: string,
+    context: Record<string, unknown> = {},
+    database?: string
+  ): Promise<void> {
+    const wizardName: TrytonWorkflowWizard = "account.invoice.pay";
+    const auth = `Session ${this.encodeBase64(`${username}:${userId}:${sessionToken}`)}`;
+    const fullContext = { language: "en", ...context, active_model: "account.invoice", active_ids: [invoiceId], active_id: invoiceId };
+    const call = async <T>(method: "create" | "execute" | "delete", params: unknown[]): Promise<T> => {
+      const res = await fetch(this.getBaseUrl(database), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: auth },
+        body: JSON.stringify({ id: Date.now(), method: `wizard.${wizardName}.${method}`, params: [...params, fullContext] }),
+        cache: "no-store",
+        signal: AbortSignal.timeout(RPC_TIMEOUT_MS),
+      });
+      if (!res.ok) {
+        const error = new Error(`Tryton payment wizard request failed (${res.status}).`);
+        (error as Error & { status?: number }).status = res.status;
+        throw error;
+      }
+      const data = await res.json();
+      if (data.error) {
+        if (Array.isArray(data.error) && typeof data.error[0] === "string" &&
+          ["UserError", "UserWarning", "ConcurrencyException"].includes(data.error[0]) &&
+          Array.isArray(data.error[1]) && typeof data.error[1][0] === "string" && data.error[1][0].trim()) {
+          const error = new Error(data.error[1][0]) as HttpStatusError;
+          error.status = 400;
+          throw error;
+        }
+        const errText = JSON.stringify(data.error);
+        const status = errText.includes("AccessError") || errText.includes("not allowed to access") ? 403 : 502;
+        const error = new Error(status === 403 ? "Access denied while running the payment workflow." : "The GNU Health backend rejected the payment workflow.") as HttpStatusError;
+        error.status = status;
+        throw error;
+      }
+      return (data.result !== undefined ? data.result : data) as T;
+    };
+
+    const created = await call<[number | string, string, string]>("create", []);
+    const wizardSessionId = created?.[0];
+    if (!((typeof wizardSessionId === "number" && Number.isSafeInteger(wizardSessionId) && wizardSessionId > 0) || (typeof wizardSessionId === "string" && wizardSessionId.length > 0)) || created?.[1] !== "start" || created?.[2] !== "end") {
+      throw new Error("The GNU Health backend returned an unsupported invoice-payment wizard state.");
+    }
+
+    try {
+      // First execute on 'start' just fetches the server-computed defaults
+      // (payee, amount = amount_to_pay, currency, company, invoice_account,
+      // date) - it doesn't submit anything yet.
+      const startResult = await call<{ view?: { defaults?: Record<string, unknown> } }>(
+        "execute", [wizardSessionId, {}, "start"]
+      );
+      const rawDefaults = startResult?.view?.defaults;
+      if (!rawDefaults || typeof rawDefaults.amount === "undefined" || !rawDefaults.payee) {
+        throw new Error("Could not resolve the invoice payment defaults (payee/amount) from GNU Health.");
+      }
+      // Tryton's wizard view response mixes real field values with
+      // "field." display-helper keys (e.g. "payee." -> {rec_name: "..."})
+      // meant only for client rendering - echoing those back as record
+      // fields isn't valid, so strip anything not a real field name.
+      const defaults = Object.fromEntries(
+        Object.entries(rawDefaults).filter(([key]) => !key.includes("."))
+      );
+
+      // Submit the start form (server defaults + our resolved payment method).
+      // "description" has no default_description() on the server, so the
+      // wizard's in-memory record never gets that attribute at all unless we
+      // set it explicitly - reading it later (as Tryton itself does while
+      // processing the transition) then raises "has no attribute
+      // 'description'" instead of just treating it as blank.
+      // Then trigger the "choice" transition, the wizard's own OK button.
+      const choiceResult = await call<{ view?: { state?: string } }>(
+        "execute",
+        [wizardSessionId, { start: { ...defaults, payment_method: paymentMethodId, description } }, "choice"]
+      );
+
+      // Reaching "end" returns an empty result. Landing on the "ask" view
+      // instead means the wizard needs partial/write-off/overpayment
+      // resolution - never happens for an exact full-balance payment unless
+      // there's a currency-rounding remainder, and this method refuses to
+      // guess that resolution.
+      if (choiceResult?.view?.state === "ask") {
+        throw new Error("This invoice cannot be auto-settled for its exact balance (a partial payment, write-off, or overpayment reconciliation is required) - resolve it directly in GNU Health.");
+      }
     } finally {
       await call("delete", [wizardSessionId]).catch(() => undefined);
     }

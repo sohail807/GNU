@@ -291,6 +291,33 @@ export class ClinicalLookupService {
   }
 
   /**
+   * Dynamically resolves the cash/bank payment method used to settle an
+   * invoice via the account.invoice.pay wizard. NEVER hardcodes payment
+   * method 1 - the seeded "Cash Payment (QAR)" method just happens to be id
+   * 1 in this tenant's data today, that's not guaranteed elsewhere.
+   */
+  static async resolvePaymentMethod(
+    session: SessionData
+  ): Promise<number | null> {
+    try {
+      const methods = await TrytonClient.execute<any[]>(
+        session.username,
+        session.userId,
+        session.sessionToken,
+        "account.invoice.payment.method",
+        "search_read",
+        [[["company", "=", session.companyId]], 0, 1, null, ["id"]],
+        { company: session.companyId },
+        session.database
+      );
+      if (methods && methods.length > 0) return methods[0].id;
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Dynamically resolves a product and its default UoM for billing line items.
    * NEVER hardcodes product 15 or unit 1.
    */

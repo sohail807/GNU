@@ -363,24 +363,17 @@ export async function POST(req: NextRequest) {
           session.database
         );
       } catch (postErr) {
-        // Some GNU Health versions expose posting only via the workflow method above.
-        // If that RPC itself doesn't exist, fall back to a direct state write - but if
-        // that ALSO fails, surface the error instead of silently reporting success.
-        try {
-          await TrytonClient.execute(
-            session.username,
-            session.userId,
-            session.sessionToken,
-            "account.invoice",
-            "write",
-            [[invId], { state: "posted" }],
-            { company: session.companyId },
-            session.database
-          );
-        } catch {
-          const message = postErr instanceof Error ? postErr.message : "Failed to post invoice";
-          return NextResponse.json({ error: message }, { status: 502 });
-        }
+        // account.invoice.post is GNU Health's real posting workflow - it's what
+        // assigns the invoice sequence number and creates the accounting move.
+        // A previous version of this handler fell back to a raw state write
+        // ({state: "posted"}) whenever this failed, which "succeeded" by
+        // definition (a plain field write skips all business-rule validation)
+        // but left the invoice with no move and no number - a fake posted
+        // state with no accounting substance behind it. Surface the real
+        // Tryton error instead of pretending it worked.
+        const message = postErr instanceof Error ? postErr.message : "Failed to post invoice";
+        const status = (postErr as { status?: number })?.status || 502;
+        return NextResponse.json({ error: message }, { status });
       }
 
       return NextResponse.json({
@@ -392,20 +385,33 @@ export async function POST(req: NextRequest) {
 
     // Action 3: Process Cash Settlement Wizard / Payment
     if (action === "pay" || action === "settle") {
+      // This used to be a raw write({state: "paid"}) - never touching Tryton's
+      // real account.invoice.pay wizard, so no payment move was ever created
+      // and no receivable line was ever reconciled. Every "paid" invoice
+      // produced by that path was a fake status with nothing behind it.
+      const paymentMethodId = await ClinicalLookupService.resolvePaymentMethod(session);
+      if (!paymentMethodId) {
+        return NextResponse.json(
+          { error: "No cash/bank payment method is configured for this tenant's company - cannot settle invoices." },
+          { status: 400 }
+        );
+      }
+
       try {
-        await TrytonClient.execute(
+        await TrytonClient.payInvoiceFull(
           session.username,
           session.userId,
           session.sessionToken,
-          "account.invoice",
-          "write",
-          [[invId], { state: "paid" }],
+          invId,
+          paymentMethodId,
+          typeof body.description === "string" && body.description.trim() ? body.description.trim() : "Cash settlement",
           { company: session.companyId },
           session.database
         );
       } catch (payErr) {
         const message = payErr instanceof Error ? payErr.message : "Failed to settle payment";
-        return NextResponse.json({ error: message }, { status: 502 });
+        const status = (payErr as { status?: number })?.status || 502;
+        return NextResponse.json({ error: message }, { status });
       }
 
       return NextResponse.json({
