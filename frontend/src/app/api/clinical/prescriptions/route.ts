@@ -30,6 +30,10 @@ export async function GET(req: NextRequest) {
   }
   const { searchParams } = new URL(req.url);
   const patientId = searchParams.get("patientId");
+  // Front desk has read access to the order's existence/state (enough to answer "has this
+  // patient been prescribed anything yet") but not the medication lines -- those are clinical
+  // content, same restriction already applied to the evaluation tab for this role.
+  const statusOnly = session.role === "reception";
 
   try {
     let domain: unknown[] = [];
@@ -37,6 +41,15 @@ export async function GET(req: NextRequest) {
       domain = [["patient", "=", parseInt(patientId, 10)]];
     }
 
+    // "prescription_line" is a one2many to gnuhealth.prescription.line -- Tryton must resolve
+    // read access on THAT related model to return it from search_read, not just
+    // gnuhealth.prescription.order. Front desk (statusOnly) was never granted access to the
+    // line model, so requesting this field for them raised an AccessError that our client
+    // generically attributed to "gnuhealth.prescription.order" (same failure mode confirmed for
+    // gnuhealth.lab's "critearea" field).
+    const rxFields = statusOnly
+      ? ["id", "patient", "healthprof", "prescription_date", "state"]
+      : ["id", "patient", "healthprof", "prescription_date", "state", "prescription_line"];
     const rawRx = await TrytonClient.execute<any[]>(
       session.username,
       session.userId,
@@ -48,7 +61,7 @@ export async function GET(req: NextRequest) {
         0,
         20,
         [["id", "DESC"]],
-        ["id", "patient", "healthprof", "prescription_date", "state", "prescription_line"],
+        rxFields,
       ]
     ,
       { company: session.companyId },
@@ -83,8 +96,8 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Resolve prescription lines
-    const allLineIds = rawRx.flatMap((r) => r.prescription_line || []);
+    // Resolve prescription lines (skipped for statusOnly -- those are the clinical content)
+    const allLineIds = statusOnly ? [] : rawRx.flatMap((r) => r.prescription_line || []);
     let linesMap: Record<number, any> = {};
     if (allLineIds.length > 0) {
       try {
@@ -120,18 +133,20 @@ export async function GET(req: NextRequest) {
     const prescriptions = rawRx.map((rx) => {
       const pid = typeof rx.patient === "number" ? rx.patient : rx.patient?.[0];
       const pat = patientsMap[pid] || {};
-      const lineObjs = (rx.prescription_line || []).map((lid: number) => {
-        const l = linesMap[lid] || {};
-        const medName = Array.isArray(l.medicament) ? l.medicament[1] : null;
-        return {
-          id: l.id,
-          medicament: medName,
-          dose: l.dose == null ? null : String(l.dose),
-          route: Array.isArray(l.route) ? l.route[1] : null,
-          frequency: l.frequency == null ? null : String(l.frequency),
-          duration: l.duration == null ? null : String(l.duration),
-        };
-      });
+      const lineObjs = statusOnly
+        ? []
+        : (rx.prescription_line || []).map((lid: number) => {
+            const l = linesMap[lid] || {};
+            const medName = Array.isArray(l.medicament) ? l.medicament[1] : null;
+            return {
+              id: l.id,
+              medicament: medName,
+              dose: l.dose == null ? null : String(l.dose),
+              route: Array.isArray(l.route) ? l.route[1] : null,
+              frequency: l.frequency == null ? null : String(l.frequency),
+              duration: l.duration == null ? null : String(l.duration),
+            };
+          });
 
       return {
         id: rx.id,
@@ -145,7 +160,7 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({ success: true, prescriptions });
+    return NextResponse.json({ success: true, prescriptions, statusOnly });
   } catch (err: unknown) {
     const status = (err as any)?.status || 500;
     const message = err instanceof Error ? err.message : "Failed to load prescriptions";

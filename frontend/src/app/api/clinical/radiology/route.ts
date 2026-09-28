@@ -21,6 +21,10 @@ export async function GET(req: NextRequest) {
   }
   const { searchParams } = new URL(req.url);
   const patientId = searchParams.get("patientId");
+  // Front desk has read access to the imaging request's existence/state ("has this patient's
+  // X-ray come back yet") but not the radiologist's diagnostic findings -- clinical content,
+  // same restriction already applied to the evaluation tab for this role.
+  const statusOnly = session.role === "reception";
 
   try {
     let domain: unknown[] = [];
@@ -143,7 +147,7 @@ export async function GET(req: NextRequest) {
         state: r.state || "unknown",
         doctor: doctorsMap[did]?.rec_name || null,
         modality: null,
-        findings: r.comment || null,
+        findings: statusOnly ? null : (r.comment || null),
       };
     });
 
@@ -166,7 +170,7 @@ export async function GET(req: NextRequest) {
       // Leave testTypes empty rather than fail the whole orders list
     }
 
-    return NextResponse.json({ success: true, radiologyOrders, testTypes });
+    return NextResponse.json({ success: true, radiologyOrders, testTypes, statusOnly });
   } catch (err: unknown) {
     const status = (err as any)?.status || 500;
     const message = err instanceof Error ? err.message : "Failed to load radiology orders";

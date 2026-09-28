@@ -41,6 +41,10 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const patientId = searchParams.get("patientId");
   const catalog = searchParams.get("catalog");
+  // Front desk has read access to the lab order's existence/state ("has this patient's CBC come
+  // back yet") but not the analyte results/diagnosis -- clinical content, same restriction
+  // already applied to the evaluation tab for this role.
+  const statusOnly = session.role === "reception";
 
   try {
     if (catalog === "tests") {
@@ -64,20 +68,29 @@ export async function GET(req: NextRequest) {
       domain = [["patient", "=", id]];
     }
 
+    // "critearea" is a one2many to gnuhealth.lab.test.critearea -- Tryton must resolve read
+    // access on THAT related model to return it from search_read, not just gnuhealth.lab. Front
+    // desk (statusOnly) was never granted access to the critearea model, so requesting this
+    // field for them raised an AccessError that our client generically attributed to
+    // "gnuhealth.lab" -- confirmed live by comparing a raw RPC call (fields without critearea,
+    // which succeeded) against the app's request (which failed) with identical session/context.
+    const labFields = statusOnly
+      ? ["id", "name", "patient", "test", "date_requested", "date_analysis", "state"]
+      : ["id", "name", "patient", "test", "date_requested", "date_analysis", "state", "results", "diagnosis", "specimen_type", "request_order", "critearea"];
     const rawLabs = await TrytonClient.execute<LabRpcRecord[]>(
       session.username,
       session.userId,
       session.sessionToken,
       "gnuhealth.lab",
       "search_read",
-      [domain, 0, 50, [["id", "DESC"]], ["id", "name", "patient", "test", "date_requested", "date_analysis", "state", "results", "diagnosis", "specimen_type", "request_order", "critearea"]],
+      [domain, 0, 50, [["id", "DESC"]], labFields],
       { company: session.companyId },
       session.database
     );
 
     // Resolve patient details
     const patientIds = [...new Set(rawLabs.map((lab) => Array.isArray(lab.patient) ? lab.patient[0] : lab.patient).filter((id): id is number => typeof id === "number" && id > 0))];
-    const criterionIds = [...new Set(rawLabs.flatMap((lab) => lab.critearea || []))];
+    const criterionIds = statusOnly ? [] : [...new Set(rawLabs.flatMap((lab) => lab.critearea || []))];
     const rawCriteria = criterionIds.length ? await TrytonClient.execute<CriterionRpcRecord[]>(
       session.username, session.userId, session.sessionToken, "gnuhealth.lab.test.critearea", "search_read",
       [[["id", "in", criterionIds]], 0, criterionIds.length, [["sequence", "ASC"]], ["id", "name", "code", "result", "result_text", "remarks", "units", "normal_range", "lower_limit", "upper_limit", "limits_verified", "warning", "excluded"]],
@@ -107,10 +120,30 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // search_read returns "test" as a bare id here, not a [id, name] tuple -- resolved
+    // separately, same pattern already used above for patient names, instead of assuming a
+    // tuple shape that never actually came back (confirmed live: every lab order's testName
+    // rendered blank for every role, not just statusOnly ones).
+    const testTypeIds = [...new Set(rawLabs.map((lab) => Array.isArray(lab.test) ? lab.test[0] : lab.test).filter((id): id is number => typeof id === "number" && id > 0))];
+    let testTypesMap: Record<number, { id: number; name: string }> = {};
+    if (testTypeIds.length > 0) {
+      try {
+        const types = await TrytonClient.execute<Array<{ id: number; name: string }>>(
+          session.username, session.userId, session.sessionToken, "gnuhealth.lab.test_type", "search_read",
+          [[["id", "in", testTypeIds]], 0, testTypeIds.length, null, ["id", "name"]],
+          { company: session.companyId }, session.database
+        );
+        testTypesMap = types.reduce<Record<number, { id: number; name: string }>>((acc, t) => { acc[t.id] = t; return acc; }, {});
+      } catch {
+        // Fallback
+      }
+    }
+
     const labOrders = rawLabs.map((lab) => {
       const pid = Array.isArray(lab.patient) ? lab.patient[0] : lab.patient;
       const pat = pid === null ? undefined : patientsMap[pid] || {};
-      const testName = Array.isArray(lab.test) ? lab.test[1] : "";
+      const testId = Array.isArray(lab.test) ? lab.test[0] : lab.test;
+      const testName = Array.isArray(lab.test) ? lab.test[1] : (testId ? testTypesMap[testId]?.name || "" : "");
 
       return {
         id: lab.id,
@@ -122,10 +155,10 @@ export async function GET(req: NextRequest) {
         dateRequested: formatTrytonDateTime(lab.date_requested),
         dateAnalysis: formatTrytonDateTime(lab.date_analysis),
         state: lab.state || "unknown",
-        results: lab.results || "",
-        diagnosis: lab.diagnosis || "",
-        specimen: lab.specimen_type || "",
-        criteria: lab.critearea.map((id) => criteriaById.get(id)).filter((item): item is CriterionRpcRecord => Boolean(item)).map((c) => ({
+        results: statusOnly ? "" : (lab.results || ""),
+        diagnosis: statusOnly ? "" : (lab.diagnosis || ""),
+        specimen: statusOnly ? "" : (lab.specimen_type || ""),
+        criteria: statusOnly ? [] : lab.critearea.map((id) => criteriaById.get(id)).filter((item): item is CriterionRpcRecord => Boolean(item)).map((c) => ({
           id: c.id, name: c.name, code: c.code || "", result: c.result ?? null, resultText: c.result_text || "", remarks: c.remarks || "",
           unit: Array.isArray(c.units) ? c.units[1] : "", normalRange: c.normal_range || "", lowerLimit: c.lower_limit ?? null,
           upperLimit: c.upper_limit ?? null, limitsVerified: c.limits_verified, warning: c.warning, excluded: c.excluded,
@@ -133,7 +166,7 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({ success: true, labOrders });
+    return NextResponse.json({ success: true, labOrders, statusOnly });
   } catch (err: unknown) {
     const status = (err as { status?: number } | null)?.status;
     if (status === 401 || status === 403) return NextResponse.json({ error: status === 403 ? "You do not have permission to view these laboratory records." : "Session expired." }, { status });

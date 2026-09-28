@@ -107,6 +107,17 @@ export default function PhysicianConsultationPage() {
   const [acknowledgeWarnings, setAcknowledgeWarnings] = useState(false);
   const [isOrderingWorkup, setIsOrderingWorkup] = useState<"lab" | "radiology" | null>(null);
 
+  // Diagnostic Workup catalogs, loaded live from GNU Health so the physician can order any
+  // active lab test / imaging study on file -- not just the one hardcoded example of each.
+  const [isLabModalOpen, setIsLabModalOpen] = useState(false);
+  const [isImagingModalOpen, setIsImagingModalOpen] = useState(false);
+  const [labTestOptions, setLabTestOptions] = useState<CatalogOption[]>([]);
+  const [imagingTestOptions, setImagingTestOptions] = useState<CatalogOption[]>([]);
+  const [selectedLabTestId, setSelectedLabTestId] = useState<number | null>(null);
+  const [selectedImagingTestId, setSelectedImagingTestId] = useState<number | null>(null);
+  const [labSearchTerm, setLabSearchTerm] = useState("");
+  const [imagingSearchTerm, setImagingSearchTerm] = useState("");
+
   // Modal States
   const [isIcdModalOpen, setIsIcdModalOpen] = useState(false);
   const [icdSearchTerm, setIcdSearchTerm] = useState("");
@@ -212,6 +223,36 @@ export default function PhysicianConsultationPage() {
         setErrorMessage(error instanceof Error ? error.message : "Unable to load dose units");
       });
   }, [isRxModalOpen]);
+
+  useEffect(() => {
+    if (!isLabModalOpen) return;
+    fetch("/api/clinical/laboratory?catalog=tests")
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok || !data.success || !Array.isArray(data.tests)) {
+          throw new Error(data.error || "Unable to load the laboratory test catalog");
+        }
+        setLabTestOptions(data.tests.map((t: { id: number; name: string }) => ({ id: t.id, name: t.name })));
+      })
+      .catch((error: unknown) => {
+        setErrorMessage(error instanceof Error ? error.message : "Unable to load the laboratory test catalog");
+      });
+  }, [isLabModalOpen]);
+
+  useEffect(() => {
+    if (!isImagingModalOpen) return;
+    fetch("/api/clinical/radiology")
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok || !data.success || !Array.isArray(data.testTypes)) {
+          throw new Error(data.error || "Unable to load the imaging test catalog");
+        }
+        setImagingTestOptions(data.testTypes);
+      })
+      .catch((error: unknown) => {
+        setErrorMessage(error instanceof Error ? error.message : "Unable to load the imaging test catalog");
+      });
+  }, [isImagingModalOpen]);
 
   // Load live patients & triage telemetry
   useEffect(() => {
@@ -418,8 +459,10 @@ export default function PhysicianConsultationPage() {
   // Diagnostic Workup Requisitions: these used to be plain navigation links to /laboratory
   // and /radiology that created nothing and dropped the patient's consultation context --
   // they now place the order directly from here, the same way prescriptions are issued.
+  // The physician picks the actual test/study from the live GNU Health catalog (not a single
+  // hardcoded example) via the lab/imaging picker modals below.
   const handleOrderLabTest = async () => {
-    if (!patient.id) return;
+    if (!patient.id || !selectedLabTestId) return;
     setIsOrderingWorkup("lab");
     setFeedback(null);
     setErrorMessage(null);
@@ -427,11 +470,15 @@ export default function PhysicianConsultationPage() {
       const res = await fetch("/api/clinical/laboratory", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patientId: patient.id, test: "CBC" }),
+        body: JSON.stringify({ patientId: patient.id, testId: selectedLabTestId }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "The lab order could not be created.");
-      setFeedback(`CBC lab order ${data.orderRef || data.labId} was requested for ${patient.name}.`);
+      const testName = labTestOptions.find((t) => t.id === selectedLabTestId)?.name || "Lab";
+      setFeedback(`${testName} lab order ${data.orderRef || data.labId} was requested for ${patient.name}.`);
+      setIsLabModalOpen(false);
+      setSelectedLabTestId(null);
+      setLabSearchTerm("");
     } catch (error: unknown) {
       setErrorMessage(error instanceof Error ? error.message : "The lab order could not be created.");
     } finally {
@@ -440,7 +487,7 @@ export default function PhysicianConsultationPage() {
   };
 
   const handleOrderImaging = async () => {
-    if (!patient.id) return;
+    if (!patient.id || !selectedImagingTestId) return;
     setIsOrderingWorkup("radiology");
     setFeedback(null);
     setErrorMessage(null);
@@ -448,11 +495,15 @@ export default function PhysicianConsultationPage() {
       const res = await fetch("/api/clinical/radiology", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "create", patientId: patient.id, studyName: "Chest X-Ray" }),
+        body: JSON.stringify({ action: "create", patientId: patient.id, testId: selectedImagingTestId }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "The imaging request could not be created.");
-      setFeedback(`Chest X-Ray request #${data.orderId} was scheduled for ${patient.name}.`);
+      const testName = imagingTestOptions.find((t) => t.id === selectedImagingTestId)?.name || "Imaging";
+      setFeedback(`${testName} request #${data.orderId} was scheduled for ${patient.name}.`);
+      setIsImagingModalOpen(false);
+      setSelectedImagingTestId(null);
+      setImagingSearchTerm("");
     } catch (error: unknown) {
       setErrorMessage(error instanceof Error ? error.message : "The imaging request could not be created.");
     } finally {
@@ -882,32 +933,28 @@ export default function PhysicianConsultationPage() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={handleOrderLabTest}
+                onClick={() => { setErrorMessage(null); setIsLabModalOpen(true); }}
                 disabled={!patient.id || isOrderingWorkup !== null}
                 className="p-3.5 bg-slate-50 border border-slate-200/80 hover:border-[#0F766E] rounded-xl transition-all group text-left disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <div className="flex items-center gap-2">
                   <Microscope className="w-4 h-4 text-[#0F766E]" />
-                  <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F766E]">
-                    {isOrderingWorkup === "lab" ? "Ordering…" : "CBC Lab Test"}
-                  </span>
+                  <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F766E]">Order Lab Test</span>
                 </div>
-                <div className="text-[10px] text-slate-500 mt-1">Diagnostic Pathology</div>
+                <div className="text-[10px] text-slate-500 mt-1">Diagnostic Pathology Catalog</div>
               </button>
 
               <button
                 type="button"
-                onClick={handleOrderImaging}
+                onClick={() => { setErrorMessage(null); setIsImagingModalOpen(true); }}
                 disabled={!patient.id || isOrderingWorkup !== null}
                 className="p-3.5 bg-slate-50 border border-slate-200/80 hover:border-[#0F766E] rounded-xl transition-all group text-left disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <div className="flex items-center gap-2">
                   <Scan className="w-4 h-4 text-[#0F766E]" />
-                  <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F766E]">
-                    {isOrderingWorkup === "radiology" ? "Ordering…" : "Chest X-Ray"}
-                  </span>
+                  <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F766E]">Order Imaging Study</span>
                 </div>
-                <div className="text-[10px] text-slate-500 mt-1">Digital PACS Suite</div>
+                <div className="text-[10px] text-slate-500 mt-1">Digital PACS Catalog</div>
               </button>
             </div>
           </div>
@@ -1096,6 +1143,142 @@ export default function PhysicianConsultationPage() {
               </Button>
             </div>
           </form>
+        </div>
+      </Modal>
+
+      {/* MODAL 3: SELECT LAB TEST FROM LIVE GNU HEALTH CATALOG */}
+      <Modal
+        isOpen={isLabModalOpen}
+        onClose={() => { setIsLabModalOpen(false); setSelectedLabTestId(null); setLabSearchTerm(""); }}
+        title="Laboratory Test Catalog"
+        kicker="DIAGNOSTIC PATHOLOGY ORDER"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-700">Search Laboratory Test Catalog *</label>
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search by test name (e.g. Liver, Renal, Haematology)..."
+                value={labSearchTerm}
+                onChange={(e) => setLabSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:border-[#0F766E]"
+              />
+            </div>
+          </div>
+          <div className="max-h-56 overflow-y-auto grid grid-cols-1 gap-2 border border-slate-200 rounded-xl p-2 bg-slate-50">
+            {labTestOptions.length === 0 && (
+              <div className="p-3 text-center text-xs text-slate-500 font-mono">Loading GNU Health test catalog…</div>
+            )}
+            {labTestOptions
+              .filter((t) => t.name.toLowerCase().includes(labSearchTerm.trim().toLowerCase()))
+              .map((t) => (
+                <div
+                  key={t.id}
+                  onClick={() => setSelectedLabTestId(t.id)}
+                  className={`p-2.5 rounded-lg border cursor-pointer transition-all flex items-center justify-between ${
+                    selectedLabTestId === t.id ? "bg-teal-50 border-[#0F766E] shadow-2xs" : "bg-white border-slate-200 hover:border-slate-300"
+                  }`}
+                >
+                  <span className="text-xs font-bold text-slate-900">{t.name}</span>
+                  {selectedLabTestId === t.id && <Check className="w-3.5 h-3.5 text-[#0F766E]" />}
+                </div>
+              ))}
+            {labTestOptions.length > 0 && labTestOptions.filter((t) => t.name.toLowerCase().includes(labSearchTerm.trim().toLowerCase())).length === 0 && (
+              <div className="p-3 text-center text-xs text-slate-500 font-mono">No matching test in the GNU Health catalog.</div>
+            )}
+          </div>
+          {errorMessage && (
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => { setIsLabModalOpen(false); setSelectedLabTestId(null); setLabSearchTerm(""); }}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              className="bg-[#0F766E] font-bold"
+              onClick={handleOrderLabTest}
+              disabled={!selectedLabTestId || isOrderingWorkup !== null}
+              isLoading={isOrderingWorkup === "lab"}
+            >
+              Order Test
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* MODAL 4: SELECT IMAGING STUDY FROM LIVE GNU HEALTH CATALOG */}
+      <Modal
+        isOpen={isImagingModalOpen}
+        onClose={() => { setIsImagingModalOpen(false); setSelectedImagingTestId(null); setImagingSearchTerm(""); }}
+        title="Imaging Study Catalog"
+        kicker="DIGITAL PACS ORDER"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-slate-700">Search Imaging Study Catalog *</label>
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search by study name (e.g. Chest X-Ray, MRI, CT Scan)..."
+                value={imagingSearchTerm}
+                onChange={(e) => setImagingSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:border-[#0F766E]"
+              />
+            </div>
+          </div>
+          <div className="max-h-56 overflow-y-auto grid grid-cols-1 gap-2 border border-slate-200 rounded-xl p-2 bg-slate-50">
+            {imagingTestOptions.length === 0 && (
+              <div className="p-3 text-center text-xs text-slate-500 font-mono">Loading GNU Health imaging catalog…</div>
+            )}
+            {imagingTestOptions
+              .filter((t) => t.name.toLowerCase().includes(imagingSearchTerm.trim().toLowerCase()))
+              .map((t) => (
+                <div
+                  key={t.id}
+                  onClick={() => setSelectedImagingTestId(t.id)}
+                  className={`p-2.5 rounded-lg border cursor-pointer transition-all flex items-center justify-between ${
+                    selectedImagingTestId === t.id ? "bg-teal-50 border-[#0F766E] shadow-2xs" : "bg-white border-slate-200 hover:border-slate-300"
+                  }`}
+                >
+                  <span className="text-xs font-bold text-slate-900">{t.name}</span>
+                  {selectedImagingTestId === t.id && <Check className="w-3.5 h-3.5 text-[#0F766E]" />}
+                </div>
+              ))}
+            {imagingTestOptions.length > 0 && imagingTestOptions.filter((t) => t.name.toLowerCase().includes(imagingSearchTerm.trim().toLowerCase())).length === 0 && (
+              <div className="p-3 text-center text-xs text-slate-500 font-mono">No matching study in the GNU Health catalog.</div>
+            )}
+          </div>
+          {errorMessage && (
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => { setIsImagingModalOpen(false); setSelectedImagingTestId(null); setImagingSearchTerm(""); }}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              className="bg-[#0F766E] font-bold"
+              onClick={handleOrderImaging}
+              disabled={!selectedImagingTestId || isOrderingWorkup !== null}
+              isLoading={isOrderingWorkup === "radiology"}
+            >
+              Order Study
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>

@@ -51,8 +51,11 @@ export default function UnifiedPatientChartPage() {
   const [evaluations, setEvaluations] = useState<any[]>([]);
   const [evaluationsStatusOnly, setEvaluationsStatusOnly] = useState(false);
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
+  const [prescriptionsStatusOnly, setPrescriptionsStatusOnly] = useState(false);
   const [labOrders, setLabOrders] = useState<any[]>([]);
+  const [labStatusOnly, setLabStatusOnly] = useState(false);
   const [radiologyOrders, setRadiologyOrders] = useState<any[]>([]);
+  const [radiologyStatusOnly, setRadiologyStatusOnly] = useState(false);
   const [invoices, setInvoices] = useState<any[]>([]);
 
   // Load all live patient data from GNU Health backend via API routes
@@ -122,14 +125,16 @@ export default function UnifiedPatientChartPage() {
           const rxData = await rxRes.value.json();
           if (rxData.success && Array.isArray(rxData.prescriptions)) {
             setPrescriptions(rxData.prescriptions);
+            setPrescriptionsStatusOnly(Boolean(rxData.statusOnly));
           }
         }
 
         // 5. Labs
         if (labRes.status === "fulfilled" && labRes.value.ok) {
           const labData = await labRes.value.json();
-          if (labData.success && Array.isArray(labData.laboratoryOrders)) {
-            setLabOrders(labData.laboratoryOrders);
+          if (labData.success && Array.isArray(labData.labOrders)) {
+            setLabOrders(labData.labOrders);
+            setLabStatusOnly(Boolean(labData.statusOnly));
           }
         }
 
@@ -138,6 +143,7 @@ export default function UnifiedPatientChartPage() {
           const radData = await radRes.value.json();
           if (radData.success && Array.isArray(radData.radiologyOrders)) {
             setRadiologyOrders(radData.radiologyOrders);
+            setRadiologyStatusOnly(Boolean(radData.statusOnly));
           }
         }
 
@@ -587,16 +593,23 @@ export default function UnifiedPatientChartPage() {
             </div>
           ) : (
             <div className="space-y-3">
+              {prescriptionsStatusOnly && (
+                <div className="p-3 rounded-lg border border-slate-200 bg-slate-50 text-[11px] text-slate-500">
+                  Medication details are visible only to physician, pharmacy and nursing roles. This shows order status only.
+                </div>
+              )}
               {prescriptions.map((rx) => (
                 <div key={rx.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="font-mono font-bold text-[#0F766E]">RX #{rx.id}</span>
                     <Badge variant={rx.state === "dispensed" ? "green" : "teal"}>{rx.state || "Unknown"}</Badge>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Prescribed Medicine:</span>
-                    <span className="font-bold text-slate-900">{rx.medicationName || rx.medicament || "Not available"}</span>
-                  </div>
+                  {!prescriptionsStatusOnly && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Prescribed Medicine:</span>
+                      <span className="font-bold text-slate-900">{rxMedicationSummary(rx)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-slate-500">Date:</span>
                     <span className="font-mono text-slate-800">{rx.date || "Not available"}</span>
@@ -626,6 +639,11 @@ export default function UnifiedPatientChartPage() {
             </div>
           ) : (
             <div className="space-y-3">
+              {labStatusOnly && (
+                <div className="p-3 rounded-lg border border-slate-200 bg-slate-50 text-[11px] text-slate-500">
+                  Analyte results and diagnosis are visible only to physician, lab and nursing roles. This shows order status only.
+                </div>
+              )}
               {labOrders.map((lab) => (
                 <div key={lab.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
                   <div className="flex justify-between items-center">
@@ -636,10 +654,12 @@ export default function UnifiedPatientChartPage() {
                     <span className="text-slate-500">Test Protocol:</span>
                     <span className="font-bold text-slate-900">{lab.testName || "Not available"}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Result Status:</span>
-                    <span className="font-mono text-slate-800">{lab.results || "No result recorded"}</span>
-                  </div>
+                  {!labStatusOnly && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Result Status:</span>
+                      <span className="font-mono text-slate-800">{lab.results || "No result recorded"}</span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -665,6 +685,11 @@ export default function UnifiedPatientChartPage() {
             </div>
           ) : (
             <div className="space-y-3">
+              {radiologyStatusOnly && (
+                <div className="p-3 rounded-lg border border-slate-200 bg-slate-50 text-[11px] text-slate-500">
+                  Radiologist findings are visible only to physician, radiology and nursing roles. This shows order status only.
+                </div>
+              )}
               {radiologyOrders.map((rad) => (
                 <div key={rad.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
                   <div className="flex justify-between items-center">
@@ -673,12 +698,12 @@ export default function UnifiedPatientChartPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Procedure Name:</span>
-                    <span className="font-bold text-slate-900">{rad.testName || "Not available"}</span>
+                    <span className="font-bold text-slate-900">{rad.procedureName || "Not available"}</span>
                   </div>
-                  {rad.comment && (
+                  {rad.findings && (
                     <div className="pt-2 border-t border-slate-200">
                       <span className="text-slate-500 block mb-1">Clinical Findings:</span>
-                      <p className="text-slate-800 leading-relaxed font-sans">{rad.comment}</p>
+                      <p className="text-slate-800 leading-relaxed font-sans">{rad.findings}</p>
                     </div>
                   )}
                 </div>
@@ -765,7 +790,7 @@ export default function UnifiedPatientChartPage() {
               <div className="flex justify-between">
                 <span className="text-slate-400">Prescriptions:</span>
                 <span className="font-mono font-bold text-[#0F766E]">
-                  {latestRx ? `RX #${latestRx.id}${latestRx.medicationName ? ` (${latestRx.medicationName})` : ""}` : "None recorded"}
+                  {latestRx ? `RX #${latestRx.id}${prescriptionsStatusOnly ? "" : ` (${rxMedicationSummary(latestRx)})`}` : "None recorded"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -795,9 +820,14 @@ export default function UnifiedPatientChartPage() {
 }
 
 function radOrdersTitle(rad: any): string {
-  if (rad.testName) return rad.testName;
-  if (rad.comment) return rad.comment.slice(0, 20);
+  if (rad.procedureName) return rad.procedureName;
+  if (rad.findings) return rad.findings.slice(0, 20);
   return "Not available";
+}
+
+function rxMedicationSummary(rx: any): string {
+  const names = Array.isArray(rx.lines) ? rx.lines.map((l: any) => l.medicament).filter(Boolean) : [];
+  return names.length ? names.join(", ") : "Not available";
 }
 
 function formatQar(value: number | string | null | undefined): string {

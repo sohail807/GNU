@@ -150,22 +150,34 @@ export default function LaboratoryPage() {
     }
   };
 
+  // Persists the entered analyte values to the native GNU Health draft. Split out from
+  // saveResults() so markDone() can call it directly -- previously "Mark done" sent only
+  // { action: "complete" } and never this save-results call, so a technician who typed
+  // results and clicked "Mark done" (enabled the instant every analyte had a value in local
+  // state) got a record permanently in the "done" state with every analyte still null: results
+  // can only be saved while state === "draft", so nothing after this could recover them.
+  const persistResults = async () => {
+    if (!activeOrder) return false;
+    const response = await fetch("/api/clinical/laboratory", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "save-results", labId: activeOrder.id,
+        criteria: activeOrder.criteria.map((item) => ({ id: item.id, result: item.result, resultText: item.resultText, remarks: item.remarks })),
+        results: activeOrder.results, diagnosis: activeOrder.diagnosis, specimen: activeOrder.specimen,
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) throw new Error(data.error || "Unable to save the laboratory results.");
+    return true;
+  };
+
   const saveResults = async () => {
     if (!activeOrder) return;
     setIsSaving(true);
     setError(null);
     setFeedback(null);
     try {
-      const response = await fetch("/api/clinical/laboratory", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "save-results", labId: activeOrder.id,
-          criteria: activeOrder.criteria.map((item) => ({ id: item.id, result: item.result, resultText: item.resultText, remarks: item.remarks })),
-          results: activeOrder.results, diagnosis: activeOrder.diagnosis, specimen: activeOrder.specimen,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.error || "Unable to save the laboratory results.");
+      await persistResults();
       setFeedback("Analyte results saved to the native GNU Health draft.");
       await loadData();
     } catch (saveError: unknown) {
@@ -181,6 +193,7 @@ export default function LaboratoryPage() {
     setError(null);
     setFeedback(null);
     try {
+      await persistResults();
       const response = await fetch("/api/clinical/laboratory", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "complete", labId: activeOrder.id }),
