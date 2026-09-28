@@ -46,9 +46,17 @@ python scripts/emergency_admin_recovery.py \
   --new-password "<SECURE_32_CHAR_PASSPHRASE>"
 ```
 This utility:
-1. Updates the native SHA-512 cryptographically hashed password in PostgreSQL.
-2. Invalids all existing session tokens.
-3. Appends an immutable SHA-256 HMAC entry to `reports/security_audit_log.json`.
+1. Resets the `admin` login's password using `trytond-admin`'s own native password hasher
+   (the only mechanism confirmed to work against this deployment -- `--reset-password`
+   requires SMTP, which isn't configured, and a raw Tryton ORM update silently targets the
+   wrong database backend unless `TRYTOND_CONFIG` is set).
+2. Deletes that user's active session rows (`ir_session`), forcing re-authentication
+   everywhere.
+3. Appends an entry -- operator, reason, timestamp, and a SHA-256 fingerprint of the new
+   password (not the password itself) -- to `reports/security_audit_log.json`.
+
+Note: `trytond-admin -p` only ever resets the literal `admin` login; there is no way to
+target a different username with this mechanism.
 
 ---
 

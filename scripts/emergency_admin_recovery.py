@@ -1,14 +1,25 @@
 #!/usr/bin/env python3
 """
-IST Health — Emergency Administrator Recovery Protocol
+IST Health -- Emergency Administrator Recovery Protocol
 Auditable break-glass tool for platform super-administrators.
 
 Requirements:
 - Must only be executed from authorized administrative shell with SSH credentials.
 - Requires explicit operator identity and reason for audit compliance.
 - Generates cryptographically secure temporary credentials.
-- Updates res.user password natively in PostgreSQL / Tryton.
-- Invalidates active sessions and logs to reports/security_audit_log.json.
+- Resets the password via trytond-admin's native password hasher (-p / TRYTONPASSFILE) --
+  the only mechanism confirmed to work against this deployment. Two others were tried and
+  rejected: `trytond-admin --reset-password` requires SMTP, which is not configured here,
+  and fails outright; a raw `Pool.start()` / `res.user.write` Python snippet against the
+  Tryton ORM silently falls back to Tryton's default SQLite backend (not this deployment's
+  PostgreSQL) unless TRYTOND_CONFIG is set, and errors with
+  "Database '.../gnuhealth.sqlite' doesn't exist!" -- confirmed by actually running it.
+- trytond-admin -p resets specifically the "admin" login; it has no way to target any other
+  username, so this tool does not pretend to support one either.
+- Forcibly invalidates that user's active sessions (deletes their rows from ir_session) so a
+  password reset can't be silently bypassed by an already-open session.
+- Logs to reports/security_audit_log.json -- an audit trail of WHO ran this and WHEN, not a
+  record of the real password (only a SHA-256 fingerprint of it, for later correlation).
 """
 
 import sys
@@ -23,6 +34,8 @@ from datetime import datetime, timezone
 
 SSH_KEY = r"C:\Users\MohammedSohail\.ssh\gnuhealth_deploy"
 VM_HOST = "debian@34.7.237.8"
+TRYTOND_CONF = "/home/gnuhealth/trytond.conf"
+TRYTOND_ADMIN = "/home/gnuhealth/venv/bin/trytond-admin"
 AUDIT_LOG_FILE = os.path.join(os.path.dirname(__file__), "..", "reports", "security_audit_log.json")
 
 def generate_secure_password(length=18):
@@ -48,17 +61,8 @@ def append_audit_log(entry):
     with open(AUDIT_LOG_FILE, "w", encoding="utf-8") as f:
         json.dump(records, f, indent=2)
 
-def run_remote_sql(database, sql):
-    cmd = [
-        "ssh", "-i", SSH_KEY, "-o", "StrictHostKeyChecking=no", VM_HOST,
-        f"sudo -u postgres psql -d {database}"
-    ]
-    proc = subprocess.run(cmd, input=sql, capture_output=True, text=True, timeout=30)
-    return proc.stdout, proc.stderr
-
 def main():
     parser = argparse.ArgumentParser(description="IST Health Auditable Emergency Administrator Recovery")
-    parser.add_argument("--user", default="admin", help="Target username to recover (default: admin)")
     parser.add_argument("--database", default="gnuhealth", help="Target tenant database (default: gnuhealth)")
     parser.add_argument("--operator", required=True, help="Identity of authorized operator executing recovery")
     parser.add_argument("--reason", required=True, help="Clinical or operational justification for recovery")
@@ -68,42 +72,44 @@ def main():
     args = parser.parse_args()
 
     print("=" * 70)
-    print("IST HEALTH — AUDITABLE EMERGENCY ADMINISTRATOR RECOVERY")
+    print("IST HEALTH -- AUDITABLE EMERGENCY ADMINISTRATOR RECOVERY")
     print("=" * 70)
     print(f"Timestamp:   {datetime.now(timezone.utc).isoformat()}Z")
     print(f"Operator:    {args.operator}")
     print(f"Reason:      {args.reason}")
-    print(f"Target User: {args.user}")
+    print(f"Target User: admin (trytond-admin -p only ever resets this login)")
     print(f"Database:    {args.database}")
 
     password = args.new_password or generate_secure_password(16)
-    pass_hash = hashlib.sha256(password.encode()).hexdigest()
+    pass_fingerprint = hashlib.sha256(password.encode()).hexdigest()
 
     if args.dry_run:
         print("\n[DRY RUN] Password generated: [SECURE]")
         print("[DRY RUN] No changes applied.")
         return 0
 
-    # In Tryton / GNU Health, password hash can be reset via trytond-admin or native hash update
-    # In Tryton 7.0, passwords are stored in res_user using passlib/argon2/bcrypt/pbkdf2
-    # Setting via trytond-admin --reset-password ensures native Tryton password hasher is used:
-    reset_cmd = f"sudo -u gnuhealth /home/gnuhealth/venv/bin/trytond-admin -c /home/gnuhealth/trytond.conf -d {args.database} --reset-password=admin"
-    
-    # We can also execute python snippet inside trytond virtualenv to update directly
-    py_update = (
-        f"from trytond.pool import Pool; from trytond.transaction import Transaction; "
-        f"Pool.start(); pool = Pool('{args.database}'); pool.init(); "
-        f"User = pool.get('res.user'); "
-        f"with Transaction().start('{args.database}', 0) as t: "
-        f"    users = User.search([('login', '=', '{args.user}')]); "
-        f"    if users: User.write(users, {{'password': '{password}'}}); t.commit(); print('OK_UPDATED'); "
-        f"    else: print('USER_NOT_FOUND')"
-    )
+    # Stage the password in a private, gnuhealth-owned temp file on the VM (never passed as a
+    # CLI argument, never logged) so trytond-admin can read it via TRYTONPASSFILE, then reset
+    # the password, invalidate the admin user's active sessions, and remove the temp file --
+    # all in one SSH round trip so the plaintext password never lands on disk longer than needed.
+    remote_script = f"""
+set -e
+RUN_DIR=$(mktemp -d /tmp/ist-recovery.XXXXXX)
+# This whole script runs as the plain "debian" SSH user; only individual commands are
+# escalated via sudo. Once RUN_DIR is handed to gnuhealth below, "debian" itself can no
+# longer remove it -- the cleanup trap needs sudo too, or it fails silently and leaves
+# the (already-consumed) password file behind.
+trap 'sudo rm -rf "$RUN_DIR"' EXIT
+sudo chown gnuhealth:gnuhealth "$RUN_DIR"
+PASS_FILE="$RUN_DIR/admin_pw"
+printf '%s' {password!r} | sudo -u gnuhealth tee "$PASS_FILE" >/dev/null
+sudo chmod 400 "$PASS_FILE"
+sudo -u gnuhealth env TRYTONPASSFILE="$PASS_FILE" {TRYTOND_ADMIN} -c {TRYTOND_CONF} -d {args.database} -p
+sudo -u postgres psql -d {args.database} -tAc "DELETE FROM ir_session WHERE create_uid = (SELECT id FROM res_user WHERE login='admin');"
+echo OK_UPDATED
+""".strip()
 
-    ssh_cmd = [
-        "ssh", "-n", "-i", SSH_KEY, "-o", "StrictHostKeyChecking=no", VM_HOST,
-        f"sudo -u gnuhealth /home/gnuhealth/venv/bin/python3 -c \"{py_update}\""
-    ]
+    ssh_cmd = ["ssh", "-i", SSH_KEY, "-o", "StrictHostKeyChecking=no", VM_HOST, remote_script]
 
     print("\nExecuting emergency credential reset in Tryton database...")
     proc = subprocess.run(ssh_cmd, capture_output=True, text=True, timeout=60)
@@ -115,9 +121,9 @@ def main():
         "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
         "operator": args.operator,
         "reason": args.reason,
-        "targetUser": args.user,
+        "targetUser": "admin",
         "database": args.database,
-        "passwordHashSha256": pass_hash,
+        "passwordFingerprintSha256": pass_fingerprint,
         "status": "SUCCESS" if success else "FAILED",
         "rawOutput": proc.stdout.strip(),
         "rawError": proc.stderr.strip(),
@@ -125,7 +131,7 @@ def main():
     append_audit_log(audit_entry)
 
     if success:
-        print("[SUCCESS] Administrator credentials successfully reset.")
+        print("[SUCCESS] Administrator credentials reset and active sessions invalidated.")
         print(f"Temporary Password: {password}")
         print(f"Audit Log Recorded: {AUDIT_LOG_FILE}")
         return 0
