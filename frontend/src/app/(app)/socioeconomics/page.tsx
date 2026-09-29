@@ -45,6 +45,7 @@ export default function SocioeconomicsPage() {
   const [ases, setAses] = useState({ ses: "", housing: "", income: "", education: "", homeless: false, notes: "" });
   const [apgar, setApgar] = useState({ famApgarHelp: "1", famApgarDiscussion: "1", famApgarDecisions: "1", famApgarTimesharing: "1", famApgarAffection: "1" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [endingAssessmentId, setEndingAssessmentId] = useState<number | null>(null);
 
   const loadPatients = useCallback(async () => {
     try {
@@ -133,6 +134,7 @@ export default function SocioeconomicsPage() {
   const handleEndAssessment = async (id: number) => {
     if (typeof selectedPatientId !== "number") return;
     setErrorMessage(null);
+    setEndingAssessmentId(id);
     try {
       const res = await fetch("/api/clinical/socioeconomics", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -144,6 +146,8 @@ export default function SocioeconomicsPage() {
       loadProfile(selectedPatientId);
     } catch (e: any) {
       setErrorMessage(e.message || "Failed to finalize assessment");
+    } finally {
+      setEndingAssessmentId(null);
     }
   };
 
@@ -250,7 +254,17 @@ export default function SocioeconomicsPage() {
                           </td>
                           <td className="py-3 px-5"><Badge variant={a.state === "done" ? "green" : "neutral"} size="sm">{a.state === "done" ? "Signed" : "In Progress"}</Badge></td>
                           <td className="py-3 px-5 text-right">
-                            {a.state !== "done" && <Button variant="outline" size="xs" onClick={() => handleEndAssessment(a.id)}>Finalize & Sign</Button>}
+                            {a.state !== "done" && (
+                              <Button
+                                variant="outline"
+                                size="xs"
+                                onClick={() => handleEndAssessment(a.id)}
+                                isLoading={endingAssessmentId === a.id}
+                                disabled={endingAssessmentId !== null}
+                              >
+                                Finalize & Sign
+                              </Button>
+                            )}
                           </td>
                         </tr>
                       ))}

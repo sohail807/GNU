@@ -189,31 +189,57 @@ export async function POST(req: NextRequest) {
 
       const healthprofId = await ClinicalLookupService.resolveClinician(session, body.healthprofId);
 
-      const created = await TrytonClient.execute<number[]>(
+      const assessmentPayload = {
+        patient: patientId,
+        assessment_date: new Date().toISOString().slice(0, 19).replace("T", " "),
+        health_professional: healthprofId || undefined,
+        homeless: !!body.homeless,
+        ses: body.ses || undefined,
+        housing: body.housing || undefined,
+        occupation: body.occupationId ? Number(body.occupationId) : undefined,
+        income: body.income || undefined,
+        fam_apgar_help: body.famApgarHelp || undefined,
+        fam_apgar_discussion: body.famApgarDiscussion || undefined,
+        fam_apgar_decisions: body.famApgarDecisions || undefined,
+        fam_apgar_timesharing: body.famApgarTimesharing || undefined,
+        fam_apgar_affection: body.famApgarAffection || undefined,
+        fam_apgar_score: score,
+        education: body.education || undefined,
+        notes: typeof body.notes === "string" && body.notes.trim() ? body.notes.trim() : undefined,
+        state: "in_progress",
+      };
+
+      // Re-editing and saving again used to always create a brand-new
+      // assessment - the same duplicate-record bug class already fixed for
+      // vitals/SOAP evaluations and invoices. Resume the patient's existing
+      // in-progress assessment instead of forking a second one.
+      let id: number;
+      const existing = await TrytonClient.execute<Array<{ id: number }>>(
         session.username, session.userId, session.sessionToken,
-        "gnuhealth.ses.assessment", "create",
-        [[{
-          patient: patientId,
-          assessment_date: new Date().toISOString().slice(0, 19).replace("T", " "),
-          health_professional: healthprofId || undefined,
-          homeless: !!body.homeless,
-          ses: body.ses || undefined,
-          housing: body.housing || undefined,
-          occupation: body.occupationId ? Number(body.occupationId) : undefined,
-          income: body.income || undefined,
-          fam_apgar_help: body.famApgarHelp || undefined,
-          fam_apgar_discussion: body.famApgarDiscussion || undefined,
-          fam_apgar_decisions: body.famApgarDecisions || undefined,
-          fam_apgar_timesharing: body.famApgarTimesharing || undefined,
-          fam_apgar_affection: body.famApgarAffection || undefined,
-          fam_apgar_score: score,
-          education: body.education || undefined,
-          notes: typeof body.notes === "string" && body.notes.trim() ? body.notes.trim() : undefined,
-          state: "in_progress",
-        }]],
+        "gnuhealth.ses.assessment", "search_read",
+        [[["patient", "=", patientId], ["state", "=", "in_progress"]], 0, 1, [["id", "DESC"]], ["id"]],
         context, session.database
       );
-      return NextResponse.json({ success: true, id: created[0], message: `Socioeconomic assessment recorded (Family APGAR: ${score}/10).` });
+      if (existing[0]) {
+        id = existing[0].id;
+        const { patient: _patient, ...writeablePayload } = assessmentPayload;
+        void _patient;
+        await TrytonClient.execute(
+          session.username, session.userId, session.sessionToken,
+          "gnuhealth.ses.assessment", "write",
+          [[id], writeablePayload],
+          context, session.database
+        );
+      } else {
+        const created = await TrytonClient.execute<number[]>(
+          session.username, session.userId, session.sessionToken,
+          "gnuhealth.ses.assessment", "create",
+          [[assessmentPayload]],
+          context, session.database
+        );
+        id = created[0];
+      }
+      return NextResponse.json({ success: true, id, message: `Socioeconomic assessment recorded (Family APGAR: ${score}/10).` });
     }
 
     if (action === "endAssessment") {

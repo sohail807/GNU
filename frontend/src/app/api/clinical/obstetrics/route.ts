@@ -131,10 +131,20 @@ export async function POST(req: NextRequest) {
       const existing = await TrytonClient.execute<any[]>(
         session.username, session.userId, session.sessionToken,
         "gnuhealth.patient.pregnancy", "search_read",
-        [[["patient", "=", patientId]], 0, 100, [["gravida", "DESC"]], ["id", "gravida"]],
+        [[["patient", "=", patientId]], 0, 100, [["gravida", "DESC"]], ["id", "gravida", "current_pregnancy"]],
         context, session.database
       );
       const nextGravida = (existing[0]?.gravida || 0) + 1;
+
+      // A double-click (or re-opening the "New Pregnancy" form) used to be
+      // able to open two concurrent current_pregnancy=true records for the
+      // same patient - nothing checked for one already open.
+      if (existing.some((p) => p.current_pregnancy)) {
+        return NextResponse.json(
+          { error: "This patient already has an open current pregnancy on file. Close it before recording a new one." },
+          { status: 409 }
+        );
+      }
 
       if (typeof body.lmp !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(body.lmp)) {
         return NextResponse.json({ error: "Last Menstrual Period (LMP) is required." }, { status: 400 });

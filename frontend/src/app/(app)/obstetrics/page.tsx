@@ -117,6 +117,7 @@ export default function ObstetricsPage() {
       setErrorMessage("Enter the gestational weeks at end of pregnancy.");
       return;
     }
+    setIsSubmitting(true);
     try {
       const res = await fetch("/api/clinical/obstetrics", {
         method: "POST",
@@ -130,6 +131,8 @@ export default function ObstetricsPage() {
       setFeedback(data.message || "Pregnancy outcome recorded.");
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to record outcome");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -229,8 +232,8 @@ export default function ObstetricsPage() {
                               placeholder="Weeks"
                               className="w-16 text-[11px] border border-slate-300 rounded px-1.5 py-1"
                             />
-                            <Button variant="primary" size="xs" onClick={() => handleCloseOutcome(p.id)}>Save</Button>
-                            <Button variant="ghost" size="xs" onClick={() => setClosingId(null)}>Cancel</Button>
+                            <Button variant="primary" size="xs" onClick={() => handleCloseOutcome(p.id)} isLoading={isSubmitting} disabled={isSubmitting}>Save</Button>
+                            <Button variant="ghost" size="xs" onClick={() => setClosingId(null)} disabled={isSubmitting}>Cancel</Button>
                           </div>
                         ) : (
                           <Button variant="outline" size="xs" onClick={() => setClosingId(p.id)}>Record Outcome</Button>

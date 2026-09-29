@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { ClinicalLookupService } from "@/lib/clinical-lookup";
 import { hasModuleAccess } from "@/lib/access-control";
 
 export async function GET(req: NextRequest) {
@@ -183,11 +184,12 @@ export async function POST(req: NextRequest) {
         }
       : null;
 
+    const fedCountry = await ClinicalLookupService.resolveFedCountry(session);
     const partyPayload: Record<string, unknown> = {
       name: name.trim(),
       is_person: true,
       is_patient: true,
-      fed_country: "QAT",
+      fed_country: fedCountry,
       ref: qid.trim(),
     };
     if (genderCode) partyPayload.gender = genderCode;

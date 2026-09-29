@@ -127,8 +127,12 @@ export async function POST(req: NextRequest) {
     const context = { company: session.companyId };
     const healthprofId = await ClinicalLookupService.resolveClinician(session, body.healthprofId);
 
+    // Use UTC getters, not local ones - GNU Health stores/compares naive
+    // dates as UTC, so a process running in a non-UTC timezone can record
+    // the wrong calendar date relative to Tryton's own "today" near a day
+    // boundary (same bug class fixed in triage/consultations/route.ts).
     const today = new Date();
-    const todayObj = { __class__: "date", year: today.getFullYear(), month: today.getMonth() + 1, day: today.getDate() };
+    const todayObj = { __class__: "date", year: today.getUTCFullYear(), month: today.getUTCMonth() + 1, day: today.getUTCDate() };
 
     let payload: Record<string, unknown>;
 

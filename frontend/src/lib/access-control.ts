@@ -189,11 +189,19 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<HospitalRole, Record<AppModule, bo
     ledger: false,
     patient_chart: true,
     immunizations: false,
-    obstetrics: false,
+    // Only "admin" had these three true, but the admin account structurally
+    // cannot author these records: gnuhealth.patient.pregnancy/ses.assessment
+    // create() rejects with "SM-CORE-0007: Currently logged in user is not
+    // associated to a health professional" for any session not linked to
+    // one - confirmed live, admin has no such link. That made these modules
+    // completely dead end-to-end (only role with UI access couldn't
+    // actually save anything). Physician is linked to a real health
+    // professional, same reasoning already applied to surgery above.
+    obstetrics: true,
     lifestyle: false,
     ambulatory: false,
-    socioeconomics: false,
-    womens_health: false,
+    socioeconomics: true,
+    womens_health: true,
     facilities: false,
     staff_directory: false,
     family: false,

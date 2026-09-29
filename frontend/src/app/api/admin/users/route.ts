@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
+import { ClinicalLookupService } from "@/lib/clinical-lookup";
 import {
   UserAccessProfile,
   DEFAULT_ROLE_PERMISSIONS,
@@ -333,20 +334,7 @@ export async function POST(req: NextRequest) {
           // and wizards do), not on a raw model.party.party.create RPC call
           // like this one. Confirmed live: omitting it throws a bare
           // KeyError ("'fed_country'") instead of a readable UserError.
-          // Resolve the tenant's configured federation country code the
-          // same way default_fed_country() does, falling back to GNU
-          // Health's own documented "unidentified nationality" code.
-          let fedCountry = "XXX";
-          try {
-            const fedConfig = await TrytonClient.execute<Array<{ code?: string }>>(
-              session.username, session.userId, session.sessionToken,
-              "gnuhealth.federation.country.config", "read", [[1], ["code"]],
-              { company: session.companyId }, session.database
-            );
-            if (fedConfig[0]?.code) fedCountry = fedConfig[0].code;
-          } catch {
-            // Fall back to "XXX" - never block staff provisioning on this.
-          }
+          const fedCountry = await ClinicalLookupService.resolveFedCountry(session);
 
           const partyRes = await TrytonClient.execute<number[]>(
             session.username,

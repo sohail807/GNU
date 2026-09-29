@@ -18,6 +18,17 @@ export async function POST(req: NextRequest) {
     // (bare-IP / pre-domain access, where there's no subdomain to resolve from).
     const tenant = resolveTenant(req.headers.get("x-tenant-id") || tenantId);
 
+    // The platform onboarding screen's "suspend tenant" action only ever flipped this flag in
+    // the registry - nothing here ever read it back, so a suspended hospital's staff could
+    // keep logging in and using the system exactly as before. Confirmed live: suspending a
+    // freshly provisioned test tenant did not block its admin login.
+    if (tenant.status !== "active") {
+      return NextResponse.json(
+        { error: "This hospital's access has been suspended. Contact your platform operator." },
+        { status: 403 }
+      );
+    }
+
     // Authenticate with authoritative backend system backend for the tenant's dedicated database
     const { userId, sessionToken } = await TrytonClient.login(username.trim(), password, tenant.database);
 

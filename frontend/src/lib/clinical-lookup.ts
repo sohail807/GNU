@@ -291,6 +291,27 @@ export class ClinicalLookupService {
   }
 
   /**
+   * Dynamically resolves the tenant's federation country code (party.party's
+   * required fed_country field - the ISO 3166-1 alpha-3 prefix for
+   * GNU Health's federation account/PUID numbering). NEVER hardcode "QAT" -
+   * this is a multi-tenant platform and a hospital onboarded in another
+   * country would get every patient/staff party mis-tagged. Falls back to
+   * GNU Health's own documented "unidentified nationality" code.
+   */
+  static async resolveFedCountry(session: SessionData): Promise<string> {
+    try {
+      const fedConfig = await TrytonClient.execute<Array<{ code?: string }>>(
+        session.username, session.userId, session.sessionToken,
+        "gnuhealth.federation.country.config", "read", [[1], ["code"]],
+        { company: session.companyId }, session.database
+      );
+      return fedConfig[0]?.code || "XXX";
+    } catch {
+      return "XXX";
+    }
+  }
+
+  /**
    * Dynamically resolves the cash/bank payment method used to settle an
    * invoice via the account.invoice.pay wizard. NEVER hardcodes payment
    * method 1 - the seeded "Cash Payment (QAR)" method just happens to be id
