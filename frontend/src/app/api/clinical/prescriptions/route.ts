@@ -419,21 +419,12 @@ export async function POST(req: NextRequest) {
     const prescriptionId = positiveId(created[0]);
     if (!prescriptionId) return NextResponse.json({ error: "Tryton did not return a prescription record ID." }, { status: 502 });
 
-    try {
-      await TrytonClient.execute(
-        session.username,
-        session.userId,
-        session.sessionToken,
-        "gnuhealth.prescription.order",
-        "create_prescription",
-        [[prescriptionId]],
-        { company: session.companyId },
-        session.database
-      );
-    } catch {
-      // Continue to read status
-    }
-
+    // Deliberately does NOT call create_prescription here. That action moves the order to
+    // "done", which pharmacy's own queue/stats treat as "already dispensed" (pharmacy/route.ts) -
+    // calling it right after the physician saves would mark every prescription dispensed before
+    // pharmacy ever sees it, skipping their verification step. The order is left in Tryton's
+    // native "draft" state so it shows up as pending in the pharmacy module; pharmacy's own
+    // dispense action is what actually transitions it to "done".
     const issued = await TrytonClient.execute<Array<{ id: number; prescription_id: string; state: string }>>(
       session.username,
       session.userId,
@@ -444,7 +435,7 @@ export async function POST(req: NextRequest) {
       { company: session.companyId },
       session.database
     );
-    const finalState = issued[0]?.state || "done";
+    const finalState = issued[0]?.state || "draft";
     const ref = issued[0]?.prescription_id || `PRES-${prescriptionId}`;
 
     return NextResponse.json({

@@ -437,7 +437,7 @@ export default function PhysicianConsultationPage() {
       setPrescriptionRef(ref);
       setPrescriptions([]);
       setAcknowledgeWarnings(false);
-      setFeedback(`Prescription ${ref} was issued by GNU Health for ${patient.name}.`);
+      setFeedback(`Prescription ${ref} was saved for ${patient.name} and sent to pharmacy for dispensing.`);
     } catch (err: any) {
       setErrorMessage(err.message || "Error issuing prescription order");
     } finally {
