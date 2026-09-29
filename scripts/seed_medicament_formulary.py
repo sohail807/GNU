@@ -24,7 +24,15 @@ from trytond.transaction import Transaction
 from trytond.pool import Pool
 
 FORMULARY = [
-    # name, active_component, strength, unit_name, route_name, form_name
+    # name, active_component, strength, unit_name, route_name, form_name, is_vaccine
+    # The immunizations module's vaccine catalog is loaded live from
+    # gnuhealth.medicament where is_vaccine=True (confirmed live: zero such
+    # records existed in this tenant, so the module rendered a permanently
+    # empty picker with nothing to select - not a code bug, a formulary gap,
+    # same class of issue as the original single-drug Amoxicillin formulary
+    # this script was written to fix).
+    ("Influenza Vaccine (Inactivated)", "Influenza virus antigen", None, None, "Intramuscular", "Injection", True),
+    ("Tetanus Toxoid Vaccine", "Tetanus toxoid", None, None, "Intramuscular", "Injection", True),
     ("Paracetamol 500mg", "Paracetamol", 500, "mg", "Oral", "Tablet"),
     ("Ibuprofen 400mg", "Ibuprofen", 400, "mg", "Oral", "Tablet"),
     ("Azithromycin 500mg", "Azithromycin", 500, "mg", "Oral", "Tablet"),
@@ -114,7 +122,9 @@ def main():
         created = []
         skipped = []
 
-        for name, active_component, strength, unit_name, route_name, form_name in FORMULARY:
+        for entry in FORMULARY:
+            name, active_component, strength, unit_name, route_name, form_name = entry[:6]
+            is_vaccine = entry[6] if len(entry) > 6 else False
             if name in existing_names:
                 skipped.append(name)
                 continue
@@ -145,6 +155,7 @@ def main():
             medicament = Medicament()
             medicament.product = product
             medicament.active_component = active_component
+            medicament.is_vaccine = is_vaccine
             if strength is not None:
                 medicament.strength = strength
             if dose_unit:
