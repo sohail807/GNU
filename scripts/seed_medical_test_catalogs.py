@@ -9,7 +9,8 @@ Confirmed live before this script:
     antibiotics/analgesics, cardiac drugs, or psychiatric medication - all
     relevant now that this session also seeded ICU/surgical/maternity wards
     and beds (seed_reference_catalogs.py) with nothing to actually prescribe
-    for those patients.
+    for those patients. Also only 2 vaccines (Influenza, Tetanus), so the
+    immunizations module's picker had almost nothing beyond those two.
   - gnuhealth.lab.test_type: 9 panels, all with real analyte criteria
     templates already - genuinely fine, but missing several very common
     panels (lipid, thyroid, glycemic, coagulation).
@@ -64,6 +65,19 @@ NEW_MEDICAMENTS = [
     ("Hydrocortisone Sodium Succinate 100mg Injection", "Hydrocortisone sodium succinate", 100, "mg", "Intravenous", "Solution"),
     ("Adrenaline (Epinephrine) 1mg/mL Injection", "Epinephrine", 1, "mg", "Intramuscular", "Solution"),
     ("Atropine Sulfate 0.6mg Injection", "Atropine sulfate", 0.6, "mg", "Intravenous", "Solution"),
+    # Vaccine catalog was down to 2 entries (Influenza, Tetanus, from
+    # seed_medicament_formulary.py) - the immunizations module's vaccine
+    # picker had almost nothing to choose from beyond those.
+    ("Hepatitis B Vaccine (Recombinant)", "Hepatitis B surface antigen", None, None, "Intramuscular", "Solution", True),
+    ("MMR Vaccine (Measles, Mumps, Rubella)", "Live attenuated MMR virus strains", None, None, "Subcutaneous", "Solution", True),
+    ("Varicella (Chickenpox) Vaccine", "Live attenuated varicella-zoster virus", None, None, "Subcutaneous", "Solution", True),
+    ("Pneumococcal Conjugate Vaccine (PCV13)", "Streptococcus pneumoniae polysaccharide conjugate", None, None, "Intramuscular", "Solution", True),
+    ("HPV Vaccine (Human Papillomavirus)", "HPV L1 protein antigens", None, None, "Intramuscular", "Solution", True),
+    ("COVID-19 mRNA Vaccine", "mRNA encoding SARS-CoV-2 spike protein", None, None, "Intramuscular", "Solution", True),
+    ("Rotavirus Vaccine (Oral)", "Live attenuated rotavirus strains", None, None, "Oral", "Solution", True),
+    ("BCG Vaccine (Tuberculosis)", "Live attenuated Mycobacterium bovis", None, None, "Intradermal", "Solution", True),
+    ("Hepatitis A Vaccine (Inactivated)", "Inactivated hepatitis A virus", None, None, "Intramuscular", "Solution", True),
+    ("Meningococcal Conjugate Vaccine", "Neisseria meningitidis polysaccharide conjugate", None, None, "Intramuscular", "Solution", True),
 ]
 
 # panel_name, panel_code, specimen_type, [(analyte, code, unit_name, lower, upper), ...]
@@ -184,7 +198,9 @@ def main():
 
         # --- Medicaments ---
         existing_med_names = {m.rec_name for m in Medicament.search([])}
-        for name, active_component, strength, unit_name, route_name, form_name in NEW_MEDICAMENTS:
+        for entry in NEW_MEDICAMENTS:
+            name, active_component, strength, unit_name, route_name, form_name = entry[:6]
+            is_vaccine = entry[6] if len(entry) > 6 else False
             if name in existing_med_names:
                 report["skipped"].append(f"medicament: {name}")
                 continue
@@ -209,7 +225,7 @@ def main():
             medicament = Medicament()
             medicament.product = product
             medicament.active_component = active_component
-            medicament.is_vaccine = False
+            medicament.is_vaccine = is_vaccine
             if strength is not None:
                 medicament.strength = strength
             dose_unit = get_dose_unit(unit_name) if unit_name else None
