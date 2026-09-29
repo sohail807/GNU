@@ -71,18 +71,29 @@ def main():
     deleted = []
     failed = []
 
-    with Transaction().start(database, 0, context={}) as transaction:
+    # A Postgres transaction that hits a DB-level error (e.g. Tryton's own
+    # AccessError from refusing to delete a posted invoice) is left "aborted"
+    # on that connection until it's rolled back - any further command on the
+    # SAME connection/transaction fails too, even one that would otherwise
+    # have succeeded. Confirmed live: after the first paid invoice failed,
+    # every item queued after it in one shared transaction failed as well,
+    # including two plain draft invoices that should have deleted cleanly.
+    # Each target now gets its own fresh Transaction().start() (a genuinely
+    # separate connection), so one item's failure can never poison another's.
+    with Transaction().start(database, 0, context={}, readonly=True) as lookup_txn:
         Procedure = pool.get("gnuhealth.procedure")
         procedure_codes = Procedure.search([("name", "=", "VT-001")])
         procedure_ids = [p.id for p in procedure_codes]
+        lookup_txn.rollback()
 
-        for model_name, ids, label in TARGETS:
-            if model_name == "gnuhealth.procedure":
-                ids = procedure_ids
-            if not ids:
-                continue
-            Model = pool.get(model_name)
-            try:
+    for model_name, ids, label in TARGETS:
+        if model_name == "gnuhealth.procedure":
+            ids = procedure_ids
+        if not ids:
+            continue
+        try:
+            with Transaction().start(database, 0, context={}):
+                Model = pool.get(model_name)
                 records = Model.browse(ids)
                 records = [r for r in records if Model.search_count([("id", "=", r.id)])]
                 if not records:
@@ -92,11 +103,8 @@ def main():
                     continue
                 Model.delete(records)
                 deleted.append(f"{label}: {model_name} {[r.id for r in records]}")
-            except Exception as exc:
-                failed.append(f"{label}: {model_name} {ids} -> {exc}")
-
-        if not dry_run:
-            transaction.commit()
+        except Exception as exc:
+            failed.append(f"{label}: {model_name} {ids} -> {exc}")
 
     print(f"\nDeleted ({len(deleted)}):")
     for line in deleted:
