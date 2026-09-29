@@ -217,6 +217,28 @@ export async function POST(req: NextRequest) {
 
     const context = { company: session.companyId };
 
+    // Native GNU Health only ever assigns a bed via the confirmed()/admission() workflow
+    // buttons, which check the bed isn't already reserved/occupied/pending-clean before
+    // touching it. This route creates the registration directly with create(), skipping
+    // that check entirely - confirmed live: admitting a second patient to a bed still
+    // sitting in "to_clean" (discharged but not yet cleaned) silently succeeded and
+    // overwrote the bed straight to "occupied", losing track of the pending clean step.
+    // Only "free" is a genuinely available bed - reject anything else with a clear 409.
+    if (bedId) {
+      const bedRows = await TrytonClient.execute<Array<{ id: number; state: string }>>(
+        session.username, session.userId, session.sessionToken,
+        "gnuhealth.hospital.bed", "read", [[parseInt(bedId, 10)], ["id", "state"]],
+        context, session.database
+      );
+      const bedState = bedRows[0]?.state;
+      if (bedState !== "free") {
+        return NextResponse.json(
+          { error: `This bed is not available for admission (current state: ${bedState || "unknown"}). Select a free bed.` },
+          { status: 409 }
+        );
+      }
+    }
+
     // Register admission in Tryton
     const admissionData = {
       patient: parseInt(patientId, 10),
