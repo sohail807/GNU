@@ -170,6 +170,17 @@ export async function POST(req: NextRequest) {
           { company: session.companyId }, session.database
         );
         labOrderId = created[0];
+        // create() alone leaves the order's own critearea empty - complete_criteareas is a
+        // native GNU Health button action (health_lab.py Lab.complete_criteareas) that copies
+        // the test type's analyte template onto the order, and it never runs automatically.
+        // Without this call, laboratory/route.ts's own save-results action can never accept
+        // results for a physician-ordered test (it validates submitted analytes against
+        // lab.critearea, which stays permanently empty).
+        await TrytonClient.execute(
+          session.username, session.userId, session.sessionToken,
+          "gnuhealth.lab", "complete_criteareas", [[labOrderId]],
+          { company: session.companyId }, session.database
+        );
       }
       if (imagingTestId) {
         const created = await TrytonClient.execute<number[]>(
