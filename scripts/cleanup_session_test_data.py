@@ -91,20 +91,25 @@ def main():
             ids = procedure_ids
         if not ids:
             continue
-        try:
-            with Transaction().start(database, 0, context={}):
-                Model = pool.get(model_name)
-                records = Model.browse(ids)
-                records = [r for r in records if Model.search_count([("id", "=", r.id)])]
-                if not records:
-                    continue
-                if dry_run:
-                    print(f"[DRY RUN] Would delete {label}: {model_name} {[r.id for r in records]}")
-                    continue
-                Model.delete(records)
-                deleted.append(f"{label}: {model_name} {[r.id for r in records]}")
-        except Exception as exc:
-            failed.append(f"{label}: {model_name} {ids} -> {exc}")
+        # One id at a time, not the whole group in a single Model.delete()
+        # call. Confirmed live: delete()'s own check_modify() validates the
+        # ENTIRE batch up front - a single posted/paid invoice bundled in
+        # with two perfectly deletable drafts blocked all three, reporting
+        # one failure that looked like it covered every id in the group when
+        # really only one of them was the actual problem.
+        for record_id in ids:
+            try:
+                with Transaction().start(database, 0, context={}):
+                    Model = pool.get(model_name)
+                    if not Model.search_count([("id", "=", record_id)]):
+                        continue
+                    if dry_run:
+                        print(f"[DRY RUN] Would delete {label}: {model_name} [{record_id}]")
+                        continue
+                    Model.delete(Model.browse([record_id]))
+                    deleted.append(f"{label}: {model_name} [{record_id}]")
+            except Exception as exc:
+                failed.append(f"{label}: {model_name} [{record_id}] -> {exc}")
 
     print(f"\nDeleted ({len(deleted)}):")
     for line in deleted:
