@@ -78,12 +78,20 @@ def deploy():
         print("Build Error:\n", p_build.stderr.decode("utf-8", errors="replace").encode("ascii", "replace").decode("ascii"))
         sys.exit(1)
 
-    print("\n4. Restarting Next.js service on VM...")
+    print("\n4. Restarting Next.js service on VM via PM2...")
+    # The production frontend is supervised by PM2 as "ist-health-frontend" (confirmed live:
+    # `ps` traced the listening process on :3000 up through PM2's God Daemon, not a systemd
+    # unit or a bare process). This used to `fuser -k 3000/tcp` and start a detached `nohup`
+    # process instead - that orphaned the app from PM2 entirely (no more crash auto-restart,
+    # no log rotation via pm2-logrotate), even though the site still came back up and looked
+    # fine. --update-env picks up any changes to .env.production written in step 2.1.
     restart_cmd = [
         "ssh", "-i", SSH_KEY, "-o", "StrictHostKeyChecking=no", VM_HOST,
-        f"sudo fuser -k 3000/tcp || true; sleep 2; cd {REMOTE_DIR} && sudo -u MohammedSohail nohup npm run start -- --port 3000 --hostname 127.0.0.1 > /tmp/next-server.log 2>&1 &"
+        "sudo -u MohammedSohail env PM2_HOME=/home/MohammedSohail/.pm2 "
+        "pm2 restart ist-health-frontend --update-env"
     ]
     p_restart = subprocess.run(restart_cmd, capture_output=True)
+    print(p_restart.stdout.decode("utf-8", errors="replace"))
     if p_restart.returncode != 0:
         print("Restart command failed:", p_restart.stderr.decode("utf-8", errors="replace"))
         sys.exit(1)
@@ -92,7 +100,8 @@ def deploy():
     print("\n5. Verifying server health...")
     health_cmd = [
         "ssh", "-i", SSH_KEY, "-o", "StrictHostKeyChecking=no", VM_HOST,
-        "sleep 4; curl -I http://127.0.0.1:3000/login; sudo ss -tulpn | grep 3000"
+        "sleep 4; curl -I http://127.0.0.1:3000/login; "
+        "sudo -u MohammedSohail env PM2_HOME=/home/MohammedSohail/.pm2 pm2 list"
     ]
     p_health = subprocess.run(health_cmd, capture_output=True)
     print(p_health.stdout.decode("utf-8", errors="replace"))
