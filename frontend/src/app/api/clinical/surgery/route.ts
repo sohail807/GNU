@@ -216,7 +216,7 @@ export async function POST(req: NextRequest) {
   }
   try {
     const body = await req.json();
-    const { patientId, description, operatingRoomId, surgeryDate, anesthesiaType, classification } = body;
+    const { patientId, description, operatingRoomId, surgeryDate, durationMinutes, anesthesiaType, classification } = body;
 
     if (!patientId || !description) {
       return NextResponse.json(
@@ -235,11 +235,49 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const resolvedOrId = operatingRoomId ? parseInt(operatingRoomId, 10) : undefined;
+    const startDate = surgeryDate || new Date().toISOString().slice(0, 19).replace("T", " ");
+
+    // gnuhealth.surgery.create() creates a companion gnuhealth.or.schedule entry whenever an
+    // operating_room is set, and that model requires reserve_to (mapped from surgery_end_date)
+    // - the booking form never collects an end time, so every booking that assigned an OR
+    // failed outright with "A value is required for field 'To' in Operating Rooms Schedules."
+    // Default to a 2-hour block (or the caller's durationMinutes) when an OR is selected.
+    let endDate: string | undefined;
+    if (resolvedOrId) {
+      const start = new Date(startDate.replace(" ", "T") + "Z");
+      const minutes = Number.isFinite(Number(durationMinutes)) && Number(durationMinutes) > 0 ? Number(durationMinutes) : 120;
+      const end = new Date(start.getTime() + minutes * 60000);
+      endDate = end.toISOString().slice(0, 19).replace("T", " ");
+
+      // Native GNU Health only rejects an overlapping OR booking inside the confirmed() button,
+      // which this route bypasses by writing state: "confirmed" directly on create. Reproduce
+      // that same conflict check here so two surgeries can't be double-booked into the same OR.
+      const overlapping = await TrytonClient.execute<Array<{ id: number }>>(
+        session.username, session.userId, session.sessionToken,
+        "gnuhealth.surgery", "search_read",
+        [[
+          ["operating_room", "=", resolvedOrId],
+          ["state", "in", ["confirmed", "in_progress"]],
+          ["surgery_date", "<=", endDate],
+          ["surgery_end_date", ">=", startDate],
+        ], 0, 1, null, ["id"]],
+        context, session.database
+      );
+      if (overlapping.length > 0) {
+        return NextResponse.json(
+          { error: `This operating room is already booked for an overlapping time (surgery #${overlapping[0].id}). Choose a different room or time.` },
+          { status: 409 }
+        );
+      }
+    }
+
     const surgeryData = {
       patient: resolvedPatientId,
       description,
-      operating_room: operatingRoomId ? parseInt(operatingRoomId, 10) : undefined,
-      surgery_date: surgeryDate || new Date().toISOString().slice(0, 19).replace("T", " "),
+      operating_room: resolvedOrId,
+      surgery_date: startDate,
+      surgery_end_date: endDate,
       anesthesia_type: anesthesiaType || "general",
       classification: CLASSIFICATION_TO_TRYTON[classification] || CLASSIFICATION_TO_TRYTON.elective,
       surgeon: session.healthprofId || undefined,
