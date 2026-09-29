@@ -366,4 +366,49 @@ export class TrytonClient {
     }
   }
 
+  /**
+   * Runs one of Tryton's native report definitions (e.g. "account.invoice")
+   * against a record and returns the raw rendered document. GNU Health's
+   * report templates are ODT (OpenDocument) - Tryton only converts to PDF
+   * itself if the report action's own "extension" field is configured to
+   * "pdf", which is a persistent admin config change, not something a
+   * caller can request per-call. Callers that need PDF do their own
+   * ODT->PDF conversion (see /api/clinical/billing/invoice-pdf) rather than
+   * mutating that shared Tryton config.
+   */
+  static async executeReport(
+    username: string,
+    userId: number,
+    sessionToken: string,
+    reportName: string,
+    ids: number[],
+    context: Record<string, unknown> = {},
+    database?: string
+  ): Promise<{ extension: string; data: Buffer; directPrint: boolean; name: string | false }> {
+    const auth = `Session ${this.encodeBase64(`${username}:${userId}:${sessionToken}`)}`;
+    const fullContext = { language: "en", ...context };
+    const res = await fetch(this.getBaseUrl(database), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: auth },
+      body: JSON.stringify({ id: Date.now(), method: `report.${reportName}.execute`, params: [ids, {}, fullContext] }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(30_000),
+    });
+    if (!res.ok) {
+      const error = new Error(`Tryton report request failed (${res.status}).`) as HttpStatusError;
+      error.status = res.status;
+      throw error;
+    }
+    const json = await res.json();
+    if (json.error) {
+      const errText = JSON.stringify(json.error);
+      const status = errText.includes("AccessError") || errText.includes("not allowed to access") ? 403 : 502;
+      const error = new Error(status === 403 ? "Access denied while generating the report." : "The GNU Health backend rejected the report request.") as HttpStatusError;
+      error.status = status;
+      throw error;
+    }
+    const [extension, docBytes, directPrint, name] = json.result as [string, { base64: string }, boolean, string | false];
+    return { extension, data: Buffer.from(docBytes.base64, "base64"), directPrint, name };
+  }
+
 }

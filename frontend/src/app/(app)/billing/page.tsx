@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   CreditCard,
   Printer,
+  Download,
   ShieldCheck,
   RefreshCw,
   AlertCircle,
@@ -64,6 +65,7 @@ export default function CashierBillingPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [hospitalName, setHospitalName] = useState("");
   const [hospitalAddress, setHospitalAddress] = useState<string | null>(null);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [patientsList, setPatientsList] = useState<any[]>([]);
   const [activeInvoice, setActiveInvoice] = useState<Invoice | null>(null);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
@@ -209,6 +211,34 @@ export default function CashierBillingPage() {
   };
 
   // POST INVOICE Action (Resolves S7.5: Post Invoice)
+  const handleDownloadPdf = async (invoiceId: number) => {
+    setIsDownloadingPdf(true);
+    setErrorMessage(null);
+    try {
+      const res = await fetch(`/api/clinical/billing/invoice-pdf?invoiceId=${invoiceId}`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to generate invoice PDF");
+      }
+      const blob = await res.blob();
+      const disposition = res.headers.get("Content-Disposition") || "";
+      const match = /filename="([^"]+)"/.exec(disposition);
+      const filename = match?.[1] || `Invoice-${invoiceId}.pdf`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setErrorMessage(err.message || "Failed to generate invoice PDF");
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
   const handlePostInvoice = async () => {
     if (!activeInvoice) return;
     setIsProcessing(true);
@@ -410,6 +440,21 @@ export default function CashierBillingPage() {
               >
                 + New Customer Invoice
               </Button>
+
+              {/* DOWNLOAD PDF - real Tryton "account.invoice" report, rendered from the
+                  actual invoice record then converted from ODT to PDF locally */}
+              {activeInvoice && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDownloadPdf(activeInvoice.id)}
+                  isLoading={isDownloadingPdf}
+                  disabled={isDownloadingPdf}
+                  leftIcon={<Download className="w-4 h-4 text-slate-600" />}
+                >
+                  Download PDF
+                </Button>
+              )}
 
               {/* POST INVOICE BUTTON (Resolves S7.5) */}
               {activeInvoice?.status === "draft" && (
