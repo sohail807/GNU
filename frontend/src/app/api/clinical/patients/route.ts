@@ -235,7 +235,7 @@ export async function POST(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.patient",
       "read",
-      [[patientId], ["id", "puid", "rec_name", "blood_type"]],
+      [[patientId], ["id", "puid", "rec_name", "blood_type", "rh"]],
       { company: session.companyId },
       session.database
     );
