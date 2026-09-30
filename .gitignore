@@ -81,3 +81,7 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 .DS_Store
+
+# Firebase CLI local cache
+.firebase/
+firebase-debug.log
