@@ -23,20 +23,22 @@ IST Health HMIS is an enterprise hospital operating platform delivering outpatie
 ---
 
 ## 3. Verified Staff Personas & Credentials
-The live portal is accessible at `http://34.7.237.8/login` (and locally at `http://localhost:3000/login`).
+**Production:** `https://isthealth.irisstar.tech` (Firebase Hosting -> Cloud Run `ist-health-frontend`, project `ist-health-hmis-21722`, region `europe-west4`). The legacy VM portal at `http://34.7.237.8/login` is deprecated. Local dev: `http://localhost:3000/login`.
+
+> The `demo_*` accounts (all but `demo_admin1`) were suspended in the production database on 2026-09-30 and the `uat_*` accounts are pending suspension. Passwords were removed from this file; use real staff accounts. For local/synthetic testing create dedicated synthetic accounts.
 
 | Department / Role | Username | Password | Default Landing | Capabilities |
 | :--- | :--- | :--- | :--- | :--- |
-| **Front Desk / Reception** | `demo_frontdesk1` | `FrontDesk2026!` | `/frontdesk` | Queue management, arrival check-in, appointments |
-| **Outpatient Physician** | `demo_dr1` | `Doctor2026!` | `/physician` | Consultation, SOAP clinical notes, prescriptions, diagnostics |
-| **Inpatient Department** | `demo_dr1` / `demo_nurse1` | `Doctor2026!` | `/inpatient` | Bed census, ward management, admissions & discharges |
-| **Surgical Suite / OT** | `demo_dr1` | `Doctor2026!` | `/surgery` | Operating theatre scheduling, surgical case logs |
-| **Hospital Pharmacy** | `demo_dr1` / `demo_cashier1` | `Doctor2026!` | `/pharmacy` | E-prescription fulfillment, drug formulary |
-| **Triage Nurse** | `demo_nurse1` | `Nurse2026!` | `/nursing` | Vital signs triage (BP, HR, SpO2, Temp, RR), nursing assessments |
-| **Cashier / Billing** | `demo_cashier1` | `Cashier2026!` | `/billing` | Patient invoice settlement, POS cash/card payment collection |
-| **Diagnostic Lab** | `demo_lab1` | `Lab2026!` | `/laboratory` | Test criteria entry, lab results verification |
-| **Digital Radiology** | `demo_rad1` | `Rad2026!` | `/radiology` | Diagnostic imaging studies, radiologist findings |
-| **System Administrator** | `demo_admin1` | `DemoAdmin2026!` | `/admin` | User management, RBAC dispatching, audit trails |
+| **Front Desk / Reception** | `demo_frontdesk1` | `(disabled in production 2026-09-30)` | `/frontdesk` | Queue management, arrival check-in, appointments |
+| **Outpatient Physician** | `demo_dr1` | `(disabled in production 2026-09-30)` | `/physician` | Consultation, SOAP clinical notes, prescriptions, diagnostics |
+| **Inpatient Department** | `demo_dr1` / `demo_nurse1` | `(disabled in production 2026-09-30)` | `/inpatient` | Bed census, ward management, admissions & discharges |
+| **Surgical Suite / OT** | `demo_dr1` | `(disabled in production 2026-09-30)` | `/surgery` | Operating theatre scheduling, surgical case logs |
+| **Hospital Pharmacy** | `demo_dr1` / `demo_cashier1` | `(disabled in production 2026-09-30)` | `/pharmacy` | E-prescription fulfillment, drug formulary |
+| **Triage Nurse** | `demo_nurse1` | `(disabled in production 2026-09-30)` | `/nursing` | Vital signs triage (BP, HR, SpO2, Temp, RR), nursing assessments |
+| **Cashier / Billing** | `demo_cashier1` | `(disabled in production 2026-09-30)` | `/billing` | Patient invoice settlement, POS cash/card payment collection |
+| **Diagnostic Lab** | `demo_lab1` | `(disabled in production 2026-09-30)` | `/laboratory` | Test criteria entry, lab results verification |
+| **Digital Radiology** | `demo_rad1` | `(disabled in production 2026-09-30)` | `/radiology` | Diagnostic imaging studies, radiologist findings |
+| **System Administrator** | `demo_admin1` | `(pending suspension)` | `/admin` | User management, RBAC dispatching, audit trails |
 
 *(Note: The login page includes 1-click Verified Demo Station buttons for instant persona fill).*
 
@@ -125,3 +127,16 @@ Rotated 2026-09-26 after the previous key was found committed in git history (le
 - **Tryton JSON-RPC Dispatcher:** `frontend/src/lib/tryton-client.ts` dispatches directly to GNU Health Tryton models with session authentication tokens.
 - **UI Framework:** Next.js App Router (`src/app/`), React 19, Lucide React icons, Tailwind CSS tokens in `src/app/globals.css`.
 - **Role Redirection:** Managed centrally in `frontend/src/lib/access-control.ts` mapping Tryton user groups (`Health Administration`, `Health Physician`, `Health Nursing`, `Health Lab`, `Health Radiology`, `Account Administration`) to application workspaces.
+
+
+---
+
+## 7. Production Deployment (Cloud Run + Firebase Hosting)
+- **Flow:** browser -> Firebase Hosting (`isthealth.irisstar.tech`, GoDaddy CNAME -> `ist-health-hmis-21722.web.app`) -> Cloud Run `ist-health-frontend` -> GNU Health backend on the VM over HTTPS (`https://34-7-237-8.sslip.io`, nginx site `/etc/nginx/sites-enabled/api443`, Let's Encrypt, exposes only `/gnuhealth*/`). TODO: replace sslip.io with a real API hostname.
+- **Deploy:** `powershell -File scripts/deploy_cloudrun.ps1` (needs gcloud logged in as `praveen@irisstar.tech`). Hosting only needs redeploying when `firebase.json` changes: `firebase deploy --only hosting --project ist-health-hmis-21722`.
+- **Cookie:** Firebase Hosting only forwards a cookie named `__session`, so Cloud Run sets `SESSION_COOKIE_NAME=__session`. Do not rename it.
+- **Do not add** an `index.html` to `hosting-public/`: static files win over the Cloud Run rewrite and the site goes blank.
+- **State:** logout revocations and the tenant registry live on a GCS bucket mounted at `/mnt/state` (`ist-health-hmis-21722-state`, versioned). Secrets: `ist-session-key` in Secret Manager. Runtime identity: `ist-health-run@ist-health-hmis-21722.iam.gserviceaccount.com`.
+- **Protections:** failed-login throttle (per username + IP, `frontend/src/lib/rate-limit.ts`), security headers + conservative CSP + noindex (`frontend/next.config.ts`), password recovery disabled (503) until SMTP exists.
+- **Monitoring:** Cloud Monitoring uptime check on `/login` every 5 minutes (no alert channel yet).
+- **Backups:** VM `gnuhealth-backup.timer` runs daily 02:00 UTC (14-day retention, off-site copy to GCS).
