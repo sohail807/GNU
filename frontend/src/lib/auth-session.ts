@@ -3,7 +3,9 @@ import { cookies } from "next/headers";
 import fs from "fs";
 import path from "path";
 
-const COOKIE_NAME = "ist_health_session";
+// Firebase Hosting only forwards a cookie named `__session` to Cloud Run, so that deployment
+// overrides this via SESSION_COOKIE_NAME.
+const COOKIE_NAME = process.env.SESSION_COOKIE_NAME || "ist_health_session";
 const SESSION_TTL_SECONDS = 8 * 60 * 60;
 const REVOCATION_DIR = process.env.SESSION_REVOCATION_DIR || path.join(process.cwd(), ".tokens");
 const REVOCATION_FILE = path.join(REVOCATION_DIR, "revoked_sessions.json");
