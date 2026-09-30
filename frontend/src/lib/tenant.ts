@@ -37,7 +37,8 @@ const SEED_REGISTRY: Record<string, TenantConfig> = {
 // onboarding flow can write new tenants at runtime without needing a rebuild or redeploy.
 // Resolved relative to the process's working directory, which for both the production and
 // staging PM2 processes is the app root (/var/www/ist-health-frontend[-staging]).
-const REGISTRY_PATH = path.join(process.cwd(), "data", "tenants-registry.json");
+// TENANT_REGISTRY_DIR points this at a durable shared volume on Cloud Run.
+const REGISTRY_PATH = path.join(process.env.TENANT_REGISTRY_DIR || path.join(process.cwd(), "data"), "tenants-registry.json");
 
 function readRegistryFile(): Record<string, TenantConfig> {
   try {

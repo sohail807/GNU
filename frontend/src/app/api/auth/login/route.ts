@@ -3,13 +3,25 @@ import { TrytonClient } from "@/lib/tryton-client";
 import { setSession } from "@/lib/auth-session";
 import { resolveRoleFromTrytonGroupNames } from "@/lib/access-control";
 import { resolveTenant } from "@/lib/tenant";
+import { clearLoginFailures, clientIp, loginRetryAfter, recordLoginFailure } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  let attemptedUser = "";
+  const ip = clientIp(req.headers);
   try {
     const { username, password, tenantId } = await req.json();
 
     if (!username || !password) {
       return NextResponse.json({ error: "Username and password are required" }, { status: 400 });
+    }
+
+    attemptedUser = String(username).trim();
+    const retryAfter = loginRetryAfter(attemptedUser, ip);
+    if (retryAfter > 0) {
+      return NextResponse.json(
+        { error: "Too many failed sign-in attempts. Try again later." },
+        { status: 429, headers: { "Retry-After": String(retryAfter) } }
+      );
     }
 
     // Host-resolved tenant (set by middleware from the request's subdomain) is authoritative
@@ -31,6 +43,7 @@ export async function POST(req: NextRequest) {
 
     // Authenticate with authoritative backend system backend for the tenant's dedicated database
     const { userId, sessionToken } = await TrytonClient.login(username.trim(), password, tenant.database);
+    clearLoginFailures(attemptedUser);
 
     // Fetch live user profile and security groups using the user's authentic session
     let role = "general";
@@ -137,6 +150,7 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     // backend system may include internal host, database, or account details in its
     // exception text. Keep those details in server logs only.
+    if (attemptedUser) recordLoginFailure(attemptedUser, ip);
     return NextResponse.json({ error: "Unable to sign in. Check your credentials or contact your administrator." }, { status: 401 });
   }
 }
