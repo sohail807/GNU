@@ -132,7 +132,7 @@ Rotated 2026-09-26 after the previous key was found committed in git history (le
 ---
 
 ## 7. Production Deployment (Cloud Run + Firebase Hosting)
-- **Flow:** browser -> Firebase Hosting (`isthealth.irisstar.tech`, GoDaddy CNAME -> `ist-health-hmis-21722.web.app`) -> Cloud Run `ist-health-frontend` -> GNU Health backend on the VM over HTTPS (`https://34-7-237-8.sslip.io`, nginx site `/etc/nginx/sites-enabled/api443`, Let's Encrypt, exposes only `/gnuhealth*/`). TODO: replace sslip.io with a real API hostname.
+- **Flow:** browser -> Firebase Hosting (`isthealth.irisstar.tech`, GoDaddy CNAME -> `ist-health-hmis-21722.web.app`) -> Cloud Run `ist-health-frontend` -> GNU Health backend on the VM over HTTPS (`https://api.isthealth.irisstar.tech`, GoDaddy A record -> `34.7.237.8`, nginx site `/etc/nginx/sites-enabled/api443-domain`, Let's Encrypt, exposes only `/gnuhealth*/`). The older `34-7-237-8.sslip.io` site (`api443`) is still enabled as a fallback and can be removed. VM port 80 only redirects to HTTPS; SSH is limited to the `allow-ssh-admin-ip` firewall rule.
 - **Deploy:** `powershell -File scripts/deploy_cloudrun.ps1` (needs gcloud logged in as `praveen@irisstar.tech`). Hosting only needs redeploying when `firebase.json` changes: `firebase deploy --only hosting --project ist-health-hmis-21722`.
 - **Cookie:** Firebase Hosting only forwards a cookie named `__session`, so Cloud Run sets `SESSION_COOKIE_NAME=__session`. Do not rename it.
 - **Do not add** an `index.html` to `hosting-public/`: static files win over the Cloud Run rewrite and the site goes blank.

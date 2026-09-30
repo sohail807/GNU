@@ -21,7 +21,7 @@ $ErrorActionPreference = "Stop"
 $frontend = Join-Path $PSScriptRoot "..\frontend"
 
 $envVars = @(
-  "GNUHEALTH_HOST=https://34-7-237-8.sslip.io",   # TODO: move to the real API hostname once DNS exists
+  "GNUHEALTH_HOST=https://api.isthealth.irisstar.tech",   # nginx site api443-domain on the VM (Tryton RPC only)
   "GNUHEALTH_DATABASE=gnuhealth",
   "GNUHEALTH_COMPANY_ID=2",
   "SUPER_ADMIN_USERNAMES=irisstar_admin",
