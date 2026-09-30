@@ -379,7 +379,10 @@ export class ClinicalLookupService {
         }
       }
 
-      // Search by service name if provided
+      // Search by service name if provided. Beds are also type="service" products (so
+      // gnuhealth.hospital.bed can reference one) - excluded here the same way the billing
+      // UI's own service picker excludes them, or a free-text description with no exact match
+      // (e.g. a typo) could silently resolve to a bed's product/price instead of failing loudly.
       if (serviceName) {
         const prods = await TrytonClient.execute<any[]>(
           session.username,
@@ -387,21 +390,25 @@ export class ClinicalLookupService {
           session.sessionToken,
           "product.product",
           "search_read",
-          [[["name", "ilike", `%${serviceName.trim()}%`]], 0, 1, null, fields],
+          [[["name", "ilike", `%${serviceName.trim()}%`], ["is_bed", "!=", true]], 0, 1, null, fields],
           { company: session.companyId },
           session.database
         );
         if (prods && prods.length > 0) return toResult(prods[0]);
       }
 
-      // Dynamic search for any active clinical consultation product in the catalog
+      // Dynamic fallback: any active service-type product when no explicit id or name match
+      // was found. This is the highest-risk spot for a bed to leak in silently - with 18+ beds
+      // outnumbering the handful of real generic billing services, an unfiltered "any service"
+      // query is far more likely to land on a bed than a real service. Confirmed live: this is
+      // the exact same class of leak already fixed in billing/route.ts's own service picker.
       const anyProds = await TrytonClient.execute<any[]>(
         session.username,
         session.userId,
         session.sessionToken,
         "product.product",
         "search_read",
-        [[["type", "=", "service"]], 0, 1, null, fields],
+        [[["type", "=", "service"], ["is_bed", "!=", true]], 0, 1, null, fields],
         { company: session.companyId },
         session.database
       );
