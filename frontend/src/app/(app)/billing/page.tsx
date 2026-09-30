@@ -90,6 +90,23 @@ export default function CashierBillingPage() {
   const [newInvPatientId, setNewInvPatientId] = useState<number>(0);
   const [selectedServiceIdx, setSelectedServiceIdx] = useState(0);
   const selectedService = serviceCatalog[selectedServiceIdx];
+  // A visit is rarely just one billable service (consultation + lab + imaging is the common
+  // case) - this is the running list of lines added to the invoice being built, so the cashier
+  // can bill everything for one patient in a single invoice instead of one-by-one.
+  const [invoiceLines, setInvoiceLines] = useState<{ productId: number; desc: string; price: number }[]>([]);
+  const invoiceLinesTotal = invoiceLines.reduce((sum, l) => sum + l.price, 0);
+
+  const handleAddInvoiceLine = () => {
+    if (!selectedService) return;
+    setInvoiceLines((prev) =>
+      prev.some((l) => l.productId === selectedService.id)
+        ? prev
+        : [...prev, { productId: selectedService.id, desc: selectedService.name, price: selectedService.price }]
+    );
+  };
+  const handleRemoveInvoiceLine = (productId: number) => {
+    setInvoiceLines((prev) => prev.filter((l) => l.productId !== productId));
+  };
 
   // Current user's permissions, used to gate the GL Ledger tab (server-side RBAC is
   // the real enforcement; this only avoids showing a tab the API will reject).
@@ -170,7 +187,15 @@ export default function CashierBillingPage() {
     setFeedback(null);
     setErrorMessage(null);
 
-    if (!selectedService) {
+    // Fall back to whatever's currently selected in the picker if the cashier never clicked
+    // "Add Line" - keeps the single-line case working exactly as before.
+    const linesToSubmit = invoiceLines.length > 0
+      ? invoiceLines
+      : selectedService
+        ? [{ productId: selectedService.id, desc: selectedService.name, price: selectedService.price }]
+        : [];
+
+    if (linesToSubmit.length === 0) {
       setErrorMessage("No billable service is available in this tenant's catalog.");
       setIsProcessing(false);
       return;
@@ -183,9 +208,7 @@ export default function CashierBillingPage() {
         body: JSON.stringify({
           action: "create",
           patientId: newInvPatientId,
-          service: selectedService.name,
-          productId: selectedService.id,
-          amount: selectedService.price,
+          lines: linesToSubmit.map((l) => ({ desc: l.desc, productId: l.productId })),
         }),
       });
       const data = await res.json();
@@ -202,7 +225,9 @@ export default function CashierBillingPage() {
         if (created) setActiveInvoice(created);
       }
       setIsNewInvoiceModalOpen(false);
-      setFeedback(`Invoice created with ${selectedService.name}. Subtotal and ledger mapping verified.`);
+      setInvoiceLines([]);
+      const lineSummary = linesToSubmit.map((l) => l.desc).join(", ");
+      setFeedback(`Invoice created with ${lineSummary}. Subtotal and ledger mapping verified.`);
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to generate customer invoice");
     } finally {
@@ -853,7 +878,7 @@ export default function CashierBillingPage() {
       {/* MODAL 2: NEW CUSTOMER INVOICE (Resolves S7.2, S7.3, S7.4) */}
       <Modal
         isOpen={isNewInvoiceModalOpen}
-        onClose={() => setIsNewInvoiceModalOpen(false)}
+        onClose={() => { setIsNewInvoiceModalOpen(false); setInvoiceLines([]); }}
         title="Create Customer Invoice"
         kicker="OUTPATIENT BILLING SERVICE (S7.2)"
         size="md"
@@ -875,28 +900,61 @@ export default function CashierBillingPage() {
             </select>
           </div>
 
-          {/* Add Invoice Line - loaded live from this tenant's own product catalog */}
+          {/* Add Invoice Line - loaded live from this tenant's own product catalog. A visit
+              is often more than one billable service (consultation + lab + imaging), so lines
+              are accumulated here and submitted together as one invoice rather than forcing
+              one invoice per service. */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-700">Add Service Line Item *</label>
             {serviceCatalog.length === 0 ? (
               <p className="text-xs text-red-600 font-medium">No billable services are configured in this tenant's catalog yet.</p>
             ) : (
-              <select
-                value={selectedServiceIdx}
-                onChange={(e) => setSelectedServiceIdx(parseInt(e.target.value, 10))}
-                className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:outline-none focus:border-[#0F766E]"
-              >
-                {serviceCatalog.map((svc, idx) => (
-                  <option key={svc.id} value={idx}>
-                    {svc.name} — QAR {svc.price.toFixed(2)}
-                  </option>
-                ))}
-              </select>
+              <div className="flex gap-2">
+                <select
+                  value={selectedServiceIdx}
+                  onChange={(e) => setSelectedServiceIdx(parseInt(e.target.value, 10))}
+                  className="flex-1 px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:outline-none focus:border-[#0F766E]"
+                >
+                  {serviceCatalog.map((svc, idx) => (
+                    <option key={svc.id} value={idx}>
+                      {svc.name} — QAR {svc.price.toFixed(2)}
+                    </option>
+                  ))}
+                </select>
+                <Button type="button" variant="outline" onClick={handleAddInvoiceLine} disabled={!selectedService}>
+                  Add Line
+                </Button>
+              </div>
             )}
           </div>
 
+          {invoiceLines.length > 0 && (
+            <div className="space-y-1.5 rounded-lg border border-slate-200 bg-slate-50 p-2">
+              {invoiceLines.map((line) => (
+                <div key={line.productId} className="flex items-center justify-between text-xs px-1.5 py-1">
+                  <span className="font-medium text-slate-700">{line.desc}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-600">QAR {line.price.toFixed(2)}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveInvoiceLine(line.productId)}
+                      className="text-red-600 font-bold px-1.5"
+                      aria-label={`Remove ${line.desc}`}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <div className="flex items-center justify-between text-xs px-1.5 pt-1 border-t border-slate-200 font-bold">
+                <span>Total</span>
+                <span>QAR {invoiceLinesTotal.toFixed(2)}</span>
+              </div>
+            </div>
+          )}
+
           <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setIsNewInvoiceModalOpen(false)}>
+            <Button type="button" variant="outline" onClick={() => { setIsNewInvoiceModalOpen(false); setInvoiceLines([]); }}>
               Cancel
             </Button>
             <Button
@@ -904,9 +962,11 @@ export default function CashierBillingPage() {
               variant="primary"
               className="bg-[#0F766E] font-bold"
               isLoading={isProcessing}
-              disabled={isProcessing || !newInvPatientId || !selectedService}
+              disabled={isProcessing || !newInvPatientId || (invoiceLines.length === 0 && !selectedService)}
             >
-              Save Invoice {selectedService ? `(QAR ${selectedService.price.toFixed(2)})` : ""}
+              Save Invoice {invoiceLines.length > 0
+                ? `(QAR ${invoiceLinesTotal.toFixed(2)})`
+                : selectedService ? `(QAR ${selectedService.price.toFixed(2)})` : ""}
             </Button>
           </div>
         </form>

@@ -44,13 +44,18 @@ export async function GET(req: NextRequest) {
     // actually exists, at its actual configured price.
     let services: { id: number; name: string; price: number | null }[] = [];
     try {
+      // Hospital beds are also modeled as type="service" products (so gnuhealth.hospital.bed
+      // can reference one), but they're billed automatically through the inpatient admission/
+      // ward workflow, not picked manually as an outpatient invoice line item - confirmed live,
+      // every bed in the ward inventory (19 of them) was flooding this picker. Exclude anything
+      // flagged is_bed=True the same way facilities/route.ts's own bed domain does.
       const svcProducts = await TrytonClient.execute<any[]>(
         session.username,
         session.userId,
         session.sessionToken,
         "product.product",
         "search_read",
-        [[["type", "=", "service"]], 0, 100, [["name", "ASC"]], ["id", "name", "list_price"]],
+        [[["type", "=", "service"], ["is_bed", "!=", true]], 0, 100, [["name", "ASC"]], ["id", "name", "list_price"]],
         { company: session.companyId },
         session.database
       );
