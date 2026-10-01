@@ -36,7 +36,7 @@ def main():
     ok = 0
     for o in todo:
         st, rr = lab.post("/api/clinical/laboratory", {"action": "certify", "orderId": o["id"],
-                                                         "results": "All analytes within reference range. Certified (synthetic)."})
+                                                         "results": "All analytes within reference range. Certified."})
         ok += 1 if (st == 200 and rr.get("success")) else 0
     out["lab_resulted"] = f"{ok}/{len(todo)}"
 
@@ -46,7 +46,7 @@ def main():
     ok = 0
     for o in todo:
         st, rr = rad.post("/api/clinical/radiology", {"action": "sign", "orderId": o["id"],
-                                                        "findings": "No acute abnormality. Report signed (synthetic)."})
+                                                        "findings": "No acute abnormality. Report signed."})
         ok += 1 if (st == 200 and rr.get("success")) else 0
     out["imaging_reported"] = f"{ok}/{len(todo)}"
 
@@ -57,7 +57,7 @@ def main():
     take = pending[: round(len(pending) * dispense_share)]
     ok = 0
     for p in take:
-        st, rr = pharm.post("/api/clinical/pharmacy", {"prescriptionId": p["id"], "verificationNotes": "Checked against the prescription (synthetic)."})
+        st, rr = pharm.post("/api/clinical/pharmacy", {"prescriptionId": p["id"], "verificationNotes": "Checked against the prescription."})
         ok += 1 if (st == 200 and rr.get("success")) else 0
     out["prescriptions_dispensed"] = f"{ok}/{len(pending)} pending ({round(dispense_share * 100)}% target)"
     print(f"[{code}]", json.dumps(out))

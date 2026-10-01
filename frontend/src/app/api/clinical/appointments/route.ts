@@ -261,6 +261,27 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      // A clinician cannot see two patients in the same 15-minute slot, and a patient cannot be booked twice at once.
+      const asDt = (ms: number) => {
+        const d = new Date(ms);
+        return { __class__: "datetime", year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate(), hour: d.getUTCHours(), minute: d.getUTCMinutes(), second: 0, microsecond: 0 };
+      };
+      const slotMs = Date.UTC(year, month - 1, day, hour, minute);
+      const live = ["not in", ["user_cancelled", "center_cancelled", "no_show"]];
+      const clash = await TrytonClient.execute<Array<{ id: number; patient: unknown; healthprof: unknown }>>(
+        session.username, session.userId, session.sessionToken, "gnuhealth.appointment", "search_read",
+        [[["appointment_date", ">", asDt(slotMs - 15 * 60000)], ["appointment_date", "<", asDt(slotMs + 15 * 60000)], ["state", live[0], live[1]],
+          ["OR", ["healthprof", "=", hp], ["patient", "=", pid]]], 0, 2, null, ["id", "patient", "healthprof"]],
+        { company: session.companyId }, session.database
+      );
+      if (clash.length > 0) {
+        const samePatient = clash.some((c) => (typeof c.patient === "number" ? c.patient : (c.patient as number[])?.[0]) === pid);
+        return NextResponse.json(
+          { error: samePatient ? "This patient already has an appointment at that time." : "That clinician already has an appointment in this 15-minute slot. Choose another time." },
+          { status: 409 }
+        );
+      }
+
       const urgencyMap: Record<string, string> = { normal: "a", urgent: "b", emergency: "c" };
       const urgencyCode = typeof urgency === "string" ? urgencyMap[urgency] : undefined;
       if (!urgencyCode) {

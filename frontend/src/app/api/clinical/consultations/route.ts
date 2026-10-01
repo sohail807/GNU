@@ -54,6 +54,19 @@ export async function GET(req: NextRequest) {
       [domain, 0, 50, [["id", "DESC"]], statusOnly ? EVALUATION_STATUS_FIELDS : EVALUATION_FIELDS],
       { company: session.companyId }, session.database
     );
+    // The diagnosis comes back as a bare id; give the screen its code and name so a saved assessment can be shown again.
+    if (!statusOnly) {
+      const rows = consultations as Array<Record<string, any>>;
+      const pathIds = [...new Set(rows.map((r) => relationId(r.diagnosis)).filter((x): x is number => !!x))];
+      if (pathIds.length) {
+        const paths = await TrytonClient.execute<Array<{ id: number; code: string; name: string }>>(
+          session.username, session.userId, session.sessionToken, "gnuhealth.pathology", "search_read",
+          [[["id", "in", pathIds]], 0, pathIds.length, null, ["id", "code", "name"]], { company: session.companyId }, session.database
+        ).catch(() => []);
+        const byId = Object.fromEntries(paths.map((p) => [p.id, p]));
+        for (const r of rows) { const d = byId[relationId(r.diagnosis) as number]; if (d) { r.diagnosisCode = d.code; r.diagnosisName = d.name; } }
+      }
+    }
     return NextResponse.json({ success: true, consultations, statusOnly });
   } catch (error) {
     const status = rpcStatus(error);

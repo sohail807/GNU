@@ -1,0 +1,13 @@
+{
+ "patient": {
+  "patientId": 379,
+  "puid": "UAT307031719",
+  "qid": "UAT307031719",
+  "partyId": 455
+ },
+ "tc001": {
+  "id": "TC-001",
+  "status": "PASS",
+  "observed": "HTTP 200 patientId=379 puid=UAT307031719 bloodGroup='O-' (sent 'O-'); response gender field='Female' for a Female patient"
+ }
+}

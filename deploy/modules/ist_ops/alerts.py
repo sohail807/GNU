@@ -114,3 +114,45 @@ class PurchaseRequest(_Workflow, ModelSQL, ModelView):
             vals['ordered_at'] = _now()
         elif new_state == 'received':
             vals['received_at'] = _now()
+
+
+class OrderSet(ModelSQL, ModelView):
+    'Diagnostic Order Set'
+    __name__ = 'ist.ops.order_set'
+    _rec_name = 'name'
+
+    name = fields.Char('Name', required=True)
+    owner = fields.Many2One('res.user', 'Owner', required=True, readonly=True)
+    company = fields.Many2One('company.company', 'Company', required=True)
+    shared = fields.Boolean('Shared with all doctors')
+    # JSON list of {"kind": "lab" | "imaging", "id": test id, "name": test name}
+    items = fields.Text('Tests in the set', required=True)
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        cls._order = [('name', 'ASC')]
+
+    @staticmethod
+    def default_company():
+        return _company()
+
+    @staticmethod
+    def default_owner():
+        return Transaction().user
+
+    @staticmethod
+    def default_shared():
+        return False
+
+    @classmethod
+    def validate(cls, records):
+        super().validate(records)
+        import json
+        for r in records:
+            try:
+                items = json.loads(r.items or '[]')
+            except ValueError:
+                raise UserError('The order set is not valid.')
+            if not isinstance(items, list) or not items or len(items) > 40:
+                raise UserError('An order set needs between 1 and 40 tests.')

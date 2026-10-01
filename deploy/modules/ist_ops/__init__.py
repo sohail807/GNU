@@ -16,4 +16,5 @@ def register():
         theatre.Delivery,
         alerts.CriticalAlert,
         alerts.PurchaseRequest,
+        alerts.OrderSet,
         module='ist_ops', type_='model')

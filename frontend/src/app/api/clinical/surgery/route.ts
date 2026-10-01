@@ -114,6 +114,7 @@ export async function GET(req: NextRequest) {
             "surgeon",
             "anesthetist",
             "surgery_date",
+            "surgery_end_date",
             "anesthesia_type",
             "classification",
             "state",
@@ -184,6 +185,7 @@ export async function GET(req: NextRequest) {
           surgeon: surgeonsMap[surgeonId as number]?.rec_name || null,
           anesthetist: anesthetistsMap[anesthetistId as number]?.rec_name || null,
           surgeryDate: formatTrytonDateTime(s.surgery_date),
+          surgeryEndDate: formatTrytonDateTime(s.surgery_end_date),
           anesthesiaType: s.anesthesia_type || null,
           classification: (s.classification && TRYTON_TO_CLASSIFICATION[s.classification]) || s.classification || null,
           state: s.state || "draft",
@@ -217,7 +219,7 @@ export async function POST(req: NextRequest) {
   }
   try {
     const body = await req.json();
-    const { patientId, description, operatingRoomId, surgeryDate, durationMinutes, anesthesiaType, classification } = body;
+    const { patientId, description, operatingRoomId, surgeryDate, surgeryEndDate, durationMinutes, anesthesiaType, classification } = body;
 
     if (!patientId || !description) {
       return NextResponse.json(
@@ -237,7 +239,18 @@ export async function POST(req: NextRequest) {
     }
 
     const resolvedOrId = operatingRoomId ? parseInt(operatingRoomId, 10) : undefined;
-    const startDate = surgeryDate || new Date().toISOString().slice(0, 19).replace("T", " ");
+    const toTryton = (v: unknown) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2})?$/.test(v.trim()) ? v.trim().replace("T", " ").padEnd(19, ":00").slice(0, 19) : null);
+    const startDate = toTryton(surgeryDate) || new Date().toISOString().slice(0, 19).replace("T", " ");
+    const explicitEnd = toTryton(surgeryEndDate);
+    if (surgeryDate && !toTryton(surgeryDate)) {
+      return NextResponse.json({ error: "Enter a valid start date and time." }, { status: 400 });
+    }
+    if (surgeryEndDate && !explicitEnd) {
+      return NextResponse.json({ error: "Enter a valid end date and time." }, { status: 400 });
+    }
+    if (explicitEnd && explicitEnd <= startDate) {
+      return NextResponse.json({ error: "The surgery must end after it starts." }, { status: 400 });
+    }
 
     // gnuhealth.surgery.create() creates a companion gnuhealth.or.schedule entry whenever an
     // operating_room is set, and that model requires reserve_to (mapped from surgery_end_date)
@@ -249,7 +262,7 @@ export async function POST(req: NextRequest) {
       const start = new Date(startDate.replace(" ", "T") + "Z");
       const minutes = Number.isFinite(Number(durationMinutes)) && Number(durationMinutes) > 0 ? Number(durationMinutes) : 120;
       const end = new Date(start.getTime() + minutes * 60000);
-      endDate = end.toISOString().slice(0, 19).replace("T", " ");
+      endDate = explicitEnd || end.toISOString().slice(0, 19).replace("T", " ");
 
       // Native GNU Health only rejects an overlapping OR booking inside the confirmed() button,
       // which this route bypasses by writing state: "confirmed" directly on create. Reproduce
@@ -278,7 +291,7 @@ export async function POST(req: NextRequest) {
       description,
       operating_room: resolvedOrId,
       surgery_date: startDate,
-      surgery_end_date: endDate,
+      surgery_end_date: endDate || explicitEnd || undefined,
       anesthesia_type: anesthesiaType || "general",
       classification: CLASSIFICATION_TO_TRYTON[classification] || CLASSIFICATION_TO_TRYTON.elective,
       surgeon: session.healthprofId || undefined,

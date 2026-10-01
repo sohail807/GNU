@@ -37,6 +37,7 @@ def main():
         call("/api/admin/organization", {"action": "rename_hospital", "hospitalId": hid, "name": name})
     call("/api/admin/organization", {"action": "rename_customer", "name": CUSTOMER})
     call("/api/admin/users", {"action": "update_user", "userId": ceo_id, "name": CEO_NAME})
+    call("/api/admin/users", {"action": "update_user", "userId": ceo_id + 1, "name": "Group Operations Head"})
 
     # every insurer / payor party, whichever hospital's list it shows in
     seen = {}

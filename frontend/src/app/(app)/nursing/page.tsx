@@ -21,6 +21,7 @@ import {
   Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { AllergyPanel } from "@/components/app/AllergyPanel";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
@@ -45,6 +46,7 @@ export default function NursingTriagePage() {
   });
 
   const [nurseNotes, setNurseNotes] = useState("");
+  const [resumed, setResumed] = useState<{ id: number; at: string | null } | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -85,6 +87,30 @@ export default function NursingTriagePage() {
     });
     setVitals({ systolic: "", diastolic: "", bpm: "", respiratoryRate: "", temp: "", spo2: "", weight: "", height: "" });
     setNurseNotes("");
+    setEvaluationRef("");
+    setResumed(null);
+    loadInProgress(match.id);
+  };
+
+  // If this patient already has an evaluation in progress, show what was captured so it can be reviewed and updated
+  // (saving again updates that same evaluation rather than starting a second one).
+  const loadInProgress = async (patientId: number) => {
+    try {
+      const res = await fetch(`/api/clinical/triage?patientId=${patientId}`);
+      const data = await res.json();
+      const open = (data.evaluations || []).find((e: any) => e.state === "in_progress");
+      if (!open) return;
+      const str = (v: unknown) => (v === null || v === undefined ? "" : String(v));
+      setVitals({
+        systolic: str(open.systolic), diastolic: str(open.diastolic), bpm: str(open.bpm), respiratoryRate: str(open.respiratoryRate),
+        temp: str(open.temperature), spo2: str(open.osat), weight: str(open.weight), height: str(open.height),
+      });
+      setNurseNotes(open.chiefComplaint || "");
+      setEvaluationRef(String(open.id));
+      setResumed({ id: open.id, at: open.evaluationStart });
+    } catch {
+      // the form simply starts empty
+    }
   };
 
   const handlePatientSelect = (patId: number) => {
@@ -161,6 +187,12 @@ export default function NursingTriagePage() {
           </Badge>
         </div>
       </div>
+
+      {resumed && (
+        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium">
+          This patient already has an evaluation in progress (#{resumed.id}{resumed.at ? `, started ${resumed.at.replace("T", " ")}` : ""}). The vitals captured so far are shown below; saving will update that same evaluation.
+        </div>
+      )}
 
       {/* FEEDBACK ALERT */}
       {feedback && (
@@ -245,6 +277,7 @@ export default function NursingTriagePage() {
                 </span>
               )}
             </div>
+            {patient.id > 0 && !patient.allergiesRestricted && <div className="w-full"><AllergyPanel patientId={patient.id} /></div>}
           </div>
         </div>
 

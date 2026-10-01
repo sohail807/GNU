@@ -36,8 +36,8 @@ export async function POST(req: NextRequest) {
       if (!companyParty) return NextResponse.json({ error: "Hospital company not found." }, { status: 404 });
       const parties = [companyParty];
       if (hospital) {
-        const inst = (await rpc<Array<Record<string, any>>>(session, "gnuhealth.institution", "read", [[hospital.institutionId], ["name"]]))[0];
-        const instParty = typeof inst?.name === "number" ? inst.name : inst?.name?.[0];
+        const inst = (await rpc<Array<Record<string, any>>>(session, "gnuhealth.institution", "read", [[hospital.institutionId], ["party"]]))[0];
+        const instParty = typeof inst?.party === "number" ? inst.party : inst?.party?.[0];
         if (instParty && instParty !== companyParty) parties.push(instParty);
       }
       await rpc(session, "party.party", "write", [parties, { name }]);

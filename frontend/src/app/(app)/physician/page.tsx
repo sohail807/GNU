@@ -26,6 +26,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { AllergyPanel } from "@/components/app/AllergyPanel";
+import { WorkupOrders } from "@/components/app/WorkupOrders";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -131,6 +133,7 @@ export default function PhysicianConsultationPage() {
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [resumedEval, setResumedEval] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -312,6 +315,25 @@ export default function PhysicianConsultationPage() {
         setEvaluationId(latest.state === "in_progress" ? latest.id : 0);
       } else {
         setEvaluationId(0);
+      }
+      // Show the assessment already saved for this visit (so the doctor sees it again instead of a blank form).
+      try {
+        const cRes = await fetch(`/api/clinical/consultations?patientId=${patientId}`);
+        const cData = await cRes.json();
+        const open = (cData.consultations || []).find((c: any) => c.state === "in_progress");
+        if (open) {
+          setSoapData({
+            chiefComplaint: open.chief_complaint || "", physicalExam: open.evaluation_summary || "",
+            diagnosisCode: open.diagnosisCode || "", diagnosisName: open.diagnosisName || "", treatmentPlan: open.directions || "",
+          });
+          setEvaluationId(open.id);
+          setResumedEval(open.id);
+        } else {
+          setSoapData({ chiefComplaint: "", physicalExam: "", diagnosisCode: "", diagnosisName: "", treatmentPlan: "" });
+          setResumedEval(null);
+        }
+      } catch {
+        setResumedEval(null);
       }
     } catch {
       // Leave vitals blank rather than show stale/wrong data
@@ -642,6 +664,11 @@ export default function PhysicianConsultationPage() {
         </div>
       </div>
 
+      {resumedEval && (
+        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium">
+          An assessment for this patient is already in progress (evaluation #{resumedEval}). It has been reopened below with what was saved; saving again updates that same assessment instead of starting a second one.
+        </div>
+      )}
       {feedback && (
         <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center justify-between shadow-2xs font-medium">
           <div className="flex items-center gap-2">
@@ -723,6 +750,7 @@ export default function PhysicianConsultationPage() {
                 </span>
               )}
             </div>
+            {patient.id > 0 && !patient.allergiesRestricted && <div className="w-full"><AllergyPanel patientId={patient.id} /></div>}
           </div>
         </div>
 
@@ -937,40 +965,7 @@ export default function PhysicianConsultationPage() {
           </div>
 
           {/* Diagnostic Investigation Orders */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs space-y-4">
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-tight pb-3 border-b border-slate-100 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-[#0F766E]" />
-              <span>Diagnostic Workup Requisitions</span>
-            </h3>
-
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => { setErrorMessage(null); setIsLabModalOpen(true); }}
-                disabled={!patient.id || isOrderingWorkup !== null}
-                className="p-3.5 bg-slate-50 border border-slate-200/80 hover:border-[#0F766E] rounded-xl transition-all group text-left disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                <div className="flex items-center gap-2">
-                  <Microscope className="w-4 h-4 text-[#0F766E]" />
-                  <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F766E]">Order Lab Test</span>
-                </div>
-                <div className="text-[10px] text-slate-500 mt-1">Diagnostic Pathology Catalog</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => { setErrorMessage(null); setIsImagingModalOpen(true); }}
-                disabled={!patient.id || isOrderingWorkup !== null}
-                className="p-3.5 bg-slate-50 border border-slate-200/80 hover:border-[#0F766E] rounded-xl transition-all group text-left disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                <div className="flex items-center gap-2">
-                  <Scan className="w-4 h-4 text-[#0F766E]" />
-                  <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F766E]">Order Imaging Study</span>
-                </div>
-                <div className="text-[10px] text-slate-500 mt-1">Digital PACS Catalog</div>
-              </button>
-            </div>
-          </div>
+          <WorkupOrders patientId={patient.id} patientName={patient.name} />
         </div>
       </div>
 

@@ -67,6 +67,8 @@ export default function SurgeryPage() {
   const [description, setDescription] = useState("");
   const [operatingRoomId, setOperatingRoomId] = useState("");
   const [surgeryDate, setSurgeryDate] = useState("");
+  const [surgeryEndDate, setSurgeryEndDate] = useState("");
+  const [bookError, setBookError] = useState<string | null>(null);
   const [anesthesiaType, setAnesthesiaType] = useState("general");
   const [classification, setClassification] = useState("elective");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -99,6 +101,7 @@ export default function SurgeryPage() {
     if (!patientId || !description) return;
 
     setIsSubmitting(true);
+    setBookError(null);
     try {
       const res = await fetch("/api/clinical/surgery", {
         method: "POST",
@@ -108,19 +111,25 @@ export default function SurgeryPage() {
           description,
           operatingRoomId,
           surgeryDate: surgeryDate || undefined,
+          surgeryEndDate: surgeryEndDate || undefined,
           anesthesiaType,
           classification,
         }),
       });
 
-      if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success !== false) {
         setIsBookModalOpen(false);
         setPatientId("");
         setDescription("");
+        setSurgeryDate("");
+        setSurgeryEndDate("");
         fetchData();
+      } else {
+        setBookError(data.error || "The surgery could not be booked.");
       }
     } catch (e) {
-      console.error("Booking failed:", e);
+      setBookError("The surgery could not be booked. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -429,6 +438,21 @@ export default function SurgeryPage() {
               </select>
             </div>
           </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold text-slate-700 block mb-1.5">Start date and time</label>
+              <input type="datetime-local" value={surgeryDate} onChange={(e) => setSurgeryDate(e.target.value)}
+                className="w-full h-10 px-3 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#0F766E]" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-slate-700 block mb-1.5">End date and time</label>
+              <input type="datetime-local" value={surgeryEndDate} min={surgeryDate || undefined} onChange={(e) => setSurgeryEndDate(e.target.value)}
+                className="w-full h-10 px-3 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#0F766E]" />
+              <p className="text-[11px] text-slate-500 mt-1">If left empty, a 2-hour theatre slot is reserved.</p>
+            </div>
+          </div>
+          {bookError && <p className="text-xs text-red-600 font-medium">{bookError}</p>}
 
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
             <Button variant="outline" size="sm" onClick={() => setIsBookModalOpen(false)}>

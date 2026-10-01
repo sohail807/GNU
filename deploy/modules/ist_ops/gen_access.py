@@ -20,6 +20,7 @@ WORK = {
     'ist.ops.delivery': [D, N, GA, A],
     'ist.ops.critical_alert': [D, N, LAB, LABA, A],
     'ist.ops.purchase_request': [AC, ACA, A],
+    'ist.ops.order_set': [D, N, A],
 }
 
 out = ['<?xml version="1.0"?>', '<tryton>', '    <data>',
@@ -40,7 +41,7 @@ for model, groups in WORK.items():
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_delete" eval="{g == A}"/>
+            <field name="perm_delete" eval="{g == A or model == 'ist.ops.order_set'}"/>
         </record>''')
 out += ['    </data>', '</tryton>']
 open('ops.xml', 'w', encoding='utf-8').write('\n'.join(out) + '\n')

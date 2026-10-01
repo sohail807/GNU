@@ -5,9 +5,9 @@
   "aster-dubai": {
    "id": "aster-dubai",
    "short": "dxb",
-   "name": "Aster Hospital Al Qusais, Dubai (Demo)",
+   "name": "Aster Hospital Al Qusais, Dubai",
    "institution_code": "ASTQUS",
-   "company_name": "Aster Hospital Al Qusais, Dubai (Demo)",
+   "company_name": "Aster Hospital Al Qusais, Dubai",
    "country": "ARE",
    "currency": "AED",
    "timezone": "Asia/Dubai",
@@ -47,16 +47,16 @@
    "lab": 2,
    "radiology": 2,
    "insurers": [
-    "Daman (demo)",
-    "Cigna (demo)",
-    "MetLife (demo)",
-    "Allianz (demo)",
-    "BUPA (demo)",
-    "Aetna (demo)"
+    "Daman",
+    "Cigna",
+    "MetLife",
+    "Allianz",
+    "BUPA",
+    "Aetna"
    ],
    "other_payors": [
-    "Government Health Scheme (synthetic)",
-    "Northwind Logistics Gulf (synthetic corporate)"
+    "Government Health Scheme",
+    "Northwind Logistics Gulf"
    ],
    "payor_mix": [
     [
@@ -568,9 +568,9 @@
   "aster-doha": {
    "id": "aster-doha",
    "short": "doh",
-   "name": "Aster Hospital Doha (Demo)",
+   "name": "Aster Hospital Doha",
    "institution_code": "ASTDOH",
-   "company_name": "Aster Hospital Doha (Demo)",
+   "company_name": "Aster Hospital Doha",
    "country": "QAT",
    "currency": "QAR",
    "timezone": "Asia/Qatar",
@@ -605,16 +605,16 @@
    "lab": 1,
    "radiology": 1,
    "insurers": [
-    "Daman (demo)",
-    "Cigna (demo)",
-    "MetLife (demo)",
-    "Allianz (demo)",
-    "BUPA (demo)",
-    "Aetna (demo)"
+    "Daman",
+    "Cigna",
+    "MetLife",
+    "Allianz",
+    "BUPA",
+    "Aetna"
    ],
    "other_payors": [
-    "Government Health Scheme (synthetic)",
-    "Northwind Logistics Gulf (synthetic corporate)"
+    "Government Health Scheme",
+    "Northwind Logistics Gulf"
    ],
    "payor_mix": [
     [

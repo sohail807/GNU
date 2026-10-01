@@ -100,10 +100,10 @@ SPEC_IMAGING = {"Neurology": ["Brain MRI", "Head CT"], "Orthopaedics": ["Knee MR
                 "Emergency Medicine": ["Head CT"], "Cardiology": [], "General Medicine": ["Abdominal Ultrasound"], "Nephrology": ["Abdominal Ultrasound"], "Paediatrics": [],
                 "ENT": [], "Dental": []}
 PAYORS = [("Walk-in", 58), ("Insurance", 30), ("MVT", 4), ("Scheme-central", 3), ("Corporate", 2), ("Scheme-state", 2), ("Other", 1)]
-POLICY = {"Insurance": (None, "private"), "Scheme-central": ("CGHS-ECHS Scheme (synthetic)", "state"),
-          "Scheme-state": ("State Health Scheme (synthetic)", "state"), "Corporate": ("Northwind Logistics (synthetic corporate)", "labour_union")}
-GULF_POLICY = {"Insurance": (None, "private"), "Scheme-central": ("Government Health Scheme (synthetic)", "state"),
-               "Corporate": ("Northwind Logistics Gulf (synthetic corporate)", "labour_union")}
+POLICY = {"Insurance": (None, "private"), "Scheme-central": ("CGHS-ECHS Scheme", "state"),
+          "Scheme-state": ("State Health Scheme", "state"), "Corporate": ("Northwind Logistics", "labour_union")}
+GULF_POLICY = {"Insurance": (None, "private"), "Scheme-central": ("Government Health Scheme", "state"),
+               "Corporate": ("Northwind Logistics Gulf", "labour_union")}
 PAID_NOW = {"Walk-in", "MVT", "Other"}  # others stay posted and outstanding (receivable from payor)
 
 MALE = ["Arjun", "Rohan", "Vikram", "Suresh", "Anil", "Manoj", "Rajesh", "Karthik", "Naveen", "Pradeep", "Sanjay", "Imran", "Joseph",
@@ -272,7 +272,7 @@ class Loader:
         sys_bp = int(self.rng.gauss(124, 14)); dia = int(self.rng.gauss(80, 9)); hgt = int(self.rng.gauss(165, 10)); wt = int(self.rng.gauss(70, 14))
         self.call("triage", rn, "/api/clinical/triage", {"patientId": pid, "systolic": str(sys_bp), "diastolic": str(dia),
                   "bpm": str(int(self.rng.gauss(76, 9))), "temp": f"{self.rng.gauss(36.9, 0.5):.1f}", "weight": str(wt),
-                  "height": str(hgt), "bmi": f"{wt / ((hgt / 100) ** 2):.2f}", "notes": "Triage vitals recorded (synthetic)."})
+                  "height": str(hgt), "bmi": f"{wt / ((hgt / 100) ** 2):.2f}", "notes": "Triage vitals recorded."})
         ok, lab, img = self.consult(pid, doc, spec, self.rng.random() < 0.35, self.rng.random() < 0.15)
         if not ok:
             return
@@ -318,7 +318,7 @@ class Loader:
                 remaining = 0 if wd["name"] == "Day Care Unit" else max(1, int(self.rng.lognormvariate(math.log(self.profile["alos"] - 0.6), 0.5)))
                 ok, r = self.call("admission", self.session(doc), "/api/clinical/inpatient",
                                   {"patientId": pid, "bedId": bed["id"], "admissionType": adm_type,
-                                   "nursingPlan": "Standard nursing observation plan (synthetic)",
+                                   "nursingPlan": "Standard nursing observation plan",
                                    "expectedDischargeDate": (today + datetime.timedelta(days=remaining)).isoformat()})
                 if ok:
                     self.ledger.append({"qid": person["qid"], "patientId": pid, "payor": weighted(self.rng, self.payors)})
@@ -398,12 +398,12 @@ class Loader:
         for o in (r.get("labOrders") or r.get("orders") or []):
             if o.get("state") in ("ordered", "draft", "pending", None) and o.get("id"):
                 self.call("lab.certify", lab, "/api/clinical/laboratory",
-                          {"action": "certify", "orderId": o["id"], "results": "All analytes within reference range. Certified (synthetic)."})
+                          {"action": "certify", "orderId": o["id"], "results": "All analytes within reference range. Certified."})
         st, r = rad.get("/api/clinical/radiology")
         for o in (r.get("radiologyOrders") or []):
             if o.get("state") in ("requested", "draft", "pending", "ordered", None) and o.get("id"):
                 self.call("radiology.sign", rad, "/api/clinical/radiology",
-                          {"action": "sign", "orderId": o["id"], "findings": "No acute abnormality. Report signed (synthetic)."})
+                          {"action": "sign", "orderId": o["id"], "findings": "No acute abnormality. Report signed."})
 
     # ------------------------------------------------------------------ run
     def run(self, n_opd, force):
