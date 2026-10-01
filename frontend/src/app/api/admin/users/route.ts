@@ -436,7 +436,12 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const temporaryPassword = randomBytes(24).toString("base64url");
+      // An administrator may choose the new password (12 to 64 characters, no spaces at either end); otherwise a random one is issued.
+      const chosenReset = typeof body.newPassword === "string" ? body.newPassword : "";
+      if (chosenReset && (chosenReset.length < 12 || chosenReset.length > 64 || chosenReset !== chosenReset.trim())) {
+        return NextResponse.json({ error: "The password must be 12 to 64 characters with no spaces at either end." }, { status: 400 });
+      }
+      const temporaryPassword = chosenReset || randomBytes(24).toString("base64url");
       await TrytonClient.execute(
         session.username,
         session.userId,
