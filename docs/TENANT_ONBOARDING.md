@@ -1,91 +1,60 @@
-# Onboarding a hospital (tenant) — operator runbook
+# Onboarding a hospital (tenant)
 
-Each hospital gets **its own Tryton/PostgreSQL database** (strong data isolation) and its own address:
-`https://<subdomain>.isthealth.irisstar.tech`. The bare domain `https://isthealth.irisstar.tech` is the
-default hospital (IST Central, database `gnuhealth`). Designed for a handful of hospitals.
+Each hospital gets **its own Tryton/PostgreSQL database** (patient data is isolated by database) and a
+**hospital code**. Everyone signs in at one address, `https://isthealth.irisstar.tech`, typing their hospital code
+(blank = the default hospital, IST Central). No DNS, domain or server change is needed per hospital.
 
-How the app picks a hospital: Firebase Hosting forwards the visited host in `X-Forwarded-Host`; middleware maps
-`<subdomain>` to a registry entry; the login API ignores any client-supplied tenant once `APP_BASE_DOMAIN` is set.
-The login page never lists other hospitals. Session cookies are per host, so a session for one hospital cannot be
-replayed on another.
+## Onboard a hospital (about a minute)
+1. Sign in as a platform super-admin (`SUPER_ADMIN_USERNAMES`, currently `irisstar_admin`) and open **Platform**.
+2. **Add hospital**: name, hospital code, currency (ISO), country (ISO). Code rules: 2-24 lowercase letters/digits,
+   not a reserved word (`central, admin, api, www, platform, staging, template, gnuhealth, default`).
+3. The app asks the provisioning service on the database VM to clone the clean template into
+   `gnuhealth_h_<code>`, registers the hospital and shows the hospital's **first admin login once**. Hand it over
+   through an approved secure channel; never paste it in chat, tickets or git.
+4. Tell the hospital: address `https://isthealth.irisstar.tech`, hospital code `<code>`, their admin username and
+   password. They create their own staff in **Admin**, rename the company and set currency/fiscal data in Tryton
+   (the clone is named "New Hospital (Rename Me)", USD), and rotate the initial password.
+5. Backups: the nightly job discovers every `gnuhealth_h_*` database automatically. Nothing to do.
 
-Choose `<subdomain>`: 2–31 chars, lowercase letters/digits/hyphens (e.g. `alnoor`). The database is always
-`gnuhealth_<subdomain with hyphens → underscores>` (e.g. `gnuhealth_alnoor`).
+Sign-in details: a wrong, unknown, malformed or suspended hospital code fails with the same generic message as a wrong
+password, so hospitals cannot be enumerated. Failed attempts are throttled per hospital + username and per IP.
+Optional: a hospital subdomain (`<code>.isthealth.irisstar.tech`, Firebase custom domain + GoDaddy CNAME) still works
+and locks the page to that hospital, but it is not required.
 
-## Steps
+## How it works
+- `frontend/src/app/api/auth/login/route.ts` picks the hospital from the visited subdomain, else the typed code, else
+  the default; the registry (`tenants-registry.json` in the state bucket) maps code -> database.
+- `frontend/src/app/api/platform/tenants/route.ts` calls `PROVISIONER_URL` with `PROVISIONER_TOKEN` (Secret Manager
+  `ist-provisioner-token`). Fallbacks: `TENANT_PROVISIONING=manual` (operator-created database, app only verifies it),
+  or the legacy local script.
+- `deploy/infra/provisioner/ist-provisioner.py` (VM, 127.0.0.1:8200, behind nginx `POST /_provision` with TLS,
+  a 1 KB body limit and rate limiting): bearer-token (constant-time compare), accepts only a hospital code, runs the
+  single whitelisted `ist-provision-tenant.sh` (sudoers rule `/etc/sudoers.d/ist-tenant-provisioning`), one at a time,
+  returns the admin password once and never logs it.
+- nginx exposes only the main database and `gnuhealth_h_<code>` databases to the internet; test, staging and template
+  databases in the same PostgreSQL cluster are not routable.
 
-### 1. Create the hospital database (VM, operator)
+## One-time setup on the VM (operator)
+Copy `deploy/infra` files and a token file to the VM and run the installer (idempotent, rolls back on failure):
 ```bash
-ssh -i "C:\Users\MohammedSohail\.ssh\gnuhealth_deploy" debian@34.7.237.8
-sudo /usr/local/bin/ist-provision-tenant.sh gnuhealth_alnoor
+sudo bash install.sh <dir with provisioner/ nginx/ scripts/> <token file>   # token = value of secret ist-provisioner-token
 ```
-Clones the template dump and prints `ADMIN_USERNAME` / `ADMIN_PASSWORD` (unique per hospital). Deliver them to the
-hospital's administrator over an approved secure channel. Never paste them in chat, tickets or git.
-
-### 2. Let the backend serve it (VM, operator)
-The backend only serves databases listed in `TRYTOND_DATABASE_NAMES` (deliberately — it stops test/UAT databases
-being reachable). Use a systemd drop-in so the original unit stays untouched; list **every** served database:
-```bash
-sudo mkdir -p /etc/systemd/system/gnuhealth.service.d
-printf '[Service]
-Environment=TRYTOND_DATABASE_NAMES=gnuhealth,gnuhealth_alnoor
-' | sudo tee /etc/systemd/system/gnuhealth.service.d/databases.conf
-sudo systemctl daemon-reload && sudo systemctl restart gnuhealth   # a few seconds of backend downtime for ALL hospitals: do it off-peak
-curl -s -o /dev/null -w "%{http_code}
-" -X POST https://api.isthealth.irisstar.tech/gnuhealth_alnoor/   -H 'content-type: application/json' -d '{"id":1,"method":"common.db.login","params":["x",{"password":"x"}]}'
-# expect 401 (served). 404 = not served yet. To undo: delete databases.conf, daemon-reload, restart.
-```
-
-### 3. Back it up (VM, operator) — verify before real data
-`/usr/local/bin/gnuhealth-backup.sh` (source: `deploy/infra/scripts/gnuhealth-backup.sh`) backs up the main
-database **and every name in `TRYTOND_DATABASE_NAMES`**, so step 2 already enrols the hospital. Confirm it:
-```bash
-sudo /usr/local/bin/gnuhealth-backup.sh --list-databases   # must include gnuhealth_alnoor
-sudo systemctl start gnuhealth-backup.service              # run now
-sudo tail -n 15 /var/log/gnuhealth_backup.log              # look for "DB backup successful [gnuhealth_alnoor]"
-```
-Hospital dumps are named `gnuhealth_tenant_<db>_<timestamp>.dump` (14-day retention, copied off-site to GCS). If any
-database fails the run exits non-zero (`systemctl status gnuhealth-backup.service` shows failed) but the others are
-still backed up. Test a **restore of the new hospital's dump** into a scratch database before entering real data.
-
-### 4. Register the hospital (platform admin)
-Sign in at `https://isthealth.irisstar.tech` as an allow-listed super-admin (`SUPER_ADMIN_USERNAMES`, currently
-`irisstar_admin`), open **Platform**, and add: name, subdomain, currency (ISO, e.g. QAR), country (ISO, e.g. QAT).
-In `TENANT_PROVISIONING=manual` mode the app only checks that the backend serves the database (step 2) and then
-writes the registry entry (stored in the GCS bucket `ist-health-hmis-21722-state`). It returns 409 if step 2 is
-missing.
-
-### 5. Give it an address (Firebase + GoDaddy)
-1. Firebase console (as `praveen@irisstar.tech`) → project `ist-health-hmis-21722` → Hosting → **Add custom
-   domain** → `alnoor.isthealth.irisstar.tech`.
-2. GoDaddy → `irisstar.tech` → DNS → add **CNAME** `alnoor.isthealth` → `ist-health-hmis-21722.web.app`.
-3. Back in Firebase click **Verify**; the certificate is issued in minutes to a few hours.
-Firebase has no wildcard domains, so each hospital is added individually.
-
-### 6. Hand over and verify
-- The hospital admin signs in at `https://alnoor.isthealth.irisstar.tech` with the step-1 credentials, creates their
-  own staff users in **Admin**, and rotates the initial password.
-- Verify with synthetic data only (fake patients): login, one role-restricted action, and that the user cannot see
-  another hospital's data. `scripts/test_tenant_isolation_live.py` exists for the cross-tenant check; review its
-  target URL before running it.
-- Password recovery is disabled until SMTP is configured: a forgotten admin password is reset by the operator.
+It installs the service, updates nginx, installs the discovery-based backup script, and removes the backend's
+`TRYTOND_DATABASE_NAMES` allow-list (one backend restart of a few seconds, auto-rolled-back if the backend does not
+recover). **Security note:** after this, the allow-list is replaced by nginx's name pattern as the gate. That is the
+price of restart-free onboarding; review it before enabling. To go back, restore the previous
+`/etc/systemd/system/gnuhealth.service.d/databases.conf` (kept in `/root/ist-install-backup-*`) and restart.
 
 ## Suspending / offboarding
-Platform → suspend only blocks logins; the database and data are untouched. Deleting a hospital's database is a
-deliberate manual act on the VM, after the contract's retention period and a verified backup.
+Platform -> suspend only blocks sign-in; the database and data stay. Deleting a hospital database is a deliberate
+manual act on the VM, after the contract's retention period and a verified backup.
+
+## Verification checklist (synthetic data only)
+Sign in with the right code; blank/wrong code is rejected with the generic message; the hospital's admin sees only its
+own users and 0 foreign patients; the nightly backup contains `gnuhealth_tenant_gnuhealth_h_<code>_*.dump`; restore
+that dump into a scratch database and compare tables/rows (done 2026-10-01 for the first test hospital: 306/306 tables).
+`scripts/test_tenant_isolation_live.py` exists for a cross-tenant check; review its target URL first.
 
 ## Known limits
-- Step 2 restarts the backend for every hospital.
-- Provisioning is manual; the app cannot create databases itself from Cloud Run.
-- One VM hosts every hospital's database: size it and test restores before adding clients.
-- The cloned company is named "New Hospital (Rename Me)" with currency USD. The hospital admin must rename it and set
-  the currency/fiscal data in Tryton before use; the registry's currency/country are display metadata only.
-- If no super-admin session is available, the registry entry (`tenants-registry.json` in the state bucket
-  `gs://ist-health-hmis-21722-state/data/`) can be edited by an operator (bucket is versioned); prefer the Platform screen.
-
-## Verified end to end (2026-10-01, synthetic `testhospital`)
-Template clean (0 patients/invoices); database provisioned; backend serves it (401) and still 404s unknown names;
-registry lookup by forwarded host returns only that hospital; the hospital admin logs in on its own address, sees only
-its own users and 0 patients, and the same credentials are rejected (401) on IST Central; nightly backup dumps and
-uploads it off-site; a restore of that dump into a scratch database matched the source (306/306 tables, same rows).
-
+- Password recovery is disabled until SMTP exists: a forgotten hospital-admin password is reset by an operator.
+- One VM hosts every hospital's database: size it and keep testing restores as you add clients.

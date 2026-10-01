@@ -1,0 +1,16 @@
+[Unit]
+Description=IST hospital provisioning service
+After=network.target postgresql.service
+
+[Service]
+# Runs as the account that owns the narrow sudoers rule for ist-provision-tenant.sh.
+User=MohammedSohail
+EnvironmentFile=/etc/ist-provisioner.env
+ExecStart=/usr/bin/python3 /usr/local/lib/ist-provisioner/ist-provisioner.py
+Restart=on-failure
+RestartSec=3
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

@@ -52,9 +52,12 @@ const DEMO_STATIONS =
 
 export default function LoginPage() {
   const router = useRouter();
-  // The hospital is fixed by the address the user visited (middleware resolves it from the
-  // subdomain), so there is no picker: this page only ever learns about its own hospital.
+  // The hospital comes from the address when visiting a hospital subdomain (locked); on the main
+  // address staff type their hospital code (blank = the default hospital). The page never lists
+  // other hospitals.
   const [tenantId, setTenantId] = useState("qatar-outpatient");
+  const [hospitalCode, setHospitalCode] = useState("");
+  const [hostResolved, setHostResolved] = useState(false);
   const [tenants, setTenants] = useState<PublicTenant[]>([]);
   useEffect(() => {
     fetch("/api/tenants")
@@ -64,6 +67,7 @@ export default function LoginPage() {
           setTenants(data.tenants);
           if (data.tenants[0]?.id) setTenantId(data.tenants[0].id);
         }
+        setHostResolved(data.hostResolved === true);
       })
       .catch(() => {
         // Leave the facility name blank rather than show a stale or invented one.
@@ -93,7 +97,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           username: username.trim(),
           password,
-          tenantId,
+          hospital: hostResolved ? "" : hospitalCode.trim().toLowerCase(),
         }),
       });
 
@@ -297,11 +301,35 @@ export default function LoginPage() {
           <div className="bg-slate-900/80 border border-slate-800/90 rounded-2xl p-4 sm:p-6 shadow-2xl backdrop-blur-xl">
             <form onSubmit={handleLogin} className="space-y-3 sm:space-y-3.5">
               
-              {/* Hospital Facility: fixed by the address the user visited */}
-              <div className="flex items-center gap-2 px-3 h-10 rounded-xl bg-slate-950/70 border border-slate-800 text-xs sm:text-sm text-slate-200">
-                <Building2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                <span className="truncate">{currentTenant?.name ?? "Your Facility"}</span>
-              </div>
+              {/* Hospital: locked on a hospital subdomain, otherwise a code field (blank = default hospital) */}
+              {hostResolved ? (
+                <div className="flex items-center gap-2 px-3 h-10 rounded-xl bg-slate-950/70 border border-slate-800 text-xs sm:text-sm text-slate-200">
+                  <Building2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                  <span className="truncate">{currentTenant?.name ?? "Your Facility"}</span>
+                </div>
+              ) : (
+                <div>
+                  <label htmlFor="login-hospital" className="text-xs font-semibold text-slate-300 block mb-1">
+                    Hospital Code <span className="font-normal text-slate-500">(leave blank for IST Central)</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="login-hospital"
+                      name="hospital"
+                      type="text"
+                      value={hospitalCode}
+                      onChange={(e) => setHospitalCode(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))}
+                      maxLength={24}
+                      autoComplete="off"
+                      autoCapitalize="none"
+                      spellCheck={false}
+                      placeholder="e.g. alnoor"
+                      className="w-full h-10 px-3 pl-9 text-xs sm:text-sm bg-slate-950 border border-slate-700/80 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder:text-slate-600 transition-all"
+                    />
+                    <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+                  </div>
+                </div>
+              )}
 
               {/* Username Input */}
               <div>

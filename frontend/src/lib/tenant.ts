@@ -105,6 +105,23 @@ export function resolveTenantFromHost(host?: string | null): TenantConfig | null
   return match || null;
 }
 
+/** Hospital codes are short, lowercase, alphanumeric (they become part of the database name). */
+export const HOSPITAL_CODE_PATTERN = /^[a-z0-9]{2,24}$/;
+
+/**
+ * Looks a hospital up by the code staff type on the login page. Returns null for anything that is
+ * malformed, unknown or not active, so the caller can answer with the same generic error as a
+ * wrong password and never reveal which hospitals exist.
+ */
+export function findActiveTenantByCode(code?: string | null): TenantConfig | null {
+  const normalized = (code || "").trim().toLowerCase();
+  if (!HOSPITAL_CODE_PATTERN.test(normalized)) return null;
+  const match = Object.values(getTenantRegistry()).find(
+    (t) => t.subdomain === normalized || t.id === normalized
+  );
+  return match && match.status === "active" ? match : null;
+}
+
 export function resolveTenant(tenantIdentifier?: string | null): TenantConfig {
   const registry = getTenantRegistry();
   const selectedId = tenantIdentifier && registry[tenantIdentifier]

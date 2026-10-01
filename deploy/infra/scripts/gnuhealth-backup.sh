@@ -4,9 +4,9 @@
 #   gnuhealth-backup.sh                  run the backup
 #   gnuhealth-backup.sh --list-databases print the databases that would be backed up, then exit
 #
-# Which databases: the main `gnuhealth` database plus every name in the gnuhealth service's
-# TRYTOND_DATABASE_NAMES (the same allow-list the backend serves, so a hospital is backed up exactly
-# when it is live; test/UAT databases that are not served are not).
+# Which databases: the main `gnuhealth` database plus every hospital database, discovered from PostgreSQL
+# itself (names matching gnuhealth_h_*, the same pattern nginx uses to route hospitals). A new hospital is
+# therefore backed up automatically; test/staging/template databases are not.
 #
 # Output files in BACKUP_DIR:
 #   gnuhealth_db_<ts>.dump                  main database (unchanged name: restore drills rely on it)
@@ -18,7 +18,6 @@ BACKUP_DIR="${BACKUP_DIR:-/var/backups/gnuhealth}"
 ATTACH_DIR="${ATTACH_DIR:-/home/gnuhealth/attach}"
 LOG_FILE="${LOG_FILE:-/var/log/gnuhealth_backup.log}"
 MAIN_DB="gnuhealth"
-SERVICE="gnuhealth"
 RETENTION_DAYS=14
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 GCS_BUCKET="gs://ist-health-backups-509307"
@@ -26,22 +25,17 @@ GCS_KEY="${GCS_KEY:-/etc/gcs/ist-health-backup-key.json}"
 
 log() { echo "[$(date -u +"%Y-%m-%dT%H:%M:%SZ")] $*" >> "${LOG_FILE}"; }
 
-# Databases to back up: main first, then every other valid name served by the backend.
+# Databases to back up: main first, then every hospital database that exists in PostgreSQL.
 resolve_databases() {
-    local env_line names
-    # `systemctl show` lists every Environment assignment; if the variable is defined more than
-    # once (unit file + drop-in) systemd uses the last one, so do the same.
-    env_line=$(systemctl show "${SERVICE}" -p Environment --value 2>/dev/null | tr ' ' '\n' | grep '^TRYTOND_DATABASE_NAMES=' | tail -n1)
-    names="${env_line#TRYTOND_DATABASE_NAMES=}"
     {
         echo "${MAIN_DB}"
-        echo "${names}" | tr ',' '\n'
+        sudo -u postgres psql -tA -c "SELECT datname FROM pg_database WHERE datname LIKE 'gnuhealth\_h\_%' ORDER BY 1" 2>/dev/null
     } | sed 's/[[:space:]]//g' | awk 'NF && !seen[$0]++' | while read -r db; do
         # Strict allow-list: it ends up in a file name and a command line.
         if [[ "${db}" =~ ^gnuhealth[a-z0-9_]{0,48}$ ]]; then
             echo "${db}"
         else
-            log "WARNING: ignoring invalid database name in TRYTOND_DATABASE_NAMES: '${db}'"
+            log "WARNING: ignoring unexpected database name: '${db}'"
         fi
     done
 }

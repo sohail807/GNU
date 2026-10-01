@@ -29,7 +29,8 @@ $envVars = @(
   "SESSION_REVOCATION_DIR=/mnt/state/tokens",
   "TENANT_REGISTRY_DIR=/mnt/state/data",
   "APP_BASE_DOMAIN=isthealth.irisstar.tech",       # <hospital>.isthealth.irisstar.tech resolves to that hospital
-  "TENANT_PROVISIONING=manual"                     # databases are created by an operator on the VM (docs/TENANT_ONBOARDING.md)
+  "TENANT_PROVISIONING=manual",                    # fallback if the provisioning service below is not configured
+  "PROVISIONER_URL=https://api.isthealth.irisstar.tech/_provision"   # one-click hospital creation (deploy/infra/provisioner)
 ) -join "@"
 
 Push-Location $frontend
@@ -41,7 +42,7 @@ try {
     --add-volume "name=state,type=cloud-storage,bucket=$Project-state,mount-options=uid=1000;gid=1000;file-mode=660;dir-mode=770" `
     --add-volume-mount "volume=state,mount-path=/mnt/state" `
     --set-env-vars "^@^$envVars" `
-    --set-secrets "SESSION_ENCRYPTION_KEY=ist-session-key:latest" `
+    --set-secrets "SESSION_ENCRYPTION_KEY=ist-session-key:latest,PROVISIONER_TOKEN=ist-provisioner-token:latest" `
     --quiet
   if ($LASTEXITCODE -ne 0) { throw "Cloud Run deploy failed." }
 } finally { Pop-Location }

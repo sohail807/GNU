@@ -13,5 +13,5 @@ export async function GET(req: NextRequest) {
     tenant && tenant.status === "active"
       ? [{ id: tenant.id, name: tenant.name, currency: tenant.currency, country: tenant.country }]
       : [];
-  return NextResponse.json({ success: true, tenants });
+  return NextResponse.json({ success: true, tenants, hostResolved: Boolean(req.headers.get("x-tenant-id")) });
 }

@@ -2,20 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { TrytonClient } from "@/lib/tryton-client";
 import { setSession } from "@/lib/auth-session";
 import { resolveRoleFromTrytonGroupNames } from "@/lib/access-control";
-import { APP_BASE_DOMAIN, resolveTenant } from "@/lib/tenant";
+import { DEFAULT_TENANT_ID, findActiveTenantByCode, resolveTenant } from "@/lib/tenant";
 import { clearLoginFailures, clientIp, loginRetryAfter, recordLoginFailure } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   let attemptedUser = "";
   const ip = clientIp(req.headers);
   try {
-    const { username, password, tenantId } = await req.json();
+    const { username, password, hospital } = await req.json();
 
     if (!username || !password) {
       return NextResponse.json({ error: "Username and password are required" }, { status: 400 });
     }
 
-    attemptedUser = String(username).trim();
+    const hospitalCode = typeof hospital === "string" ? hospital.trim().toLowerCase() : "";
+    const hostTenantId = req.headers.get("x-tenant-id");
+    // Throttle per hospital + username, so an attack on "admin" at one hospital can't lock the
+    // "admin" of another.
+    attemptedUser = `${hostTenantId || hospitalCode || "default"}:${String(username).trim()}`;
     const retryAfter = loginRetryAfter(attemptedUser, ip);
     if (retryAfter > 0) {
       return NextResponse.json(
@@ -24,14 +28,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Host-resolved tenant (set by middleware from the request's subdomain) is authoritative
-    // once subdomain-per-tenant routing is live — a client can't override it via the POST body.
-    // The body-supplied tenantId is only honored as a fallback for manual tenant selection
-    // (bare-IP / pre-domain access, where there's no subdomain to resolve from).
-    // Once subdomain routing is configured (APP_BASE_DOMAIN), the hospital comes only from the
-    // address the user visited; a body-supplied tenantId is ignored so one hospital's login page
-    // can't be pointed at another hospital's database.
-    const tenant = resolveTenant(APP_BASE_DOMAIN ? req.headers.get("x-tenant-id") : req.headers.get("x-tenant-id") || tenantId);
+    // Which hospital: the address visited wins (a hospital subdomain, resolved by middleware into
+    // x-tenant-id); otherwise the hospital code typed on the login page; blank means the default
+    // hospital. An unknown/inactive code fails exactly like a wrong password so hospitals can't be
+    // enumerated, and the legacy client-supplied tenantId is ignored.
+    let tenant;
+    if (hostTenantId) {
+      tenant = resolveTenant(hostTenantId);
+    } else if (hospitalCode) {
+      const byCode = findActiveTenantByCode(hospitalCode);
+      if (!byCode) throw new Error("Unknown hospital code.");
+      tenant = resolveTenant(byCode.id);
+    } else {
+      tenant = resolveTenant(DEFAULT_TENANT_ID);
+    }
 
     // The platform onboarding screen's "suspend tenant" action only ever flipped this flag in
     // the registry - nothing here ever read it back, so a suspended hospital's staff could

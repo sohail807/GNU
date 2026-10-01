@@ -121,7 +121,7 @@ export default function PlatformPage() {
           <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wide">
             <tr>
               <th className="text-left px-4 py-2">Hospital</th>
-              <th className="text-left px-4 py-2">Subdomain</th>
+              <th className="text-left px-4 py-2">Hospital code</th>
               <th className="text-left px-4 py-2">Database</th>
               <th className="text-left px-4 py-2">Currency</th>
               <th className="text-left px-4 py-2">Status</th>
@@ -154,10 +154,10 @@ export default function PlatformPage() {
         <form onSubmit={handleCreate} className="space-y-4">
           <Input label="Hospital Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Al Wakra General Hospital" required />
           <Input
-            label="Subdomain"
+            label="Hospital code"
             value={form.subdomain}
             onChange={(e) => setForm({ ...form, subdomain: e.target.value.toLowerCase() })}
-            placeholder="e.g. alwakra (reachable at alwakra.yourdomain.com)"
+            placeholder="e.g. alwakra (staff type this at sign-in)"
             required
           />
           <div className="grid grid-cols-2 gap-3">
@@ -172,8 +172,9 @@ export default function PlatformPage() {
           )}
           <p className="text-[11px] text-slate-500">
             This clones a fresh GNU Health database for this hospital (schema + base clinical
-            dictionaries only, no other tenant&apos;s data). Takes a few seconds. You&apos;ll still need to
-            point DNS at this subdomain and create the hospital&apos;s own staff accounts afterward.
+            dictionaries only, no other tenant&apos;s data). Takes a few seconds and needs no DNS or
+            server changes: staff sign in at the main address with this hospital code. You&apos;ll be
+            shown the hospital&apos;s first admin login once; hand it over securely.
           </p>
           <div className="pt-2 flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
