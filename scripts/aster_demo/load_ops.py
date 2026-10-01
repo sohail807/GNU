@@ -61,7 +61,9 @@ def load_hospital(code, staff_path, gulf):
 
     # ---- pharmacy stock (cashier holds the pharmacy module) ----
     st, data = s["cashier"].get("/api/clinical/stock")
-    if st == 200 and data.get("success"):
+    if st == 200 and data.get("success") and data["batches"]:
+        print("  stock already loaded, skipping")
+    elif st == 200 and data.get("success"):
         meds = data["medicines"][:30]
         for i, m in enumerate(meds):
             expiry = date.today() + timedelta(days=rng.choice([30, 75, 200, 400, 600]))
@@ -74,8 +76,12 @@ def load_hospital(code, staff_path, gulf):
 
     # ---- emergency department ----
     st, data = s["reception"].get("/api/clinical/emergency")
-    if st == 200 and data.get("success"):
-        patients, doctors = data["patients"], data["doctors"]
+    if st == 200 and data.get("success") and len(data["visits"]) >= 10:
+        print("  emergency visits already loaded, skipping")
+    elif st == 200 and data.get("success"):
+        patients = data["patients"]
+        # only a doctor's account can list the clinicians
+        doctors = s["physician"].get("/api/clinical/emergency")[1].get("doctors") or [{"id": 0}]
         for i, (complaint, level, note, mode) in enumerate(COMPLAINTS):
             p = patients[(i * 7) % len(patients)]
             r = call("reception", "/api/clinical/emergency", {"action": "register", "patientId": p["id"], "complaint": complaint, "arrivalMode": mode})

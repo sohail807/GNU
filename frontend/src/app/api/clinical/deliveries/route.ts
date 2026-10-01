@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { errorResponse, fail, guard, idOf, names, patientInfo, positiveId, recentPatients, rpc, stamp, text, Row } from "@/lib/ops-api";
+import { errorResponse, fail, guard, idOf, patientInfo, positiveId, recentPatients, rpc, stamp, text, Row } from "@/lib/ops-api";
 
 // Maternity: delivery record (type, outcome, weight, Apgar, mother's condition), newborn registered as a patient of
 // the group and linked to the mother's record, NICU flag. Records are native Tryton ist.ops.delivery rows.
@@ -16,9 +16,8 @@ export async function GET() {
       ["id", "reference", "mother", "delivered_at", "delivery_type", "outcome", "baby_sex", "birth_weight_g", "apgar_1", "apgar_5", "mother_condition", "nicu", "baby", "obstetrician", "state", "note"]]);
     const ids = [...new Set(rows.flatMap((r) => [idOf(r.mother), idOf(r.baby)]).filter((x): x is number => !!x))];
     const pats = await patientInfo(session, ids);
-    const docRows = await rpc<Row[]>(session, "gnuhealth.healthprofessional", "search_read", [[], 0, 100, null, ["id", "name"]]).catch(() => []);
-    const docParties = await names(session, "party.party", docRows.map((d) => idOf(d.name)).filter((x): x is number => !!x));
-    const doctors = docRows.map((d) => ({ id: d.id as number, name: docParties[idOf(d.name) as number]?.name || `Clinician ${d.id}` }));
+    const docRows = await rpc<Row[]>(session, "gnuhealth.healthprofessional", "search_read", [[], 0, 100, null, ["id", "rec_name"]]).catch(() => []);
+    const doctors = docRows.map((d) => ({ id: d.id as number, name: (d.rec_name as string) || `Clinician ${d.id}` }));
     const docName = Object.fromEntries(doctors.map((d) => [d.id, d.name]));
     const deliveries = rows.map((r) => ({
       id: r.id, reference: r.reference, state: r.state, motherId: idOf(r.mother), mother: pats[idOf(r.mother) as number]?.name || "", motherPuid: pats[idOf(r.mother) as number]?.puid || null,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { errorResponse, fail, guard, idOf, names, patientInfo, positiveId, recentPatients, rpc, stamp, text, Row } from "@/lib/ops-api";
+import { errorResponse, fail, guard, idOf, patientInfo, positiveId, recentPatients, rpc, stamp, text, Row } from "@/lib/ops-api";
 
 // Emergency department: arrival -> triage (1-5) -> doctor -> observation -> admit / discharge / transfer.
 // Records are native Tryton ist.ops.ed_visit rows, scoped to the active hospital's company and institution.
@@ -18,9 +18,8 @@ export async function GET() {
       ["id", "reference", "patient", "arrival_mode", "complaint", "triage_level", "triage_note", "doctor", "bay", "state",
         "arrived_at", "triaged_at", "seen_at", "closed_at", "disposition_note", "admission"]]);
     const pats = await patientInfo(session, [...new Set(rows.map((r) => idOf(r.patient)).filter((x): x is number => !!x))]);
-    const docRows = await rpc<Row[]>(session, "gnuhealth.healthprofessional", "search_read", [[], 0, 100, null, ["id", "name"]]).catch(() => []);
-    const docParties = await names(session, "party.party", docRows.map((d) => idOf(d.name)).filter((x): x is number => !!x));
-    const doctors = docRows.map((d) => ({ id: d.id as number, name: docParties[idOf(d.name) as number]?.name || `Clinician ${d.id}` }));
+    const docRows = await rpc<Row[]>(session, "gnuhealth.healthprofessional", "search_read", [[], 0, 100, null, ["id", "rec_name"]]).catch(() => []);
+    const doctors = docRows.map((d) => ({ id: d.id as number, name: (d.rec_name as string) || `Clinician ${d.id}` }));
     const docById = Object.fromEntries(doctors.map((d) => [d.id, d.name]));
 
     const now = Date.now();

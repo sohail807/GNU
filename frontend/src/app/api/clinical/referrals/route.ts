@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { errorResponse, fail, guard, idOf, names, patientInfo, positiveId, recentPatients, rpc, stamp, text, Row } from "@/lib/ops-api";
+import { errorResponse, fail, guard, idOf, patientInfo, positiveId, recentPatients, rpc, stamp, text, Row } from "@/lib/ops-api";
 
 // Inter-hospital referral inside a group: the sending hospital asks, the receiving hospital accepts or declines,
 // then confirms the patient arrived. The patient record is shared across the group, so the receiving doctor sees
@@ -17,9 +17,8 @@ export async function GET() {
     if (!mine) return NextResponse.json({ success: true, referrals: [], hospitals: [], patients: [], summary: { incomingOpen: 0, outgoingOpen: 0, completed: 0 } });
     const rows = await rpc<Row[]>(session, M, "search_read", [["OR", ["from_institution", "=", mine], ["to_institution", "=", mine]], 0, 300, [["id", "DESC"]],
       ["id", "reference", "patient", "from_institution", "to_institution", "specialty", "urgency", "reason", "clinical_summary", "state", "requested_at", "decided_at", "response_note"]]);
-    const instRows = await rpc<Row[]>(session, "gnuhealth.institution", "search_read", [[], 0, 50, null, ["id", "name"]]).catch(() => []);
-    const parties = await names(session, "party.party", instRows.map((i) => idOf(i.name)).filter((x): x is number => !!x));
-    const hospitals = instRows.map((i) => ({ id: i.id as number, name: parties[idOf(i.name) as number]?.name || `Hospital ${i.id}` }));
+    const instRows = await rpc<Row[]>(session, "gnuhealth.institution", "search_read", [[], 0, 50, null, ["id", "rec_name"]]).catch(() => []);
+    const hospitals = instRows.map((i) => ({ id: i.id as number, name: (i.rec_name as string) || `Hospital ${i.id}` }));
     const hospitalName = Object.fromEntries(hospitals.map((h) => [h.id, h.name]));
     const pats = await patientInfo(session, [...new Set(rows.map((r) => idOf(r.patient)).filter((x): x is number => !!x))]);
     const referrals = rows.map((r) => {
