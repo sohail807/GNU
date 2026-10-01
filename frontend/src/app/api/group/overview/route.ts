@@ -33,10 +33,11 @@ export async function GET() {
           run<number>("gnuhealth.appointment", "search_count", [inst], h.companyId),
           run<number>("gnuhealth.inpatient.registration", "search_count", [inst, ["state", "=", "hospitalized"]], h.companyId),
           run<Array<{ total_amount: unknown; state: string }>>(
-            "account.invoice", "search_read", [["type", "=", "out"]], h.companyId, [0, 5000, null, ["total_amount", "state"]]
+            "account.invoice", "search_read", [["type", "=", "out"], ["company", "=", h.companyId]], h.companyId, [0, 5000, null, ["total_amount", "state"]]
           ),
-          run<number>("gnuhealth.lab", "search_count", [], h.companyId),
-          run<number>("gnuhealth.imaging.test.request", "search_count", [], h.companyId),
+          // lab and imaging orders carry no hospital of their own: they belong to the hospital of the requesting clinician
+          run<number>("gnuhealth.lab", "search_count", [["requestor.institution", "=", h.institutionId]], h.companyId),
+          run<number>("gnuhealth.imaging.test.request", "search_count", [["doctor.institution", "=", h.institutionId]], h.companyId),
         ]);
         const amount = (v: unknown) => Number(typeof v === "object" && v !== null && "decimal" in v ? (v as { decimal: string }).decimal : v) || 0;
         const billed = invoices.reduce((t, i) => t + amount(i.total_amount), 0);

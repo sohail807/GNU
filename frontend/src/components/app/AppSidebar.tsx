@@ -93,6 +93,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         { label: "General Ledger Audit", href: "/billing?tab=ledger", icon: Landmark, moduleKey: "ledger", badge: "GL" },
         { label: "Master Patient Registry", href: "/patient", icon: FileText, moduleKey: "patient_chart", badge: "EHR" },
         { label: "Patient Insurance", href: "/insurance", icon: ShieldCheck, moduleKey: "insurance", badge: "Cover" },
+        { label: "Pre-auth & Claims", href: "/claims", icon: ShieldCheck, moduleKey: "insurance", badge: "Claims" },
       ],
     },
     {

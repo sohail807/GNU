@@ -52,7 +52,16 @@ export function setActiveInstitution(sessionToken: string, institutionId: number
   ACTIVE_INSTITUTION.set(sessionToken, institutionId);
 }
 
-function scopeParams(model: string, method: string, params: unknown[], institution: number): unknown[] {
+// Each hospital of a group is its own Tryton company with its own books. Tryton's record rules only require the
+// company to be one of the user's companies, so a user in both would see both hospitals' invoices and ledger;
+// reads are therefore pinned to the active company here.
+const COMPANY_FILTERED = new Set(["account.invoice", "account.move", "account.move.line", "account.account"]);
+
+function scopeParams(model: string, method: string, params: unknown[], institution: number, company?: number): unknown[] {
+  if (company && COMPANY_FILTERED.has(model) && ["search_read", "search", "search_count"].includes(method)) {
+    const domain = Array.isArray(params[0]) ? (params[0] as unknown[]) : [];
+    return [domain.length > 0 ? [["company", "=", company], domain] : [["company", "=", company]], ...params.slice(1)];
+  }
   if (["search_read", "search", "search_count"].includes(method) && INSTITUTION_FILTERED.has(model)) {
     const domain = Array.isArray(params[0]) ? (params[0] as unknown[]) : [];
     const scoped = domain.length > 0 ? [["institution", "=", institution], domain] : [["institution", "=", institution]];
@@ -192,7 +201,7 @@ export class TrytonClient {
 
     // Tryton model calls expect context as the final parameter
     const institution = options.unscoped ? undefined : ACTIVE_INSTITUTION.get(sessionToken);
-    const scopedParams = institution ? scopeParams(model, method, params, institution) : params;
+    const scopedParams = institution ? scopeParams(model, method, params, institution, typeof context.company === "number" ? context.company : undefined) : params;
     const callParams = [...scopedParams, fullContext];
 
     const payload = {

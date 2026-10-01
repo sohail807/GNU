@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession, updateSession } from "@/lib/auth-session";
 import { resolveTenant } from "@/lib/tenant";
+import { TrytonClient } from "@/lib/tryton-client";
 
 // Switch the active hospital inside a group customer. The list a user may choose from was fixed at sign-in
 // (hospitals whose company the backend allows this user to use) and travels in the encrypted session
@@ -37,6 +38,18 @@ export async function POST(req: NextRequest) {
   const hospital = resolveTenant(session.tenantId).hospitals?.find((h) => h.id === wanted);
   if (!hospital) {
     return NextResponse.json({ error: "That hospital is no longer available." }, { status: 404 });
+  }
+  // Tryton's record rules (invoices, ledger) only admit the user's current company unless the user's company filter is
+  // "all". Group users get "all" (their hospitals are exactly their companies) and TrytonClient pins every read to the
+  // active hospital's company, so switching is deterministic. The current company is kept in step like the native client.
+  try {
+    await TrytonClient.execute(
+      session.username, session.userId, session.sessionToken,
+      "res.user", "set_preferences", [{ company: hospital.companyId, company_filter: "all" }],
+      { company: hospital.companyId }, session.database, { unscoped: true }
+    );
+  } catch {
+    return NextResponse.json({ error: "The backend did not allow switching to that hospital." }, { status: 403 });
   }
   await updateSession({
     companyId: hospital.companyId,

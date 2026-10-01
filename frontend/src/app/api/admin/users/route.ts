@@ -189,7 +189,7 @@ export async function POST(req: NextRequest) {
 
     // Update a native backend system account and its managed operational role group.
     if (action === "update_user") {
-      const { userId, role, status, name, email } = body;
+      const { userId, role, status, name, email, extraRoles } = body;
       const uid = Number(userId);
       if (!Number.isSafeInteger(uid) || uid <= 0) {
         return NextResponse.json({ error: "User ID is required." }, { status: 400 });
@@ -241,8 +241,12 @@ export async function POST(req: NextRequest) {
         // desired ids -- passing a flat array here previously made Tryton throw a raw Python
         // TypeError for every role change. "remove" drops the old role's managed groups (leaving
         // any unmanaged ones the user already had untouched); "add" attaches the new role's groups.
-        const groupsToRemove = currentGroups.filter((groupId) => managedIds.has(groupId));
-        const groupsToAdd = idsByRole[role as HospitalRole];
+        // Group executives (several hospitals) also read lab, imaging and billing figures; extraRoles adds those
+        // roles' groups on top of the main role.
+        const extras = Array.isArray(extraRoles) ? extraRoles.filter((r: unknown): r is HospitalRole => typeof r === "string" && Object.hasOwn(ROLE_TO_TRYTON_GROUP_NAMES, r)) : [];
+        const groupsToAdd = [...new Set([...idsByRole[role as HospitalRole], ...extras.flatMap((r) => idsByRole[r] || [])])];
+        // Never remove a group the same write adds: Tryton applies removals last, which would strip it.
+        const groupsToRemove = currentGroups.filter((groupId) => managedIds.has(groupId) && !groupsToAdd.includes(groupId));
         writePayload.groups = [
           ["remove", groupsToRemove],
           ["add", groupsToAdd],
