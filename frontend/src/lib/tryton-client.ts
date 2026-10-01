@@ -229,8 +229,14 @@ export class TrytonClient {
         error.status = 403;
         throw error;
       }
-      const error = new Error(`Tryton RPC failed (${res.status}) on ${model}.${method}: ${errText}`) as HttpStatusError;
-      error.status = res.status;
+      // Never pass the backend's own error text to a caller: it can hold SQL, Python or server details.
+      console.error(`Tryton RPC failed (${res.status}) on ${model}.${method}: ${errText.slice(0, 500)}`);
+      const error = new Error(
+        res.status === 401 ? "Your session has expired. Please sign in again."
+          : res.status >= 500 ? "The hospital system is temporarily unavailable. Please try again."
+            : "The request could not be completed."
+      ) as HttpStatusError;
+      error.status = res.status === 401 ? 401 : res.status >= 500 ? 502 : res.status;
       throw error;
     }
 
@@ -278,7 +284,18 @@ export class TrytonClient {
         error.status = 400;
         throw error;
       }
-      throw new Error(`Tryton RPC error on ${model}.${method}: ${errStr}`);
+      // A feature whose backend module is not installed in this hospital's database.
+      if (model.startsWith("ist.") && errStr.startsWith(`["'${model}'`)) {
+        const error = new Error("This feature is not enabled for this hospital yet. Ask the administrator to install the IST workflow modules.") as HttpStatusError;
+        error.status = 503;
+        throw error;
+      }
+      // Anything else is unexpected: keep the detail in the server log only, and answer with a clean message.
+      console.error(`Tryton RPC error on ${model}.${method}: ${errStr.slice(0, 500)}`);
+      const badInput = /out of range|invalid input syntax|could not convert|invalid literal|int\(\)|has no attribute|is not a valid|KeyError|TypeError|ValueError|AttributeError/.test(errStr);
+      const error = new Error(badInput ? "One of the values sent is not valid. Check the record references and try again." : "The request could not be processed. Please try again or contact support.") as HttpStatusError;
+      error.status = badInput ? 400 : 500;
+      throw error;
     }
 
     return (data.result !== undefined ? data.result : data) as T;

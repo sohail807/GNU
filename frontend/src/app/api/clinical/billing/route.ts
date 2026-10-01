@@ -10,6 +10,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
 
+  if (!(["billing", "ledger", "patient_chart", "admin"] as const).some((m) => hasModuleAccess(session.role, m))) {
+    return NextResponse.json({ error: "Your role does not have permission to view invoices." }, { status: 403 });
+  }
+
   const { searchParams } = new URL(req.url);
   const patientId = searchParams.get("patientId");
 

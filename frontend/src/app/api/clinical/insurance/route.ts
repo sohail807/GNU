@@ -8,20 +8,32 @@ function formatTrytonDate(v: any): string | null {
   return `${v.year}-${String(v.month).padStart(2, "0")}-${String(v.day).padStart(2, "0")}`;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized session" }, { status: 401 });
   }
-  if (!hasModuleAccess(session.role, "insurance")) {
+  const forPatient = Number(new URL(req.url).searchParams.get("patientId"));
+  const wantsPatient = Number.isSafeInteger(forPatient) && forPatient > 0 && forPatient < 2147483647;
+  // The patient chart shows a patient's own policies to anyone who may open the chart.
+  if (!hasModuleAccess(session.role, "insurance") && !(wantsPatient && hasModuleAccess(session.role, "patient_chart"))) {
     return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
   }
 
   try {
+    let domain: unknown[] = [];
+    if (wantsPatient) {
+      const pt = await TrytonClient.execute<any[]>(
+        session.username, session.userId, session.sessionToken, "gnuhealth.patient", "read", [[forPatient], ["party"]],
+        { company: session.companyId }, session.database
+      );
+      const partyId = typeof pt?.[0]?.party === "number" ? pt[0].party : pt?.[0]?.party?.[0];
+      domain = [["party", "=", partyId || -1]];
+    }
     const rawIns = await TrytonClient.execute<any[]>(
       session.username, session.userId, session.sessionToken,
       "gnuhealth.insurance", "search_read",
-      [[], 0, 100, [["id", "DESC"]], ["id", "number", "party", "company", "plan_id", "insurance_type", "category", "member_since", "member_exp", "notes"]],
+      [domain, 0, 100, [["id", "DESC"]], ["id", "number", "party", "company", "plan_id", "insurance_type", "category", "member_since", "member_exp", "notes"]],
       { company: session.companyId }, session.database
     );
 

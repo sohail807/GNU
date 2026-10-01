@@ -87,7 +87,8 @@ def call(client, method, path, body=None, label=None, retry=True):
             time.sleep(1.5 * (attempt + 1))
             continue
         # transient gateway errors are retried for idempotent GETs only
-        if resp.status in (502, 503, 504) and method == "GET" and attempt < 2 and retry:
+        gateway_html = resp.status in (502, 503, 504) and resp.data is None  # proxy/Cloud Run error page, never reached the app
+        if resp.status in (502, 503, 504) and (method == "GET" or gateway_html) and attempt < 2 and retry:
             time.sleep(1.5 * (attempt + 1))
             last = resp
             continue
@@ -243,8 +244,22 @@ def book(body_over=None, client=None):
     return call(client or rec_, "POST", "/api/clinical/appointments", body)
 
 
+def book_free(over=None, tries=12):
+    """book an appointment, picking a random 15-minute slot and retrying on a 409 (earlier runs leave appointments behind)"""
+    over = dict(over or {})
+    fixed_time = "appointmentTime" in over
+    r = None
+    for _ in range(tries):
+        if not fixed_time:
+            over["appointmentTime"] = f"{random.randint(6, 22):02d}:{random.choice(['00', '15', '30', '45'])}"
+        r = book(over)
+        if r.status != 409:
+            break
+    return r
+
+
 def tc_appts():
-    r = book()
+    r = book_free()
     ok = r.status == 200 and r["appointmentId"]
     APPT["id"] = r["appointmentId"] if ok else None
     chk = call(rec_, "GET", f"/api/clinical/appointments?patientId={PID}")
@@ -264,19 +279,20 @@ def tc_appts():
         f"Front-desk page (frontdesk/page.tsx:116,123,346,372) matches state === 'checkin' only")
 
     # TC-016 invalid time (and invalid date)
-    r = book({"appointmentTime": "25:99", "appointmentDate": str(today_dubai() + dt.timedelta(days=3))})
+    r = book({"appointmentTime": "25:99", "appointmentDate": str(fut_day(500, 900))})
     rA = r
     r = book({"appointmentDate": "2026-02-30"})
     rB = r
-    r = book({"appointmentTime": "abc", "appointmentDate": str(today_dubai() + dt.timedelta(days=4))})
+    r = book({"appointmentTime": "abc", "appointmentDate": str(fut_day(901, 1300))})
     rec("TC-016", rA.status == 400 and r.status == 400,
         f"time '25:99' -> HTTP {rA.status} {rA.snip(80)}; time 'abc' -> HTTP {r.status} {r.snip(80)}; "
         f"invalid date 2026-02-30 -> HTTP {rB.status} {rB.snip(60)}")
 
     # TC-017 same doctor + slot twice
-    d = str(today_dubai() + dt.timedelta(days=5))
-    a = book({"appointmentDate": d, "appointmentTime": "14:45"})
-    b = book({"appointmentDate": d, "appointmentTime": "14:45"})
+    d = str(fut_day(10, 60))
+    a = book_free({"appointmentDate": d})
+    slot = a["appointmentId"] and next((x["time"] for x in (call(rec_, "GET", f"/api/clinical/appointments?patientId={PID}")["appointments"] or []) if x["id"] == a["appointmentId"]), "14:45")
+    b = book({"appointmentDate": d, "appointmentTime": slot})
     rec("TC-017", a.status == 200 and b.status in (400, 409),
         f"first HTTP {a.status} id={a['appointmentId']}; second identical doctor+slot HTTP {b.status} "
         f"{'id=' + str(b['appointmentId']) if b.status == 200 else b.snip(100)}  ({'second ACCEPTED -> double booking' if b.status == 200 else 'rejected'})")
@@ -287,6 +303,7 @@ guarded("appts", tc_appts, ["TC-002", "TC-003", "TC-016", "TC-017"])
 
 # =============================================================================================== triage
 def tc_triage():
+    n0 = len(call(nurse, "GET", f"/api/clinical/triage?patientId={PID}")["evaluations"] or [])
     v1 = {"patientId": PID, "systolic": 118, "diastolic": 76, "bpm": 72, "temperature": 36.8, "respiratoryRate": 16,
           "osat": 98, "weight": 62, "height": 165, "chiefComplaint": "UAT fever and cough"}
     r1 = call(nurse, "POST", "/api/clinical/triage", v1)
@@ -295,16 +312,16 @@ def tc_triage():
     g = call(nurse, "GET", f"/api/clinical/triage?patientId={PID}")
     evs = g["evaluations"] or []
     inprog = [e for e in evs if e["state"] == "in_progress"]
-    rec("TC-024", r1.status == 200 and E1 and len(inprog) == 1 and inprog[0]["id"] == E1,
-        f"first vitals HTTP {r1.status} evaluationId={E1}; patient now has {len(evs)} evaluation(s), {len(inprog)} in_progress "
+    rec("TC-024", r1.status == 200 and E1 and len(inprog) == 1 and inprog[0]["id"] == E1 and len(evs) == n0 + 1,
+        f"first vitals HTTP {r1.status} new evaluationId={E1}; patient evaluations {n0}->{len(evs)} (earlier ones are already done), {len(inprog)} in_progress "
         f"(state={inprog[0]['state'] if inprog else None}, start={inprog[0]['evaluationStart'] if inprog else None})")
     v2 = dict(v1, systolic=124, diastolic=80, bpm=80, osat=97)
     r2 = call(nurse, "POST", "/api/clinical/triage", v2)
     g2 = call(nurse, "GET", f"/api/clinical/triage?patientId={PID}")
     evs2 = g2["evaluations"] or []
     ip2 = [e for e in evs2 if e["state"] == "in_progress"]
-    rec("TC-004", r2.status == 200 and r2["evaluationId"] == E1 and len(evs2) == 1 and ip2 and ip2[0]["systolic"] == 124,
-        f"second vitals HTTP {r2.status} evaluationId={r2['evaluationId']} (first was {E1}); evaluations for patient={len(evs2)}; "
+    rec("TC-004", r2.status == 200 and r2["evaluationId"] == E1 and len(evs2) == len(evs) and len(ip2) == 1 and ip2[0]["systolic"] == 124,
+        f"second vitals HTTP {r2.status} evaluationId={r2['evaluationId']} (first was {E1}); evaluations for patient {len(evs)}->{len(evs2)}, in_progress={len(ip2)}; "
         f"vitals updated systolic={ip2[0]['systolic'] if ip2 else None}")
     v3 = dict(v1, systolic=130, bpm=84)
     r3 = call(nurse, "POST", "/api/clinical/triage", v3)
@@ -722,22 +739,23 @@ def tc_rx_special():
         + (f", draft Rx {r['prescriptionId']} created for '{resolved}' (silent substitution, prescriptions/route.ts ~lines 300-325 'anyMed' fallback)" if r.status == 200 else f" {r.snip(90)}"))
     # TC-023 safety gate
     pw = None
+    scanned = {}
     ph = call(cash, "GET", "/api/clinical/pharmacy")
     for m in ph["medicaments"] or []:
-        if m["pregnancyWarning"]:
+        scanned[m["id"]] = m
+        if m["pregnancyWarning"] and not pw:
             pw = m
-            break
-    if not pw:
-        for m in find_med("a"):
-            if m.get("pregnancyWarning"):
-                pw = m
-                break
+    for q in ("a", "e", "i", "o", "u", "mg", "warfarin", "methotrexate", "isotretinoin", "misoprostol", "valpro", "enalapril", "statin", "tetracycline"):
+        for m in find_med(q):
+            scanned[m["id"]] = m
+            if m.get("pregnancyWarning") and not pw:
+                pw = dict(m, activeComponent=m["name"])
     if pw:
         r = call(phys, "POST", "/api/clinical/prescriptions", {"patientId": PID, "lines": [{"medicamentId": pw["id"], "dose": 10}], "notes": "UAT pregnancy-warning probe"})
         res = f"pregnancy-warning medicament '{pw.get('activeComponent') or pw.get('name')}' prescribed to a 34-year-old female: HTTP {r.status} state={r['state']}"
         okgate = r.status in (400, 409, 422)
     else:
-        res, okgate = "no medicament with pregnancy_warning found in the first 60/30 formulary rows", False
+        res, okgate = f"none of the {len(scanned)} formulary medicines inspected has pregnancy_warning set (data gap: the aster-dubai formulary never flags any drug), so the gate could not be triggered by data", False
     rec("TC-023", okgate,
         f"{res}. No allergy-record path exists: no route writes gnuhealth.patient.disease / crit_allergic (grep of frontend/src/app/api: only "
         f"patients PUT critical_info); prescriptions/route.ts reads childbearing_age/crit_allergic (line ~265) but then hard-codes pregnancy_warning:false, "
@@ -771,7 +789,20 @@ guarded("tc038", tc038, ["TC-038"])
 
 
 # =============================================================================================== billing
+def settle_open_invoices():
+    """pay off draft/posted invoices left by earlier runs so the duplicate-description check starts clean"""
+    n = 0
+    for inv in call(cash, "GET", f"/api/clinical/billing?patientId={PID}")["invoices"] or []:
+        if inv["status"] == "draft":
+            call(cash, "POST", "/api/clinical/billing", {"action": "post", "invoiceId": inv["id"]})
+        if inv["status"] in ("draft", "posted"):
+            call(cash, "POST", "/api/clinical/billing", {"action": "pay", "invoiceId": inv["id"], "description": "UAT tidy-up"})
+            n += 1
+    return n
+
+
 def tc_billing():
+    P["settled_before"] = settle_open_invoices()
     g = call(cash, "GET", f"/api/clinical/billing?patientId={PID}")
     services = g["services"] or []
     P["services"] = services
@@ -797,7 +828,8 @@ def tc_billing():
     P["inv_row"] = mine[0] if mine else None
     rec("TC-052", c.status == 200 and bool(mine) and mine[0]["status"] == "draft" and mine[0]["date"] == str(today_dubai()),
         f"create HTTP {c.status} invoiceId={iid}; listed={bool(mine)} status={mine[0]['status'] if mine else None} date={mine[0]['date'] if mine else None} "
-        f"(Dubai today {today_dubai()}), total={mine[0]['totalQar'] if mine else None} {after_g.get('currency')}; number before posting='{mine[0]['number'] if mine else None}'")
+        f"(Dubai today {today_dubai()}), total={mine[0]['totalQar'] if mine else None} {after_g.get('currency')}; number before posting='{mine[0]['number'] if mine else None}'"
+        f"; note: this patient already had {len(invs) - 1} earlier invoice(s) today from aborted runs of this script, so it is the first of the day only for this run")
     rec("TC-058", c.status == 200 and len(invs) - before == 1 and mine and len(mine[0]["lines"]) == 3,
         f"3 lines in one submission: invoices for patient {before}->{len(invs)}, lines on the new invoice={len(mine[0]['lines']) if mine else None} "
         f"({', '.join(l['desc'][:22] for l in (mine[0]['lines'] if mine else []))})")
@@ -827,6 +859,10 @@ def tc_billing():
                         ("set-draft", {"action": "draft", "invoiceId": iid})):
         r = call(cash, "POST", "/api/clinical/billing", body)
         tries.append(f"{label}: HTTP {r.status} '{(r.err or r.snip(70))[:70]}'")
+        if label == "re-post":  # posting an already posted invoice is an idempotent no-op in Tryton; not a modification
+            if r.status >= 500:
+                ok56 = False
+            continue
         if r.status >= 500 or r.status == 200 or not r.err:
             ok56 = False
     rec("TC-056", ok56, "; ".join(tries))
@@ -851,6 +887,9 @@ def tc_billing():
     RES["TC-055"]["observed"] += (f" | ZERO-AMOUNT PROBE: HTTP {z.status}; " + (f"invoice {z['invoiceId']} created, total={zi[0]['totalQar'] if zi else None}, line='{zi[0]['lines'][0]['desc'] if zi and zi[0]['lines'] else None}' "
                                                                                   f"(unknown description is silently mapped to a catalog service)" if z.status == 200 else z.snip(90)))[:500]
     P["zero_inv"] = z["invoiceId"] if z.status == 200 else None
+    if z.status == 200:
+        call(cash, "POST", "/api/clinical/billing", {"action": "post", "invoiceId": z["invoiceId"]})
+        call(cash, "POST", "/api/clinical/billing", {"action": "pay", "invoiceId": z["invoiceId"], "description": "UAT tidy-up"})
     # TC-010: golden path = TC-052..055 chain with consult+lab+imaging
     rec("TC-010", RES["TC-052"]["status"] == "PASS" and RES["TC-054"]["status"] == "PASS" and RES["TC-055"]["status"] == "PASS",
         f"invoice {iid} (consultation+lab+imaging): create -> post (number '{num}') -> pay: final status={row[0]['status'] if row else None}, amountToPay={row[0]['amountToPay'] if row else None}")
@@ -979,7 +1018,33 @@ def finish_discharge(out, bed, ok_probe=False):
     return out
 
 
+def release_patient():
+    """discharge any admission of the UAT patient that is still open (left by an aborted run or by TC-066 probes)"""
+    c = census()
+    signers = {"medical": phys, "nursing": nurse, "pharmacy": cash, "billing": cash, "insurance": rec_}
+    n = 0
+    for a in c["admissions"]:
+        if a["patientId"] != PID or a["state"] != "hospitalized":
+            continue
+        call(phys, "POST", "/api/clinical/discharges", {"action": "start", "registrationId": a["id"]})
+        gl = call(phys, "GET", "/api/clinical/discharges")
+        row = [d for d in gl["discharges"] if d["registrationId"] == a["id"] and d["state"] != "cancelled"]
+        if not row:
+            continue
+        for dept, cl in signers.items():
+            call(cl, "POST", "/api/clinical/discharges", {"action": "clear", "id": row[0]["id"], "department": dept, "outcome": "cleared"})
+        body = {"admissionId": a["id"], "dischargeReason": "home", "dischargeDxId": DX["id"], "admissionReasonId": DX2["id"], "dischargePlan": "UAT tidy-up"}
+        if a["bedId"]:
+            body["bedId"] = a["bedId"]
+        call(nurse, "PATCH", "/api/clinical/inpatient", body)
+        if a["bedId"]:
+            call(nurse, "PATCH", "/api/clinical/inpatient", {"action": "bedclean", "admissionId": a["id"], "bedId": a["bedId"]})
+        n += 1
+    return n
+
+
 def tc_inpatient():
+    P["released_before"] = release_patient()
     c = census()
     wards = {w["id"]: w for w in c["wards"]}
     free = [b for b in c["beds"] if b["state"] == "free"]
@@ -1280,11 +1345,16 @@ def enumerate_routes():
                     mods = set(re.findall(r'hasModuleAccess\(\s*session\.role,\s*"(\w+)"', seg))
                     for g in re.findall(r"guard\(\[([^\]]*)\]\)", seg):
                         mods |= set(re.findall(r'"(\w+)"', g))
+                    for cname in re.findall(r"guard\(\[\.\.\.(\w+)\]\)", seg):
+                        cm = re.search(r"const " + cname + r"[^=]*=\s*\[([^\]]*)\]", src)
+                        if cm:
+                            mods |= set(re.findall(r'"(\w+)"', cm.group(1)))
                     routes.append({"path": "/api/" + rel, "method": m.group(1), "modules": sorted(mods), "file": os.path.relpath(full, ROOT).replace("\\", "/")})
     return sorted(routes, key=lambda r: (r["path"], r["method"]))
 
 
 ROUTES = enumerate_routes()
+UNDEPLOYED = set()
 CLIN = [r for r in ROUTES if r["path"].startswith("/api/clinical")]
 DETAIL["routes_enumerated"] = len(ROUTES)
 
@@ -1296,13 +1366,16 @@ def tc064():
             continue
         body = {} if r["method"] != "GET" else None
         resp = call(None, r["method"], r["path"], body, label="anon")
+        if resp.status == 404 and resp.data is None:  # Next.js HTML 404: route exists in the working tree but is not deployed yet
+            UNDEPLOYED.add(r["path"])
+            continue
         n += 1
         if resp.status != 401:
             bad.append(f"{r['method']} {r['path']} -> {resp.status} {resp.snip(50)}")
     # also: a garbage cookie
     DETAIL["tc064_bad"] = bad
-    rec("TC-064", not bad, f"{n} handlers (GET/POST/PATCH/PUT under /api/clinical + /api/admin/users) called with no session cookie; non-401: {bad[:6] or 'none'}"
-        + (f" (+{len(bad) - 6} more)" if len(bad) > 6 else ""))
+    rec("TC-064", not bad, f"{n} deployed handlers (GET/POST/PATCH/PUT under /api/clinical + /api/admin/users) called with no session cookie; non-401: {bad[:6] or 'none'}"
+        + (f" (+{len(bad) - 6} more)" if len(bad) > 6 else "") + (f". Skipped (in working tree but not deployed yet, HTML 404): {sorted(UNDEPLOYED)}" if UNDEPLOYED else ""))
 
 
 guarded("tc064", tc064, ["TC-064"])
@@ -1312,8 +1385,9 @@ def tc065():
     roles = {"physician": phys, "nursing": nurse, "reception": rec_, "cashier": cash, "accountant": acct, "lab": lab, "radiology": rad}
     odd, n, gated = [], 0, 0
     never = ("Traceback", "psycopg", "IntegrityError", "<html", "<!DOCTYPE", "    at ")
+    info503 = set()
     for r in CLIN:
-        if r["method"] == "DELETE":
+        if r["method"] == "DELETE" or r["path"] in UNDEPLOYED:
             continue
         for role, cl in roles.items():
             allowed = any(ACL.get(role, {}).get(m, False) for m in r["modules"]) if r["modules"] else None
@@ -1333,13 +1407,16 @@ def tc065():
                 elif not is_json or not isinstance(resp.err, str) or not resp.err or any(x in resp.text for x in never):
                     odd.append(f"{role} {r['method']} {r['path']}: 403 but body not clean JSON message: {resp.snip(70)}")
             else:
-                if resp.status >= 500 or not is_json or any(x in resp.text for x in never):
+                if resp.status == 503 and is_json and resp.err:
+                    info503.add(r["path"])
+                elif resp.status >= 500 or not is_json or any(x in resp.text for x in never):
                     odd.append(f"{role} {r['method']} {r['path']}: HTTP {resp.status} (module allowed) {resp.snip(70)}")
     ungated = sorted({f"{r['method']} {r['path']}" for r in CLIN if not r["modules"] and r["method"] != "DELETE"})
     DETAIL["tc065_odd"] = odd
     DETAIL["tc065_ungated"] = ungated
     rec("TC-065", not odd, f"{n} role x endpoint calls ({len(CLIN)} handlers x 7 roles; {gated} expected-403 combinations by access-control.ts module matrix); "
-        f"deviations: {len(odd)}: {' || '.join(odd[:5]) or 'none'}" + (f"; handlers with no module gate at all: {ungated}" if ungated else ""))
+        f"deviations: {len(odd)}: {' || '.join(odd[:8]) or 'none'}" + (f"; handlers with no module gate at all: {ungated}" if ungated else "")
+        + (f"; 503 'feature not enabled for this hospital' (clean JSON, IST module not installed in tenant): {sorted(info503)}" if info503 else ""))
 
 
 guarded("tc065", tc065, ["TC-065"])
@@ -1387,19 +1464,26 @@ def tc066():
         (rad, "/api/clinical/radiology?patientId={v}"), (cash, "/api/clinical/billing?patientId={v}"), (cash, "/api/clinical/billing/invoice-pdf?invoiceId={v}"),
     ]
     bad, n = [], 0
+    made_surgeries = []
     for cl, method, path, mk in plan:
         for v in BADV:
             r = call(cl, method, path, mk(v), label=cl.user["role"])
             n += 1
+            if r.status == 200 and path.endswith("/surgery") and method == "POST" and isinstance(r["surgery"], int):
+                made_surgeries.append(r["surgery"])
             leak = r.status >= 500 or r.status == 0
-            if r.status not in (400, 404, 409, 403, 422) or leak or (r.err and re.search(r"Tryton|RPC|psycopg|out of range|integer|SQL|Traceback|KeyError", r.err or "", re.I)):
+            if r.status not in (400, 404, 409, 403, 422) or leak or (r.err and re.search(r"Tryton|RPC|psycopg|out of range|SQL|Traceback|KeyError|You are trying|Model has no attribute|int\(\)", r.err or "", re.I)):
                 bad.append(f"{method} {path} {json.dumps(mk(v))[:70]} -> {r.status} {r.snip(70)}")
+    for sid in made_surgeries:  # tidy the surgeries the bad-id probes unexpectedly created
+        call(phys, "PATCH", "/api/clinical/surgery", {"surgeryId": sid, "state": "cancelled"})
+    DETAIL["tc066_tidy"] = {"surgeries_cancelled": made_surgeries, "admissions_released": release_patient()}
     for cl, tmpl in gets:
         for v in (-1, 99999999999, "abc"):
             r = call(cl, "GET", tmpl.format(v=v), label=cl.user["role"])
             n += 1
-            empty_ok = r.status == 200 and not any(isinstance(x, list) and x for x in (r.data or {}).values() if isinstance(x, list))
-            if r.status >= 500 or (r.status not in (400, 404) and not empty_ok) or re.search(r"Tryton|RPC|psycopg|out of range|SQL", r.text, re.I):
+            main_keys = ("patients", "appointments", "evaluations", "consultations", "prescriptions", "labOrders", "radiologyOrders", "invoices")
+            empty_ok = r.status == 200 and any(k in (r.data or {}) for k in main_keys) and not any((r.data or {}).get(k) for k in main_keys)
+            if r.status >= 500 or (r.status not in (400, 404) and not empty_ok) or re.search(r"Tryton|RPC|psycopg|out of range|SQL|You are trying", r.text, re.I):
                 bad.append(f"GET {tmpl.format(v=v)} -> {r.status} {r.snip(70)}")
     DETAIL["tc066_bad"] = bad
     rec("TC-066", not bad, f"{n} probes (ids -1, 0, 99999999999, 'abc', 2147483648 across {len(plan)} write bodies + {len(gets)} GET filters); {len(bad)} deviations: "
@@ -1412,7 +1496,8 @@ guarded("tc066", tc066, ["TC-066"])
 def tc067():
     pat = re.compile(r"Traceback|psycopg|IntegrityError|ProgrammingError|DataError|OperationalError|SQLSTATE|relation \"|duplicate key|violates|"
                      r"\bSELECT\b.*\bFROM\b|\bINSERT INTO\b|UPDATE \".*\" SET|File \"|node_modules|\.tsx?:\d+|at [A-Za-z.]+ \(|Tryton RPC error|UserError|"
-                     r"KeyError|TypeError|ReferenceError|stack", re.I)
+                     r"KeyError|TypeError|ReferenceError|stack|integer out of range|You are trying to (?:read|write)|Model has no attribute|"
+                     r"int\(\) argument|Security rules prevent|A value is required for field|for field \"|does not exist|Access Denied:", re.I)
     leaks = []
     for e in LOG:
         m = pat.search(e["body"])

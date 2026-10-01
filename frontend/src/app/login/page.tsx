@@ -2,7 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion, useReducedMotion } from "framer-motion";
 import {
+  Lock,
+  CalendarCheck,
+  FlaskConical,
+  TrendingUp,
   Building2,
   ShieldCheck,
   Activity,
@@ -17,13 +22,9 @@ import {
   Eye,
   EyeOff,
   AlertCircle,
-  Server,
-  Database,
   Globe,
   HelpCircle,
   X,
-  Sparkles,
-  CheckCircle2,
 } from "lucide-react";
 interface PublicTenant {
   id: string;
@@ -148,329 +149,370 @@ export default function LoginPage() {
   };
 
   const currentTenant = tenants.find((t) => t.id === tenantId) || tenants[0];
+  const reduce = useReducedMotion();
+
+  const features = [
+    { icon: Stethoscope, label: "Clinical records" },
+    { icon: FlaskConical, label: "Lab & imaging" },
+    { icon: Receipt, label: "Billing & claims" },
+    { icon: ShieldCheck, label: "Audited access" },
+  ];
+
+  const rise = (delay: number) => ({
+    initial: reduce ? false : { opacity: 0, y: 18 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] as const },
+  });
+
+  const float = (dur: number, dist: number) =>
+    reduce ? {} : { animate: { y: [0, -dist, 0] }, transition: { duration: dur, repeat: Infinity, ease: "easeInOut" as const } };
+
+  const inputClass =
+    "peer w-full h-12 pl-11 pr-3 text-[15px] bg-slate-950/60 border border-white/10 rounded-xl text-white placeholder:text-slate-400 hover:border-white/20 focus:outline-none focus:bg-slate-950 focus:border-teal-400 focus:ring-4 focus:ring-teal-400/15 [&:-webkit-autofill]:shadow-[inset_0_0_0_100px_#0a141d] [&:-webkit-autofill]:[-webkit-text-fill-color:#fff] transition-all";
+  const iconClass =
+    "w-[18px] h-[18px] text-slate-400 absolute left-4 top-[15px] pointer-events-none transition-colors peer-focus:text-teal-400";
+
+  const bars = [38, 54, 46, 70, 62, 84, 76];
+  const queue = [
+    { initials: "AW", tone: "bg-teal-500/20 text-teal-200", status: "In consultation", dot: "bg-teal-500" },
+    { initials: "MR", tone: "bg-sky-500/20 text-sky-200", status: "Waiting", dot: "bg-amber-400" },
+    { initials: "JK", tone: "bg-indigo-500/20 text-indigo-200", status: "Lab results ready", dot: "bg-emerald-500" },
+  ];
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 flex flex-col justify-between text-slate-100 font-sans selection:bg-teal-500 selection:text-white relative">
-      {/* Background Ambient Glows */}
-      <div className="fixed top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[320px] sm:w-[500px] h-[320px] sm:h-[500px] bg-teal-600/10 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none" />
-      <div className="fixed bottom-10 right-1/4 w-[280px] sm:w-[450px] h-[280px] sm:h-[450px] bg-emerald-600/10 rounded-full blur-[90px] sm:blur-[130px] pointer-events-none" />
+    <div className="relative min-h-dvh lg:h-dvh w-full overflow-x-hidden lg:overflow-hidden bg-[#060D14] text-slate-100 [color-scheme:dark] font-sans selection:bg-teal-600 selection:text-white">
+      {/* Soft light mesh background */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-40 -left-40 w-[620px] h-[620px] rounded-full bg-teal-500/15 blur-[120px]" />
+        <div className="absolute top-1/3 -right-40 w-[560px] h-[560px] rounded-full bg-sky-500/10 blur-[120px]" />
+        <div className="absolute -bottom-48 left-1/3 w-[520px] h-[520px] rounded-full bg-indigo-500/10 blur-[120px]" />
+        <div
+          className="absolute inset-0 opacity-[0.5]"
+          style={{
+            backgroundImage: "radial-gradient(rgba(94,234,212,0.10) 1px, transparent 1px)",
+            backgroundSize: "26px 26px",
+            maskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
+            WebkitMaskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
+          }}
+        />
+      </div>
 
-      {/* Top Banner Navigation Bar */}
-      <header className="w-full border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between z-20 shrink-0">
-        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white flex items-center justify-center shadow-lg shadow-teal-500/20 shrink-0">
-            <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
+      <div className="relative z-10 min-h-dvh lg:h-full flex flex-col">
+        {/* Top bar */}
+        <header className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pt-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-600 to-teal-800 text-white flex items-center justify-center shadow-lg shadow-teal-700/25">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <div className="leading-tight">
+              <div className="text-[17px] font-bold tracking-tight text-white">IST Health</div>
+              <div className="text-[11px] font-medium text-slate-400">Hospital Management System</div>
+            </div>
           </div>
-          <div className="min-w-0">
-            <div className="font-bold text-sm sm:text-base tracking-tight text-white flex items-center gap-1.5 sm:gap-2">
-              <span className="truncate">IST Health HMIS</span>
-              <span className="text-[9px] sm:text-[10px] uppercase font-semibold px-1.5 sm:px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-400 border border-teal-500/30 shrink-0">
-                Tryton 7.0
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-slate-300 backdrop-blur">
+            <Lock className="w-3.5 h-3.5 text-teal-400" />
+            Secure staff access
+          </div>
+        </header>
+
+        <main className="flex-1 min-h-0 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-8 lg:py-4 flex flex-col lg:flex-row items-center gap-10 xl:gap-20">
+          {/* Showcase */}
+          <section className="hidden lg:flex lg:w-[56%] flex-col">
+            <motion.div {...rise(0.05)} className="inline-flex items-center gap-2 w-fit px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-teal-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+              One platform for every department
+            </motion.div>
+
+            <motion.h1 {...rise(0.12)} className="mt-5 text-4xl xl:text-[3.25rem] font-extrabold tracking-tight leading-[1.08] text-white">
+              Care, diagnostics and billing,{" "}
+              <span className="bg-gradient-to-r from-teal-300 via-teal-400 to-sky-400 bg-clip-text text-transparent">
+                beautifully connected.
               </span>
-            </div>
-            <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate hidden md:block">
-              Enterprise Hospital Information Management System
-            </div>
-          </div>
-        </div>
+            </motion.h1>
 
-        {/* Live Engine Telemetry: Desktop View */}
-        <div className="hidden lg:flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-800/60 border border-slate-700/60 text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <Server className="w-3.5 h-3.5 text-slate-400" />
-            <span>Tryton 7.0 Engine: <strong className="text-emerald-400 font-medium">Online</strong></span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-800/60 border border-slate-700/60 text-slate-300">
-            <Database className="w-3.5 h-3.5 text-teal-400" />
-            <span>PostgreSQL: <strong className="text-white font-medium">Port 5432</strong></span>
-          </div>
-          <div className="flex items-center gap-1.5 text-slate-400">
-            <ShieldCheck className="w-4 h-4 text-teal-400" />
-            <span>Zero-Trust 256-Bit</span>
-          </div>
-        </div>
+            <motion.p {...rise(0.2)} className="mt-5 max-w-xl text-lg text-slate-400 leading-relaxed">
+              From front desk to ward, laboratory, pharmacy and cashier, every team works from a single patient record.
+            </motion.p>
 
-        {/* Live Engine Telemetry: Mobile & Tablet View */}
-        <div className="flex lg:hidden items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/80 border border-slate-700/70 text-[11px] text-slate-300 shrink-0">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-medium text-emerald-400">Tryton 7.0 Live</span>
-        </div>
-      </header>
+            <motion.div {...rise(0.28)} className="mt-7 flex flex-wrap gap-2.5">
+              {features.map((f) => {
+                const FIcon = f.icon;
+                return (
+                  <span key={f.label} className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-slate-200 backdrop-blur">
+                    <FIcon className="w-4 h-4 text-teal-400" />
+                    {f.label}
+                  </span>
+                );
+              })}
+            </motion.div>
 
-      {/* Main Split / Centered Workspace (Scrollable & Responsive) */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 flex flex-col lg:flex-row items-center justify-center gap-4 sm:gap-6 lg:gap-8 xl:gap-12 z-10">
-        
-        {/* Left Hero: Large Screens Presentation */}
-        <div className="hidden lg:flex lg:w-7/12 xl:w-7/12 flex-col justify-center py-1">
-          <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-teal-950/80 border border-teal-800/60 text-teal-300 text-xs font-semibold mb-3 w-fit">
-            <Sparkles className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-            <span>Unified Healthcare Cloud Architecture</span>
-          </div>
-
-          <h1 className="text-2xl xl:text-3xl 2xl:text-4xl font-extrabold text-white tracking-tight leading-snug">
-            Next-Generation Clinical & Financial Governance
-          </h1>
-          <p className="mt-2.5 text-slate-400 text-xs xl:text-sm max-w-xl leading-relaxed">
-            Native GNU Health HMIS orchestration powered by Tryton 7.0 and PostgreSQL 15. Experience instantaneous 360° longitudinal EHR audit trails, automated triage telemetry, diagnostic PACS, and balanced General Ledger double-entry moves.
-          </p>
-
-          {/* Feature Highlights Grid (Compact & Sleek) */}
-          <div className="mt-4 xl:mt-5 grid grid-cols-2 gap-2.5 xl:gap-3 max-w-xl">
-            <div className="p-2.5 xl:p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-teal-500/40 transition-colors flex items-start gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center shrink-0 mt-0.5">
-                <Activity className="w-3.5 h-3.5" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-xs font-semibold text-white">Clinical Telemetry</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Automated triage, BMI, and ICD-10 diagnoses.</p>
-              </div>
-            </div>
-
-            <div className="p-2.5 xl:p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-teal-500/40 transition-colors flex items-start gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-                <Receipt className="w-3.5 h-3.5" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-xs font-semibold text-white">General Ledger</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Balanced double-entry accounting moves.</p>
-              </div>
-            </div>
-
-            <div className="p-2.5 xl:p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-teal-500/40 transition-colors flex items-start gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0 mt-0.5">
-                <Microscope className="w-3.5 h-3.5" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-xs font-semibold text-white">Laboratory & PACS</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Automated CBC protocols and radiology.</p>
-              </div>
-            </div>
-
-            <div className="p-2.5 xl:p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-teal-500/40 transition-colors flex items-start gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
-                <ShieldCheck className="w-3.5 h-3.5" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-xs font-semibold text-white">Multi-Tenancy</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Physical database-per-client data isolation.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Active Tenant Facility Card */}
-          <div className="mt-3.5 xl:mt-4 p-2.5 xl:p-3 rounded-xl bg-gradient-to-r from-slate-900/90 to-teal-950/40 border border-slate-800 flex items-center justify-between max-w-xl">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-lg bg-teal-500/20 text-teal-300 flex items-center justify-center border border-teal-500/30 shrink-0">
-                <Globe className="w-3.5 h-3.5 xl:w-4 xl:h-4" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xs font-semibold text-white truncate">{currentTenant?.name ?? "Loading facility…"}</div>
-                <div className="text-[10px] text-slate-400 truncate">{currentTenant ? `${currentTenant.country} · Currency: ${currentTenant.currency}` : ""}</div>
-              </div>
-            </div>
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30 uppercase shrink-0">
-              Active Node
-            </span>
-          </div>
-        </div>
-
-        {/* Right Authentication Cockpit (Optimized for all viewports) */}
-        <div className="w-full lg:w-5/12 xl:w-5/12 max-w-md flex flex-col justify-center">
-          
-          {/* Header Title */}
-          <div className="mb-2.5 sm:mb-3 text-center lg:text-left">
-            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Clinical Staff Sign In</h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Access your designated outpatient cockpit, wards, or governance suite.
-            </p>
-          </div>
-
-          {/* Error Message Alert */}
-          {errorMessage && (
-            <div className="mb-3 p-3 rounded-xl bg-red-950/70 border border-red-800 text-red-200 text-xs flex items-start gap-2 shadow-lg shadow-red-950/40 animate-in fade-in slide-in-from-top-1">
-              <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <strong className="block font-semibold">Authentication Notice</strong>
-                <span className="mt-0.5 block text-red-300 leading-relaxed">{errorMessage}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Glassmorphic Login Card */}
-          <div className="bg-slate-900/80 border border-slate-800/90 rounded-2xl p-4 sm:p-6 shadow-2xl backdrop-blur-xl">
-            <form onSubmit={handleLogin} className="space-y-3 sm:space-y-3.5">
-              
-              {/* Hospital: locked on a hospital subdomain, otherwise a code field (blank = default hospital) */}
-              {hostResolved ? (
-                <div className="flex items-center gap-2 px-3 h-10 rounded-xl bg-slate-950/70 border border-slate-800 text-xs sm:text-sm text-slate-200">
-                  <Building2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                  <span className="truncate">{currentTenant?.name ?? "Your Facility"}</span>
-                </div>
-              ) : (
-                <div>
-                  <label htmlFor="login-hospital" className="text-xs font-semibold text-slate-300 block mb-1">
-                    Hospital Code <span className="font-normal text-slate-500">(leave blank for IST Central)</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="login-hospital"
-                      name="hospital"
-                      type="text"
-                      value={hospitalCode}
-                      onChange={(e) => setHospitalCode(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))}
-                      maxLength={24}
-                      autoComplete="off"
-                      autoCapitalize="none"
-                      spellCheck={false}
-                      placeholder="e.g. alnoor"
-                      className="w-full h-10 px-3 pl-9 text-xs sm:text-sm bg-slate-950 border border-slate-700/80 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder:text-slate-600 transition-all"
-                    />
-                    <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+            {/* Illustrative product preview */}
+            <motion.div {...rise(0.36)} className="relative mt-10 max-w-[560px] [@media(max-height:820px)]:hidden">
+              <div className="rounded-2xl bg-slate-900/70 border border-white/10 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.6)] backdrop-blur p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Today</div>
+                    <div className="text-base font-bold text-white">Outpatient overview</div>
                   </div>
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-full">
+                    <TrendingUp className="w-3 h-3" /> Live
+                  </span>
                 </div>
-              )}
 
-              {/* Username Input */}
-              <div>
-                <label htmlFor="login-username" className="text-xs font-semibold text-slate-300 block mb-1">
-                  Staff Identity / Username
-                </label>
-                <div className="relative">
-                  <input
-                    id="login-username"
-                    name="login"
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Your staff username"
-                    required
-                    autoComplete="username"
-                    className="w-full h-10 px-3 pl-9 text-xs sm:text-sm bg-slate-950 border border-slate-700/80 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder-slate-500 transition-all"
-                  />
-                  <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+                <div className="mt-4 grid grid-cols-3 gap-3">
+                  {[
+                    { k: "Visits", v: "128" },
+                    { k: "Avg. wait", v: "14 min" },
+                    { k: "Results ready", v: "36" },
+                  ].map((s) => (
+                    <div key={s.k} className="rounded-xl bg-white/5 border border-white/10 p-3">
+                      <div className="text-[11px] font-medium text-slate-400">{s.k}</div>
+                      <div className="mt-0.5 text-xl font-bold tracking-tight text-white">{s.v}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 flex items-end gap-2 h-20 px-1">
+                  {bars.map((h, i) => (
+                    <motion.div
+                      key={i}
+                      initial={reduce ? false : { height: 0 }}
+                      animate={{ height: `${h}%` }}
+                      transition={{ duration: 0.8, delay: 0.7 + i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                      className="flex-1 rounded-md bg-gradient-to-t from-teal-600 to-teal-400/80"
+                    />
+                  ))}
                 </div>
               </div>
 
-              {/* Password Input */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label htmlFor="login-password" className="text-xs font-semibold text-slate-300">
-                    Password
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowForgotModal(true)}
-                    className="text-xs text-teal-400 hover:text-teal-300 transition-colors cursor-pointer"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-                <div className="relative">
-                  <input
-                    id="login-password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••••••"
-                    required
-                    autoComplete="current-password"
-                    className="w-full h-10 px-3 pl-9 pr-9 text-xs sm:text-sm bg-slate-950 border border-slate-700/80 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder-slate-500 transition-all font-mono"
-                  />
-                  <KeyRound className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3 pointer-events-none" />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-200 p-0.5 cursor-pointer"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Sign In Submit Button */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-10 sm:h-11 mt-1 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 active:scale-[0.99] text-white font-semibold text-xs sm:text-sm shadow-md shadow-teal-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              <motion.div
+                {...float(5, 7)}
+                className="hidden xl:block absolute -right-6 -bottom-10 w-56 rounded-xl bg-slate-800 border border-white/10 shadow-xl shadow-black/40 p-3"
               >
-                {isLoading ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <span>Sign In to Healthcare Station</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 mb-2">
+                  <CalendarCheck className="w-3.5 h-3.5 text-teal-400" /> Patient queue
+                </div>
+                <ul className="space-y-2">
+                  {queue.map((q) => (
+                    <li key={q.initials} className="flex items-center gap-2.5">
+                      <span className={`w-7 h-7 rounded-full text-[10px] font-bold flex items-center justify-center ${q.tone}`}>{q.initials}</span>
+                      <span className="text-xs font-medium text-slate-200 flex-1 truncate">{q.status}</span>
+                      <span className={`w-2 h-2 rounded-full ${q.dot}`} />
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
 
-          {/* Quick-Switch Verified Staff Stations — demo/staging only, never in production (see DEMO_STATIONS above) */}
-          {DEMO_STATIONS.length > 0 && (
-            <div className="mt-3.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800/80">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Verified Hospital Stations
+              <motion.div
+                {...float(6, 6)}
+                className="hidden xl:flex absolute -left-6 -bottom-6 items-center gap-2.5 rounded-xl bg-slate-800 border border-white/10 shadow-xl shadow-black/40 px-3.5 py-2.5"
+              >
+                <span className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-300 flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4" />
                 </span>
-                <span className="text-[10px] text-teal-400/90 font-medium">One-Click Fill</span>
+                <div className="leading-tight">
+                  <div className="text-xs font-bold text-white">Every action audited</div>
+                  <div className="text-[11px] text-slate-400">Role-based access</div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </section>
+
+          {/* Sign-in */}
+          <section className="w-full lg:w-[44%] lg:max-h-full lg:overflow-y-auto lg:overscroll-contain [scrollbar-width:none] flex justify-center lg:justify-end lg:py-2">
+            <motion.div
+              initial={reduce ? false : { y: 14 }}
+              animate={{ y: 0 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full max-w-[440px]"
+            >
+              {/* Compact intro for phones and tablets (the full showcase is desktop-only) */}
+              <div className="lg:hidden text-center mb-6">
+                <h1 className="text-[28px] sm:text-3xl font-extrabold tracking-tight leading-tight text-white">
+                  Care, diagnostics and billing,{" "}
+                  <span className="bg-gradient-to-r from-teal-300 to-sky-400 bg-clip-text text-transparent">connected.</span>
+                </h1>
+                <p className="mt-2 text-sm text-slate-400">One patient record for every department.</p>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
-                {DEMO_STATIONS.map((s) => {
-                  const SIcon = s.icon;
-                  const isCurrent = username === s.username;
-                  return (
-                    <button
-                      key={s.username}
-                      type="button"
-                      onClick={() => fillStation(s.username, s.password)}
-                      className={`inline-flex items-center justify-center sm:justify-start gap-1.5 px-2 py-1.5 rounded-lg text-[11px] font-medium border transition-all cursor-pointer truncate ${
-                        isCurrent
-                          ? "bg-teal-500/20 text-teal-300 border-teal-500/50 shadow-sm"
-                          : "bg-slate-950/70 text-slate-400 border-slate-800/90 hover:border-slate-700 hover:text-slate-200"
-                      }`}
-                    >
-                      <SIcon className="w-3 h-3 shrink-0" />
-                      <span className="truncate">{s.label}</span>
-                    </button>
-                  );
-                })}
+              <div className="rounded-3xl bg-slate-900/70 backdrop-blur-xl border border-white/10 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_40px_80px_-30px_rgba(0,0,0,0.7)] p-5 min-[400px]:p-7 sm:p-9">
+                <h2 className="text-[26px] font-bold tracking-tight text-white">Welcome back</h2>
+                <p className="mt-1.5 text-sm text-slate-400">Sign in with your hospital staff account.</p>
+
+                {hostResolved && currentTenant?.name && (
+                  <div className="mt-5 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-teal-500/10 border border-teal-500/20">
+                    <Globe className="w-4 h-4 text-teal-400 shrink-0" />
+                    <div className="min-w-0 leading-tight">
+                      <div className="text-sm font-semibold text-teal-100 truncate">{currentTenant.name}</div>
+                      {currentTenant.country && <div className="text-[11px] text-teal-200/70">{currentTenant.country}</div>}
+                    </div>
+                  </div>
+                )}
+
+                {errorMessage && (
+                  <div role="alert" className="mt-5 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200 text-sm flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                    <span className="leading-relaxed">{errorMessage}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleLogin} className="mt-6 space-y-4">
+                  {!hostResolved && (
+                    <div>
+                      <label htmlFor="login-hospital" className="text-[13px] font-semibold text-slate-200 block mb-1.5">
+                        Hospital code <span className="font-normal text-slate-400">(optional)</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="login-hospital"
+                          name="hospital"
+                          type="text"
+                          value={hospitalCode}
+                          onChange={(e) => setHospitalCode(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))}
+                          maxLength={24}
+                          autoComplete="off"
+                          autoCapitalize="none"
+                          spellCheck={false}
+                          placeholder="Leave blank for IST Central"
+                          className={inputClass}
+                        />
+                        <Building2 className={iconClass} />
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label htmlFor="login-username" className="text-[13px] font-semibold text-slate-200 block mb-1.5">
+                      Username
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="login-username"
+                        name="login"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Your staff username"
+                        required
+                        autoComplete="username"
+                        className={inputClass}
+                      />
+                      <User className={iconClass} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label htmlFor="login-password" className="text-[13px] font-semibold text-slate-200">
+                        Password
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowForgotModal(true)}
+                        className="text-[13px] font-semibold text-teal-400 hover:text-teal-200 transition-colors cursor-pointer"
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <input
+                        id="login-password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter your password"
+                        required
+                        autoComplete="current-password"
+                        className={`${inputClass} pr-11`}
+                      />
+                      <KeyRound className={iconClass} />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-[13px] text-slate-400 hover:text-slate-200 p-0.5 cursor-pointer"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <motion.button
+                    whileHover={reduce ? undefined : { y: -1 }}
+                    whileTap={reduce ? undefined : { scale: 0.985 }}
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full h-12 mt-2 rounded-xl bg-gradient-to-b from-teal-600 to-teal-800 text-white font-semibold text-[15px] shadow-lg shadow-teal-700/30 ring-1 ring-inset ring-white/15 hover:from-teal-500 hover:to-teal-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-4 focus:ring-teal-600/25"
+                  >
+                    {isLoading ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <span>Sign in</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </motion.button>
+                </form>
+
+                {/* Demo stations: non-production builds only (see DEMO_STATIONS above) */}
+                {DEMO_STATIONS.length > 0 && (
+                  <div className="mt-6 pt-5 border-t border-white/10">
+                    <div className="flex items-center justify-between mb-2.5">
+                      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Demo stations</span>
+                      <span className="text-[11px] text-slate-400">Click to fill</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                      {DEMO_STATIONS.map((s) => {
+                        const SIcon = s.icon;
+                        const isCurrent = username === s.username;
+                        return (
+                          <button
+                            key={s.username}
+                            type="button"
+                            onClick={() => fillStation(s.username, s.password)}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer truncate ${
+                              isCurrent
+                                ? "bg-teal-500/15 text-teal-200 border-teal-400/40"
+                                : "bg-white/5 text-slate-300 border-white/10 hover:border-white/20 hover:bg-white/10"
+                            }`}
+                          >
+                            <SIcon className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{s.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
 
-          {/* Security Guarantee Notice */}
-          <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] text-slate-400 text-center px-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span>Session tokens are encrypted, hardware-bound, and audited under hospital safety regulations.</span>
-          </div>
-        </div>
-      </main>
+              <p className="mt-5 flex items-center justify-center gap-1.5 text-xs text-slate-400 text-center">
+                <Lock className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                Your session is encrypted and all access is logged.
+              </p>
+            </motion.div>
+          </section>
+        </main>
 
-      {/* Footer System Details */}
-      <footer className="w-full border-t border-slate-800/80 bg-slate-900/70 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-2.5 text-xs text-slate-400 flex flex-col md:flex-row items-center justify-between gap-2 z-20 shrink-0">
-        <div className="text-center md:text-left text-[10px] sm:text-[11px]">
-          IST Health HMIS · Native Tryton 7.0 & PostgreSQL 15 Single Source of Truth
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] text-slate-400">
-          <span>RFC 6238 TOTP</span>
-          <span>·</span>
-          <span>Zero Secret Leakage</span>
-          <span>·</span>
-          <span>Database-per-Client</span>
-        </div>
-      </footer>
+        <footer className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pb-6 text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-1">
+          <span>© {new Date().getFullYear()} IST Health · Irisstar Technologies</span>
+          <span>Encrypted sessions · Role-based access · Audit logged</span>
+        </footer>
+      </div>
 
-      {/* Forgot Password Modal */}
       {showForgotModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={reduce ? false : { opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+          >
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-white font-bold text-sm sm:text-base">
-                <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-teal-400" />
-                <span>Password Recovery</span>
+              <div className="flex items-center gap-2 text-white font-bold text-base">
+                <HelpCircle className="w-5 h-5 text-teal-400" />
+                <span>Password recovery</span>
               </div>
               <button
                 type="button"
@@ -478,20 +520,19 @@ export default function LoginPage() {
                   setShowForgotModal(false);
                   setForgotStatus(null);
                 }}
-                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+                aria-label="Close"
+                className="text-slate-400 hover:text-slate-200 p-1 rounded-lg cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-slate-400 mb-3 leading-relaxed">
-              Enter your clinical username or registered hospital email. Out-of-band instructions will be spooled to your security profile.
+            <p className="text-sm text-slate-400 mb-4 leading-relaxed">
+              Enter your username or registered hospital email and we will send recovery instructions.
             </p>
 
             {forgotStatus && (
-              <div className="mb-3 p-2.5 rounded-xl bg-teal-950/60 border border-teal-800 text-teal-200 text-xs">
-                {forgotStatus}
-              </div>
+              <div className="mb-3 p-3 rounded-lg bg-teal-500/10 border border-teal-500/30 text-teal-100 text-sm">{forgotStatus}</div>
             )}
 
             <form onSubmit={handleForgotPassword} className="space-y-3">
@@ -501,26 +542,26 @@ export default function LoginPage() {
                 onChange={(e) => setForgotIdentity(e.target.value)}
                 placeholder="Staff username or email"
                 required
-                className="w-full h-10 px-3 text-xs sm:text-sm bg-slate-950 border border-slate-700/80 rounded-xl focus:outline-none focus:border-teal-500 text-white placeholder-slate-500"
+                className="w-full h-11 px-3 text-sm bg-slate-950/60 border border-white/10 rounded-xl focus:outline-none focus:border-teal-400 focus:ring-4 focus:ring-teal-400/15 text-white placeholder:text-slate-400"
               />
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setShowForgotModal(false)}
-                  className="flex-1 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold cursor-pointer"
+                  className="flex-1 h-10 rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 text-sm font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={forgotLoading}
-                  className="flex-1 h-9 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
+                  className="flex-1 h-10 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-sm font-semibold disabled:opacity-60 cursor-pointer"
                 >
-                  {forgotLoading ? "Processing..." : "Send Reset Link"}
+                  {forgotLoading ? "Sending..." : "Send reset link"}
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>

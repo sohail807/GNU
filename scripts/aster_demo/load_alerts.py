@@ -31,7 +31,7 @@ def main():
     patients = sess["physician"].get("/api/clinical/emergency")[1].get("patients", [])
     for i in range(10):
         p = patients[(i * 5 + 2) % len(patients)]
-        st, r = sess["lab"].post("/api/clinical/laboratory", {"action": "create", "patientId": p["id"], "test": ["Complete Blood Count", "Liver Function", "Lipid", "Thyroid"][i % 4]})
+        st, r = sess["physician"].post("/api/clinical/laboratory", {"action": "create", "patientId": p["id"], "test": ["Complete Blood Count", "Liver Function", "Lipid", "Thyroid"][i % 4]})
         if st != 200 or not r.get("success"):
             out["errors"] += 1
             print("  ! create", st, r.get("error"))

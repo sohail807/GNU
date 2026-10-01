@@ -23,8 +23,10 @@ export class ClinicalLookupService {
     explicitHealthprofId?: number | string | null
   ): Promise<number | null> {
     // 1. If explicit ID provided, validate it exists
-    if (explicitHealthprofId) {
+    if (explicitHealthprofId !== undefined && explicitHealthprofId !== null && explicitHealthprofId !== "") {
       const parsedId = typeof explicitHealthprofId === "string" ? parseInt(explicitHealthprofId, 10) : explicitHealthprofId;
+      // An explicit but invalid clinician is refused, never replaced by the signed-in user's own record.
+      if (isNaN(parsedId) || parsedId <= 0 || parsedId >= 2147483647) return null;
       if (!isNaN(parsedId) && parsedId > 0) {
         try {
           const records = await TrytonClient.execute<any[]>(
@@ -44,6 +46,7 @@ export class ClinicalLookupService {
           // Fall through
         }
       }
+      return null;
     }
 
     // 2. Check session healthprofId
@@ -397,22 +400,7 @@ export class ClinicalLookupService {
         if (prods && prods.length > 0) return toResult(prods[0]);
       }
 
-      // Dynamic fallback: any active service-type product when no explicit id or name match
-      // was found. This is the highest-risk spot for a bed to leak in silently - with 18+ beds
-      // outnumbering the handful of real generic billing services, an unfiltered "any service"
-      // query is far more likely to land on a bed than a real service. Confirmed live: this is
-      // the exact same class of leak already fixed in billing/route.ts's own service picker.
-      const anyProds = await TrytonClient.execute<any[]>(
-        session.username,
-        session.userId,
-        session.sessionToken,
-        "product.product",
-        "search_read",
-        [[["type", "=", "service"], ["is_bed", "!=", true]], 0, 1, null, fields],
-        { company: session.companyId },
-        session.database
-      );
-      if (anyProds && anyProds.length > 0) return toResult(anyProds[0]);
+      // No silent substitution: an unknown service name or id resolves to nothing, so the caller can reject it.
 
       return null;
     } catch {
@@ -461,18 +449,6 @@ export class ClinicalLookupService {
         if (meds && meds.length > 0) return meds[0].id;
       }
 
-      // If neither matches, query first available medicament in pharmaceutical formulary
-      const firstMed = await TrytonClient.execute<any[]>(
-        session.username,
-        session.userId,
-        session.sessionToken,
-        "gnuhealth.medicament",
-        "search_read",
-        [[["active", "=", true]], 0, 1, null, ["id"]],
-        { company: session.companyId },
-        session.database
-      );
-      if (firstMed && firstMed.length > 0) return firstMed[0].id;
 
       return null;
     } catch {
@@ -533,18 +509,6 @@ export class ClinicalLookupService {
         if (codeTests && codeTests.length > 0) return codeTests[0].id;
       }
 
-      // First active imaging procedure in catalog
-      const anyTest = await TrytonClient.execute<any[]>(
-        session.username,
-        session.userId,
-        session.sessionToken,
-        "gnuhealth.imaging.test",
-        "search_read",
-        [[], 0, 1, null, ["id"]],
-        { company: session.companyId },
-        session.database
-      );
-      if (anyTest && anyTest.length > 0) return anyTest[0].id;
 
       return null;
     } catch {
@@ -605,18 +569,6 @@ export class ClinicalLookupService {
         if (codeTypes && codeTypes.length > 0) return codeTypes[0].id;
       }
 
-      // First active laboratory test in catalog
-      const anyType = await TrytonClient.execute<any[]>(
-        session.username,
-        session.userId,
-        session.sessionToken,
-        "gnuhealth.lab.test_type",
-        "search_read",
-        [[], 0, 1, null, ["id"]],
-        { company: session.companyId },
-        session.database
-      );
-      if (anyType && anyType.length > 0) return anyType[0].id;
 
       return null;
     } catch {

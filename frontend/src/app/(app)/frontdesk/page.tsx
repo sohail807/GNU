@@ -25,7 +25,7 @@ interface PatientQueueItem {
   phone?: string;
   doctor: string;
   appointmentTime: string;
-  state: "draft" | "confirmed" | "checkin" | "in_consultation" | "done";
+  state: "draft" | "confirmed" | "checked_in" | "in_consultation" | "done";
   readyToBill: boolean;
 }
 
@@ -91,7 +91,7 @@ export default function FrontDeskPage() {
       }
 
       setPatients((prev) =>
-        prev.map((p) => (p.id === patientId ? { ...p, state: "checkin" } : p))
+        prev.map((p) => (p.id === patientId ? { ...p, state: "checked_in" } : p))
       );
       setFeedbackMessage("Patient successfully checked in and transferred to Nursing Triage.");
       setTimeout(() => setFeedbackMessage(null), 4000);
@@ -113,14 +113,14 @@ export default function FrontDeskPage() {
     const matchesStatus =
       statusFilter === "all" ||
       (statusFilter === "pending" && (p.state === "confirmed" || p.state === "draft")) ||
-      (statusFilter === "checkin" && p.state === "checkin") ||
+      (statusFilter === "checked_in" && p.state === "checked_in") ||
       (statusFilter === "done" && p.state === "done");
     return matchesSearch && matchesStatus;
   });
 
   const totalPatients = patients.length;
   const pendingCount = patients.filter((p) => p.state === "confirmed" || p.state === "draft").length;
-  const triageCount = patients.filter((p) => p.state === "checkin").length;
+  const triageCount = patients.filter((p) => p.state === "checked_in").length;
   const doneCount = patients.filter((p) => p.state === "done").length;
 
   return (
@@ -256,9 +256,9 @@ export default function FrontDeskPage() {
                 Pending
               </button>
               <button
-                onClick={() => setStatusFilter("checkin")}
+                onClick={() => setStatusFilter("checked_in")}
                 className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                  statusFilter === "checkin"
+                  statusFilter === "checked_in"
                     ? "bg-white text-slate-900 shadow-2xs font-bold"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
@@ -343,7 +343,7 @@ export default function FrontDeskPage() {
                     <td className="py-3.5 px-5">
                       {p.readyToBill ? (
                         <Badge variant="green">Ready to Bill</Badge>
-                      ) : p.state === "checkin" ? (
+                      ) : p.state === "checked_in" ? (
                         <Badge variant="green" dot>In Triage</Badge>
                       ) : p.state === "confirmed" ? (
                         <Badge variant="amber" dot>Arrived</Badge>
@@ -369,7 +369,7 @@ export default function FrontDeskPage() {
                         >
                           Check-In
                         </Button>
-                      ) : p.state === "checkin" ? (
+                      ) : p.state === "checked_in" ? (
                         <Link href={`/nursing?patientId=${p.id}`}>
                           <Button variant="outline" size="xs" rightIcon={<ArrowUpRight className="w-3 h-3" />}>
                             Triage

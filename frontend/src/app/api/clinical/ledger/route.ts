@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     // Per RBAC policy, cashiers are segregated from GL journal entries - only
     // accountants/admins may view account moves. Degrade gracefully rather than
     // error, consistent with how the billing route handles restricted access.
-    return NextResponse.json({ success: true, moves: [], accessRestricted: true });
+    return NextResponse.json({ error: "Your role does not have permission to view the general ledger." }, { status: 403 });
   }
 
   try {

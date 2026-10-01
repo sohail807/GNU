@@ -241,6 +241,10 @@ export async function POST(req: NextRequest) {
       if (typeof appointmentDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)) {
         return NextResponse.json({ error: "A valid appointment date (YYYY-MM-DD) is required." }, { status: 400 });
       }
+      if (appointmentTime !== undefined && appointmentTime !== null && appointmentTime !== "" &&
+          !(typeof appointmentTime === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(appointmentTime))) {
+        return NextResponse.json({ error: "Enter the appointment time as HH:MM (24-hour)." }, { status: 400 });
+      }
       const resolvedTime = (typeof appointmentTime === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(appointmentTime))
         ? appointmentTime
         : "10:00";

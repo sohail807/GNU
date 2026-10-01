@@ -273,6 +273,14 @@ export async function POST(req: NextRequest) {
       if (!reqRecord) {
         return NextResponse.json({ error: "Imaging request not found." }, { status: 404 });
       }
+      // A study is reported once: a second report would overwrite the first.
+      const already = await TrytonClient.execute<number[]>(
+        session.username, session.userId, session.sessionToken, "gnuhealth.imaging.test.result", "search",
+        [[["request", "=", rid]]], { company: session.companyId }, session.database
+      ).catch(() => [] as number[]);
+      if (already.length > 0) {
+        return NextResponse.json({ error: "This study has already been reported and cannot be reported again." }, { status: 409 });
+      }
       const patRel = reqRecord.patient;
       const testRel = reqRecord.requested_test;
 

@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
         [
           [],
           0,
-          60,
+          400,
           [["active_component", "ASC"]],
           ["id", "active_component", "dosage", "indications", "presentation", "is_vaccine", "pregnancy_warning"],
         ],
@@ -100,6 +100,13 @@ export async function GET(req: NextRequest) {
       lookup("gnuhealth.healthprofessional", prescriptions.map((rx) => idOf(rx.healthprof)), ["id", "rec_name"]),
     ]);
 
+    // Counts come from the database, not from the newest page of prescriptions, so they stay right as the list grows.
+    const count = (domain: unknown[]) => TrytonClient.execute<number>(
+      session.username, session.userId, session.sessionToken, "gnuhealth.prescription.order", "search_count", [domain], context, session.database
+    ).catch(() => 0);
+    const [tTotal, tPending, tDone] = await Promise.all([count([]), count([["state", "in", ["draft", "invoiced"]]]), count([["state", "=", "done"]])]);
+    const totals = { total: tTotal, pending: tPending, done: tDone };
+
     return NextResponse.json({
       success: true,
       database: session.database,
@@ -130,9 +137,9 @@ export async function GET(req: NextRequest) {
         pregnancyWarning: !!m.pregnancy_warning,
       })),
       stats: {
-        totalOrders: prescriptions.length,
-        pendingDispensation: prescriptions.filter((rx) => rx.state === "draft" || rx.state === "invoiced").length,
-        dispensed: prescriptions.filter((rx) => rx.state === "done").length,
+        totalOrders: totals.total,
+        pendingDispensation: totals.pending,
+        dispensed: totals.done,
         formularyCount: medicaments.length,
       },
     });
@@ -163,6 +170,19 @@ export async function POST(req: NextRequest) {
     }
 
     const context = { company: session.companyId };
+
+    // A prescription is dispensed once.
+    const rxId = parseInt(prescriptionId, 10);
+    if (!Number.isSafeInteger(rxId) || rxId <= 0 || rxId >= 2147483647) {
+      return NextResponse.json({ error: "A valid prescription is required." }, { status: 400 });
+    }
+    const current = await TrytonClient.execute<Array<{ id: number; state: string }>>(
+      session.username, session.userId, session.sessionToken, "gnuhealth.prescription.order", "read", [[rxId], ["id", "state"]], context, session.database
+    );
+    if (!current[0]) return NextResponse.json({ error: "Prescription not found." }, { status: 404 });
+    if (current[0].state === "done") {
+      return NextResponse.json({ error: "This prescription has already been dispensed." }, { status: 409 });
+    }
 
     // Take the medicines out of stock first (earliest expiry first); a shortage of a tracked medicine stops the dispense.
     const shortage = await consumeStock(session, parseInt(prescriptionId, 10));

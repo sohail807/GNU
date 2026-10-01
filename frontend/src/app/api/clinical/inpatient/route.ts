@@ -192,15 +192,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!hasModuleAccess(session.role, "inpatient")) {
-    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  if (!hasModuleAccess(session.role, "inpatient") || !(["nursing", "physician", "admin"] as const).some((m) => hasModuleAccess(session.role, m))) {
+    return NextResponse.json({ error: "Only nursing, physician or administrator accounts can admit patients." }, { status: 403 });
   }
   try {
     const body = await req.json();
     const { patientId, bedId, admissionType, nursingPlan, expectedDischargeDate } = body;
 
-    if (!patientId) {
-      return NextResponse.json({ error: "Patient ID is required" }, { status: 400 });
+    const idOk = (v: unknown) => Number.isSafeInteger(Number(v)) && Number(v) > 0 && Number(v) < 2147483647;
+    if (!patientId || !idOk(patientId)) {
+      return NextResponse.json({ error: "A valid patient is required." }, { status: 400 });
+    }
+    if (bedId !== undefined && bedId !== null && bedId !== "" && !idOk(bedId)) {
+      return NextResponse.json({ error: "A valid bed is required." }, { status: 400 });
     }
 
     // GNU Health requires an expected discharge date at admission time (used
@@ -301,8 +305,8 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!hasModuleAccess(session.role, "inpatient")) {
-    return NextResponse.json({ error: "Your role does not have permission for this module." }, { status: 403 });
+  if (!hasModuleAccess(session.role, "inpatient") || !(["nursing", "physician", "admin"] as const).some((m) => hasModuleAccess(session.role, m))) {
+    return NextResponse.json({ error: "Only nursing, physician or administrator accounts can discharge patients or release beds." }, { status: 403 });
   }
   try {
     const body = await req.json();

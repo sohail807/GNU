@@ -35,7 +35,7 @@ export default function UnifiedPatientChartPage() {
   const patientId = params?.id ? String(params.id) : "";
 
   const [activeTab, setActiveTab] = useState<
-    "overview" | "appointments" | "evaluations" | "prescriptions" | "laboratory" | "radiology" | "billing"
+    "overview" | "appointments" | "evaluations" | "prescriptions" | "laboratory" | "radiology" | "billing" | "insurance"
   >("overview");
 
   const [isRelateDropdownOpen, setIsRelateDropdownOpen] = useState(false);
@@ -57,6 +57,7 @@ export default function UnifiedPatientChartPage() {
   const [radiologyOrders, setRadiologyOrders] = useState<any[]>([]);
   const [radiologyStatusOnly, setRadiologyStatusOnly] = useState(false);
   const [invoices, setInvoices] = useState<any[]>([]);
+  const [policies, setPolicies] = useState<any[]>([]);
 
   // Load all live patient data from GNU Health backend via API routes
   useEffect(() => {
@@ -64,7 +65,7 @@ export default function UnifiedPatientChartPage() {
     async function loadAllPatientData() {
       setIsLoading(true);
       try {
-        const [patRes, apptRes, evalRes, rxRes, labRes, radRes, billRes] = await Promise.allSettled([
+        const [patRes, apptRes, evalRes, rxRes, labRes, radRes, billRes, insRes] = await Promise.allSettled([
           fetch(`/api/clinical/patients?id=${patientId}`),
           fetch(`/api/clinical/appointments?patientId=${patientId}`),
           fetch(`/api/clinical/consultations?patientId=${patientId}`),
@@ -72,6 +73,7 @@ export default function UnifiedPatientChartPage() {
           fetch(`/api/clinical/laboratory?patientId=${patientId}`),
           fetch(`/api/clinical/radiology?patientId=${patientId}`),
           fetch(`/api/clinical/billing?patientId=${patientId}`),
+          fetch(`/api/clinical/insurance?patientId=${patientId}`),
         ]);
 
         if (!isMounted) return;
@@ -145,6 +147,12 @@ export default function UnifiedPatientChartPage() {
             setRadiologyOrders(radData.radiologyOrders);
             setRadiologyStatusOnly(Boolean(radData.statusOnly));
           }
+        }
+
+        // 8. Insurance policies
+        if (insRes.status === "fulfilled" && insRes.value.ok) {
+          const insData = await insRes.value.json();
+          if (insData.success && Array.isArray(insData.insurances)) setPolicies(insData.insurances);
         }
 
         // 7. Invoices
@@ -440,6 +448,7 @@ export default function UnifiedPatientChartPage() {
             { id: "laboratory", label: "Laboratory", icon: Microscope, count: labOrders.length },
             { id: "radiology", label: "Radiology", icon: Scan, count: radiologyOrders.length },
             { id: "billing", label: "Invoices", icon: Receipt, count: invoices.length },
+            { id: "insurance", label: "Insurance", icon: ShieldCheck, count: policies.length },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -755,6 +764,33 @@ export default function UnifiedPatientChartPage() {
       )}
 
       {/* 7. PATIENT OVERVIEW TAB (Default) */}
+      {activeTab === "insurance" && (
+        <div className="bg-white border border-slate-200/90 rounded-xl shadow-2xs overflow-hidden">
+          {policies.length === 0 ? (
+            <div className="p-10 text-center text-xs text-slate-500">No insurance policy is recorded for this patient.</div>
+          ) : (
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200/80 font-mono text-[11px] text-slate-500 uppercase tracking-wider">
+                  <th className="py-3 px-5">Policy #</th><th className="py-3 px-5">Insurance Company</th><th className="py-3 px-5">Type</th><th className="py-3 px-5">Member Since</th><th className="py-3 px-5">Expires</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {policies.map((p: any) => (
+                  <tr key={p.id}>
+                    <td className="py-3 px-5 font-mono font-bold text-[#0F766E]">{p.number}</td>
+                    <td className="py-3 px-5 text-slate-800">{p.companyName || "—"}</td>
+                    <td className="py-3 px-5 text-slate-700">{{ state: "State", labour_union: "Labour Union", private: "Private" }[p.insuranceType as string] || p.insuranceType || "—"}</td>
+                    <td className="py-3 px-5 font-mono text-slate-500">{p.memberSince || "—"}</td>
+                    <td className="py-3 px-5 font-mono text-slate-500">{p.memberExp || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
       {activeTab === "overview" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs space-y-3">

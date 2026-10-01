@@ -177,7 +177,8 @@ def load_hospital(code, staff_path, gulf):
                 continue
             out["deliveries"] += 1
             if outcome == "live_birth" and i % 3 != 2:
-                st2, p = s["reception"].post("/api/clinical/patients", {"name": f"Baby of Synthetic Mother {i + 1}", "qid": f"NB-DL-{code}-{i + 1:03d}",
+                mother_name = next((x["name"] for x in patients if x["id"] == patients[(i * 9 + 5) % len(patients)]["id"]), f"Mother {i + 1}").title()
+                st2, p = s["reception"].post("/api/clinical/patients", {"name": f"Baby of {mother_name}", "qid": f"NB-DL-{code}-{i + 1:03d}",
                                                                           "dob": date.today().isoformat(), "gender": "female" if i % 2 else "male"})
                 if st2 == 200 and p.get("success"):
                     call("physician", "/api/clinical/deliveries", {"action": "link_baby", "id": r["deliveryId"], "babyId": p["patientId"]})

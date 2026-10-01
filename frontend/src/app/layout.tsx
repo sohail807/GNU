@@ -11,10 +11,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: {
     template: "%s | IST Health — Enterprise Outpatient HMIS",
-    default: "IST Health | Enterprise Hospital Management & Clinical Intelligence System",
+    default: "IST Health | Hospital Management System",
   },
   description:
-    "Tier-1 Enterprise Hospital Management Information System (HMIS). Real-time clinical workflows, zero-trust cryptographic security, and precision outpatient management.",
+    "Hospital management for clinical care, diagnostics, pharmacy and billing, with secure role-based staff access.",
   icons: {
     icon: "/favicon.ico",
   },

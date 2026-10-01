@@ -62,6 +62,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, message: `Insurer renamed to ${name}.` });
     }
 
+    // Newborn placeholder names ("Baby of ...") can be corrected once the family gives the baby's name.
+    if (action === "rename_newborn") {
+      const patientId = Number(body.patientId);
+      if (!Number.isSafeInteger(patientId) || patientId <= 0) return NextResponse.json({ error: "Patient is required." }, { status: 400 });
+      const pt = (await rpc<Array<Record<string, any>>>(session, "gnuhealth.patient", "read", [[patientId], ["party", "rec_name"]]))[0];
+      const party = typeof pt?.party === "number" ? pt.party : pt?.party?.[0];
+      if (!party || !/^baby of /i.test(String(pt.rec_name || ""))) return NextResponse.json({ error: "Only a newborn placeholder record can be renamed here." }, { status: 409 });
+      await rpc(session, "party.party", "write", [[party], { name }]);
+      return NextResponse.json({ success: true, message: "Newborn renamed." });
+    }
+
     return NextResponse.json({ error: `Unsupported action: ${action}` }, { status: 400 });
   } catch (err: unknown) {
     const status = (err as { status?: number })?.status || 500;

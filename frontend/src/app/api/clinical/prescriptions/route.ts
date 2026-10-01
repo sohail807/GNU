@@ -269,7 +269,10 @@ export async function POST(req: NextRequest) {
       if (!medId) {
         const medQuery = String(rawLine.medicament || rawLine.name || "").trim();
         const searchDomain: any[] = [["active", "=", true]];
-        if (medQuery) {
+        if (!medQuery || (rawLine.medicamentId !== undefined && rawLine.medicamentId !== null && rawLine.medicamentId !== "")) {
+          return NextResponse.json({ error: "Every medication line must reference a valid catalog item." }, { status: 400 });
+        }
+        {
           const firstWord = medQuery.split(" ")[0];
           searchDomain.push(["rec_name", "ilike", `%${firstWord}%`]);
         }
@@ -286,18 +289,6 @@ export async function POST(req: NextRequest) {
           );
           if (found && found.length > 0) {
             medId = found[0].id;
-          } else {
-            const anyMed = await TrytonClient.execute<any[]>(
-              session.username,
-              session.userId,
-              session.sessionToken,
-              "gnuhealth.medicament",
-              "search_read",
-              [[["active", "=", true]], 0, 1, null, ["id", "rec_name", "strength", "unit", "route", "form", "pregnancy_warning"]],
-              { company: session.companyId },
-              session.database
-            );
-            if (anyMed && anyMed.length > 0) medId = anyMed[0].id;
           }
         } catch {
           // fallback
@@ -330,6 +321,46 @@ export async function POST(req: NextRequest) {
       session.database
     );
     const medicationById = new Map(medicaments.map((medicament) => [medicament.id, medicament]));
+    if (medicationById.size !== medicationIds.length) {
+      return NextResponse.json({ error: "Every medication line must reference a valid, active catalog item." }, { status: 400 });
+    }
+
+    // Prescribing safety gate: a medicine flagged for pregnancy given to a patient of childbearing age, or a medicine that
+    // matches one of the patient's recorded active allergies, needs the doctor's explicit acknowledgement.
+    const warnings: string[] = [];
+    let pregnancyWarn = false;
+    let allergyWarn = false;
+    if (patient.childbearing_age) {
+      for (const m of medicaments) {
+        if (m.pregnancy_warning) { pregnancyWarn = true; warnings.push(`${m.rec_name}: not advised in pregnancy (patient is of childbearing age).`); }
+      }
+    }
+    try {
+      const allergies = await TrytonClient.execute<Array<{ pathology: unknown; short_comment: string | null }>>(
+        session.username, session.userId, session.sessionToken, "gnuhealth.patient.disease", "search_read",
+        [[["patient", "=", patientId], ["is_allergy", "=", true], ["is_active", "=", true]], 0, 50, null, ["pathology", "short_comment"]],
+        { company: session.companyId }, session.database
+      );
+      const pathIds = allergies.map((a) => relationId(a.pathology)).filter((x): x is number => !!x);
+      const paths = pathIds.length ? await TrytonClient.execute<Array<{ name: string }>>(
+        session.username, session.userId, session.sessionToken, "gnuhealth.pathology", "search_read",
+        [[["id", "in", pathIds]], 0, pathIds.length, null, ["name"]], { company: session.companyId }, session.database
+      ) : [];
+      const tokens = [...paths.map((p) => p.name), ...allergies.map((a) => a.short_comment || "")]
+        .join(" ").toLowerCase().split(/[^a-z]+/).filter((t) => t.length >= 5 && !["allergy", "allergic", "history", "status", "other", "without", "unspecified"].includes(t));
+      for (const m of medicaments) {
+        const hit = tokens.find((t) => String(m.rec_name || "").toLowerCase().includes(t));
+        if (hit) { allergyWarn = true; warnings.push(`${m.rec_name}: matches the recorded allergy "${hit}".`); }
+      }
+    } catch {
+      // the allergy list is unavailable to this role: the pregnancy check above still applies
+    }
+    if ((pregnancyWarn || allergyWarn) && body.acknowledgeWarnings !== true) {
+      return NextResponse.json(
+        { error: `Safety warning: ${warnings.join(" ")} Review and tick the acknowledgement to prescribe anyway.`, requiresAcknowledgement: true, warnings },
+        { status: 409 }
+      );
+    }
 
     const validFrequencyUnits = new Set(["seconds", "minutes", "hours", "days", "weeks", "wr"]);
     const validDurationPeriods = new Set(["minutes", "hours", "days", "months", "years", "indefinite"]);
@@ -394,8 +425,8 @@ export async function POST(req: NextRequest) {
       "create",
       [[{
         patient: patientId,
-        pregnancy_warning: false,
-        allergy_warning: false,
+        pregnancy_warning: pregnancyWarn,
+        allergy_warning: allergyWarn,
         prescription_warning_ack: true,
         notes: typeof body.notes === "string" ? body.notes.trim().slice(0, 4000) : "",
         prescription_line: [["create", lineValues]],

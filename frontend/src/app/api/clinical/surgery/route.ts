@@ -219,7 +219,7 @@ export async function POST(req: NextRequest) {
   }
   try {
     const body = await req.json();
-    const { patientId, description, operatingRoomId, surgeryDate, surgeryEndDate, durationMinutes, anesthesiaType, classification } = body;
+    const { patientId, description, operatingRoomId, surgeryDate, surgeryEndDate, durationMinutes, anesthesiaType, classification, procedureIds } = body;
 
     if (!patientId || !description) {
       return NextResponse.json(
@@ -238,6 +238,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (operatingRoomId !== undefined && operatingRoomId !== null && operatingRoomId !== "" &&
+        !(Number.isSafeInteger(Number(operatingRoomId)) && Number(operatingRoomId) > 0 && Number(operatingRoomId) < 2147483647)) {
+      return NextResponse.json({ error: "Choose a valid operating theatre." }, { status: 400 });
+    }
     const resolvedOrId = operatingRoomId ? parseInt(operatingRoomId, 10) : undefined;
     const toTryton = (v: unknown) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2})?$/.test(v.trim()) ? v.trim().replace("T", " ").padEnd(19, ":00").slice(0, 19) : null);
     const startDate = toTryton(surgeryDate) || new Date().toISOString().slice(0, 19).replace("T", " ");
@@ -309,6 +313,15 @@ export async function POST(req: NextRequest) {
       session.database
     );
 
+    // Procedure codes chosen from the catalogue become the surgery's operation lines.
+    const procIds: number[] = Array.isArray(procedureIds) ? procedureIds.map(Number).filter((n) => Number.isSafeInteger(n) && n > 0 && n < 2147483647).slice(0, 10) : [];
+    if (procIds.length) {
+      await TrytonClient.execute(
+        session.username, session.userId, session.sessionToken, "gnuhealth.operation", "create",
+        [procIds.map((procedure) => ({ surgery: newSurgeries[0], procedure }))], context, session.database
+      ).catch(() => undefined);
+    }
+
     return NextResponse.json({
       success: true,
       surgery: newSurgeries[0],
@@ -316,10 +329,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Error booking surgery:", error);
-    return NextResponse.json(
-      { error: error?.message || "Failed to book surgical procedure" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error?.message || "Failed to book surgical procedure" }, { status: error?.status || 500 });
   }
 }
 
@@ -379,9 +389,7 @@ export async function PATCH(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Error updating surgery:", error);
-    return NextResponse.json(
-      { error: error?.message || "Failed to update surgery status" },
-      { status: 500 }
-    );
+    const msg = String(error?.message || "Failed to update surgery status");
+    return NextResponse.json({ error: msg }, { status: /signed|cannot be changed|not allowed/i.test(msg) ? 409 : (error?.status || 500) });
   }
 }

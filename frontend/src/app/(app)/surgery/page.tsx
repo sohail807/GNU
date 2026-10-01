@@ -69,6 +69,8 @@ export default function SurgeryPage() {
   const [surgeryDate, setSurgeryDate] = useState("");
   const [surgeryEndDate, setSurgeryEndDate] = useState("");
   const [bookError, setBookError] = useState<string | null>(null);
+  const [procedures, setProcedures] = useState<Array<{ id: number; code: string; description: string }>>([]);
+  const [procedureIds, setProcedureIds] = useState<number[]>([]);
   const [anesthesiaType, setAnesthesiaType] = useState("general");
   const [classification, setClassification] = useState("elective");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,6 +98,11 @@ export default function SurgeryPage() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (!isBookModalOpen || procedures.length) return;
+    fetch("/api/clinical/procedures").then((r) => r.json()).then((d) => setProcedures(d.procedures || [])).catch(() => undefined);
+  }, [isBookModalOpen, procedures.length]);
+
   const handleBookSurgery = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!patientId || !description) return;
@@ -112,6 +119,7 @@ export default function SurgeryPage() {
           operatingRoomId,
           surgeryDate: surgeryDate || undefined,
           surgeryEndDate: surgeryEndDate || undefined,
+          procedureIds,
           anesthesiaType,
           classification,
         }),
@@ -124,6 +132,7 @@ export default function SurgeryPage() {
         setDescription("");
         setSurgeryDate("");
         setSurgeryEndDate("");
+        setProcedureIds([]);
         fetchData();
       } else {
         setBookError(data.error || "The surgery could not be booked.");
@@ -436,6 +445,20 @@ export default function SurgeryPage() {
                 <option value="urgent">Urgent / Unscheduled</option>
                 <option value="emergency">Life/Limb Emergency</option>
               </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-slate-700 block mb-1.5">Procedure codes (from the catalogue)</label>
+            <div className="max-h-32 overflow-y-auto border border-slate-300 rounded-lg p-2 space-y-1 bg-white">
+              {procedures.length === 0 && <p className="text-xs text-slate-500">Loading procedure catalogue...</p>}
+              {procedures.map((p) => (
+                <label key={p.id} className="flex items-start gap-2 text-xs text-slate-800">
+                  <input type="checkbox" className="mt-0.5" checked={procedureIds.includes(p.id)}
+                    onChange={() => setProcedureIds((cur) => (cur.includes(p.id) ? cur.filter((x) => x !== p.id) : [...cur, p.id]))} />
+                  <span><span className="font-mono font-semibold">{p.code}</span> {p.description}</span>
+                </label>
+              ))}
             </div>
           </div>
 
