@@ -189,7 +189,7 @@ export async function POST(req: NextRequest) {
 
     // Update a native backend system account and its managed operational role group.
     if (action === "update_user") {
-      const { userId, role, status, name, email, extraRoles } = body;
+      const { userId, role, status, name, email, extraRoles, extraGroups } = body;
       const uid = Number(userId);
       if (!Number.isSafeInteger(uid) || uid <= 0) {
         return NextResponse.json({ error: "User ID is required." }, { status: 400 });
@@ -244,7 +244,18 @@ export async function POST(req: NextRequest) {
         // Group executives (several hospitals) also read lab, imaging and billing figures; extraRoles adds those
         // roles' groups on top of the main role.
         const extras = Array.isArray(extraRoles) ? extraRoles.filter((r: unknown): r is HospitalRole => typeof r === "string" && Object.hasOwn(ROLE_TO_TRYTON_GROUP_NAMES, r)) : [];
-        const groupsToAdd = [...new Set([...idsByRole[role as HospitalRole], ...extras.flatMap((r) => idsByRole[r] || [])])];
+        // Specialty administration groups (surgery, inpatient, obstetrics...) by name; only "Health ... Administration" groups.
+        const extraGroupNames: string[] = Array.isArray(extraGroups)
+          ? extraGroups.filter((n: unknown): n is string => typeof n === "string" && /^Health [A-Za-z &]+ Administration$/.test(n))
+          : [];
+        const extraGroupIds: number[] = extraGroupNames.length
+          ? (await TrytonClient.execute<any[]>(
+              session.username, session.userId, session.sessionToken, "res.group", "search_read",
+              [[["name", "in", extraGroupNames]], 0, extraGroupNames.length, null, ["id"]],
+              { company: session.companyId }, session.database
+            )).map((g) => g.id as number)
+          : [];
+        const groupsToAdd = [...new Set([...idsByRole[role as HospitalRole], ...extras.flatMap((r) => idsByRole[r] || []), ...extraGroupIds])];
         // Never remove a group the same write adds: Tryton applies removals last, which would strip it.
         const groupsToRemove = currentGroups.filter((groupId) => managedIds.has(groupId) && !groupsToAdd.includes(groupId));
         writePayload.groups = [

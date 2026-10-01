@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
         [
           [],
           0,
-          50,
+          200,
           [["prescription_date", "DESC"]],
           // "name" isn't a real field on this model (it's "prescription_id") -- requesting it
           // made the whole search_read throw a KeyError, which the catch below silently

@@ -17,5 +17,7 @@ admin = AppClient("aster", creds["adminUsername"], creds["adminPassword"])
 # the user list is capped at 50, so sign in as the executive to learn the account id
 user_id = int(sys.argv[3]) if len(sys.argv) > 3 else 103
 status, result = admin.post("/api/admin/users", {"action": "update_user", "userId": user_id, "role": "admin",
-                                                 "extraRoles": ["lab", "radiology", "cashier"]})
+                                                 "extraRoles": ["lab", "radiology", "cashier"],
+                                                 "extraGroups": ["Health Surgery Administration", "Health Inpatient Administration",
+                                                                 "Health Gynecology and Obstetrics Administration", "Health Services Administration"]})
 print(status, result)

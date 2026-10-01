@@ -137,6 +137,48 @@ def load_hospital(code, staff_path, gulf):
                     call(role, "/api/clinical/discharges", {"action": "clear", "id": did, "department": dept, "outcome": "cleared"})
     else:
         print("  ! discharge module not available:", st, data.get("error"))
+    # ---- theatre safety checklists ----
+    st, data = s["physician"].get("/api/clinical/theatre-safety")
+    out["checklists"] = 0
+    if st == 200 and data.get("success"):
+        for i, row in enumerate([r for r in data["surgeries"] if r["state"] in ("confirmed", "in_progress")][:8]):
+            r = call("physician", "/api/clinical/theatre-safety", {"action": "start", "surgeryId": row["surgeryId"]})
+            if not r:
+                continue
+            out["checklists"] += 1
+            for k, phase in enumerate(["sign_in", "time_out", "sign_out"]):
+                if k <= [2, 1, 0, 1, 2, 0, 1, 2][i % 8]:
+                    call("physician", "/api/clinical/theatre-safety", {"action": "phase", "id": r["checklistId"], "phase": phase, "done": True,
+                                                                        "note": rng.choice(["", "No allergies", "Counts correct", "Antibiotic given 20 min before"])})
+    else:
+        print("  ! theatre safety not available:", st, data.get("error"))
+
+    # ---- deliveries and newborns ----
+    st, data = s["physician"].get("/api/clinical/deliveries")
+    out["deliveries"] = 0
+    if st == 200 and data.get("success"):
+        patients, doctors = data["patients"], data["doctors"]
+        kinds = ["normal", "normal", "caesarean", "normal", "assisted", "caesarean", "normal", "normal", "caesarean", "normal"]
+        for i, kind in enumerate(kinds):
+            outcome = "stillbirth" if i == 7 else "live_birth"
+            w = rng.choice([2100, 2650, 2900, 3100, 3300, 3550, 3800])
+            r = call("physician", "/api/clinical/deliveries", {
+                "action": "record", "motherId": patients[(i * 9 + 5) % len(patients)]["id"], "deliveryType": kind, "outcome": outcome,
+                "babySex": rng.choice(["f", "m"]), "weight": w if outcome == "live_birth" else 1800, "apgar1": rng.choice([6, 7, 8, 9]), "apgar5": rng.choice([8, 9, 10]),
+                "motherCondition": rng.choice(["Stable", "Stable, recovering well", "Stable, monitored for bleeding"]), "nicu": w < 2500,
+                "obstetricianId": doctors[i % len(doctors)]["id"] if doctors else None})
+            if not r:
+                continue
+            out["deliveries"] += 1
+            if outcome == "live_birth" and i % 3 != 2:
+                st2, p = s["reception"].post("/api/clinical/patients", {"name": f"Baby of Synthetic Mother {i + 1}", "qid": f"NB-DL-{code}-{i + 1:03d}",
+                                                                          "dob": date.today().isoformat(), "gender": "female" if i % 2 else "male"})
+                if st2 == 200 and p.get("success"):
+                    call("physician", "/api/clinical/deliveries", {"action": "link_baby", "id": r["deliveryId"], "babyId": p["patientId"]})
+                else:
+                    print("  ! newborn register:", st2, p.get("error"))
+    else:
+        print("  ! deliveries not available:", st, data.get("error"))
     print(f"[{code}]", json.dumps(out))
     for c in s.values():
         c.logout()

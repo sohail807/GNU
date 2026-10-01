@@ -77,6 +77,24 @@ export function errorResponse(err: unknown, fallback: string) {
 }
 
 /**
+ * The theatre gate: a surgery may start only after "sign in" and "time out", and be closed only after "sign out"
+ * (WHO surgical safety checklist). Returns the reason to refuse, or null to allow. Open if the module is not installed.
+ */
+export async function checklistBlock(session: Session, surgeryId: number, newState: string): Promise<string | null> {
+  const needs = newState === "in_progress" ? ["sign_in", "time_out"] : ["done", "signed"].includes(newState) ? ["sign_in", "time_out", "sign_out"] : [];
+  if (needs.length === 0) return null;
+  try {
+    const rows = await rpc<Row[]>(session, "ist.ops.surgery_checklist", "search_read", [[["surgery", "=", surgeryId]], 0, 1, [["id", "DESC"]],
+      ["id", "sign_in_done", "time_out_done", "sign_out_done"]]);
+    if (rows.length === 0) return "Complete the surgical safety checklist first (Theatre Safety).";
+    const missing = needs.filter((p) => !rows[0][`${p}_done`]);
+    return missing.length ? `The safety checklist is not finished: ${missing.map((m) => m.replace("_", " ")).join(", ")} still to do.` : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Take the medicines of a prescription out of pharmacy stock, earliest expiry first. Medicines the hospital does not
  * track in stock are dispensed as before; for tracked ones a shortage refuses the dispense. Returns the reason to
  * refuse, or null when it went through (or stock tracking is not installed).

@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.appointment",
       "search_read",
-      [domain, 0, 50, [["id", "DESC"]], ["id", "name", "patient", "healthprof", "appointment_date", "state", "urgency"]],
+      [domain, 0, 200, [["id", "DESC"]], ["id", "name", "patient", "healthprof", "appointment_date", "state", "urgency"]],
       { company: session.companyId },
       session.database
     );

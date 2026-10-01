@@ -82,6 +82,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         { label: "Discharge Clearance", href: "/discharges", icon: ClipboardList, moduleKey: "inpatient", moduleAny: ["inpatient", "billing", "pharmacy", "physician", "nursing"], badge: "D/C" },
         { label: "Referrals", href: "/referrals", icon: Send, moduleKey: "inpatient", moduleAny: ["frontdesk", "physician", "nursing", "inpatient"], badge: "Refer" },
         { label: "Operating Theatre", href: "/surgery", icon: Scissors, moduleKey: "surgery", badge: "OT" },
+        { label: "Theatre Safety Checklist", href: "/theatre-safety", icon: Scissors, moduleKey: "surgery", badge: "WHO" },
+        { label: "Deliveries & Newborns", href: "/deliveries", icon: Baby, moduleKey: "obstetrics", moduleAny: ["obstetrics", "physician", "nursing"], badge: "Birth" },
         { label: "Hospital Pharmacy", href: "/pharmacy", icon: Pill, moduleKey: "pharmacy", badge: "Rx" },
         { label: "Pharmacy Stock", href: "/stock", icon: Pill, moduleKey: "pharmacy", badge: "Stock" },
         { label: "Physician Cockpit", href: "/physician", icon: Stethoscope, moduleKey: "physician", badge: "SOAP" },
@@ -98,6 +100,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     {
       title: "FINANCIAL & CHARTS",
       items: [
+        { label: "Management Report", href: "/reports", icon: Landmark, moduleKey: "ledger", moduleAny: ["ledger", "admin"], badge: "KPI" },
         { label: "Cashier & Invoicing", href: "/billing", icon: Receipt, moduleKey: "billing", badge: "Cash" },
         { label: "General Ledger Audit", href: "/billing?tab=ledger", icon: Landmark, moduleKey: "ledger", badge: "GL" },
         { label: "Master Patient Registry", href: "/patient", icon: FileText, moduleKey: "patient_chart", badge: "EHR" },

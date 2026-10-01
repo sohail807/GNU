@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
       session.sessionToken,
       "account.invoice",
       "search_read",
-      [domain, 0, 30, [["id", "DESC"]], ["id", "number", "party", "invoice_date", "total_amount", "amount_to_pay", "state", "lines"]],
+      [domain, 0, 100, [["id", "DESC"]], ["id", "number", "party", "invoice_date", "total_amount", "amount_to_pay", "state", "lines"]],
       { company: session.companyId },
       session.database
     );

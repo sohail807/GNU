@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { hasModuleAccess } from "@/lib/access-control";
+import { checklistBlock } from "@/lib/ops-api";
 
 // gnuhealth.surgery's "classification" field (labelled "Urgency" in Tryton) only accepts
 // the single-letter selection codes below - the booking form's "elective"/"urgent"/"emergency"
@@ -337,6 +338,12 @@ export async function PATCH(req: NextRequest) {
     }
 
     const context = { company: session.companyId };
+
+    // The WHO safety checklist gates starting and closing a surgery.
+    if (state !== undefined) {
+      const blocked = await checklistBlock(session, parseInt(surgeryId, 10), state);
+      if (blocked) return NextResponse.json({ error: blocked }, { status: 409 });
+    }
 
     const writeValues: Record<string, unknown> = {};
     if (state !== undefined) writeValues.state = state;

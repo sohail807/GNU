@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
       session.sessionToken,
       "gnuhealth.lab",
       "search_read",
-      [domain, 0, 50, [["id", "DESC"]], labFields],
+      [domain, 0, 200, [["id", "DESC"]], labFields],
       { company: session.companyId },
       session.database
     );
