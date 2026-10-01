@@ -312,7 +312,12 @@ export async function POST(req: NextRequest) {
       }
       const { idsByRole } = await readRoleGroupIds(session, targetRole);
       const groups = idsByRole[targetRole];
-      const temporaryPassword = randomBytes(24).toString("base64url");
+      // An administrator may choose the new password (12 to 64 characters, no spaces at the ends); otherwise a random one is issued.
+      const chosen = typeof body.newPassword === "string" ? body.newPassword : "";
+      if (chosen && (chosen.length < 12 || chosen.length > 64 || chosen !== chosen.trim())) {
+        return NextResponse.json({ error: "The password must be 12 to 64 characters with no spaces at either end." }, { status: 400 });
+      }
+      const temporaryPassword = chosen || randomBytes(24).toString("base64url");
 
       const userPayload = {
         login: username.trim().toLowerCase(),
