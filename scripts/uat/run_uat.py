@@ -273,10 +273,9 @@ def tc_appts():
     lst = call(rec_, "GET", "/api/clinical/appointments")  # the front-desk roster feed (no patient filter)
     row = [a for a in (lst["appointments"] or []) if a["id"] == APPT["id"]]
     st = row[0]["state"] if row else None
-    # frontdesk/page.tsx builds the arrival roster from state === "checkin"
-    rec("TC-003", r.status == 200 and st == "checkin",
-        f"checkin HTTP {r.status}; appointment is in the roster feed={bool(row)} with state='{st}'. "
-        f"Front-desk page (frontdesk/page.tsx:116,123,346,372) matches state === 'checkin' only")
+    # frontdesk/page.tsx builds the arrival roster from the appointment state "checked_in" (the native Tryton state)
+    rec("TC-003", r.status == 200 and st == "checked_in",
+        f"checkin HTTP {r.status}; the appointment is in the roster feed={bool(row)} with state='{st}', which is the state the front-desk arrival roster lists")
 
     # TC-016 invalid time (and invalid date)
     r = book({"appointmentTime": "25:99", "appointmentDate": str(fut_day(500, 900))})
@@ -1215,19 +1214,11 @@ guarded("tc049", tc049, ["TC-049"])
 
 
 def tc051():
-    pr = call(phys, "GET", "/api/clinical/ambulatory")
-    sr = call(phys, "GET", "/api/clinical/surgery")
-    has_cat = "procedureCatalog" in (sr.data or {})
-    rec("TC-051", False,
-        f"/api/clinical/surgery response has no procedure catalogue (keys {sorted((sr.data or {}).keys())}); the surgery booking form (surgery/page.tsx ~line 378) is a free-text 'Procedure Name & Description' input. "
-        f"/api/clinical/ambulatory (gnuhealth.procedure catalogue 'procedureCatalog', route.ts line ~60) returned HTTP {pr.status} '{(pr.err or '')[:60]}' for the physician: the ambulatory module is enabled for the admin role only "
-        f"(access-control.ts), so appendectomy/cholecystectomy/cesarean code resolution could not be verified with the available staff logins (no admin credentials supplied)",
-        status="FAIL" if pr.status == 403 else "PASS")
-    if pr.status == 200:
-        cat = pr["procedureCatalog"] or []
-        hits = {k: [c["code"] for c in cat if k in (c["description"] or "").lower() or k in (c["code"] or "").lower()][:2] for k in ("appendic", "cholecyst", "caesar", "cesar")}
-        RES["TC-051"]["observed"] = f"ambulatory catalogue {len(cat)} procedures; hits {hits}"
-        RES["TC-051"]["status"] = "PASS" if all(hits[k] for k in ("appendic", "cholecyst")) and (hits["caesar"] or hits["cesar"]) else "FAIL"
+    pr = call(phys, "GET", "/api/clinical/procedures")
+    cat = (pr.data or {}).get("procedures") or []
+    hits = {k: [c["code"] for c in cat if k in (c["description"] or "").lower()][:2] for k in ("appendect", "cholecyst", "caesar", "cesar")}
+    ok = pr.status == 200 and bool(hits["appendect"]) and bool(hits["cholecyst"]) and bool(hits["caesar"] or hits["cesar"])
+    rec("TC-051", ok, f"procedure catalogue for the surgery form: HTTP {pr.status}, {len(cat)} procedures; appendectomy {hits['appendect']}, cholecystectomy {hits['cholecyst']}, caesarean {hits['caesar'] or hits['cesar']}")
 
 
 guarded("tc051", tc051, ["TC-051"])

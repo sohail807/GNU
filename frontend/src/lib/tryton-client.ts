@@ -13,6 +13,17 @@ export interface TrytonLoginResult {
 
 interface HttpStatusError extends Error { status?: number }
 
+
+/** A backend business-rule message, cleaned of record ids, table names and field labels before it reaches a caller. */
+function cleanHumanMessage(human: string): HttpStatusError {
+  let message = human, status = 400;
+  if (/you are trying to (read|write)|does not exist|don't exist|do not exist/i.test(human)) { message = "The record was not found."; status = 404; }
+  else if (/a value is required|is required|required for field|the value .* for field/i.test(human)) { message = "A required value is missing or not valid."; }
+  const error = new Error(message) as HttpStatusError;
+  error.status = status;
+  return error;
+}
+
 export type TrytonWorkflowWizard = "gnuhealth.lab.test.create" | "account.invoice.pay";
 
 /**
@@ -280,16 +291,7 @@ export class TrytonClient {
         typeof data.error[1][0] === "string" &&
         data.error[1][0].trim()
       ) {
-        const human = String(data.error[1][0]);
-        // Wording that names a record id or a table is replaced by a plain not-found message.
-        if (/you are trying to (read|write)|does not exist|don't exist|do not exist/i.test(human)) {
-          const nf = new Error("The record was not found.") as HttpStatusError;
-          nf.status = 404;
-          throw nf;
-        }
-        const error = new Error(human) as HttpStatusError;
-        error.status = 400;
-        throw error;
+        throw cleanHumanMessage(String(data.error[1][0]));
       }
       // A feature whose backend module is not installed in this hospital's database.
       if (model.startsWith("ist.") && errStr.startsWith(`["'${model}'`)) {
@@ -405,9 +407,7 @@ export class TrytonClient {
         if (Array.isArray(data.error) && typeof data.error[0] === "string" &&
           ["UserError", "UserWarning", "ConcurrencyException"].includes(data.error[0]) &&
           Array.isArray(data.error[1]) && typeof data.error[1][0] === "string" && data.error[1][0].trim()) {
-          const error = new Error(data.error[1][0]) as HttpStatusError;
-          error.status = 400;
-          throw error;
+          throw cleanHumanMessage(String(data.error[1][0]));
         }
         const errText = JSON.stringify(data.error);
         const status = errText.includes("AccessError") || errText.includes("not allowed to access") ? 403 : 502;
