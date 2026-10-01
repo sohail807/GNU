@@ -33,9 +33,17 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST https://api.isthealth.irisstar.
 # expect 401 (served). 404 = not served yet.
 ```
 
-### 3. Back it up (VM, operator) — REQUIRED before real data
-`/usr/local/bin/gnuhealth-backup.sh` currently dumps **only** `gnuhealth`. Extend it to loop over every hospital
-database before any real patient data is entered, and confirm a restore of the new database works.
+### 3. Back it up (VM, operator) — verify before real data
+`/usr/local/bin/gnuhealth-backup.sh` (source: `deploy/infra/scripts/gnuhealth-backup.sh`) backs up the main
+database **and every name in `TRYTOND_DATABASE_NAMES`**, so step 2 already enrols the hospital. Confirm it:
+```bash
+sudo /usr/local/bin/gnuhealth-backup.sh --list-databases   # must include gnuhealth_alnoor
+sudo systemctl start gnuhealth-backup.service              # run now
+sudo tail -n 15 /var/log/gnuhealth_backup.log              # look for "DB backup successful [gnuhealth_alnoor]"
+```
+Hospital dumps are named `gnuhealth_tenant_<db>_<timestamp>.dump` (14-day retention, copied off-site to GCS). If any
+database fails the run exits non-zero (`systemctl status gnuhealth-backup.service` shows failed) but the others are
+still backed up. Test a **restore of the new hospital's dump** into a scratch database before entering real data.
 
 ### 4. Register the hospital (platform admin)
 Sign in at `https://isthealth.irisstar.tech` as an allow-listed super-admin (`SUPER_ADMIN_USERNAMES`, currently
