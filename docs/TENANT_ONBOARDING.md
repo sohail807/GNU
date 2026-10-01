@@ -24,13 +24,16 @@ hospital's administrator over an approved secure channel. Never paste them in ch
 
 ### 2. Let the backend serve it (VM, operator)
 The backend only serves databases listed in `TRYTOND_DATABASE_NAMES` (deliberately — it stops test/UAT databases
-being reachable). Append the new name (comma-separated) in the `gnuhealth` systemd unit, then restart:
+being reachable). Use a systemd drop-in so the original unit stays untouched; list **every** served database:
 ```bash
-sudo systemctl edit gnuhealth      # add/extend: Environment=TRYTOND_DATABASE_NAMES=gnuhealth,gnuhealth_alnoor
-sudo systemctl restart gnuhealth   # a few seconds of backend downtime for ALL hospitals: do it off-peak
-curl -s -o /dev/null -w "%{http_code}\n" -X POST https://api.isthealth.irisstar.tech/gnuhealth_alnoor/ \
-  -H 'content-type: application/json' -d '{"id":1,"method":"common.db.login","params":["x",{"password":"x"}]}'
-# expect 401 (served). 404 = not served yet.
+sudo mkdir -p /etc/systemd/system/gnuhealth.service.d
+printf '[Service]
+Environment=TRYTOND_DATABASE_NAMES=gnuhealth,gnuhealth_alnoor
+' | sudo tee /etc/systemd/system/gnuhealth.service.d/databases.conf
+sudo systemctl daemon-reload && sudo systemctl restart gnuhealth   # a few seconds of backend downtime for ALL hospitals: do it off-peak
+curl -s -o /dev/null -w "%{http_code}
+" -X POST https://api.isthealth.irisstar.tech/gnuhealth_alnoor/   -H 'content-type: application/json' -d '{"id":1,"method":"common.db.login","params":["x",{"password":"x"}]}'
+# expect 401 (served). 404 = not served yet. To undo: delete databases.conf, daemon-reload, restart.
 ```
 
 ### 3. Back it up (VM, operator) — verify before real data
@@ -75,3 +78,14 @@ deliberate manual act on the VM, after the contract's retention period and a ver
 - Step 2 restarts the backend for every hospital.
 - Provisioning is manual; the app cannot create databases itself from Cloud Run.
 - One VM hosts every hospital's database: size it and test restores before adding clients.
+- The cloned company is named "New Hospital (Rename Me)" with currency USD. The hospital admin must rename it and set
+  the currency/fiscal data in Tryton before use; the registry's currency/country are display metadata only.
+- If no super-admin session is available, the registry entry (`tenants-registry.json` in the state bucket
+  `gs://ist-health-hmis-21722-state/data/`) can be edited by an operator (bucket is versioned); prefer the Platform screen.
+
+## Verified end to end (2026-10-01, synthetic `testhospital`)
+Template clean (0 patients/invoices); database provisioned; backend serves it (401) and still 404s unknown names;
+registry lookup by forwarded host returns only that hospital; the hospital admin logs in on its own address, sees only
+its own users and 0 patients, and the same credentials are rejected (401) on IST Central; nightly backup dumps and
+uploads it off-site; a restore of that dump into a scratch database matched the source (306/306 tables, same rows).
+
