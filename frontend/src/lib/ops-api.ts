@@ -68,6 +68,9 @@ export async function guard(modules: AppModule[]): Promise<{ session: Session } 
 export function errorResponse(err: unknown, fallback: string) {
   const status = (err as { status?: number })?.status || 500;
   const raw = err instanceof Error ? err.message : fallback;
+  if (/not associated to a health professional/i.test(raw)) {
+    return NextResponse.json({ error: "Only a doctor or nurse registered as a health professional can do this. Sign in with a clinical account." }, { status: 403 });
+  }
   if (/Tryton RPC error on ist\.[a-z_.]+\.[a-z_]+: \["'ist\./.test(raw)) {
     return NextResponse.json({ error: "This feature is not enabled for this hospital yet. Ask the administrator to install the IST workflow modules." }, { status: 503 });
   }
