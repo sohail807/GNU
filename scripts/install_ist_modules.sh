@@ -17,6 +17,7 @@ SSH=(ssh -i "$KEY" -o StrictHostKeyChecking=no "$HOST")
 # upload first (stdin is then free for the remote script)
 tar czf /tmp/ist_modules.tgz -C deploy/modules ist_claims ist_ops
 scp -i "$KEY" -o StrictHostKeyChecking=no /tmp/ist_modules.tgz "$HOST:/tmp/ist_modules.tgz"
+scp -i "$KEY" -o StrictHostKeyChecking=no scripts/ist-provision-tenant.sh "$HOST:/tmp/ist-provision-tenant.sh"
 
 "${SSH[@]}" "DBS='$DBS' bash -s" <<'REMOTE'
 set -euo pipefail
@@ -30,6 +31,8 @@ for m in ist_claims ist_ops; do
   sudo cp -r "/tmp/ist_modules_up/$m" "$MODS/$m"
   sudo chown -R gnuhealth:gnuhealth "$MODS/$m"
 done
+# new hospitals provisioned from now on get the modules too
+sudo install -m 755 /tmp/ist-provision-tenant.sh /usr/local/bin/ist-provision-tenant.sh
 for db in $DBS; do
   sudo -u postgres pg_dump -Fc "$db" -f "/tmp/${db}_before_ist_modules.dump"
   # register the new modules in the database's module list, then activate/update them

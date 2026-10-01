@@ -7,6 +7,8 @@ AC = 'account.group_account'
 ACA = 'account.group_account_admin'
 SA = 'health_surgery.group_health_surgery_admin'
 GA = 'health_gyneco.group_health_gyneco_admin'
+LAB = 'health_lab.group_health_lab'
+LABA = 'health_lab.group_health_lab_admin'
 
 WORK = {
     'ist.ops.ed_visit': [F, D, N, A],
@@ -16,6 +18,8 @@ WORK = {
     'ist.ops.stock': [AC, ACA, A],
     'ist.ops.surgery_checklist': [D, N, SA, A],
     'ist.ops.delivery': [D, N, GA, A],
+    'ist.ops.critical_alert': [D, N, LAB, LABA, A],
+    'ist.ops.purchase_request': [AC, ACA, A],
 }
 
 out = ['<?xml version="1.0"?>', '<tryton>', '    <data>',

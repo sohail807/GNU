@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { hasModuleAccess } from "@/lib/access-control";
+import { raiseLabAlerts } from "@/lib/ops-api";
 
 // Tryton datetime/date fields deserialize as { __class__, year, month, day, hour?, minute? }
 // objects, not strings - rendering one directly as a React child crashes the page.
@@ -307,7 +308,9 @@ export async function POST(req: NextRequest) {
       if (typeof body.diagnosis === "string") parentValues.diagnosis = body.diagnosis.trim().slice(0, 10000);
       if (typeof body.specimen === "string") parentValues.specimen_type = body.specimen.trim().slice(0, 200);
       if (Object.keys(parentValues).length) await TrytonClient.execute(session.username, session.userId, session.sessionToken, "gnuhealth.lab", "write", [[labId], parentValues], context, session.database);
-      return NextResponse.json({ success: true, labId, state: "draft", savedCriteria: existing.length });
+      // Out-of-range analytes raise result alerts for the doctor to acknowledge (see lab-alerts).
+      const alerts = await raiseLabAlerts(session, labId);
+      return NextResponse.json({ success: true, labId, state: "draft", savedCriteria: existing.length, alertsRaised: alerts });
     }
 
     if (action === "complete" || action === "certify") {

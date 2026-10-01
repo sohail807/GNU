@@ -72,8 +72,42 @@ export function errorResponse(err: unknown, fallback: string) {
     return NextResponse.json({ error: "This feature is not enabled for this hospital yet. Ask the administrator to install the IST workflow modules." }, { status: 503 });
   }
   // Tryton's own refusal (invalid state change, missing prerequisite) arrives inside a long RPC error: show just the reason.
-  const reason = /(A [a-z -]+ cannot go from[^"\]\\]*|The advance of[^"\]\\]*|A cashless admission[^"\]\\]*|A referral must[^"\]\\]*|Stock of[^"\]\\]*)/.exec(raw)?.[0];
+  const reason = /(A [a-z -]+ cannot go from[^"\]\\]*|The advance of[^"\]\\]*|A cashless admission[^"\]\\]*|A referral must[^"\]\\]*|Stock of[^"\]\\]*|Record the action taken[^"\]\\]*|The quantity to order[^"\]\\]*|Complete [a-z ]+ before [a-z ]+\.|Apgar scores[^"\]\\]*|Birth weight must[^"\]\\]*)/.exec(raw)?.[0];
   return NextResponse.json({ error: reason || raw.slice(0, 300) }, { status: reason ? 409 : status });
+}
+
+/**
+ * Raise a result alert for every analyte of a laboratory result that is outside its verified reference range. An
+ * analyte more than 30% beyond a limit is "critical", otherwise "abnormal". One alert per analyte; re-running is safe.
+ * Returns how many alerts were raised (0 also when the alert module is not installed).
+ */
+export async function raiseLabAlerts(session: Session, labId: number): Promise<number> {
+  try {
+    const lab = (await rpc<Row[]>(session, "gnuhealth.lab", "read", [[labId], ["id", "patient", "critearea"]]))[0];
+    const ids: number[] = Array.isArray(lab?.critearea) ? lab.critearea.map(Number) : [];
+    const patientId = idOf(lab?.patient);
+    if (!ids.length || !patientId) return 0;
+    const criteria = await rpc<Row[]>(session, "gnuhealth.lab.test.critearea", "search_read", [[["id", "in", ids], ["warning", "=", true]], 0, ids.length, null,
+      ["id", "name", "result", "lower_limit", "upper_limit", "units", "excluded"]]);
+    const existing = await rpc<Row[]>(session, "ist.ops.critical_alert", "search_read", [[["lab", "=", labId]], 0, 100, null, ["id", "criterion"]]);
+    const done = new Set(existing.map((e) => Number(e.criterion)));
+    let raised = 0;
+    for (const c of criteria) {
+      if (c.excluded || c.result == null || done.has(c.id)) continue;
+      const v = Number(c.result), lo = c.lower_limit == null ? null : Number(c.lower_limit), hi = c.upper_limit == null ? null : Number(c.upper_limit);
+      const critical = (lo != null && v < lo - Math.abs(lo) * 0.3) || (hi != null && v > hi + Math.abs(hi) * 0.3);
+      const unit = Array.isArray(c.units) ? c.units[1] : "";
+      await rpc(session, "ist.ops.critical_alert", "create", [[{
+        lab: labId, criterion: c.id, patient: patientId, company: session.companyId, institution: session.institutionId || undefined,
+        analyte: String(c.name || "Analyte").slice(0, 80), value: `${v}${unit ? " " + unit : ""}`,
+        limits: lo != null && hi != null ? `${lo} - ${hi}` : lo != null ? `above ${lo}` : hi != null ? `below ${hi}` : "", severity: critical ? "critical" : "abnormal",
+      }]]);
+      raised += 1;
+    }
+    return raised;
+  } catch {
+    return 0;
+  }
 }
 
 /**

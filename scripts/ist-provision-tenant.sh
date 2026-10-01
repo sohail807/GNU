@@ -107,6 +107,13 @@ if [[ -n "$HOSPITAL_NAME" ]]; then
   GH="sudo -u gnuhealth env TRYTOND_CONFIG=$TRYTOND_CONF /home/gnuhealth/venv/bin/python3"
   $GH "$LIB_DIR/bootstrap_tenant.py" "$DB_NAME" --name "$HOSPITAL_NAME" --code "$INSTITUTION_CODE"       --currency "$CURRENCY" --timezone "$TIMEZONE" >/dev/null
   $GH "$LIB_DIR/seed_medical_test_catalogs.py" "$DB_NAME" >/dev/null
+  # IST workflow modules (pre-authorizations and claims, emergency, admissions, discharge, referrals, stock, theatre
+  # safety, deliveries, result alerts). Installed on the VM by scripts/install_ist_modules.sh; skipped if absent.
+  MODS_DIR="/home/gnuhealth/venv/lib/python3.11/site-packages/trytond/modules"
+  if [[ -d "$MODS_DIR/ist_claims" && -d "$MODS_DIR/ist_ops" ]]; then
+    sudo -u gnuhealth "$TRYTOND_ADMIN" -c "$TRYTOND_CONF" -d "$DB_NAME" -m >/dev/null
+    sudo -u gnuhealth "$TRYTOND_ADMIN" -c "$TRYTOND_CONF" -d "$DB_NAME" -u ist_claims ist_ops --activate-dependencies >/dev/null
+  fi
 fi
 
 FINISHED=1

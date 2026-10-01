@@ -1,5 +1,6 @@
 from trytond.pool import Pool
 
+from . import alerts
 from . import ops
 from . import theatre
 
@@ -13,4 +14,6 @@ def register():
         ops.Stock,
         theatre.SurgeryChecklist,
         theatre.Delivery,
+        alerts.CriticalAlert,
+        alerts.PurchaseRequest,
         module='ist_ops', type_='model')

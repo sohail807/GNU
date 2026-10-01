@@ -88,6 +88,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         { label: "Pharmacy Stock", href: "/stock", icon: Pill, moduleKey: "pharmacy", badge: "Stock" },
         { label: "Physician Cockpit", href: "/physician", icon: Stethoscope, moduleKey: "physician", badge: "SOAP" },
         { label: "Diagnostic Lab", href: "/laboratory", icon: Microscope, moduleKey: "laboratory", badge: "CBC" },
+        { label: "Result Alerts", href: "/lab-alerts", icon: Microscope, moduleKey: "laboratory", moduleAny: ["laboratory", "physician", "nursing"], badge: "Alert" },
         { label: "Digital Radiology", href: "/radiology", icon: Scan, moduleKey: "radiology", badge: "PACS" },
         { label: "Immunizations", href: "/immunizations", icon: Syringe, moduleKey: "immunizations", badge: "Vax" },
         { label: "Obstetrics & Pregnancy", href: "/obstetrics", icon: Baby, moduleKey: "obstetrics", badge: "OB" },
