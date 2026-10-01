@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { ClinicalLookupService } from "@/lib/clinical-lookup";
 import { hasModuleAccess } from "@/lib/access-control";
+import { errorResponse } from "@/lib/ops-api";
 
 // Insurer pre-authorizations and claims. The records live in the native Tryton module `ist_claims`
 // (ist.claims.authorization / ist.claims.claim) next to the policy (gnuhealth.insurance) and invoice
@@ -128,8 +129,7 @@ export async function GET() {
         .map((i) => ({ id: i.id, number: i.number, patientName: invParties[idOf(i.party) as number]?.name || "", amount: num(i.amount_to_pay ?? i.total_amount) })),
     });
   } catch (err: unknown) {
-    const status = (err as any)?.status || 500;
-    return NextResponse.json({ error: err instanceof Error ? err.message : "Failed to load claims" }, { status });
+    return errorResponse(err, "Failed to load claims");
   }
 }
 
@@ -267,10 +267,6 @@ export async function POST(req: NextRequest) {
 
     return fail(`Unsupported action: ${action}`);
   } catch (err: unknown) {
-    const status = (err as any)?.status || 500;
-    const raw = err instanceof Error ? err.message : "Claims transaction failed";
-    // Tryton's own refusal (for example an invalid state change) arrives inside a long RPC error: show just the reason.
-    const reason = /cannot go from[^"\]\\]*/.exec(raw)?.[0];
-    return NextResponse.json({ error: reason || raw.slice(0, 300) }, { status: reason ? 409 : status });
+    return errorResponse(err, "Claims transaction failed");
   }
 }

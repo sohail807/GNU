@@ -31,6 +31,20 @@ export const AppShell: React.FC<AppShellProps> = ({ user, children, isSuperAdmin
     }
   }, []);
 
+  // The backend ends a session after a long idle spell. Send the user to the sign-in page instead of showing raw errors.
+  useEffect(() => {
+    const original = window.fetch;
+    window.fetch = async (...args) => {
+      const res = await original(...args);
+      const url = typeof args[0] === "string" ? args[0] : args[0] instanceof Request ? args[0].url : String(args[0]);
+      if (res.status === 401 && url.includes("/api/") && !url.includes("/api/auth/")) {
+        window.location.assign("/login?expired=1");
+      }
+      return res;
+    };
+    return () => { window.fetch = original; };
+  }, []);
+
   // Keyboard shortcut: ⌥S or Alt+S to toggle sidebar
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

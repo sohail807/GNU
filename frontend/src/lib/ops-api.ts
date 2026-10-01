@@ -68,6 +68,9 @@ export async function guard(modules: AppModule[]): Promise<{ session: Session } 
 export function errorResponse(err: unknown, fallback: string) {
   const status = (err as { status?: number })?.status || 500;
   const raw = err instanceof Error ? err.message : fallback;
+  if (/Tryton RPC error on ist\.[a-z_.]+\.[a-z_]+: \["'ist\./.test(raw)) {
+    return NextResponse.json({ error: "This feature is not enabled for this hospital yet. Ask the administrator to install the IST workflow modules." }, { status: 503 });
+  }
   // Tryton's own refusal (invalid state change, missing prerequisite) arrives inside a long RPC error: show just the reason.
   const reason = /(A [a-z -]+ cannot go from[^"\]\\]*|The advance of[^"\]\\]*|A cashless admission[^"\]\\]*|A referral must[^"\]\\]*|Stock of[^"\]\\]*)/.exec(raw)?.[0];
   return NextResponse.json({ error: reason || raw.slice(0, 300) }, { status: reason ? 409 : status });
