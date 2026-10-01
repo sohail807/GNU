@@ -25,7 +25,7 @@ IST Health HMIS is an enterprise hospital operating platform delivering outpatie
 ## 3. Verified Staff Personas & Credentials
 **Production:** `https://isthealth.irisstar.tech` (Firebase Hosting -> Cloud Run `ist-health-frontend`, project `ist-health-hmis-21722`, region `europe-west4`). The legacy VM portal at `http://34.7.237.8/login` is deprecated. Local dev: `http://localhost:3000/login`.
 
-> The `demo_*` accounts (all but `demo_admin1`) were suspended in the production database on 2026-09-30 and the `uat_*` accounts are pending suspension. Passwords were removed from this file; use real staff accounts. For local/synthetic testing create dedicated synthetic accounts.
+> All `demo_*` and `uat_*` accounts are suspended in the production database (demo users 2026-09-30; `uat_*` and `demo_admin1` 2026-10-01). Only the real administrators `admin` and `irisstar_admin` remain active. Passwords were removed from this file; use real staff accounts. For local/synthetic testing create dedicated synthetic accounts.
 
 | Department / Role | Username | Password | Default Landing | Capabilities |
 | :--- | :--- | :--- | :--- | :--- |
@@ -38,7 +38,7 @@ IST Health HMIS is an enterprise hospital operating platform delivering outpatie
 | **Cashier / Billing** | `demo_cashier1` | `(disabled in production 2026-09-30)` | `/billing` | Patient invoice settlement, POS cash/card payment collection |
 | **Diagnostic Lab** | `demo_lab1` | `(disabled in production 2026-09-30)` | `/laboratory` | Test criteria entry, lab results verification |
 | **Digital Radiology** | `demo_rad1` | `(disabled in production 2026-09-30)` | `/radiology` | Diagnostic imaging studies, radiologist findings |
-| **System Administrator** | `demo_admin1` | `(pending suspension)` | `/admin` | User management, RBAC dispatching, audit trails |
+| **System Administrator** | `demo_admin1` | `(disabled in production 2026-10-01)` | `/admin` | User management, RBAC dispatching, audit trails |
 
 *(Note: The login page includes 1-click Verified Demo Station buttons for instant persona fill).*
 
