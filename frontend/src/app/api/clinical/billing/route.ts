@@ -235,7 +235,7 @@ export async function GET(req: NextRequest) {
     const message = err instanceof Error ? err.message : "Failed to load invoices";
 
     // If clinical staff (physician/nurse) lacks accounting permission, return empty array with accessRestricted flag
-    if (status === 403 || message.includes("Access Denied") || message.includes("Security rules prevent access to account.invoice")) {
+    if (status === 403 || message.includes("permission for this action") || message.includes("Security rules prevent access to account.invoice")) {
       return NextResponse.json({ success: true, invoices: [], accessRestricted: true });
     }
 

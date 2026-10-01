@@ -225,7 +225,7 @@ export class TrytonClient {
     if (!res.ok) {
       const errText = await res.text();
       if (res.status === 400 && errText.includes("not allowed to access")) {
-        const error = new Error(`Access Denied: You do not have permission to access ${model}.`) as HttpStatusError;
+        const error = new Error("You do not have permission for this action.") as HttpStatusError;
         error.status = 403;
         throw error;
       }
@@ -244,7 +244,7 @@ export class TrytonClient {
     if (data.error) {
       const errStr = JSON.stringify(data.error);
       if (errStr.includes("not allowed to access") || errStr.includes("AccessError")) {
-        const error = new Error(`Access Denied: Security rules prevent access to ${model}.`) as HttpStatusError;
+        const error = new Error("You do not have permission for this action.") as HttpStatusError;
         error.status = 403;
         throw error;
       }
@@ -280,7 +280,14 @@ export class TrytonClient {
         typeof data.error[1][0] === "string" &&
         data.error[1][0].trim()
       ) {
-        const error = new Error(data.error[1][0]) as HttpStatusError;
+        const human = String(data.error[1][0]);
+        // Wording that names a record id or a table is replaced by a plain not-found message.
+        if (/you are trying to (read|write)|does not exist|don't exist|do not exist/i.test(human)) {
+          const nf = new Error("The record was not found.") as HttpStatusError;
+          nf.status = 404;
+          throw nf;
+        }
+        const error = new Error(human) as HttpStatusError;
         error.status = 400;
         throw error;
       }

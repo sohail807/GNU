@@ -111,15 +111,18 @@ export async function POST(req: NextRequest) {
       pathologyId = matches[0].id;
     }
 
+    // An unknown test name never blocks the clinical note: the evaluation is saved first, then the caller is told which
+    // order could not be placed (see the response after the save below).
     let labTestId: number | null = null;
+    let orderProblem: string | null = null;
     if (body.orderLab) {
       labTestId = await ClinicalLookupService.resolveLabTestType(session, body.labTestId, body.labTestName);
-      if (!labTestId) return NextResponse.json({ error: "Select a laboratory test from the health records system catalogue." }, { status: 400 });
+      if (!labTestId) orderProblem = "the laboratory test was not found in the catalogue";
     }
     let imagingTestId: number | null = null;
     if (body.orderRadiology) {
       imagingTestId = await ClinicalLookupService.resolveImagingTest(session, body.radiologyTestId, body.radiologyStudy);
-      if (!imagingTestId) return NextResponse.json({ error: "Select an imaging study from the health records system catalogue." }, { status: 400 });
+      if (!imagingTestId) orderProblem = orderProblem ? `${orderProblem} and the imaging study was not found` : "the imaging study was not found in the catalogue";
     }
 
     const evaluationPayload: Record<string, unknown> = {
@@ -171,6 +174,13 @@ export async function POST(req: NextRequest) {
         { company: session.companyId }, session.database
       );
       evaluationId = created[0];
+    }
+
+    if (orderProblem) {
+      return NextResponse.json(
+        { error: `The evaluation was saved, but ${orderProblem}. Choose the test from the catalogue and order it again.`, evaluationId, labOrderId: null, radiologyOrderId: null },
+        { status: 400 }
+      );
     }
 
     let labOrderId: number | null = null;

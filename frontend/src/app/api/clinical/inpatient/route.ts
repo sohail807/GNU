@@ -179,10 +179,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Error in inpatient route:", error);
-    return NextResponse.json(
-      { error: error?.message || "Failed to load inpatient data" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error?.message || "Failed to load inpatient data" }, { status: error?.status || 500 });
   }
 }
 
@@ -292,10 +289,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Error creating inpatient admission:", error);
-    return NextResponse.json(
-      { error: error?.message || "Failed to create inpatient admission" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error?.message || "Failed to create inpatient admission" }, { status: error?.status || 500 });
   }
 }
 
@@ -416,9 +410,6 @@ export async function PATCH(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Error discharging patient:", error);
-    return NextResponse.json(
-      { error: error?.message || "Failed to discharge patient" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error?.message || "Failed to discharge patient" }, { status: error?.status || 500 });
   }
 }

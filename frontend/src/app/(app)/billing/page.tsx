@@ -112,6 +112,7 @@ export default function CashierBillingPage() {
   // Current user's permissions, used to gate the GL Ledger tab (server-side RBAC is
   // the real enforcement; this only avoids showing a tab the API will reject).
   const [canViewLedger, setCanViewLedger] = useState(false);
+  const [permsReady, setPermsReady] = useState(false);
 
   // GL Account Moves (Resolves S8.2 - S8.7)
   const [accountMoves, setAccountMoves] = useState<AccountMove[]>([]);
@@ -162,6 +163,7 @@ export default function CashierBillingPage() {
 
       if (meData.authenticated) {
         setCanViewLedger(!!meData.user?.permissions?.ledger);
+        setPermsReady(true);
       }
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to load financial records");
@@ -177,10 +179,10 @@ export default function CashierBillingPage() {
   // If the resolved permissions say this user can't see the GL ledger (e.g. a
   // cashier reached ?tab=ledger directly), fall back to the invoices tab.
   useEffect(() => {
-    if (activeTab === "ledger" && !canViewLedger && !isProcessing) {
+    if (permsReady && activeTab === "ledger" && !canViewLedger && !isProcessing) {
       setActiveTab("invoices");
     }
-  }, [activeTab, canViewLedger, isProcessing]);
+  }, [permsReady, activeTab, canViewLedger, isProcessing]);
 
   // Handle Save New Invoice (Resolves S7.2, S7.3, S7.4 - Real GNU Health account.invoice)
   const handleCreateNewInvoice = async (e: React.FormEvent) => {

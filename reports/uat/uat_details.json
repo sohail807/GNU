@@ -2,6 +2,7 @@
  "lab_panels_ok": [
   "COAGULATION PROFILE(3)",
   "COMPLETE BLOOD COUNT(26)",
+  "ENDOCRINOLOGY(5)",
   "GLYCEMIC PROFILE(2)",
   "HAEMATOLOGY(1)",
   "LIPID PROFILE(4)",
@@ -13,9 +14,7 @@
   "THYROID FUNCTION TEST(3)",
   "URINE ANALYSIS(22)"
  ],
- "lab_panels_failed": [
-  "ENDOCRINOLOGY: save-results HTTP 409 {\"error\":\"Reference limits must be reviewed and verified in the GNU Health test criteria before entering resul"
- ],
+ "lab_panels_failed": [],
  "wards_with_free_beds": {
   "General Ward (Men)": 2,
   "General Ward (Women)": 2,
@@ -41,16 +40,9 @@
   "2": "scheduled",
   "3": "scheduled"
  },
- "routes_enumerated": 91,
+ "routes_enumerated": 92,
  "tc064_bad": [],
- "tc065_odd": [
-  "physician GET /api/clinical/ledger: expected 403 got 200 {\"success\":true,\"moves\":[],\"accessRestricted\":true}",
-  "nursing GET /api/clinical/ledger: expected 403 got 200 {\"success\":true,\"moves\":[],\"accessRestricted\":true}",
-  "reception GET /api/clinical/ledger: expected 403 got 200 {\"success\":true,\"moves\":[],\"accessRestricted\":true}",
-  "cashier GET /api/clinical/ledger: expected 403 got 200 {\"success\":true,\"moves\":[],\"accessRestricted\":true}",
-  "lab GET /api/clinical/ledger: expected 403 got 200 {\"success\":true,\"moves\":[],\"accessRestricted\":true}",
-  "radiology GET /api/clinical/ledger: expected 403 got 200 {\"success\":true,\"moves\":[],\"accessRestricted\":true}"
- ],
+ "tc065_odd": [],
  "tc065_ungated": [
   "GET /api/clinical/admissions",
   "GET /api/clinical/allergies",
@@ -67,108 +59,50 @@
   "POST /api/clinical/referrals"
  ],
  "tc066_tidy": {
-  "surgeries_cancelled": [
-   60,
-   61
-  ],
-  "admissions_released": 1
+  "surgeries_cancelled": [],
+  "admissions_released": 0
  },
  "tc066_bad": [
-  "POST /api/clinical/consultations {\"patientId\": 99999999999, \"chiefComplaint\": \"x\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.patient.evaluation.create: [\\\"",
-  "POST /api/clinical/consultations {\"patientId\": 2147483648, \"chiefComplaint\": \"x\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.patient.evaluation.create: [\\\"",
   "POST /api/clinical/consultations {\"patientId\": 379, \"evaluationId\": 99999999999, \"chiefComplaint\": \"x\"} -> 400 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Patient ",
   "POST /api/clinical/consultations {\"patientId\": 379, \"evaluationId\": 2147483648, \"chiefComplaint\": \"x\"} -> 400 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Patient E",
   "POST /api/clinical/prescriptions {\"patientId\": 99999999999, \"lines\": [{\"medicamentId\": 1}]} -> 502 {\"error\":\"The prescription could not be saved in GNU Health. No succes",
   "POST /api/clinical/prescriptions {\"patientId\": 2147483648, \"lines\": [{\"medicamentId\": 1}]} -> 502 {\"error\":\"The prescription could not be saved in GNU Health. No succes",
-  "POST /api/clinical/prescriptions {\"patientId\": 379, \"lines\": [{\"medicamentId\": -1}]} -> 200 {\"success\":true,\"prescriptionId\":228,\"orderId\":228,\"reference\":\"PRES 2",
-  "POST /api/clinical/prescriptions {\"patientId\": 379, \"lines\": [{\"medicamentId\": 0}]} -> 200 {\"success\":true,\"prescriptionId\":229,\"orderId\":229,\"reference\":\"PRES 2",
-  "POST /api/clinical/prescriptions {\"patientId\": 379, \"lines\": [{\"medicamentId\": 99999999999}]} -> 200 {\"success\":true,\"prescriptionId\":230,\"orderId\":230,\"reference\":\"PRES 2",
-  "POST /api/clinical/prescriptions {\"patientId\": 379, \"lines\": [{\"medicamentId\": \"abc\"}]} -> 200 {\"success\":true,\"prescriptionId\":231,\"orderId\":231,\"reference\":\"PRES 2",
-  "POST /api/clinical/prescriptions {\"patientId\": 379, \"lines\": [{\"medicamentId\": 2147483648}]} -> 200 {\"success\":true,\"prescriptionId\":232,\"orderId\":232,\"reference\":\"PRES 2",
   "POST /api/clinical/prescriptions {\"action\": \"issue\", \"prescriptionId\": 99999999999} -> 502 {\"error\":\"The prescription could not be saved in GNU Health. No succes",
   "POST /api/clinical/prescriptions {\"action\": \"issue\", \"prescriptionId\": 2147483648} -> 502 {\"error\":\"The prescription could not be saved in GNU Health. No succes",
   "POST /api/clinical/appointments {\"action\": \"checkin\", \"appointmentId\": 99999999999} -> 400 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Patient ",
   "POST /api/clinical/appointments {\"action\": \"checkin\", \"appointmentId\": 2147483648} -> 400 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Patient A",
-  "POST /api/clinical/triage {\"patientId\": 99999999999, \"systolic\": 120} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.patient.evaluation.create: [\\\"",
-  "POST /api/clinical/triage {\"patientId\": 2147483648, \"systolic\": 120} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.patient.evaluation.create: [\\\"",
   "POST /api/clinical/laboratory {\"action\": \"create\", \"patientId\": 99999999999, \"testId\": 1} -> 502 {\"error\":\"The laboratory action failed in GNU Health. Check the saved ",
   "POST /api/clinical/laboratory {\"action\": \"create\", \"patientId\": 2147483648, \"testId\": 1} -> 502 {\"error\":\"The laboratory action failed in GNU Health. Check the saved ",
   "POST /api/clinical/laboratory {\"action\": \"save-results\", \"labId\": 99999999999, \"criteria\": [{\"id\": 1 -> 502 {\"error\":\"The laboratory action failed in GNU Health. Check the saved ",
   "POST /api/clinical/laboratory {\"action\": \"save-results\", \"labId\": 2147483648, \"criteria\": [{\"id\": 1, -> 502 {\"error\":\"The laboratory action failed in GNU Health. Check the saved ",
   "POST /api/clinical/laboratory {\"action\": \"complete\", \"labId\": 99999999999} -> 502 {\"error\":\"The laboratory action failed in GNU Health. Check the saved ",
   "POST /api/clinical/laboratory {\"action\": \"complete\", \"labId\": 2147483648} -> 502 {\"error\":\"The laboratory action failed in GNU Health. Check the saved ",
-  "POST /api/clinical/radiology {\"action\": \"create\", \"patientId\": 99999999999, \"testId\": 1} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.imaging.test.request.create: [",
-  "POST /api/clinical/radiology {\"action\": \"create\", \"patientId\": 2147483648, \"testId\": 1} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.imaging.test.request.create: [",
   "POST /api/clinical/radiology {\"action\": \"finalize\", \"requestId\": 99999999999, \"findings\": \"x\"} -> 400 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Medical ",
   "POST /api/clinical/radiology {\"action\": \"finalize\", \"requestId\": 2147483648, \"findings\": \"x\"} -> 400 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Medical I",
   "POST /api/clinical/billing {\"action\": \"post\", \"invoiceId\": 99999999999} -> 400 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Invoice\\",
   "POST /api/clinical/billing {\"action\": \"post\", \"invoiceId\": 2147483648} -> 400 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Invoice\\\"",
   "POST /api/clinical/billing {\"action\": \"pay\", \"invoiceId\": 99999999999} -> 400 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Invoice\\",
   "POST /api/clinical/billing {\"action\": \"pay\", \"invoiceId\": 2147483648} -> 400 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Invoice\\\"",
-  "POST /api/clinical/pharmacy {\"prescriptionId\": -1} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.prescription.order.write: [\\\"\\",
-  "POST /api/clinical/pharmacy {\"prescriptionId\": 99999999999} -> 500 {\"error\":\"You are trying to write to records \\\"99999999999\\\" of \\\"Pres",
-  "POST /api/clinical/pharmacy {\"prescriptionId\": \"abc\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.prescription.order.write: [\\\"i",
-  "POST /api/clinical/pharmacy {\"prescriptionId\": 2147483648} -> 500 {\"error\":\"You are trying to write to records \\\"2147483648\\\" of \\\"Presc",
-  "POST /api/clinical/inpatient {\"patientId\": -1} -> 500 {\"error\":\"The value \\\"-1\\\" for field \\\"Patient\\\" in \\\"Patient admissio",
-  "POST /api/clinical/inpatient {\"patientId\": 99999999999} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.inpatient.registration.create:",
-  "POST /api/clinical/inpatient {\"patientId\": \"abc\"} -> 500 {\"error\":\"A value is required for field \\\"Patient\\\" in \\\"Patient admis",
-  "POST /api/clinical/inpatient {\"patientId\": 2147483648} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.inpatient.registration.create:",
-  "POST /api/clinical/inpatient {\"patientId\": 379, \"bedId\": -1} -> 500 {\"error\":\"You are trying to read records \\\"-1\\\" of \\\"Hospital Bed\\\" th",
-  "POST /api/clinical/inpatient {\"patientId\": 379, \"bedId\": 0} -> 200 {\"success\":true,\"admission\":96,\"message\":\"Patient admitted to inpatien",
-  "POST /api/clinical/inpatient {\"patientId\": 379, \"bedId\": 99999999999} -> 500 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Hospital",
-  "POST /api/clinical/inpatient {\"patientId\": 379, \"bedId\": \"abc\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.hospital.bed.read: [\\\"int() ar",
-  "POST /api/clinical/inpatient {\"patientId\": 379, \"bedId\": 2147483648} -> 500 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Hospital ",
-  "PATCH /api/clinical/inpatient {\"action\": \"bedclean\", \"admissionId\": -1, \"bedId\": -1} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.inpatient.registration.write: ",
+  "PATCH /api/clinical/inpatient {\"action\": \"bedclean\", \"admissionId\": -1, \"bedId\": -1} -> 500 {\"error\":\"The request could not be processed. Please try again or cont",
   "PATCH /api/clinical/inpatient {\"action\": \"bedclean\", \"admissionId\": 99999999999, \"bedId\": 9999999999 -> 500 {\"error\":\"You are trying to write to records \\\"99999999999\\\" of \\\"Pati",
-  "PATCH /api/clinical/inpatient {\"action\": \"bedclean\", \"admissionId\": \"abc\", \"bedId\": \"abc\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.inpatient.registration.write: ",
+  "PATCH /api/clinical/inpatient {\"action\": \"bedclean\", \"admissionId\": \"abc\", \"bedId\": \"abc\"} -> 500 {\"error\":\"One of the values sent is not valid. Check the record refere",
   "PATCH /api/clinical/inpatient {\"action\": \"bedclean\", \"admissionId\": 2147483648, \"bedId\": 2147483648} -> 500 {\"error\":\"You are trying to write to records \\\"2147483648\\\" of \\\"Patie",
-  "POST /api/clinical/surgery {\"patientId\": 379, \"description\": \"x\", \"operatingRoomId\": -1} -> 500 {\"error\":\"The value \\\"-1\\\" for field \\\"Op. Room\\\" in \\\"Surgery\\\" does ",
-  "POST /api/clinical/surgery {\"patientId\": 379, \"description\": \"x\", \"operatingRoomId\": 0} -> 200 {\"success\":true,\"surgery\":60,\"message\":\"Surgical procedure booked and ",
-  "POST /api/clinical/surgery {\"patientId\": 379, \"description\": \"x\", \"operatingRoomId\": 99999999999} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.surgery.create: [\\\"integer out",
-  "POST /api/clinical/surgery {\"patientId\": 379, \"description\": \"x\", \"operatingRoomId\": \"abc\"} -> 200 {\"success\":true,\"surgery\":61,\"message\":\"Surgical procedure booked and ",
-  "POST /api/clinical/surgery {\"patientId\": 379, \"description\": \"x\", \"operatingRoomId\": 2147483648} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.surgery.create: [\\\"integer out",
-  "PATCH /api/clinical/surgery {\"surgeryId\": -1, \"state\": \"confirmed\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.surgery.write: [\\\"'gnuhealth.s",
-  "PATCH /api/clinical/surgery {\"surgeryId\": 99999999999, \"state\": \"confirmed\"} -> 500 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Surgery\\",
-  "PATCH /api/clinical/surgery {\"surgeryId\": \"abc\", \"state\": \"confirmed\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.surgery.write: [\\\"int() argume",
-  "PATCH /api/clinical/surgery {\"surgeryId\": 2147483648, \"state\": \"confirmed\"} -> 500 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Surgery\\\"",
-  "POST /api/clinical/insurance {\"partyId\": 99999999999, \"companyId\": 1, \"number\": \"X\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.insurance.create: [\\\"integer o",
-  "POST /api/clinical/insurance {\"partyId\": 2147483648, \"companyId\": 1, \"number\": \"X\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.insurance.create: [\\\"integer o",
-  "POST /api/clinical/insurance {\"partyId\": 379, \"companyId\": 99999999999, \"number\": \"X\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.insurance.create: [\\\"integer o",
-  "POST /api/clinical/insurance {\"partyId\": 379, \"companyId\": 2147483648, \"number\": \"X\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.insurance.create: [\\\"integer o",
+  "PATCH /api/clinical/surgery {\"surgeryId\": 99999999999, \"state\": \"confirmed\"} -> 400 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Surgery\\",
+  "PATCH /api/clinical/surgery {\"surgeryId\": 2147483648, \"state\": \"confirmed\"} -> 400 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Surgery\\\"",
   "GET /api/clinical/billing/invoice-pdf?invoiceId=99999999999 -> 502 {\"error\":\"The GNU Health backend rejected the report request.\"}"
  ],
  "tc067_leaks": [
-  "POST /api/clinical/inpatient HTTP 500 matched 'Access Denied:': {\"error\":\"Access Denied: Security rules prevent access to gnuhealth.inpatient.registration.\"}",
+  "POST /api/clinical/consultations HTTP 400 matched 'Select a laboratory test from': {\"error\":\"Select a laboratory test from the health records system catalogue.\"}",
   "GET /api/clinical/prescriptions HTTP 403 matched 'Access Denied:': {\"error\":\"Access Denied: Security rules prevent access to gnuhealth.prescription.order.\"}",
   "GET /api/clinical/radiology HTTP 403 matched 'Access Denied:': {\"error\":\"Access Denied: Security rules prevent access to gnuhealth.imaging.test.request.\"}",
-  "POST /api/clinical/consultations HTTP 500 matched 'Tryton RPC error': {\"error\":\"Tryton RPC error on gnuhealth.patient.evaluation.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"}",
   "POST /api/clinical/appointments HTTP 400 matched 'You are trying to read': {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Patient Appointments\\\" that don't exist.\"}",
   "POST /api/clinical/triage HTTP 400 matched 'does not exist': {\"error\":\"The value \\\"-1\\\" for field \\\"Patient\\\" in \\\"Patient Evaluation\\\" does not exist.\"}",
-  "POST /api/clinical/radiology HTTP 500 matched 'Tryton RPC error': {\"error\":\"Tryton RPC error on gnuhealth.imaging.test.request.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"}",
+  "POST /api/clinical/radiology HTTP 400 matched 'You are trying to read': {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Medical Imaging Study Request\\\" that don't exist",
   "POST /api/clinical/billing HTTP 400 matched 'You are trying to read': {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Invoice\\\" that don't exist.\"}",
-  "POST /api/clinical/pharmacy HTTP 500 matched 'Tryton RPC error': {\"error\":\"Tryton RPC error on gnuhealth.prescription.order.write: [\\\"\\\",\\\"\\\"]\"}",
-  "PATCH /api/clinical/inpatient HTTP 500 matched 'Tryton RPC error': {\"error\":\"Tryton RPC error on gnuhealth.inpatient.registration.write: [\\\"\\\",\\\"\\\"]\"}",
-  "POST /api/clinical/surgery HTTP 500 matched 'does not exist': {\"error\":\"The value \\\"-1\\\" for field \\\"Op. Room\\\" in \\\"Surgery\\\" does not exist.\"}",
-  "PATCH /api/clinical/surgery HTTP 500 matched 'Tryton RPC error': {\"error\":\"Tryton RPC error on gnuhealth.surgery.write: [\\\"'gnuhealth.surgery' Model has no attribute 'state': ",
-  "POST /api/clinical/insurance HTTP 500 matched 'Tryton RPC error': {\"error\":\"Tryton RPC error on gnuhealth.insurance.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"}"
+  "PATCH /api/clinical/inpatient HTTP 500 matched 'You are trying to write': {\"error\":\"You are trying to write to records \\\"99999999999\\\" of \\\"Patient admission History\\\" that don't exist",
+  "PATCH /api/clinical/surgery HTTP 400 matched 'You are trying to read': {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Surgery\\\" that don't exist.\"}"
  ],
  "error_log_sample": [
-  {
-   "who": "nursing",
-   "method": "PATCH",
-   "path": "/api/clinical/inpatient",
-   "status": 500,
-   "ctype": "application/json",
-   "body": "{\"error\":\"Tryton RPC error on gnuhealth.inpatient.registration.write: [\\\"\\\",\\\"\\\"]\"}"
-  },
-  {
-   "who": "nursing",
-   "method": "PATCH",
-   "path": "/api/clinical/inpatient",
-   "status": 400,
-   "ctype": "application/json",
-   "body": "{\"error\":\"Admission ID and bed ID are required\"}"
-  },
   {
    "who": "nursing",
    "method": "PATCH",
@@ -183,7 +117,7 @@
    "path": "/api/clinical/inpatient",
    "status": 500,
    "ctype": "application/json",
-   "body": "{\"error\":\"Tryton RPC error on gnuhealth.inpatient.registration.write: [\\\"int() argument must be a string, a bytes-like object or a real number, not 'NoneType'\\\",\\\"\\\"]\"}"
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
   },
   {
    "who": "nursing",
@@ -237,33 +171,49 @@
    "who": "physician",
    "method": "POST",
    "path": "/api/clinical/surgery",
-   "status": 500,
+   "status": 400,
    "ctype": "application/json",
-   "body": "{\"error\":\"The value \\\"-1\\\" for field \\\"Op. Room\\\" in \\\"Surgery\\\" does not exist.\"}"
+   "body": "{\"error\":\"Choose a valid operating theatre.\"}"
   },
   {
    "who": "physician",
    "method": "POST",
    "path": "/api/clinical/surgery",
-   "status": 500,
+   "status": 400,
    "ctype": "application/json",
-   "body": "{\"error\":\"Tryton RPC error on gnuhealth.surgery.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"}"
+   "body": "{\"error\":\"Choose a valid operating theatre.\"}"
   },
   {
    "who": "physician",
    "method": "POST",
    "path": "/api/clinical/surgery",
-   "status": 500,
+   "status": 400,
    "ctype": "application/json",
-   "body": "{\"error\":\"Tryton RPC error on gnuhealth.surgery.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"}"
+   "body": "{\"error\":\"Choose a valid operating theatre.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/surgery",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose a valid operating theatre.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/surgery",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose a valid operating theatre.\"}"
   },
   {
    "who": "physician",
    "method": "PATCH",
    "path": "/api/clinical/surgery",
-   "status": 500,
+   "status": 400,
    "ctype": "application/json",
-   "body": "{\"error\":\"Tryton RPC error on gnuhealth.surgery.write: [\\\"'gnuhealth.surgery' Model has no attribute 'state': None\\\",\\\"\\\"]\"}"
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
   },
   {
    "who": "physician",
@@ -277,7 +227,7 @@
    "who": "physician",
    "method": "PATCH",
    "path": "/api/clinical/surgery",
-   "status": 500,
+   "status": 400,
    "ctype": "application/json",
    "body": "{\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Surgery\\\" that don't exist.\"}"
   },
@@ -285,15 +235,15 @@
    "who": "physician",
    "method": "PATCH",
    "path": "/api/clinical/surgery",
-   "status": 500,
+   "status": 400,
    "ctype": "application/json",
-   "body": "{\"error\":\"Tryton RPC error on gnuhealth.surgery.write: [\\\"int() argument must be a string, a bytes-like object or a real number, not 'NoneType'\\\",\\\"\\\"]\"}"
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
   },
   {
    "who": "physician",
    "method": "PATCH",
    "path": "/api/clinical/surgery",
-   "status": 500,
+   "status": 400,
    "ctype": "application/json",
    "body": "{\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Surgery\\\" that don't exist.\"}"
   },
@@ -477,25 +427,9 @@
    "who": "reception",
    "method": "POST",
    "path": "/api/clinical/insurance",
-   "status": 500,
-   "ctype": "application/json",
-   "body": "{\"error\":\"Tryton RPC error on gnuhealth.insurance.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"}"
-  },
-  {
-   "who": "reception",
-   "method": "POST",
-   "path": "/api/clinical/insurance",
    "status": 400,
    "ctype": "application/json",
-   "body": "{\"error\":\"A valid patient, insurance company, and policy number are required.\"}"
-  },
-  {
-   "who": "reception",
-   "method": "POST",
-   "path": "/api/clinical/insurance",
-   "status": 500,
-   "ctype": "application/json",
-   "body": "{\"error\":\"Tryton RPC error on gnuhealth.insurance.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"}"
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
   },
   {
    "who": "reception",
@@ -511,15 +445,7 @@
    "path": "/api/clinical/insurance",
    "status": 400,
    "ctype": "application/json",
-   "body": "{\"error\":\"A valid patient, insurance company, and policy number are required.\"}"
-  },
-  {
-   "who": "reception",
-   "method": "POST",
-   "path": "/api/clinical/insurance",
-   "status": 500,
-   "ctype": "application/json",
-   "body": "{\"error\":\"Tryton RPC error on gnuhealth.insurance.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"}"
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
   },
   {
    "who": "reception",
@@ -533,9 +459,33 @@
    "who": "reception",
    "method": "POST",
    "path": "/api/clinical/insurance",
-   "status": 500,
+   "status": 400,
    "ctype": "application/json",
-   "body": "{\"error\":\"Tryton RPC error on gnuhealth.insurance.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"}"
+   "body": "{\"error\":\"A valid patient, insurance company, and policy number are required.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient, insurance company, and policy number are required.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
   },
   {
    "who": "reception",

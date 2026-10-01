@@ -168,7 +168,7 @@ export default function LoginPage() {
     reduce ? {} : { animate: { y: [0, -dist, 0] }, transition: { duration: dur, repeat: Infinity, ease: "easeInOut" as const } };
 
   const inputClass =
-    "peer w-full h-12 pl-11 pr-3 text-[15px] bg-slate-950/60 border border-white/10 rounded-xl text-white placeholder:text-slate-400 hover:border-white/20 focus:outline-none focus:bg-slate-950 focus:border-teal-400 focus:ring-4 focus:ring-teal-400/15 [&:-webkit-autofill]:shadow-[inset_0_0_0_100px_#0a141d] [&:-webkit-autofill]:[-webkit-text-fill-color:#fff] transition-all";
+    "peer w-full h-12 [@media(max-height:820px)]:lg:h-10 pl-11 pr-3 text-[15px] bg-slate-950/60 border border-white/10 rounded-xl text-white placeholder:text-slate-400 hover:border-white/20 focus:outline-none focus:bg-slate-950 focus:border-teal-400 focus:ring-4 focus:ring-teal-400/15 [&:-webkit-autofill]:shadow-[inset_0_0_0_100px_#0a141d] [&:-webkit-autofill]:[-webkit-text-fill-color:#fff] transition-all";
   const iconClass =
     "w-[18px] h-[18px] text-slate-400 absolute left-4 top-[15px] pointer-events-none transition-colors peer-focus:text-teal-400";
 
@@ -319,13 +319,8 @@ export default function LoginPage() {
           </section>
 
           {/* Sign-in */}
-          <section className="w-full lg:w-[44%] lg:max-h-full lg:overflow-y-auto lg:overscroll-contain [scrollbar-width:none] flex justify-center lg:justify-end lg:py-2">
-            <motion.div
-              initial={reduce ? false : { y: 14 }}
-              animate={{ y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-[440px]"
-            >
+          <section className="w-full lg:w-[44%] flex justify-center lg:justify-end lg:py-2">
+            <div className="w-full max-w-[440px]">
               {/* Compact intro for phones and tablets (the full showcase is desktop-only) */}
               <div className="lg:hidden text-center mb-6">
                 <h1 className="text-[28px] sm:text-3xl font-extrabold tracking-tight leading-tight text-white">
@@ -334,7 +329,7 @@ export default function LoginPage() {
                 </h1>
                 <p className="mt-2 text-sm text-slate-400">One patient record for every department.</p>
               </div>
-              <div className="rounded-3xl bg-slate-900/70 backdrop-blur-xl border border-white/10 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_40px_80px_-30px_rgba(0,0,0,0.7)] p-5 min-[400px]:p-7 sm:p-9">
+              <div className="rounded-3xl bg-slate-900/70 backdrop-blur-xl border border-white/10 shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_40px_80px_-30px_rgba(0,0,0,0.7)] p-5 min-[400px]:p-7 sm:p-9 [@media(max-height:820px)]:sm:p-6">
                 <h2 className="text-[26px] font-bold tracking-tight text-white">Welcome back</h2>
                 <p className="mt-1.5 text-sm text-slate-400">Sign in with your hospital staff account.</p>
 
@@ -355,7 +350,7 @@ export default function LoginPage() {
                   </div>
                 )}
 
-                <form onSubmit={handleLogin} className="mt-6 space-y-4">
+                <form onSubmit={handleLogin} className="mt-6 space-y-4 [@media(max-height:820px)]:lg:mt-4 [@media(max-height:820px)]:lg:space-y-3">
                   {!hostResolved && (
                     <div>
                       <label htmlFor="login-hospital" className="text-[13px] font-semibold text-slate-200 block mb-1.5">
@@ -457,7 +452,7 @@ export default function LoginPage() {
 
                 {/* Demo stations: non-production builds only (see DEMO_STATIONS above) */}
                 {DEMO_STATIONS.length > 0 && (
-                  <div className="mt-6 pt-5 border-t border-white/10">
+                  <div className="mt-6 pt-5 [@media(max-height:820px)]:lg:hidden border-t border-white/10">
                     <div className="flex items-center justify-between mb-2.5">
                       <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Demo stations</span>
                       <span className="text-[11px] text-slate-400">Click to fill</span>
@@ -491,7 +486,7 @@ export default function LoginPage() {
                 <Lock className="w-3.5 h-3.5 text-teal-400 shrink-0" />
                 Your session is encrypted and all access is logged.
               </p>
-            </motion.div>
+            </div>
           </section>
         </main>
 

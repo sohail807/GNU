@@ -277,8 +277,8 @@ export async function POST(req: NextRequest) {
         [[
           ["operating_room", "=", resolvedOrId],
           ["state", "in", ["confirmed", "in_progress"]],
-          ["surgery_date", "<=", endDate],
-          ["surgery_end_date", ">=", startDate],
+          ["surgery_date", "<", endDate],
+          ["surgery_end_date", ">", startDate],
         ], 0, 1, null, ["id"]],
         context, session.database
       );

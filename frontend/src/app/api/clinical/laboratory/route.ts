@@ -336,6 +336,7 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     const status = (err as { status?: number } | null)?.status;
     if (status === 401 || status === 403 || status === 409) return NextResponse.json({ error: status === 403 ? "You do not have permission for this laboratory action." : "GNU Health rejected this laboratory action in its current state." }, { status });
+    if (status === 400 || status === 404) return NextResponse.json({ error: status === 404 ? "The patient or laboratory record was not found." : "One of the values sent is not valid." }, { status });
     return genericFailure();
   }
 }
