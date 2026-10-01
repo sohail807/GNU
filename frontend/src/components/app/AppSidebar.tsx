@@ -32,11 +32,11 @@ import {
   HeartPulse,
   Cigarette,
 } from "lucide-react";
-import { SessionData } from "@/lib/auth-session";
+import { ClientSession } from "@/lib/auth-session";
 import { AppModule, hasModuleAccess } from "@/lib/access-control";
 
 interface AppSidebarProps {
-  user: SessionData;
+  user: ClientSession;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
   isMobileOpen: boolean;
@@ -109,6 +109,17 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         { label: "Staff Directory", href: "/staff", icon: Stethoscope, moduleKey: "staff_directory", badge: "Roster" },
       ],
     },
+    // Group customers: users who belong to several hospitals get a side-by-side overview of them.
+    ...((user.hospitals?.length ?? 0) > 1
+      ? [
+          {
+            title: "GROUP",
+            items: [
+              { label: "Group Overview", href: "/group", icon: Building2, moduleKey: "admin" as AppModule, badge: "Group" },
+            ],
+          },
+        ]
+      : []),
     // Sits above any single hospital's RBAC -- shown only for the allow-listed platform-operator
     // identity (see lib/platform.ts), never derived from the "admin" role bypass every other
     // section here gets, since a hospital's own local admin must never see or reach this.

@@ -4,10 +4,10 @@ import React, { useState, useEffect } from "react";
 import { AppSidebar } from "./AppSidebar";
 import { AppHeader } from "./AppHeader";
 import { OnboardingTourModal } from "./OnboardingTourModal";
-import { SessionData } from "@/lib/auth-session";
+import { ClientSession } from "@/lib/auth-session";
 
 interface AppShellProps {
-  user: SessionData;
+  user: ClientSession;
   children: React.ReactNode;
   isSuperAdmin?: boolean;
 }

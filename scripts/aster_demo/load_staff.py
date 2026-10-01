@@ -8,11 +8,12 @@ import json
 import os
 import random
 import sys
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from aster_demo.client import AppClient  # noqa: E402
+from aster_demo.client import AppClient, load_profiles, open_session  # noqa: E402
+from aster_demo.names import person as gulf_person  # noqa: E402
 
-PROFILES = json.load(open(os.path.join(os.path.dirname(__file__), "profiles.json"), encoding="utf-8"))
 
 # profile specialty label -> GNU Health specialty catalogue name
 SPECIALTY_MAP = {
@@ -20,6 +21,7 @@ SPECIALTY_MAP = {
     "Oncology": "Oncology", "Gastroenterology": "Gastroenterology", "Orthopaedics": "Orthopedic surgery",
     "Nephrology": "Nephrology", "Urology": "Urology", "Obstetrics and Gynaecology": "Obstetrics and gynecology",
     "Paediatrics": "Pediatrics", "General Surgery": "General surgery", "Emergency Medicine": "Emergency medicine",
+    "ENT": "Otolaryngology - ENT", "Dental": "Stomatology",
     "Anaesthesiology": "Anesthesiology",
 }
 MALE = ["Arjun", "Rohan", "Vikram", "Suresh", "Anil", "Manoj", "Rajesh", "Karthik", "Naveen", "Pradeep", "Sanjay", "Imran",
@@ -32,16 +34,29 @@ SURNAMES = ["Nair", "Menon", "Pillai", "Iyer", "Reddy", "Rao", "Kumar", "Sharma"
 
 
 def main():
-    code, creds_path, out_path = sys.argv[1], sys.argv[2], sys.argv[3]
-    prof = PROFILES[code]
+    args = [a for a in sys.argv[1:] if a not in ("--gulf", "--resume")]
+    gulf = "--gulf" in sys.argv
+    resume = "--resume" in sys.argv
+    code, creds_path, out_path = args[0], args[1], args[2]
+    prof = load_profiles(gulf)[code]
     creds = json.load(open(creds_path, encoding="utf-8"))
     rng = random.Random(f"aster-staff-{code}")
     used = set()
 
-    def person(gender):
-        for _ in range(200):
-            first = rng.choice(MALE if gender == "m" else FEMALE)
-            name = f"{first} {rng.choice(SURNAMES)}"
+    def person(gender, role="other"):
+        for _ in range(300):
+            if gulf:
+                mix = {"physician": [["indian", 48], ["arab_levant_egypt", 32], ["western", 10], ["pakistani", 6], ["srilankan", 4]],
+                       "nursing": [["filipino", 38], ["indian", 47], ["arab_levant_egypt", 15]]}.get(role, prof["nationalities"])
+                total = sum(w for _, w in mix); x = rng.uniform(0, total)
+                for nat, w in mix:
+                    x -= w
+                    if x <= 0:
+                        break
+                name = gulf_person(rng, nat, "Male" if gender == "m" else "Female")
+            else:
+                first = rng.choice(MALE if gender == "m" else FEMALE)
+                name = f"{first} {rng.choice(SURNAMES)}"
             if name not in used:
                 used.add(name)
                 return name
@@ -53,17 +68,30 @@ def main():
     plan += [("nursing", None, prof["nurses"]), ("reception", None, prof["frontdesk"]), ("cashier", None, prof["cashiers"]),
              ("accountant", None, prof["accountants"]), ("lab", None, prof["lab"]), ("radiology", None, prof["radiology"])]
 
-    admin = AppClient(code, creds["adminUsername"], creds["adminPassword"])
+    existing = {}
+    if resume and os.path.exists(out_path):
+        existing = {m["username"]: m for m in json.load(open(out_path, encoding="utf-8"))}
+        print(f"[{code}] resuming: {len(existing)} accounts already created")
+    admin = open_session(prof, code, creds["adminUsername"], creds["adminPassword"])
     prefix = prof["short"]
     counters, staff_out, failures = {}, [], []
     for role, spec, n in plan:
         for _ in range(n):
             counters[role] = counters.get(role, 0) + 1
             gender = rng.choice(["m", "f"])
-            name = person(gender)
+            name = person(gender, role)
             username = f"{prefix}_{ {'physician': 'dr', 'nursing': 'rn', 'reception': 'fd', 'cashier': 'cs', 'accountant': 'ac', 'lab': 'lb', 'radiology': 'rd'}[role] }{counters[role]:02d}"
-            st, r = admin.post("/api/admin/users", {"action": "add_user", "username": username, "name": name,
-                                                      "role": role, "gender": gender, "email": f"{username}@demo.invalid"})
+            if username in existing:
+                staff_out.append(existing[username])   # drawn from the same seeded sequence, so names stay identical
+                continue
+            for attempt in range(4):                    # concurrent loads can clash on the database: retry
+                st, r = admin.post("/api/admin/users", {"action": "add_user", "username": username, "name": name,
+                                                          "role": role, "gender": gender, "email": f"{username}@demo.invalid"})
+                if st == 200 and r.get("success"):
+                    break
+                if "serialize" not in str(r.get("error", "")):
+                    break
+                time.sleep(2 * (attempt + 1))
             if st != 200 or not r.get("success"):
                 failures.append((username, role, st, r.get("error")))
                 continue
@@ -84,9 +112,11 @@ def main():
         hp = by_name.get(s["name"])
         sp = catalog.get(SPECIALTY_MAP[s["specialty"]])
         s["healthprofId"] = hp
-        if hp and sp:
+        if hp and sp and not s.get("specialtyDone"):
             st, rr = admin.post("/api/clinical/staff", {"action": "add_specialty", "healthprofId": hp, "specialtyId": sp, "isMain": True})
-            assigned += 1 if (st == 200 and rr.get("success")) else 0
+            if st == 200 and rr.get("success"):
+                s["specialtyDone"] = True
+                assigned += 1
     print(f"[{code}] specialties assigned: {assigned}")
     json.dump(staff_out, open(out_path, "w", encoding="utf-8"), indent=1)
     os.chmod(out_path, 0o600)

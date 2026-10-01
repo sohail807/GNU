@@ -29,7 +29,7 @@ class AppClient:
             raise RuntimeError(f"login failed for {username}@{hospital}: HTTP {status}")
         self.user = data["user"]
 
-    def request(self, path: str, method: str = "GET", data=None, retries: int = 2):
+    def request(self, path: str, method: str = "GET", data=None, retries: int = 4):
         body = json.dumps(data).encode() if data is not None else None
         headers = {"Content-Type": "application/json"} if body else {}
         last = (0, {})
@@ -50,7 +50,8 @@ class AppClient:
                 parsed = json.loads(raw) if raw else {}
             except ValueError:
                 parsed = {"error": raw[:200]}
-            if status in (502, 503, 504) and attempt < retries:
+            # 5xx gateway blips, and PostgreSQL "could not serialize access" when two loaders write at once
+            if (status in (502, 503, 504) or (status == 500 and "serialize" in raw)) and attempt < retries:
                 time.sleep(1.5 * (attempt + 1))
                 last = (status, parsed)
                 continue
@@ -58,6 +59,13 @@ class AppClient:
                 time.sleep(self.pause)
             return status, parsed
         return last
+
+    def switch_hospital(self, hospital_id: str):
+        """Group customers: make `hospital_id` the active hospital for this session."""
+        status, data = self.request("/api/auth/hospital", "POST", {"hospitalId": hospital_id})
+        if status != 200 or not data.get("success"):
+            raise RuntimeError(f"cannot switch to {hospital_id}: HTTP {status} {data.get('error')}")
+        self.hospital_id = hospital_id
 
     def get(self, path):
         return self.request(path, "GET")
@@ -67,3 +75,20 @@ class AppClient:
 
     def logout(self):
         self.request("/api/auth/logout", "POST", {})
+
+
+def load_profiles(gulf: bool = False) -> dict:
+    """Profiles keyed by code. Gulf profiles are per hospital and carry the tenant they live in."""
+    import os
+    here = os.path.dirname(__file__)
+    if gulf:
+        return json.load(open(os.path.join(here, "profiles_gulf.json"), encoding="utf-8"))["hospitals"]
+    return json.load(open(os.path.join(here, "profiles.json"), encoding="utf-8"))
+
+
+def open_session(profile: dict, code: str, username: str, password: str) -> "AppClient":
+    """Sign in to the profile's tenant and, for a group hospital, switch to that hospital."""
+    client = AppClient(profile.get("tenant", code), username, password)
+    if profile.get("hospital_id"):
+        client.switch_hospital(profile["hospital_id"])
+    return client

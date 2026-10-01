@@ -1,6 +1,7 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "crypto";
 import { cookies } from "next/headers";
 import fs from "fs";
+import { setActiveInstitution } from "@/lib/tryton-client";
 import path from "path";
 
 // Firebase Hosting only forwards a cookie named `__session` to Cloud Run, so that deployment
@@ -100,6 +101,26 @@ export interface SessionData {
   healthprofId?: number;
   groups: number[];
   expiresAt: number;
+  /** Group customers only: the active hospital, and the hospitals this user may switch between. */
+  hospitalId?: string;
+  hospitalName?: string;
+  institutionId?: number;
+  hospitals?: Array<{ id: string; name: string }>;
+}
+
+/** What the browser may see: never the backend session token or the internal group ids. */
+export type ClientSession = Pick<SessionData, "username" | "name" | "role" | "tenantId" | "hospitalId" | "hospitalName" | "hospitals">;
+
+export function toClientSession(s: SessionData): ClientSession {
+  return {
+    username: s.username,
+    name: s.name,
+    role: s.role,
+    tenantId: s.tenantId,
+    hospitalId: s.hospitalId,
+    hospitalName: s.hospitalName,
+    hospitals: s.hospitals,
+  };
 }
 
 export async function getSession(): Promise<SessionData | null> {
@@ -109,6 +130,7 @@ export async function getSession(): Promise<SessionData | null> {
     if (!sessionCookie?.value) return null;
     const data = decryptSession(sessionCookie.value);
     if (isRevoked(data.sessionToken)) return null;
+    setActiveInstitution(data.sessionToken, data.institutionId);
     return data;
   } catch {
     return null;
@@ -134,6 +156,29 @@ export async function setSession(
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_TTL_SECONDS,
+  });
+}
+
+/** Change fields of the current session (for example the active hospital) without extending its lifetime. */
+export async function updateSession(
+  patch: Partial<Omit<SessionData, "expiresAt" | "sessionToken" | "userId" | "username" | "tenantId" | "database">>,
+  isSecure?: boolean
+): Promise<void> {
+  const cookieStore = await cookies();
+  const current = cookieStore.get(COOKIE_NAME);
+  if (!current?.value) throw new Error("No active session.");
+  const data = decryptSession(current.value);
+  const merged: SessionData = { ...data, ...patch, expiresAt: data.expiresAt };
+  const secureCookie =
+    isSecure !== undefined
+      ? isSecure
+      : process.env.NODE_ENV === "production" && process.env.COOKIE_SECURE !== "false";
+  cookieStore.set(COOKIE_NAME, encryptSession(merged), {
+    httpOnly: true,
+    secure: secureCookie,
+    sameSite: "lax",
+    path: "/",
+    maxAge: Math.max(1, Math.floor((data.expiresAt - Date.now()) / 1000)),
   });
 }
 

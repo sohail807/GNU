@@ -64,6 +64,8 @@ export async function POST(req: NextRequest) {
     let redirect = "/frontdesk";
     let displayName = username.trim();
     let groupIds: number[] = [];
+    let userCompanies: number[] = [];
+    let userCompany: number | null = null;
     let healthprofId: number | undefined = undefined;
 
     try {
@@ -73,7 +75,7 @@ export async function POST(req: NextRequest) {
         sessionToken,
         "res.user",
         "read",
-        [[userId], ["id", "login", "name", "groups"]],
+        [[userId], ["id", "login", "name", "groups", "companies", "company"]],
         { company: tenant.defaultCompanyId },
         tenant.database
       );
@@ -82,6 +84,8 @@ export async function POST(req: NextRequest) {
         const u = userRecords[0];
         displayName = u.name || username;
         groupIds = u.groups || [];
+        userCompanies = Array.isArray(u.companies) ? u.companies : [];
+        userCompany = typeof u.company === "number" ? u.company : null;
         const groupRecords = groupIds.length
           ? await TrytonClient.execute<any[]>(
               username.trim(),
@@ -126,6 +130,30 @@ export async function POST(req: NextRequest) {
       // Non-clinical roles (receptionist, cashier, admin) will not have a health professional record
     }
 
+    // Group customers (several hospitals in one database): the user works in one hospital at a time, chosen from
+    // the hospitals whose company the backend lets this user use. Single-hospital tenants skip this entirely.
+    let activeCompanyId = tenant.defaultCompanyId;
+    let hospitalFields: { hospitalId?: string; hospitalName?: string; institutionId?: number; hospitals?: Array<{ id: string; name: string }> } = {};
+    if (tenant.hospitals && tenant.hospitals.length > 0) {
+      const mine = tenant.hospitals.filter((h) => userCompanies.includes(h.companyId));
+      if (mine.length === 0) {
+        try {
+          await TrytonClient.logout(username.trim(), userId, sessionToken, tenant.database);
+        } catch {
+          // Best effort: the account simply has no hospital here, so no session is created either way.
+        }
+        return NextResponse.json({ error: "No hospital is assigned to this account. Contact your administrator." }, { status: 403 });
+      }
+      const chosen = mine.find((h) => h.companyId === userCompany) || mine[0];
+      activeCompanyId = chosen.companyId;
+      hospitalFields = {
+        hospitalId: chosen.id,
+        hospitalName: chosen.name,
+        institutionId: chosen.institutionId,
+        hospitals: mine.map((h) => ({ id: h.id, name: h.name })),
+      };
+    }
+
     const isHttps =
       req.nextUrl.protocol === "https:" ||
       req.headers.get("x-forwarded-proto") === "https";
@@ -140,9 +168,10 @@ export async function POST(req: NextRequest) {
         name: displayName,
         tenantId: tenant.id,
         database: tenant.database,
-        companyId: tenant.defaultCompanyId,
+        companyId: activeCompanyId,
         healthprofId,
         groups: groupIds,
+        ...hospitalFields,
       },
       isHttps
     );
@@ -158,6 +187,7 @@ export async function POST(req: NextRequest) {
         redirect,
         tenantId: tenant.id,
         healthprofId,
+        ...(hospitalFields.hospitalId ? { hospitalId: hospitalFields.hospitalId, hospitalName: hospitalFields.hospitalName } : {}),
       },
     });
   } catch (err: unknown) {

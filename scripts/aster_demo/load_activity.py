@@ -20,21 +20,22 @@ import sys
 import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from aster_demo.client import AppClient  # noqa: E402
+from aster_demo.client import AppClient, load_profiles, open_session  # noqa: E402
+from aster_demo.names import person as gulf_person  # noqa: E402
 
 HERE = os.path.dirname(__file__)
-PROFILES = json.load(open(os.path.join(HERE, "profiles.json"), encoding="utf-8"))
 
 # specialty label -> relative weight within the hospital (derived from published service-line revenue mix)
 SPEC_WEIGHT = {"General Medicine": 11, "General Surgery": 4, "Emergency Medicine": 3, "Cardiology": 14, "Neurology": 11,
                "Oncology": 10, "Gastroenterology": 8, "Orthopaedics": 7, "Nephrology": 3.5, "Urology": 3.5,
-               "Obstetrics and Gynaecology": 6, "Paediatrics": 6}
+               "Obstetrics and Gynaecology": 6, "Paediatrics": 6, "ENT": 4, "Dental": 3}
 CONSULT_SERVICE = {"General Medicine": "Consultation - General Medicine", "Cardiology": "Consultation - Cardiology",
                    "Neurology": "Consultation - Neurology", "Oncology": "Consultation - Oncology",
                    "Gastroenterology": "Consultation - Gastroenterology", "Orthopaedics": "Consultation - Orthopaedics",
                    "Nephrology": "Consultation - Nephrology", "Urology": "Consultation - Urology",
                    "Obstetrics and Gynaecology": "Consultation - Obstetrics and Gynaecology",
                    "Paediatrics": "Consultation - Paediatrics", "General Surgery": "Consultation - General Surgery",
+                   "ENT": "Consultation - ENT", "Dental": "Consultation - Dental",
                    "Emergency Medicine": "Emergency Department Consultation"}
 # (ICD-10 code, complaint, examination, advice)
 CASES = {
@@ -72,6 +73,12 @@ CASES = {
                     ("R50.9", "Fever for 3 days, child", "Febrile, throat congested", "Paracetamol, review in 48 hours")],
     "General Surgery": [("K35.8", "Right lower abdominal pain, vomiting", "RIF guarding, rebound", "Ultrasound, admit for appendicectomy"),
                         ("K40.9", "Groin swelling on coughing", "Reducible inguinal hernia", "Elective hernia repair")],
+    "ENT": [("J32.9", "Blocked nose and facial pressure for 3 weeks", "Mucosal swelling, tenderness over sinuses", "Nasal steroid, saline irrigation, review"),
+            ("J35.0", "Recurrent sore throat with fever", "Enlarged inflamed tonsils", "Antibiotics, discuss tonsillectomy"),
+            ("H66.9", "Ear pain and reduced hearing", "Red bulging tympanic membrane", "Analgesia, antibiotic drops, follow-up")],
+    "Dental": [("K02.1", "Toothache on sweet foods", "Cavity in lower molar", "Dental filling, oral hygiene advice"),
+               ("K05.3", "Bleeding gums, bad breath", "Gingival inflammation, calculus", "Scaling and polishing, review in 6 weeks"),
+               ("K04.7", "Swelling and severe tooth pain", "Tender swelling near upper molar", "Antibiotics, drainage, root canal planning")],
     "Emergency Medicine": [("R07.9", "Chest pain for 40 minutes", "Diaphoretic, BP 150/90", "ECG and troponin, cardiology review"),
                            ("S06.0", "Head injury after fall", "GCS 15, scalp haematoma", "CT head, observation")],
 }
@@ -85,14 +92,18 @@ SPEC_LABS = {"General Medicine": ["COMPLETE BLOOD COUNT", "GLYCEMIC PROFILE"], "
              "Gastroenterology": ["LIVER FUNCTION TEST"], "Nephrology": ["RENAL FUNCTION TEST"], "Oncology": ["COMPLETE BLOOD COUNT"],
              "Neurology": ["COMPLETE BLOOD COUNT"], "Orthopaedics": ["COMPLETE BLOOD COUNT"], "Urology": ["RENAL FUNCTION TEST"],
              "Obstetrics and Gynaecology": ["COMPLETE BLOOD COUNT"], "Paediatrics": ["COMPLETE BLOOD COUNT"],
-             "General Surgery": ["COMPLETE BLOOD COUNT"], "Emergency Medicine": ["COMPLETE BLOOD COUNT"]}
+             "General Surgery": ["COMPLETE BLOOD COUNT"], "Emergency Medicine": ["COMPLETE BLOOD COUNT"],
+             "ENT": [], "Dental": []}
 SPEC_IMAGING = {"Neurology": ["Brain MRI", "Head CT"], "Orthopaedics": ["Knee MRI", "Limb X-Ray (Extremity)"],
                 "Gastroenterology": ["Abdominal Ultrasound"], "Urology": ["Abdominal Ultrasound"], "Oncology": ["Chest CT", "Whole Body PET Scan"],
                 "Obstetrics and Gynaecology": ["Obstetric Ultrasound"], "General Surgery": ["Abdominal Ultrasound"],
-                "Emergency Medicine": ["Head CT"], "Cardiology": [], "General Medicine": ["Abdominal Ultrasound"], "Nephrology": ["Abdominal Ultrasound"], "Paediatrics": []}
+                "Emergency Medicine": ["Head CT"], "Cardiology": [], "General Medicine": ["Abdominal Ultrasound"], "Nephrology": ["Abdominal Ultrasound"], "Paediatrics": [],
+                "ENT": [], "Dental": []}
 PAYORS = [("Walk-in", 58), ("Insurance", 30), ("MVT", 4), ("Scheme-central", 3), ("Corporate", 2), ("Scheme-state", 2), ("Other", 1)]
 POLICY = {"Insurance": (None, "private"), "Scheme-central": ("CGHS-ECHS Scheme (synthetic)", "state"),
           "Scheme-state": ("State Health Scheme (synthetic)", "state"), "Corporate": ("Northwind Logistics (synthetic corporate)", "labour_union")}
+GULF_POLICY = {"Insurance": (None, "private"), "Scheme-central": ("Government Health Scheme (synthetic)", "state"),
+               "Corporate": ("Northwind Logistics Gulf (synthetic corporate)", "labour_union")}
 PAID_NOW = {"Walk-in", "MVT", "Other"}  # others stay posted and outstanding (receivable from payor)
 
 MALE = ["Arjun", "Rohan", "Vikram", "Suresh", "Anil", "Manoj", "Rajesh", "Karthik", "Naveen", "Pradeep", "Sanjay", "Imran", "Joseph",
@@ -115,9 +126,12 @@ def weighted(rng, pairs):
 
 
 class Loader:
-    def __init__(self, code, creds, staff, seed):
+    def __init__(self, code, creds, staff, seed, gulf=False):
         self.code = code
-        self.profile = PROFILES[code]
+        self.gulf = gulf
+        self.profile = load_profiles(gulf)[code]
+        self.payors = [tuple(x) for x in self.profile["payor_mix"]] if gulf else PAYORS
+        self.policy = GULF_POLICY if gulf else POLICY
         self.rng = random.Random(f"aster-activity-{code}-{seed}")
         self.stats = collections.Counter()
         self.fail = collections.Counter()
@@ -126,7 +140,7 @@ class Loader:
         self.services = {s["name"]: s["price"] for s in self.profile["services"]}
         self.staff = staff
         self.sessions = {}
-        self.admin = AppClient(code, creds["adminUsername"], creds["adminPassword"])
+        self.admin = open_session(self.profile, code, creds["adminUsername"], creds["adminPassword"])
         self.docs = collections.defaultdict(list)
         for s in staff:
             if s["role"] == "physician" and s.get("healthprofId"):
@@ -137,7 +151,7 @@ class Loader:
     # ------------------------------------------------------------------ plumbing
     def session(self, member):
         if member["username"] not in self.sessions:
-            self.sessions[member["username"]] = AppClient(self.code, member["username"], member["password"])
+            self.sessions[member["username"]] = open_session(self.profile, self.code, member["username"], member["password"])
         return self.sessions[member["username"]]
 
     def role(self, role):
@@ -156,11 +170,18 @@ class Loader:
     def new_person(self, gender=None, age=None):
         self.patient_no += 1
         gender = gender or self.rng.choice(["Male", "Female"])
-        first = self.rng.choice(MALE if gender == "Male" else FEMALE)
-        name = f"{first} {self.rng.choice(SURNAMES)}".upper()
-        age = age if age is not None else int(min(90, max(1, self.rng.gauss(46, 18))))
+        if self.gulf:
+            nat = weighted(self.rng, [tuple(x) for x in self.profile["nationalities"]])
+            name = gulf_person(self.rng, nat, gender).upper()
+            qid = f"{self.profile['id_prefix']}{self.patient_no:05d}"
+        else:
+            first = self.rng.choice(MALE if gender == "Male" else FEMALE)
+            name = f"{first} {self.rng.choice(SURNAMES)}".upper()
+            qid = f"SYN-{self.code}-{self.patient_no:05d}"
+        # Gulf populations skew to working-age adults; children and older patients still appear
+        age = age if age is not None else int(min(88, max(1, self.rng.gauss(38 if self.gulf else 46, 17))))
         dob = datetime.date.today() - datetime.timedelta(days=age * 365 + self.rng.randint(0, 364))
-        return {"name": f"{name} SYN{self.patient_no:04d}", "qid": f"SYN-{self.code}-{self.patient_no:05d}",
+        return {"name": f"{name} SYN{self.patient_no:04d}", "qid": qid,
                 "dob": dob.isoformat(), "gender": gender, "bloodType": self.rng.choice(["O+", "A+", "B+", "AB+", "O-", "A-", "B-"])}
 
     def register(self, person):
@@ -257,7 +278,7 @@ class Loader:
             return
         if self.rng.random() < 0.7:
             self.prescribe(doc, pid)
-        payor = weighted(self.rng, PAYORS)
+        payor = weighted(self.rng, self.payors)
         items = [CONSULT_SERVICE.get(spec, "Outpatient Consultation")]
         if lab:
             items.append(LAB_SERVICE.get(lab, lab))
@@ -300,7 +321,7 @@ class Loader:
                                    "nursingPlan": "Standard nursing observation plan (synthetic)",
                                    "expectedDischargeDate": (today + datetime.timedelta(days=remaining)).isoformat()})
                 if ok:
-                    self.ledger.append({"qid": person["qid"], "patientId": pid, "payor": weighted(self.rng, PAYORS)})
+                    self.ledger.append({"qid": person["qid"], "patientId": pid, "payor": weighted(self.rng, self.payors)})
                     self.stats[f"census.{wd['name']}"] += 1
                     self.admitted.append({"patientId": pid, "spec": spec, "doc": doc, "ward": wd["name"]})
 
@@ -330,11 +351,12 @@ class Loader:
         return spec, self.new_person(), "elective" if spec in ("Orthopaedics", "General Surgery", "Urology") else "routine"
 
     def surgeries(self, target, rooms):
-        cand = [a for a in self.admitted if a["spec"] in ("Orthopaedics", "General Surgery", "Urology", "Cardiology", "Obstetrics and Gynaecology", "Neurology")]
+        cand = [a for a in self.admitted if a["spec"] in ("Orthopaedics", "General Surgery", "Urology", "Cardiology", "Obstetrics and Gynaecology", "Neurology", "ENT")]
         self.rng.shuffle(cand)
         desc = {"Orthopaedics": "Total knee arthroplasty (robotic-assisted)", "General Surgery": "Laparoscopic appendectomy",
                 "Urology": "Laparoscopic partial nephrectomy", "Cardiology": "Percutaneous coronary intervention with stent",
-                "Obstetrics and Gynaecology": "Cesarean delivery", "Neurology": "Deep brain stimulation electrode implantation"}
+                "Obstetrics and Gynaecology": "Cesarean delivery", "Neurology": "Deep brain stimulation electrode implantation",
+            "ENT": "Adenotonsillectomy"}
         cath = next((r for r in rooms if "Cath" in r["name"]), None)
         ors = [r for r in rooms if "Cath" not in r["name"]] or rooms
         today = datetime.date.today()
@@ -358,9 +380,9 @@ class Loader:
         ins = self.role("cashier")
         n = 0
         for e in self.ledger:
-            if e["payor"] not in POLICY or e["qid"] not in party_of:
+            if e["payor"] not in self.policy or e["qid"] not in party_of:
                 continue
-            name, kind = POLICY[e["payor"]]
+            name, kind = self.policy[e["payor"]]
             company = self.rng.choice(tpas) if name is None else payor_id.get(name)
             if not company:
                 continue
@@ -427,11 +449,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("profile"); ap.add_argument("creds"); ap.add_argument("staff")
     ap.add_argument("--opd", type=int, default=None, help="OPD visits to create (default: beds x 2.67)")
-    ap.add_argument("--force", action="store_true"); ap.add_argument("--seed", default="1")
+    ap.add_argument("--force", action="store_true"); ap.add_argument("--seed", default="1"); ap.add_argument("--gulf", action="store_true", help="use profiles_gulf.json (group tenant, Gulf names/IDs/payors)")
     a = ap.parse_args()
     creds = json.load(open(a.creds, encoding="utf-8"))
     staff = json.load(open(a.staff, encoding="utf-8"))
-    ld = Loader(a.profile, creds, staff, a.seed)
+    ld = Loader(a.profile, creds, staff, a.seed, a.gulf)
     n_opd = a.opd if a.opd is not None else round(ld.profile["total_beds"] * 2.67)
     ld.run(n_opd, a.force)
 

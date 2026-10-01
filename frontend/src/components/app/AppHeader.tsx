@@ -13,10 +13,10 @@ import {
   UserCheck,
   Building,
 } from "lucide-react";
-import { SessionData } from "@/lib/auth-session";
+import { ClientSession } from "@/lib/auth-session";
 
 interface AppHeaderProps {
-  user: SessionData;
+  user: ClientSession;
   isSidebarCollapsed: boolean;
   onToggleSidebar: () => void;
   onToggleMobileMenu: () => void;
@@ -35,6 +35,24 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSwitchingHospital, setIsSwitchingHospital] = useState(false);
+  const hospitals = user.hospitals || [];
+
+  // Group customers: change the active hospital, then reload so every screen refetches for the new hospital.
+  const handleHospitalChange = async (hospitalId: string) => {
+    if (hospitalId === user.hospitalId) return;
+    setIsSwitchingHospital(true);
+    try {
+      const res = await fetch("/api/auth/hospital", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hospitalId }),
+      });
+      if (res.ok) window.location.reload();
+    } finally {
+      setIsSwitchingHospital(false);
+    }
+  };
 
   // Generate breadcrumb title based on pathname
   const getBreadcrumb = () => {
@@ -97,7 +115,23 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         <div className="hidden sm:flex items-center gap-2 text-xs">
           <span className="flex items-center gap-1.5 font-bold text-slate-900 font-sans">
             <Building className="w-3.5 h-3.5 text-[#0F766E]" />
-            IST Health Hospital
+            {hospitals.length > 1 ? (
+              <select
+                aria-label="Active hospital"
+                value={user.hospitalId}
+                disabled={isSwitchingHospital}
+                onChange={(e) => handleHospitalChange(e.target.value)}
+                className="bg-transparent font-bold text-slate-900 text-xs focus:outline-none cursor-pointer max-w-[220px] truncate"
+              >
+                {hospitals.map((h) => (
+                  <option key={h.id} value={h.id}>
+                    {h.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              user.hospitalName || "IST Health Hospital"
+            )}
           </span>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
           <span className="text-slate-500 text-[13px] truncate max-w-[200px] md:max-w-none">

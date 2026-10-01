@@ -8,6 +8,16 @@ import { TrytonClient } from "@/lib/tryton-client";
 
 const execFileAsync = promisify(execFile);
 
+// Time zone for the hospital's company, from the ISO country code (2 or 3 letters); UTC when unknown.
+const COUNTRY_TIMEZONES: Record<string, string> = {
+  IN: "Asia/Kolkata", IND: "Asia/Kolkata", QA: "Asia/Qatar", QAT: "Asia/Qatar", AE: "Asia/Dubai", ARE: "Asia/Dubai",
+  SA: "Asia/Riyadh", SAU: "Asia/Riyadh", OM: "Asia/Muscat", OMN: "Asia/Muscat", BH: "Asia/Bahrain", BHR: "Asia/Bahrain",
+  KW: "Asia/Kuwait", KWT: "Asia/Kuwait", JO: "Asia/Amman", JOR: "Asia/Amman", GB: "Europe/London", GBR: "Europe/London",
+};
+function timezoneForCountry(country: string): string {
+  return COUNTRY_TIMEZONES[country] || "UTC";
+}
+
 // Codes that would collide with infrastructure names or the default hospital.
 const RESERVED_CODES = new Set(["central", "admin", "api", "www", "platform", "staging", "template", "gnuhealth", "default"]);
 
@@ -75,8 +85,8 @@ export async function POST(req: NextRequest) {
         const res = await fetch(process.env.PROVISIONER_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.PROVISIONER_TOKEN}` },
-          body: JSON.stringify({ code: subdomain }),
-          signal: AbortSignal.timeout(120_000),
+          body: JSON.stringify({ code: subdomain, name: name.trim(), currency, timezone: timezoneForCountry(country) }),
+          signal: AbortSignal.timeout(300_000),
         });
         const result = (await res.json().catch(() => ({}))) as {
           error?: string; adminUsername?: string; adminPassword?: string;

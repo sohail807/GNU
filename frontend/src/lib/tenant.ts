@@ -1,6 +1,18 @@
 import fs from "fs";
 import path from "path";
 
+/**
+ * A hospital inside a group customer (one database, several hospitals). Each hospital is one Tryton company
+ * (its own books) and one GNU Health institution (its own wards, beds and theatres). Tenants without a
+ * `hospitals` list are single-hospital and behave exactly as before.
+ */
+export interface HospitalConfig {
+  id: string;
+  name: string;
+  companyId: number;
+  institutionId?: number;
+}
+
 export interface TenantConfig {
   id: string;
   name: string;
@@ -12,6 +24,7 @@ export interface TenantConfig {
   currency: string;
   country: string;
   status: "active" | "suspended" | "provisioning";
+  hospitals?: HospitalConfig[];
 }
 
 export const DEFAULT_TENANT_ID = "qatar-outpatient";

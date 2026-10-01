@@ -310,6 +310,9 @@ export async function POST(req: NextRequest) {
         // exercised this code path successfully before.
         groups: [["add", groups]],
         active: true,
+        // Group customers: the new account belongs to the hospital the admin is working in. (Without this the
+        // account has no company and cannot sign in; a user needing several hospitals is granted them separately.)
+        ...(session.hospitalId ? { companies: [["add", [session.companyId]]], company: session.companyId } : {}),
       };
 
       const res = await TrytonClient.execute<number[]>(

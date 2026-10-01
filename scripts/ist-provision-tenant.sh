@@ -6,6 +6,14 @@
 set -euo pipefail
 
 DB_NAME="${1:-}"
+# Optional: make the new hospital usable straight away (institution, chart of accounts, fiscal year,
+# payment method, production access rules, lab/imaging catalogues). Without these four values the
+# database is only cloned, exactly as before.
+HOSPITAL_NAME="${2:-}"
+INSTITUTION_CODE="${3:-}"
+CURRENCY="${4:-}"
+TIMEZONE="${5:-}"
+LIB_DIR="/usr/local/lib/ist-provisioner"
 TEMPLATE="/var/backups/gnuhealth/gnuhealth_template.dump"
 TRYTOND_CONF="/home/gnuhealth/trytond.conf"
 TRYTOND_ADMIN="/home/gnuhealth/venv/bin/trytond-admin"
@@ -20,6 +28,19 @@ fi
 if [[ ! "$DB_NAME" =~ ^gnuhealth_[a-z0-9_]{1,40}$ ]]; then
   echo "Rejected: invalid database name '$DB_NAME'" >&2
   exit 1
+fi
+
+if [[ -n "$HOSPITAL_NAME" ]]; then
+  # Every value is validated here again, whatever the caller (this script is reachable through sudo).
+  if [[ "$HOSPITAL_NAME" == *$'\n'* ]] || ! printf '%s' "$HOSPITAL_NAME" | grep -Eq "^[A-Za-z0-9][A-Za-z0-9 .,'()&-]{1,79}$"; then
+    echo "Rejected: invalid hospital name" >&2; exit 1
+  fi
+  [[ "$INSTITUTION_CODE" =~ ^[A-Z0-9]{2,12}$ ]] || { echo "Rejected: invalid institution code" >&2; exit 1; }
+  [[ "$CURRENCY" =~ ^[A-Z]{3}$ ]] || { echo "Rejected: invalid currency" >&2; exit 1; }
+  [[ "$TIMEZONE" =~ ^([A-Za-z_]+/[A-Za-z_]+|UTC)$ ]] || { echo "Rejected: invalid timezone" >&2; exit 1; }
+  for f in bootstrap_tenant.py seed_medical_test_catalogs.py; do
+    [[ -f "$LIB_DIR/$f" ]] || { echo "Missing $LIB_DIR/$f" >&2; exit 1; }
+  done
 fi
 
 if [[ ! -f "$TEMPLATE" ]]; then
@@ -80,6 +101,13 @@ chown gnuhealth:gnuhealth "$PASS_FILE"
 chmod 400 "$PASS_FILE"
 
 sudo -u gnuhealth env TRYTONPASSFILE="$PASS_FILE" "$TRYTOND_ADMIN" -c "$TRYTOND_CONF" -d "$DB_NAME" -p >/dev/null
+
+if [[ -n "$HOSPITAL_NAME" ]]; then
+  # Any failure here triggers the ERR trap above, which drops the half-built database again.
+  GH="sudo -u gnuhealth env TRYTOND_CONFIG=$TRYTOND_CONF /home/gnuhealth/venv/bin/python3"
+  $GH "$LIB_DIR/bootstrap_tenant.py" "$DB_NAME" --name "$HOSPITAL_NAME" --code "$INSTITUTION_CODE"       --currency "$CURRENCY" --timezone "$TIMEZONE" >/dev/null
+  $GH "$LIB_DIR/seed_medical_test_catalogs.py" "$DB_NAME" >/dev/null
+fi
 
 FINISHED=1
 echo "OK: provisioned $DB_NAME"

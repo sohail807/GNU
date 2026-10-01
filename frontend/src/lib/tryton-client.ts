@@ -15,6 +15,72 @@ interface HttpStatusError extends Error { status?: number }
 
 export type TrytonWorkflowWizard = "gnuhealth.lab.test.create" | "account.invoice.pay";
 
+/**
+ * Hospital scoping for group customers (one database, several hospitals).
+ *
+ * getSession() records the signed-in user's active hospital (institution) against their backend session token;
+ * every Tryton call made with that token is then scoped here, in one place, so no route can forget:
+ *   - reads of hospital-owned records get an institution filter added (wards, beds, theatres, admissions,
+ *     appointments, surgeries, clinicians), and
+ *   - new records of hospital-owned types are stamped with the institution.
+ * Users with no active institution (every single-hospital customer, e.g. IST Central) are never touched.
+ * Patients, evaluations and orders stay shared across the group on purpose (one patient record per group).
+ */
+const ACTIVE_INSTITUTION = new Map<string, number>();
+const MAX_TRACKED_SESSIONS = 5_000;
+const INSTITUTION_FILTERED = new Set([
+  "gnuhealth.hospital.ward", "gnuhealth.hospital.bed", "gnuhealth.hospital.or", "gnuhealth.inpatient.registration",
+  "gnuhealth.appointment", "gnuhealth.surgery", "gnuhealth.healthprofessional",
+]);
+const INSTITUTION_STAMPED = new Set([...INSTITUTION_FILTERED, "gnuhealth.patient.evaluation"]);
+// Records with no institution of their own are scoped through the clinician who requested them (a doctor belongs
+// to a hospital). Orders with no requesting clinician stay visible so nothing a lab or imaging user enters is hidden.
+const CLINICIAN_FIELD: Record<string, string> = {
+  "gnuhealth.lab": "requestor",
+  "gnuhealth.patient.lab.test": "doctor_id",
+  "gnuhealth.imaging.test.request": "doctor",
+  "gnuhealth.imaging.test.result": "doctor",
+  "gnuhealth.prescription.order": "healthprof",
+};
+
+export function setActiveInstitution(sessionToken: string, institutionId: number | undefined): void {
+  if (!institutionId) {
+    ACTIVE_INSTITUTION.delete(sessionToken);
+    return;
+  }
+  if (ACTIVE_INSTITUTION.size > MAX_TRACKED_SESSIONS) ACTIVE_INSTITUTION.clear();
+  ACTIVE_INSTITUTION.set(sessionToken, institutionId);
+}
+
+function scopeParams(model: string, method: string, params: unknown[], institution: number): unknown[] {
+  if (["search_read", "search", "search_count"].includes(method) && INSTITUTION_FILTERED.has(model)) {
+    const domain = Array.isArray(params[0]) ? (params[0] as unknown[]) : [];
+    const scoped = domain.length > 0 ? [["institution", "=", institution], domain] : [["institution", "=", institution]];
+    return [scoped, ...params.slice(1)];
+  }
+  // Visit lists are per hospital, but one patient's own history spans the group (their chart shows every hospital).
+  if (model === "gnuhealth.patient.evaluation" && ["search_read", "search", "search_count"].includes(method)) {
+    const domain = Array.isArray(params[0]) ? (params[0] as unknown[]) : [];
+    if (!JSON.stringify(domain).includes('"patient"')) {
+      return [domain.length > 0 ? [["institution", "=", institution], domain] : [["institution", "=", institution]], ...params.slice(1)];
+    }
+    return params;
+  }
+  const clinician = CLINICIAN_FIELD[model];
+  if (clinician && ["search_read", "search", "search_count"].includes(method)) {
+    const domain = Array.isArray(params[0]) ? (params[0] as unknown[]) : [];
+    const mine = ["OR", [`${clinician}.institution`, "=", institution], [clinician, "=", null]];
+    return [domain.length > 0 ? [mine, domain] : [mine], ...params.slice(1)];
+  }
+  if (method === "create" && INSTITUTION_STAMPED.has(model) && Array.isArray(params[0])) {
+    const records = (params[0] as Array<Record<string, unknown>>).map((r) =>
+      r && typeof r === "object" && r.institution === undefined ? { ...r, institution } : r
+    );
+    return [records, ...params.slice(1)];
+  }
+  return params;
+}
+
 export class TrytonClient {
   private static encodeBase64(str: string): string {
     return Buffer.from(str, "utf-8").toString("base64");
@@ -117,14 +183,17 @@ export class TrytonClient {
     method: string,
     params: unknown[] = [],
     context: Record<string, unknown> = {},
-    database?: string
+    database?: string,
+    options: { unscoped?: boolean } = {}
   ): Promise<T> {
     const sessionAuth = `Session ${this.encodeBase64(`${username}:${userId}:${sessionToken}`)}`;
 
     const fullContext = { language: "en", ...context };
 
     // Tryton model calls expect context as the final parameter
-    const callParams = [...params, fullContext];
+    const institution = options.unscoped ? undefined : ACTIVE_INSTITUTION.get(sessionToken);
+    const scopedParams = institution ? scopeParams(model, method, params, institution) : params;
+    const callParams = [...scopedParams, fullContext];
 
     const payload = {
       id: Date.now(),

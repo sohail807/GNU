@@ -31,8 +31,11 @@ SUDO = os.environ.get("PROVISIONER_SUDO", "sudo -n").split()
 
 CODE_RE = re.compile(r"^[a-z0-9]{2,24}$")
 RESERVED = {"central", "admin", "api", "www", "platform", "staging", "template", "gnuhealth", "default"}
+NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 .,'()&-]{1,79}$")
+CURRENCY_RE = re.compile(r"^[A-Z]{3}$")
+TZ_RE = re.compile(r"^([A-Za-z_]+/[A-Za-z_]+|UTC)$")
 MAX_BODY = 1024
-TIMEOUT_SECONDS = 120
+TIMEOUT_SECONDS = 300  # cloning + bootstrapping takes about a minute
 
 _lock = threading.Lock()
 
@@ -81,7 +84,8 @@ class Handler(BaseHTTPRequestHandler):
         if length <= 0 or length > MAX_BODY:
             return self._send(400, {"error": "bad request"})
         try:
-            code = json.loads(self.rfile.read(length)).get("code")
+            payload = json.loads(self.rfile.read(length))
+            code = payload.get("code")
         except (ValueError, AttributeError):
             return self._send(400, {"error": "bad request"})
 
@@ -89,13 +93,24 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(400, {"error": "invalid hospital code"})
         database = f"gnuhealth_h_{code}"
 
+        # Optional hospital details: when given, the script also bootstraps the database (institution,
+        # chart of accounts, fiscal year, payment method, access rules, catalogues). All validated here
+        # and again inside the script.
+        extra = []
+        if payload.get("name") is not None:
+            name, currency, tz = payload.get("name"), payload.get("currency"), payload.get("timezone")
+            if not (isinstance(name, str) and NAME_RE.fullmatch(name) and isinstance(currency, str)
+                    and CURRENCY_RE.fullmatch(currency) and isinstance(tz, str) and TZ_RE.fullmatch(tz)):
+                return self._send(400, {"error": "invalid hospital details"})
+            extra = [name, code.upper()[:12], currency, tz]
+
         if not _lock.acquire(blocking=False):
             return self._send(429, {"error": "another provisioning is in progress"})
         try:
             log(f"provisioning {database}")
             try:
                 proc = subprocess.run(
-                    [*SUDO, SCRIPT, database],
+                    [*SUDO, SCRIPT, database, *extra],
                     capture_output=True, text=True, timeout=TIMEOUT_SECONDS, check=False,
                 )
             except subprocess.TimeoutExpired:

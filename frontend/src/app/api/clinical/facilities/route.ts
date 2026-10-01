@@ -92,7 +92,8 @@ export async function POST(req: NextRequest) {
     if (!institutions[0]) {
       return NextResponse.json({ error: "No hospital institution is configured for this tenant." }, { status: 400 });
     }
-    const institutionId = institutions[0].id;
+    // Group customers: new wards and beds belong to the hospital the user is working in.
+    const institutionId = session.institutionId || institutions[0].id;
 
     if (action === "create_ward") {
       const name = typeof body.name === "string" ? body.name.trim() : "";

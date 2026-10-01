@@ -1,0 +1,1081 @@
+{
+ "tenant": "aster",
+ "database": "gnuhealth_h_aster",
+ "hospitals": {
+  "aster-dubai": {
+   "id": "aster-dubai",
+   "short": "dxb",
+   "name": "Aster Hospital Al Qusais, Dubai (Demo)",
+   "institution_code": "ASTQUS",
+   "company_name": "Aster Hospital Al Qusais, Dubai (Demo)",
+   "country": "ARE",
+   "currency": "AED",
+   "timezone": "Asia/Dubai",
+   "id_prefix": "784-SYN-",
+   "id_label": "Emirates ID",
+   "price_index": 1.0,
+   "alos": 3.1,
+   "occupancy": 0.68,
+   "models": "Aster Hospital Al Qusais, Dubai (150 beds)",
+   "operating_rooms": [
+    "OT 1 (General Surgery)",
+    "OT 2 (Orthopaedics)",
+    "OT 3 (Gynaecology and Urology)",
+    "Cath Lab 1"
+   ],
+   "doctors": {
+    "General Medicine": 3,
+    "Cardiology": 2,
+    "Neurology": 2,
+    "Oncology": 1,
+    "Gastroenterology": 2,
+    "Orthopaedics": 2,
+    "Nephrology": 1,
+    "Urology": 1,
+    "Obstetrics and Gynaecology": 3,
+    "Paediatrics": 3,
+    "General Surgery": 2,
+    "Emergency Medicine": 3,
+    "Anaesthesiology": 2,
+    "ENT": 1,
+    "Dental": 1
+   },
+   "nurses": 9,
+   "frontdesk": 4,
+   "cashiers": 2,
+   "accountants": 1,
+   "lab": 2,
+   "radiology": 2,
+   "insurers": [
+    "Daman (demo)",
+    "Cigna (demo)",
+    "MetLife (demo)",
+    "Allianz (demo)",
+    "BUPA (demo)",
+    "Aetna (demo)"
+   ],
+   "other_payors": [
+    "Government Health Scheme (synthetic)",
+    "Northwind Logistics Gulf (synthetic corporate)"
+   ],
+   "payor_mix": [
+    [
+     "Walk-in",
+     17
+    ],
+    [
+     "Insurance",
+     58
+    ],
+    [
+     "Scheme-central",
+     12
+    ],
+    [
+     "Corporate",
+     8
+    ],
+    [
+     "MVT",
+     3
+    ],
+    [
+     "Other",
+     2
+    ]
+   ],
+   "nationalities": [
+    [
+     "indian",
+     34
+    ],
+    [
+     "arab_levant_egypt",
+     20
+    ],
+    [
+     "pakistani",
+     10
+    ],
+    [
+     "emirati",
+     10
+    ],
+    [
+     "filipino",
+     6
+    ],
+    [
+     "bangladeshi",
+     5
+    ],
+    [
+     "western",
+     8
+    ],
+    [
+     "srilankan",
+     3
+    ],
+    [
+     "nepali",
+     2
+    ],
+    [
+     "african",
+     2
+    ]
+   ],
+   "tenant": "aster",
+   "hospital_id": "aster-dubai",
+   "database": "gnuhealth_h_aster",
+   "wards": [
+    {
+     "name": "General Ward (Men)",
+     "gender": "men",
+     "floor": 1,
+     "bed_type": "gatch",
+     "daily_rate": 600,
+     "beds": [
+      "DXB-GM-01",
+      "DXB-GM-02",
+      "DXB-GM-03",
+      "DXB-GM-04",
+      "DXB-GM-05"
+     ]
+    },
+    {
+     "name": "General Ward (Women)",
+     "gender": "women",
+     "floor": 1,
+     "bed_type": "gatch",
+     "daily_rate": 600,
+     "beds": [
+      "DXB-GW-01",
+      "DXB-GW-02",
+      "DXB-GW-03",
+      "DXB-GW-04",
+      "DXB-GW-05"
+     ]
+    },
+    {
+     "name": "Semi-Private Rooms",
+     "gender": "unisex",
+     "floor": 2,
+     "bed_type": "electric",
+     "daily_rate": 900,
+     "beds": [
+      "DXB-SP-01",
+      "DXB-SP-02",
+      "DXB-SP-03",
+      "DXB-SP-04",
+      "DXB-SP-05",
+      "DXB-SP-06",
+      "DXB-SP-07",
+      "DXB-SP-08",
+      "DXB-SP-09",
+      "DXB-SP-10",
+      "DXB-SP-11",
+      "DXB-SP-12"
+     ]
+    },
+    {
+     "name": "Private Rooms",
+     "gender": "unisex",
+     "floor": 3,
+     "bed_type": "electric",
+     "daily_rate": 1500,
+     "beds": [
+      "DXB-PR-01",
+      "DXB-PR-02",
+      "DXB-PR-03",
+      "DXB-PR-04",
+      "DXB-PR-05",
+      "DXB-PR-06",
+      "DXB-PR-07",
+      "DXB-PR-08",
+      "DXB-PR-09",
+      "DXB-PR-10",
+      "DXB-PR-11",
+      "DXB-PR-12",
+      "DXB-PR-13",
+      "DXB-PR-14"
+     ]
+    },
+    {
+     "name": "Deluxe and Suite Rooms",
+     "gender": "unisex",
+     "floor": 4,
+     "bed_type": "electric",
+     "daily_rate": 3000,
+     "beds": [
+      "DXB-DX-01",
+      "DXB-DX-02",
+      "DXB-DX-03"
+     ]
+    },
+    {
+     "name": "Intensive Care Unit",
+     "gender": "unisex",
+     "floor": 2,
+     "bed_type": "electric",
+     "daily_rate": 4500,
+     "beds": [
+      "DXB-IC-01",
+      "DXB-IC-02",
+      "DXB-IC-03",
+      "DXB-IC-04"
+     ]
+    },
+    {
+     "name": "High Dependency Unit",
+     "gender": "unisex",
+     "floor": 2,
+     "bed_type": "electric",
+     "daily_rate": 3000,
+     "beds": [
+      "DXB-HD-01",
+      "DXB-HD-02",
+      "DXB-HD-03"
+     ]
+    },
+    {
+     "name": "Neonatal ICU",
+     "gender": "unisex",
+     "floor": 1,
+     "bed_type": "electric",
+     "daily_rate": 4000,
+     "beds": [
+      "DXB-NI-01",
+      "DXB-NI-02",
+      "DXB-NI-03",
+      "DXB-NI-04"
+     ]
+    },
+    {
+     "name": "Paediatric ICU",
+     "gender": "unisex",
+     "floor": 1,
+     "bed_type": "electric",
+     "daily_rate": 4000,
+     "beds": [
+      "DXB-PI-01"
+     ]
+    },
+    {
+     "name": "Isolation Ward",
+     "gender": "unisex",
+     "floor": 1,
+     "bed_type": "electric",
+     "daily_rate": 1800,
+     "beds": [
+      "DXB-IS-01",
+      "DXB-IS-02"
+     ]
+    },
+    {
+     "name": "Maternity Ward",
+     "gender": "women",
+     "floor": 1,
+     "bed_type": "gatch",
+     "daily_rate": 1500,
+     "beds": [
+      "DXB-MT-01",
+      "DXB-MT-02",
+      "DXB-MT-03"
+     ]
+    },
+    {
+     "name": "Day Care Unit",
+     "gender": "unisex",
+     "floor": 1,
+     "bed_type": "stretcher",
+     "daily_rate": 800,
+     "beds": [
+      "DXB-DC-01",
+      "DXB-DC-02",
+      "DXB-DC-03",
+      "DXB-DC-04"
+     ]
+    }
+   ],
+   "total_beds": 60,
+   "services": [
+    {
+     "name": "Consultation - General Medicine",
+     "price": 300
+    },
+    {
+     "name": "Consultation - Cardiology",
+     "price": 450
+    },
+    {
+     "name": "Consultation - Neurology",
+     "price": 450
+    },
+    {
+     "name": "Consultation - Oncology",
+     "price": 500
+    },
+    {
+     "name": "Consultation - Gastroenterology",
+     "price": 400
+    },
+    {
+     "name": "Consultation - Orthopaedics",
+     "price": 400
+    },
+    {
+     "name": "Consultation - Nephrology",
+     "price": 400
+    },
+    {
+     "name": "Consultation - Urology",
+     "price": 400
+    },
+    {
+     "name": "Consultation - Obstetrics and Gynaecology",
+     "price": 350
+    },
+    {
+     "name": "Consultation - Paediatrics",
+     "price": 300
+    },
+    {
+     "name": "Consultation - General Surgery",
+     "price": 350
+    },
+    {
+     "name": "Emergency Department Consultation",
+     "price": 400
+    },
+    {
+     "name": "Video Consultation",
+     "price": 200
+    },
+    {
+     "name": "ECG",
+     "price": 150
+    },
+    {
+     "name": "Echocardiogram",
+     "price": 600
+    },
+    {
+     "name": "Chest X-Ray",
+     "price": 120
+    },
+    {
+     "name": "Ultrasound Abdomen",
+     "price": 350
+    },
+    {
+     "name": "CT Scan",
+     "price": 1200
+    },
+    {
+     "name": "MRI Scan",
+     "price": 1800
+    },
+    {
+     "name": "PET-CT Scan",
+     "price": 5500
+    },
+    {
+     "name": "Complete Blood Count",
+     "price": 60
+    },
+    {
+     "name": "Lipid Profile",
+     "price": 120
+    },
+    {
+     "name": "HbA1c",
+     "price": 90
+    },
+    {
+     "name": "Liver Function Test",
+     "price": 110
+    },
+    {
+     "name": "Renal Function Test",
+     "price": 110
+    },
+    {
+     "name": "Thyroid Profile",
+     "price": 140
+    },
+    {
+     "name": "Executive Health Check",
+     "price": 1200
+    },
+    {
+     "name": "Cardiac Health Check",
+     "price": 1800
+    },
+    {
+     "name": "Dialysis Session",
+     "price": 650
+    },
+    {
+     "name": "Chemotherapy Day-care Session",
+     "price": 3500
+    },
+    {
+     "name": "Coronary Angiography",
+     "price": 8000
+    },
+    {
+     "name": "PCI with Stent",
+     "price": 35000
+    },
+    {
+     "name": "Normal Delivery Package",
+     "price": 9000
+    },
+    {
+     "name": "Caesarean Section Package",
+     "price": 16000
+    },
+    {
+     "name": "Robotic Knee Replacement Package",
+     "price": 60000
+    },
+    {
+     "name": "Appendectomy Package",
+     "price": 15000
+    },
+    {
+     "name": "Cataract Surgery Package",
+     "price": 8000
+    },
+    {
+     "name": "Operation Theatre Charges",
+     "price": 4000
+    },
+    {
+     "name": "Anaesthesia Charges",
+     "price": 2500
+    },
+    {
+     "name": "ICU Nursing Charges (per day)",
+     "price": 1800
+    },
+    {
+     "name": "Pharmacy - Medicines and Consumables",
+     "price": 300
+    },
+    {
+     "name": "Implants and Consumables",
+     "price": 5000
+    },
+    {
+     "name": "Outpatient Consultation",
+     "price": 300
+    },
+    {
+     "name": "Consultation - ENT",
+     "price": 350
+    },
+    {
+     "name": "Consultation - Dental",
+     "price": 300
+    }
+   ],
+   "procedures": [
+    {
+     "code": "92928",
+     "description": "Percutaneous coronary intervention with stent"
+    },
+    {
+     "code": "93454",
+     "description": "Coronary angiography"
+    },
+    {
+     "code": "33533",
+     "description": "Coronary artery bypass graft (CABG)"
+    },
+    {
+     "code": "27447",
+     "description": "Total knee arthroplasty"
+    },
+    {
+     "code": "27130",
+     "description": "Total hip arthroplasty"
+    },
+    {
+     "code": "59510",
+     "description": "Cesarean delivery, obstetric care"
+    },
+    {
+     "code": "59400",
+     "description": "Vaginal delivery, obstetric care"
+    },
+    {
+     "code": "44970",
+     "description": "Laparoscopic appendectomy"
+    },
+    {
+     "code": "47562",
+     "description": "Laparoscopic cholecystectomy"
+    },
+    {
+     "code": "66984",
+     "description": "Cataract extraction with IOL insertion"
+    },
+    {
+     "code": "90935",
+     "description": "Haemodialysis, single evaluation"
+    },
+    {
+     "code": "96413",
+     "description": "Chemotherapy administration, IV infusion"
+    },
+    {
+     "code": "93000",
+     "description": "Electrocardiogram (ECG), routine"
+    },
+    {
+     "code": "45378",
+     "description": "Diagnostic colonoscopy"
+    },
+    {
+     "code": "43235",
+     "description": "Diagnostic upper GI endoscopy"
+    },
+    {
+     "code": "55866",
+     "description": "Robotic-assisted radical prostatectomy"
+    },
+    {
+     "code": "50543",
+     "description": "Laparoscopic partial nephrectomy"
+    },
+    {
+     "code": "61863",
+     "description": "Deep brain stimulation electrode implantation"
+    },
+    {
+     "code": "49505",
+     "description": "Repair of inguinal hernia"
+    },
+    {
+     "code": "29881",
+     "description": "Knee arthroscopy with meniscectomy"
+    }
+   ]
+  },
+  "aster-doha": {
+   "id": "aster-doha",
+   "short": "doh",
+   "name": "Aster Hospital Doha (Demo)",
+   "institution_code": "ASTDOH",
+   "company_name": "Aster Hospital Doha (Demo)",
+   "country": "QAT",
+   "currency": "QAR",
+   "timezone": "Asia/Qatar",
+   "id_prefix": "QID-SYN-",
+   "id_label": "Qatar ID",
+   "price_index": 0.95,
+   "alos": 3.3,
+   "occupancy": 0.64,
+   "models": "Aster Hospital Doha (50 beds, 15 specialties)",
+   "operating_rooms": [
+    "OT 1",
+    "OT 2",
+    "OT 3"
+   ],
+   "doctors": {
+    "General Medicine": 3,
+    "Obstetrics and Gynaecology": 3,
+    "Paediatrics": 2,
+    "General Surgery": 2,
+    "Orthopaedics": 2,
+    "ENT": 1,
+    "Dental": 2,
+    "Gastroenterology": 1,
+    "Urology": 1,
+    "Emergency Medicine": 2,
+    "Anaesthesiology": 1
+   },
+   "nurses": 8,
+   "frontdesk": 2,
+   "cashiers": 2,
+   "accountants": 1,
+   "lab": 1,
+   "radiology": 1,
+   "insurers": [
+    "Daman (demo)",
+    "Cigna (demo)",
+    "MetLife (demo)",
+    "Allianz (demo)",
+    "BUPA (demo)",
+    "Aetna (demo)"
+   ],
+   "other_payors": [
+    "Government Health Scheme (synthetic)",
+    "Northwind Logistics Gulf (synthetic corporate)"
+   ],
+   "payor_mix": [
+    [
+     "Walk-in",
+     22
+    ],
+    [
+     "Insurance",
+     55
+    ],
+    [
+     "Scheme-central",
+     10
+    ],
+    [
+     "Corporate",
+     9
+    ],
+    [
+     "MVT",
+     2
+    ],
+    [
+     "Other",
+     2
+    ]
+   ],
+   "nationalities": [
+    [
+     "indian",
+     28
+    ],
+    [
+     "arab_levant_egypt",
+     22
+    ],
+    [
+     "qatari",
+     12
+    ],
+    [
+     "filipino",
+     8
+    ],
+    [
+     "pakistani",
+     8
+    ],
+    [
+     "bangladeshi",
+     6
+    ],
+    [
+     "nepali",
+     5
+    ],
+    [
+     "western",
+     5
+    ],
+    [
+     "srilankan",
+     4
+    ],
+    [
+     "african",
+     2
+    ]
+   ],
+   "tenant": "aster",
+   "hospital_id": "aster-doha",
+   "database": "gnuhealth_h_aster",
+   "wards": [
+    {
+     "name": "Private Rooms",
+     "gender": "unisex",
+     "floor": 3,
+     "bed_type": "electric",
+     "daily_rate": 1425,
+     "beds": [
+      "DOH-PR-01",
+      "DOH-PR-02",
+      "DOH-PR-03",
+      "DOH-PR-04",
+      "DOH-PR-05",
+      "DOH-PR-06",
+      "DOH-PR-07",
+      "DOH-PR-08",
+      "DOH-PR-09",
+      "DOH-PR-10",
+      "DOH-PR-11",
+      "DOH-PR-12",
+      "DOH-PR-13",
+      "DOH-PR-14",
+      "DOH-PR-15",
+      "DOH-PR-16",
+      "DOH-PR-17",
+      "DOH-PR-18",
+      "DOH-PR-19",
+      "DOH-PR-20",
+      "DOH-PR-21",
+      "DOH-PR-22"
+     ]
+    },
+    {
+     "name": "Deluxe and Suite Rooms",
+     "gender": "unisex",
+     "floor": 4,
+     "bed_type": "electric",
+     "daily_rate": 2850,
+     "beds": [
+      "DOH-DX-01",
+      "DOH-DX-02",
+      "DOH-DX-03",
+      "DOH-DX-04",
+      "DOH-DX-05",
+      "DOH-DX-06"
+     ]
+    },
+    {
+     "name": "Intensive Care Unit",
+     "gender": "unisex",
+     "floor": 2,
+     "bed_type": "electric",
+     "daily_rate": 4275,
+     "beds": [
+      "DOH-IC-01",
+      "DOH-IC-02",
+      "DOH-IC-03",
+      "DOH-IC-04"
+     ]
+    },
+    {
+     "name": "High Dependency Unit",
+     "gender": "unisex",
+     "floor": 2,
+     "bed_type": "electric",
+     "daily_rate": 2850,
+     "beds": [
+      "DOH-HD-01",
+      "DOH-HD-02"
+     ]
+    },
+    {
+     "name": "Neonatal ICU",
+     "gender": "unisex",
+     "floor": 1,
+     "bed_type": "electric",
+     "daily_rate": 3800,
+     "beds": [
+      "DOH-NI-01",
+      "DOH-NI-02",
+      "DOH-NI-03",
+      "DOH-NI-04",
+      "DOH-NI-05",
+      "DOH-NI-06"
+     ]
+    },
+    {
+     "name": "Isolation Ward",
+     "gender": "unisex",
+     "floor": 1,
+     "bed_type": "electric",
+     "daily_rate": 1710,
+     "beds": [
+      "DOH-IS-01",
+      "DOH-IS-02"
+     ]
+    },
+    {
+     "name": "Maternity Ward",
+     "gender": "women",
+     "floor": 1,
+     "bed_type": "gatch",
+     "daily_rate": 1425,
+     "beds": [
+      "DOH-MT-01",
+      "DOH-MT-02",
+      "DOH-MT-03",
+      "DOH-MT-04"
+     ]
+    },
+    {
+     "name": "Day Care Unit",
+     "gender": "unisex",
+     "floor": 1,
+     "bed_type": "stretcher",
+     "daily_rate": 760,
+     "beds": [
+      "DOH-DC-01",
+      "DOH-DC-02",
+      "DOH-DC-03",
+      "DOH-DC-04"
+     ]
+    }
+   ],
+   "total_beds": 50,
+   "services": [
+    {
+     "name": "Consultation - General Medicine",
+     "price": 285
+    },
+    {
+     "name": "Consultation - Cardiology",
+     "price": 430
+    },
+    {
+     "name": "Consultation - Neurology",
+     "price": 430
+    },
+    {
+     "name": "Consultation - Oncology",
+     "price": 475
+    },
+    {
+     "name": "Consultation - Gastroenterology",
+     "price": 380
+    },
+    {
+     "name": "Consultation - Orthopaedics",
+     "price": 380
+    },
+    {
+     "name": "Consultation - Nephrology",
+     "price": 380
+    },
+    {
+     "name": "Consultation - Urology",
+     "price": 380
+    },
+    {
+     "name": "Consultation - Obstetrics and Gynaecology",
+     "price": 330
+    },
+    {
+     "name": "Consultation - Paediatrics",
+     "price": 285
+    },
+    {
+     "name": "Consultation - General Surgery",
+     "price": 330
+    },
+    {
+     "name": "Emergency Department Consultation",
+     "price": 380
+    },
+    {
+     "name": "Video Consultation",
+     "price": 190
+    },
+    {
+     "name": "ECG",
+     "price": 140
+    },
+    {
+     "name": "Echocardiogram",
+     "price": 570
+    },
+    {
+     "name": "Chest X-Ray",
+     "price": 115
+    },
+    {
+     "name": "Ultrasound Abdomen",
+     "price": 330
+    },
+    {
+     "name": "CT Scan",
+     "price": 1140
+    },
+    {
+     "name": "MRI Scan",
+     "price": 1710
+    },
+    {
+     "name": "PET-CT Scan",
+     "price": 5225
+    },
+    {
+     "name": "Complete Blood Count",
+     "price": 55
+    },
+    {
+     "name": "Lipid Profile",
+     "price": 115
+    },
+    {
+     "name": "HbA1c",
+     "price": 85
+    },
+    {
+     "name": "Liver Function Test",
+     "price": 105
+    },
+    {
+     "name": "Renal Function Test",
+     "price": 105
+    },
+    {
+     "name": "Thyroid Profile",
+     "price": 135
+    },
+    {
+     "name": "Executive Health Check",
+     "price": 1140
+    },
+    {
+     "name": "Cardiac Health Check",
+     "price": 1710
+    },
+    {
+     "name": "Dialysis Session",
+     "price": 620
+    },
+    {
+     "name": "Chemotherapy Day-care Session",
+     "price": 3325
+    },
+    {
+     "name": "Coronary Angiography",
+     "price": 7600
+    },
+    {
+     "name": "PCI with Stent",
+     "price": 33250
+    },
+    {
+     "name": "Normal Delivery Package",
+     "price": 8550
+    },
+    {
+     "name": "Caesarean Section Package",
+     "price": 15200
+    },
+    {
+     "name": "Robotic Knee Replacement Package",
+     "price": 57000
+    },
+    {
+     "name": "Appendectomy Package",
+     "price": 14250
+    },
+    {
+     "name": "Cataract Surgery Package",
+     "price": 7600
+    },
+    {
+     "name": "Operation Theatre Charges",
+     "price": 3800
+    },
+    {
+     "name": "Anaesthesia Charges",
+     "price": 2375
+    },
+    {
+     "name": "ICU Nursing Charges (per day)",
+     "price": 1710
+    },
+    {
+     "name": "Pharmacy - Medicines and Consumables",
+     "price": 285
+    },
+    {
+     "name": "Implants and Consumables",
+     "price": 4750
+    },
+    {
+     "name": "Outpatient Consultation",
+     "price": 285
+    },
+    {
+     "name": "Consultation - ENT",
+     "price": 330
+    },
+    {
+     "name": "Consultation - Dental",
+     "price": 285
+    }
+   ],
+   "procedures": [
+    {
+     "code": "92928",
+     "description": "Percutaneous coronary intervention with stent"
+    },
+    {
+     "code": "93454",
+     "description": "Coronary angiography"
+    },
+    {
+     "code": "33533",
+     "description": "Coronary artery bypass graft (CABG)"
+    },
+    {
+     "code": "27447",
+     "description": "Total knee arthroplasty"
+    },
+    {
+     "code": "27130",
+     "description": "Total hip arthroplasty"
+    },
+    {
+     "code": "59510",
+     "description": "Cesarean delivery, obstetric care"
+    },
+    {
+     "code": "59400",
+     "description": "Vaginal delivery, obstetric care"
+    },
+    {
+     "code": "44970",
+     "description": "Laparoscopic appendectomy"
+    },
+    {
+     "code": "47562",
+     "description": "Laparoscopic cholecystectomy"
+    },
+    {
+     "code": "66984",
+     "description": "Cataract extraction with IOL insertion"
+    },
+    {
+     "code": "90935",
+     "description": "Haemodialysis, single evaluation"
+    },
+    {
+     "code": "96413",
+     "description": "Chemotherapy administration, IV infusion"
+    },
+    {
+     "code": "93000",
+     "description": "Electrocardiogram (ECG), routine"
+    },
+    {
+     "code": "45378",
+     "description": "Diagnostic colonoscopy"
+    },
+    {
+     "code": "43235",
+     "description": "Diagnostic upper GI endoscopy"
+    },
+    {
+     "code": "55866",
+     "description": "Robotic-assisted radical prostatectomy"
+    },
+    {
+     "code": "50543",
+     "description": "Laparoscopic partial nephrectomy"
+    },
+    {
+     "code": "61863",
+     "description": "Deep brain stimulation electrode implantation"
+    },
+    {
+     "code": "49505",
+     "description": "Repair of inguinal hernia"
+    },
+    {
+     "code": "29881",
+     "description": "Knee arthroscopy with meniscectomy"
+    }
+   ]
+  }
+ }
+}

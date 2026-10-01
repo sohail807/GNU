@@ -21,6 +21,9 @@ export async function GET() {
       name: session.name,
       tenantId: session.tenantId || "default",
       healthprofId: session.healthprofId,
+      hospitalId: session.hospitalId,
+      hospitalName: session.hospitalName,
+      hospitals: session.hospitals,
       permissions,
     },
   });

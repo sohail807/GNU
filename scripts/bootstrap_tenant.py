@@ -57,6 +57,8 @@ def main():
     ap.add_argument("--currency", default="INR")
     ap.add_argument("--timezone", default="Asia/Kolkata")
     ap.add_argument("--type", default="hospital", help="institution type: hospital (General Hospital), specialized, clinic ...")
+    ap.add_argument("--additional", action="store_true",
+                    help="add a further hospital (own company, institution and books) to a database that already has one")
     args = ap.parse_args()
     if not args.database.startswith("gnuhealth_h_"):
         sys.exit("Refusing: this script only bootstraps hospital databases named gnuhealth_h_<code>.")
@@ -71,14 +73,24 @@ def main():
         Company = pool.get("company.company")
         Party = pool.get("party.party")
         Currency = pool.get("currency.currency")
-        company = Company.search([], limit=1)[0]
         currency = Currency.search([("code", "=", args.currency)], limit=1)
         if not currency:
             sys.exit(f"Currency {args.currency} not found")
-        has_moves = pool.get("account.move").search([], count=True) > 0
-        if not has_moves:
-            Party.write([company.party], {"name": args.name})
-            Company.write([company], {"currency": currency[0].id, "timezone": args.timezone})
+        if args.additional:
+            # A further hospital in the same database: its own party/company, found by name so re-runs are no-ops.
+            found = Company.search([("party.name", "=", args.name)], limit=1)
+            if found:
+                company = found[0]
+            else:
+                party, = Party.create([{"name": args.name, "is_institution": True}])
+                company, = Company.create([{"party": party.id, "currency": currency[0].id, "timezone": args.timezone}])
+                log(f"additional company created: {args.name}")
+        else:
+            company = Company.search([], order=[("id", "ASC")], limit=1)[0]
+            has_moves = pool.get("account.move").search([], count=True) > 0
+            if not has_moves:
+                Party.write([company.party], {"name": args.name})
+                Company.write([company], {"currency": currency[0].id, "timezone": args.timezone})
         company_id = company.id
         party_id = company.party.id
         txn.commit()
@@ -89,7 +101,8 @@ def main():
     # ---------------------------------------------------------------- 2. institution
     with Transaction().start(db, 0, context=ctx) as txn:
         Institution = pool.get("gnuhealth.institution")
-        if Institution.search([], count=True) == 0:
+        already = Institution.search([("party", "=", party_id)], count=True) if args.additional else Institution.search([], count=True)
+        if already == 0:
             # gnuhealth.institution.party has the domain is_institution = True.
             pool.get("party.party").write([pool.get("party.party")(party_id)], {"is_institution": True})
             Institution.create([{"party": party_id, "code": args.code, "institution_type": args.type, "public_level": "private"}])

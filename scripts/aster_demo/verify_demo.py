@@ -12,9 +12,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from aster_demo.client import AppClient  # noqa: E402
+from aster_demo.client import AppClient, load_profiles, open_session  # noqa: E402
 
-PROFILES = json.load(open(os.path.join(os.path.dirname(__file__), "profiles.json"), encoding="utf-8"))
 TARGET_PAYOR = {"private": 30, "state": 5, "labour_union": 2}  # percent of patients with a policy (rest self-pay/MVT/other)
 
 
@@ -24,11 +23,12 @@ def check(label, ok, detail=""):
 
 
 def main():
-    code, creds_path, staff_path = sys.argv[1:4]
-    prof = PROFILES[code]
+    gulf = "--gulf" in sys.argv
+    code, creds_path, staff_path = [a for a in sys.argv[1:] if a != "--gulf"][:3]
+    prof = load_profiles(gulf)[code]
     creds = json.load(open(creds_path, encoding="utf-8"))
     staff = json.load(open(staff_path, encoding="utf-8"))
-    a = AppClient(code, creds["adminUsername"], creds["adminPassword"])
+    a = open_session(prof, code, creds["adminUsername"], creds["adminPassword"])
     results = []
     print(f"== {prof['name']} ({code})")
 
@@ -45,14 +45,14 @@ def main():
     # patients, visits and specialty mix
     _, r = a.get("/api/clinical/patients")
     patients = r.get("patients") or []
-    results.append(check("patients registered", len(patients) >= prof["total_beds"], f"({len(patients)})"))
+    results.append(check("patients registered (list shows the latest 50)", len(patients) >= min(50, prof["total_beds"]), f"({len(patients)})"))
     _, r = a.get("/api/clinical/appointments")
     appts = r.get("appointments") or []
     doc_spec = {s["name"]: s["specialty"] for s in staff if s["role"] == "physician"}
     by_spec = collections.Counter()
     for ap in appts:
         by_spec[doc_spec.get(ap.get("doctor") or ap.get("healthprofName") or ap.get("physician"), "other")] += 1
-    results.append(check("appointments booked", len(appts) >= round(prof["total_beds"] * 2.0), f"({len(appts)})"))
+    results.append(check("appointments booked (list shows the latest 50)", len(appts) >= 40, f"({len(appts)})"))
     if by_spec and "other" not in by_spec:
         top = by_spec.most_common(3)
         print("       visit mix (top 3):", ", ".join(f"{k} {v}" for k, v in top))
@@ -69,8 +69,7 @@ def main():
     pols = r.get("insurances") or []
     kinds = collections.Counter((p.get("insuranceType") or p.get("type")) for p in pols)
     share = {k: v / max(1, len(patients)) * 100 for k, v in kinds.items()}
-    results.append(check("insurance policies enrolled", len(pols) > 0, f"({len(pols)} policies = {len(pols) / max(1, len(patients)):.0%} of patients; target ~37%)"))
-    print("       policy types:", {k: f"{v:.0f}%" for k, v in share.items()})
+    results.append(check("insurance policies enrolled", len(pols) >= (40 if gulf else 15), f"({len(pols)} policies; types {dict(kinds)})"))
 
     # surgery and diagnostics
     _, r = a.get("/api/clinical/surgery")
@@ -89,7 +88,7 @@ def main():
             continue
         seen.add(s["role"])
         try:
-            c = AppClient(code, s["username"], s["password"])
+            c = open_session(prof, code, s["username"], s["password"])
             ok = bool(c.user.get("redirect"))
             c.logout()
         except Exception as exc:  # noqa: BLE001
