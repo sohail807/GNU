@@ -1,0 +1,38 @@
+service_line,revenue_weight_pct,is_niche,specialty,gnuhealth_specialty_hint,evidence,tag,notes
+Multi-speciality,18,False,General Medicine,Internal Medicine,CMI lists Internal Medicine,S,weight applies to the whole service line
+Multi-speciality,18,False,General Surgery,General Surgery,CMI list,S,
+Multi-speciality,18,False,ENT,Otorhinolaryngology,CMI,S,
+Multi-speciality,18,False,Pulmonology,Pulmonology,CMI,S,
+Multi-speciality,18,False,Endocrinology and Diabetes,Endocrinology,"typical, not named in sources",I,
+Multi-speciality,18,False,Dermatology,Dermatology,"typical, not named in sources",I,
+Multi-speciality,18,False,Ophthalmology,Ophthalmology,"typical, not named in sources",I,
+Multi-speciality,18,False,Emergency Medicine,Emergency Medicine,Medcity ED,S,
+Multi-speciality,18,False,Critical Care Medicine,Critical Care,Medcity,S,
+Cardiac sciences,14,True,Cardiology,Cardiology,COE at Medcity and CMI,S,weight applies to the whole service line
+Cardiac sciences,14,True,Cardiothoracic and Vascular Surgery,Cardiac Surgery,COE,S,
+Cardiac sciences,14,True,Interventional Cardiology (cath lab),Cardiology,Cath labs at Medcity,S,
+Neurosciences,11,True,Neurology,Neurology,COE at Medcity and CMI,S,weight applies to the whole service line
+Neurosciences,11,True,Neurosurgery,Neurosurgery,COE; robotic brain and spine; DBS,S,
+Neurosciences,11,True,Interventional Neuroradiology,Radiology,Medcity,S,
+Oncology,10,True,Medical Oncology,Oncology,"Aster International Institute of Oncology (CMI, Medcity)",S,weight applies to the whole service line
+Oncology,10,True,Surgical Oncology,Oncology,,S,
+Oncology,10,True,Radiation Oncology,Radiation Oncology,"typical, not named in sources",I,
+Oncology,10,True,Haemato-Oncology and BMT,Haematology,Bone marrow transplant at Medcity,S,
+Gastroenterology and integrated liver care,8,True,Medical Gastroenterology,Gastroenterology,COE,S,weight applies to the whole service line
+Gastroenterology and integrated liver care,8,True,Surgical Gastroenterology,General Surgery,COE,S,
+Gastroenterology and integrated liver care,8,True,Hepatology and Liver Transplant,Hepatology,Integrated Liver Care COE,S,
+Orthopaedics,7,True,Orthopaedics and Joint Replacement,Orthopaedics,COE; direct anterior THR,S,weight applies to the whole service line
+Orthopaedics,7,True,Spine Surgery,Orthopaedics,CMI,S,
+Orthopaedics,7,True,Rheumatology,Rheumatology,Medcity,S,
+Orthopaedics,7,True,Physical Medicine and Rehabilitation,PMR,PMR block planned at Medcity,S,
+Nephrology and urology,7,True,Nephrology and Dialysis,Nephrology,COE; subsidised dialysis in Kerala,S,weight applies to the whole service line
+Nephrology and urology,7,True,Urology and Robotic Urology,Urology,COE,S,
+Nephrology and urology,7,True,Renal Transplant,Nephrology,incl. paediatric kidney transplant,S,
+Women's health,6,False,Obstetrics and Gynaecology,Obstetrics and Gynaecology,COE,S,weight applies to the whole service line
+Women's health,6,False,Fetal Medicine,Obstetrics and Gynaecology,Medcity,S,
+Child and adolescent health,6,False,Paediatrics and Paediatric Super-speciality,Paediatrics,COE,S,weight applies to the whole service line
+Child and adolescent health,6,False,Neonatology and NICU,Neonatology,Medcity PICU and NICU,S,
+"OP pharmacy, anaesthesiology and other",13,False,Anaesthesiology and Pain,Anaesthesiology,CMI Pain and Palliative,S,weight applies to the whole service line
+"OP pharmacy, anaesthesiology and other",13,False,Radiology and Imaging,Radiology,"PET-CT, MRI, CT",S,
+"OP pharmacy, anaesthesiology and other",13,False,Laboratory Medicine and Pathology,Pathology,"NABL lab, blood bank",S,
+"OP pharmacy, anaesthesiology and other",13,False,Palliative Care,Palliative Medicine,CMI,S,

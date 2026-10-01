@@ -1,0 +1,27 @@
+code,hospital,entity,cluster,state_or_country,city,nominal_beds,deck_note,doctors,specialisations,accreditations,status,tag,notes
+astermedcity,Aster Medcity,Aster India,Kerala,Kerala,Kochi,800,700 inpatient + 100 day care,,14 centres of excellence,JCI;NABH;NABL;Green OT,operating,S,Flagship; ECMO; PET-CT; multi-organ transplant; 5000+ robotic procedures; Level-1 trauma ED; Tower 4 and PMR block planned
+astermims-calicut,Aster MIMS Calicut,Aster India,Kerala,Kerala,Calicut,673,,131,30,,operating,S,Extension in design phase
+astermims-kannur,Aster MIMS Kannur,Aster India,Kerala,Kerala,Kannur,300,100 beds added Q2 FY25,97,26,,operating,S,3-6 year hospital; 85% occupancy (H1 FY25)
+astermims-kottakkal,Aster MIMS Kottakkal,Aster India,Kerala,Kerala,Kottakkal,200,,,,,operating,S,
+asterpmf-kollam,Aster PMF,Aster India,Kerala,Kerala,Kollam,100,,55,,,operating,S,0-3 year hospital
+astermother-areekode,Aster Mother Hospital,Aster India,Kerala,Kerala,Areekode,,,,,,operating,S,0-3 year hospital; beds not published
+astermims-kasaragod,Aster MIMS Kasaragod,Aster India,Kerala,Kerala,Kasaragod,150,,,,,construction,S,Pipeline (FY26)
+astercmi-blr,Aster CMI,Aster India,Karnataka and Maharashtra,Karnataka,Bangalore,500,close to 500,,38+,JCI;NABH;NABH Nursing;NABH Digital Platinum,operating,S,International Institute of Oncology; multi-organ transplant; robotic brain and spine surgery; expansion in design
+asterrv-blr,Aster RV,Aster India,Karnataka and Maharashtra,Karnataka,Bangalore,250,,,26,,operating,S,3-6 year hospital; 85% occupancy (H1 FY25)
+asterwhitefield-blr,Aster Whitefield,Aster India,Karnataka and Maharashtra,Karnataka,Bangalore,,,,,,operating,S,Block D under construction
+asterwc-blr,Aster Women and Children,Aster India,Karnataka and Maharashtra,Karnataka,Bangalore (Whitefield),49,,,,,operating,S,0-3 year hospital
+astergmadegowda,Aster G Madegowda,Aster India,Karnataka and Maharashtra,Karnataka,(city not stated),,,,,,operating,S,0-3 year hospital
+asteraadhar-kolhapur,Aster Aadhar,Aster India,Karnataka and Maharashtra,Maharashtra,Kolhapur,157,deck: Maharashtra 254 beds,55,31,,operating,S,Only Maharashtra hospital
+asterramesh-vijayawada-main,Aster Ramesh Main Centre,Aster India,Andhra and Telangana,Andhra Pradesh,Vijayawada,150,,,,,operating,S,
+asterramesh-vijayawada-mgroad,Aster Ramesh MG Road (Labbipet),Aster India,Andhra and Telangana,Andhra Pradesh,Vijayawada,50,,,,,operating,S,Deck lists a Labbipet unit
+asterramesh-guntur,Aster Ramesh Guntur,Aster India,Andhra and Telangana,Andhra Pradesh,Guntur,350,,,,,operating,S,
+asterramesh-ongole,Aster Ramesh Ongole,Aster India,Andhra and Telangana,Andhra Pradesh,Ongole,150,,,,,construction,S,Pipeline
+asternarayanadri-tirupati,Aster Narayanadri,Aster India,Andhra and Telangana,Andhra Pradesh,Tirupati,,,,,,operating,S,0-3 year hospital
+asterramesh-sanghamitra,Ramesh Sanghamitra,Aster India,Andhra and Telangana,Andhra Pradesh,(not stated),,,,,,operating,S,Named in the deck cluster slide; low detail
+asterramesh-adiran,Ramesh Adiran (IB),Aster India,Andhra and Telangana,Andhra Pradesh,(not stated),,,,,,operating,S,Named in the deck; 0-3 year hospital
+asterprime-hyderabad,Aster Prime,Aster India,Andhra and Telangana,Telangana,Hyderabad (Ameerpet),204,deck: Telangana 158 beds,,,,operating,S,Aster Women and Children Hyderabad (300 beds) planned
+asterwc-hyderabad,Aster Women and Children Hyderabad,Aster India,Andhra and Telangana,Telangana,Hyderabad,300,,,,,construction,S,Pipeline
+gcc-mankhool,Aster Hospital Mankhool,GCC (separate entity),GCC,UAE,Dubai (Bur Dubai),100,,,,,operating,S,"5 ORs, 5 ICU beds, NICU, isolation unit, dialysis"
+gcc-qusais,Aster Hospital Al Qusais,GCC (separate entity),GCC,UAE,Dubai (Al Qusais),150,,90,36,,operating,S,"5 OTs, cath lab, 10-bed ICU, 9-bed NICU, 4 labour rooms, 84 IP rooms, 10-bed day care, 4-bed dialysis, 10-bed ED"
+gcc-sharjah,Aster Hospital Sharjah,GCC (separate entity),GCC,UAE,Sharjah,,,,,,operating,S,"4 OTs, 7 NICU, 7-bed critical care, 9-bed day care, 24h ED"
+gcc-cedars-jebelali,Aster Cedars Hospital,GCC (separate entity),GCC,UAE,Dubai (Jebel Ali),50+,,40,20+,,operating,S,

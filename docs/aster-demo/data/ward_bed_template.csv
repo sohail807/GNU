@@ -1,0 +1,14 @@
+ward_type,bed_class,share_of_beds_pct,gnuhealth_model,tag,public_anchor,notes
+General ward,General,18,gnuhealth.hospital.ward / .bed,I,,Illustrative ratios for a tertiary hospital
+Semi-private,Semi-private (twin share),20,gnuhealth.hospital.ward / .bed,I,Twin-sharing rooms are published at Aster Mankhool,
+Private,Private single,22,gnuhealth.hospital.ward / .bed,I,Single rooms are published at Aster Mankhool,
+Deluxe / suite,Suite / VIP,6,gnuhealth.hospital.ward / .bed,I,VIP rooms are published at Aster Mankhool,
+Adult ICU / CCU,Critical care,8,gnuhealth.hospital.ward / .bed,I,Al Qusais: 10 ICU of 150 beds (6.7%),
+HDU / step-down,High dependency,4,gnuhealth.hospital.ward / .bed,I,,
+NICU,Neonatal critical care,3,gnuhealth.hospital.ward / .bed,I,Al Qusais: 9 NICU of 150; Medcity has NICU and PICU,
+PICU,Paediatric critical care,2,gnuhealth.hospital.ward / .bed,I,Medcity has PICU,
+Isolation,Isolation,2,gnuhealth.hospital.ward / .bed,I,Mankhool has an isolation unit,
+"Maternity (labour, post-natal)",Maternity,2.5,gnuhealth.hospital.ward / .bed,I,Al Qusais: 4 labour rooms,
+Day care,Day care chairs and beds,12.5,gnuhealth.hospital.ward / .bed,S,Medcity: 100 of 800 beds are day care (12.5%),"Chemotherapy, dialysis, minor procedures"
+Operating theatres,"n/a (rooms, not beds)",,gnuhealth.hospital.or,I,Al Qusais 5 OTs of 150 beds; Mankhool 5 ORs of 100,Rule of thumb about 1 OT per 25-30 beds
+Emergency observation,ED bays,,gnuhealth.hospital.ward / .bed,I,Al Qusais ED has 10 beds,Not counted in inpatient capacity

@@ -1,0 +1,8 @@
+payor_class,weight_pct,tag,gnuhealth_representation,pricing_note,typical_documents,notes
+Walk-in (self-pay),58,S,"Invoice party = patient; payment by cash, card or UPI","Standard (rack) price list, illustrative","ID proof, estimate",Largest class
+TPA / insurance,30,S,Patient policy in gnuhealth.insurance; invoice party = insurer for cashless; patient pays non-covered items,"Insurer-agreed rates, illustrative","Policy card, pre-authorisation, authority letter (Guarantee of Payment), discharge summary, final bill",Rising from 27%; pre-auth lifecycle is a GAP in native GNU Health
+Medical value travel (MVT),4,S,Self-pay or sponsor party with nationality on party.party,"International package price list, illustrative","Passport, medical visa letter, FRRO registration, estimate, advance",Coordinator-led; visa and FRRO fields are a GAP
+ESI / ECHS / CGHS,3,S,Scheme party as invoice party,Government package rates (lower tariff),"Scheme card, referral, package approval",Central government schemes
+Corporate,2,S,Corporate party as invoice party; monthly credit invoice,"Contracted corporate rates, illustrative","Employee ID, corporate letter",Includes corporate health checks
+State / central schemes,2,S,Scheme party as invoice party,Scheme package rates,"Beneficiary card, pre-approval","For example state health schemes, PM-JAY"
+Others,1,S,As needed,,,
