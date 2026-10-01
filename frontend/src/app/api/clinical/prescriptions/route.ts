@@ -221,16 +221,9 @@ export async function POST(req: NextRequest) {
       if (!current[0] || current[0].state !== "draft") {
         return NextResponse.json({ error: "Only a draft prescription can be issued." }, { status: 409 });
       }
-      await TrytonClient.execute(
-        session.username,
-        session.userId,
-        session.sessionToken,
-        "gnuhealth.prescription.order",
-        "create_prescription",
-        [[prescriptionId]],
-        { company: session.companyId },
-        session.database
-      );
+      // "Issuing" a draft means sending it to the pharmacy; it stays a draft (pending verification) until the pharmacist
+      // dispenses it. The native create_prescription action marks an order "done", which the pharmacy queue reads as
+      // already dispensed, so it must never be called from the doctor's side.
       const issued = await TrytonClient.execute<Array<{ id: number; prescription_id: string; state: string }>>(
         session.username,
         session.userId,
@@ -241,12 +234,6 @@ export async function POST(req: NextRequest) {
         { company: session.companyId },
         session.database
       );
-      if (!issued[0] || issued[0].state !== "done") {
-        return NextResponse.json(
-          { error: "The GNU Health did not confirm the prescription state transition.", prescriptionId, state: issued[0]?.state ?? "unknown" },
-          { status: 502 }
-        );
-      }
       return NextResponse.json({
         success: true,
         prescriptionId,

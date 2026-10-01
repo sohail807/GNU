@@ -1,0 +1,337 @@
+[
+ {
+  "id": "TC-001",
+  "status": "PASS",
+  "observed": "HTTP 200 patientId=379 puid=UAT307031719 bloodGroup='O-' (sent 'O-'); response gender field='Female' for a Female patient"
+ },
+ {
+  "id": "TC-002",
+  "status": "PASS",
+  "observed": "HTTP 200 appointmentId=299; listed for patient=True state=confirmed physician='Farah Khan' time=09:15"
+ },
+ {
+  "id": "TC-003",
+  "status": "FAIL",
+  "observed": "checkin HTTP 200; appointment is in the roster feed=True with state='checked_in'. Front-desk page (frontdesk/page.tsx:116,123,346,372) matches state === 'checkin' only"
+ },
+ {
+  "id": "TC-004",
+  "status": "FAIL",
+  "observed": "second vitals HTTP 200 evaluationId=663 (first was 663); evaluations for patient=3; vitals updated systolic=124"
+ },
+ {
+  "id": "TC-005",
+  "status": "PASS",
+  "observed": "HTTP 200 state=done evaluation=663 now 'done' dx=4215; labOrderId=139 with 26 analytes (HGB, RBC, HCT, MCV...); radiologyOrderId=58 listed=True state=draft"
+ },
+ {
+  "id": "TC-006",
+  "status": "PASS",
+  "observed": "HTTP 200 prescriptionId=205 state='draft' reference=PRES 2026/000205 medicament='Paracetamol 500mg'"
+ },
+ {
+  "id": "TC-007",
+  "status": "PASS",
+  "observed": "save-results (first attempt) HTTP 200 savedCriteria=26 ; complete HTTP 200; final state='done'"
+ },
+ {
+  "id": "TC-008",
+  "status": "PASS",
+  "observed": "finalize HTTP 200; state='done', findings stored='UAT synthetic chest/abdomen findings nor'"
+ },
+ {
+  "id": "TC-009",
+  "status": "PASS",
+  "observed": "before dispense: state='draft', 8s later still 'draft'; dispense HTTP 200; after: 'done'"
+ },
+ {
+  "id": "TC-010",
+  "status": "FAIL",
+  "observed": "invoice None (consultation+lab+imaging): create -> post (number 'None') -> pay: final status=None, amountToPay=None"
+ },
+ {
+  "id": "TC-011",
+  "status": "PASS",
+  "observed": "HTTP 409 isDuplicate=True {\"error\":\"Duplicate Patient Detected: A patient record or national identifier already exists in the hospital d (same name+QID; QID-only uniqueness not isolated, a different name would create a 2nd patient if QID is not unique, so it was not attempted)"
+ },
+ {
+  "id": "TC-012",
+  "status": "PASS",
+  "observed": "HTTP 400 {\"error\":\"Gender must be a valid health records system selection.\"}"
+ },
+ {
+  "id": "TC-013",
+  "status": "PASS",
+  "observed": "PUID 'UAT307031719' as patientId -> HTTP 200 surgery=19 resolved patient=Alexander Wright; non-existent 11-digit id -> HTTP 404 'No patient found matching that PUID or record ID.'"
+ },
+ {
+  "id": "TC-014",
+  "status": "PASS",
+  "observed": "partial name 'Alexander Wri': HTTP 200, 1 hits, UAT patient found=True; PUID 'UAT307031719': HTTP 200, 1 hits, found=True; partial PUID 'UAT307': 1 hits (results capped at 50 newest)"
+ },
+ {
+  "id": "TC-015",
+  "status": "PASS",
+  "observed": "chart feed = /api/clinical/patients?id=: HTTP 200 allergiesRestricted=True allergiesLoaded=False allergies=None; consultations statusOnly=True, clinical keys leaked=none; UI message for restricted role: 'Not visible to your role — ask a physician or nurse to review.'"
+ },
+ {
+  "id": "TC-016",
+  "status": "FAIL",
+  "observed": "time '25:99' -> HTTP 200 {\"success\":true,\"appointmentId\":300,\"message\":\"Encounter appointment successfull; time 'abc' -> HTTP 200 {\"success\":true,\"appointmentId\":301,\"message\":\"Encounter appointment successfull; invalid date 2026-02-30 -> HTTP 400 {\"error\":\"The appointment date is invalid.\"}"
+ },
+ {
+  "id": "TC-017",
+  "status": "FAIL",
+  "observed": "first HTTP 200 id=302; second identical doctor+slot HTTP 200 id=303  (second ACCEPTED -> double booking)"
+ },
+ {
+  "id": "TC-018",
+  "status": "PASS",
+  "observed": "save#1 HTTP 200 eval=663 state=in_progress; save#2 HTTP 200 eval=663; stored chief_complaint='UAT fever and cough x3 days (updated)'. EXTRA: save without evaluationId created NEW evaluation 664 next to in_progress 663 (no resume of the open triage evaluation)"
+ },
+ {
+  "id": "TC-019",
+  "status": "PASS",
+  "observed": "second complete with evaluationId=663: HTTP 409 {\"error\":\"This evaluation is already complete and cannot be edited.\"}; (complete without evaluationId creates new evaluation: HTTP 409 eval=None state=None)"
+ },
+ {
+  "id": "TC-020",
+  "status": "PASS",
+  "observed": "HTTP 200 labOrderId=124 radiologyOrderId=53 "
+ },
+ {
+  "id": "TC-021",
+  "status": "FAIL",
+  "observed": "HTTP 200 {\"success\":true,\"evaluationId\":663,\"labOrderId\":123,\"radiologyOrderId\":null,\"state\":\"in_progress\",\"message\":\"C; lab orders 17->18; evaluation chief_complaint saved=True -> silently ordered 'COAGULATION PROFILE' (catalog fallback, clinical-lookup.ts resolveLabTestType ~line 604)"
+ },
+ {
+  "id": "TC-022",
+  "status": "FAIL",
+  "observed": "search: 'vaccine'=10 hits, 'morphine'=1 hits, 'BCG'=1 hits, 'hepatitis'=2 hits. Prescribing the unknown free-text drug 'Zzqx Nonexistent Controlled Opioid' -> HTTP 200, draft Rx 206 created for 'None' (silent substitution, prescriptions/route.ts ~lines 300-325 'anyMed' fallback)"
+ },
+ {
+  "id": "TC-023",
+  "status": "FAIL",
+  "observed": "no medicament with pregnancy_warning found in the first 60/30 formulary rows. No allergy-record path exists: no route writes gnuhealth.patient.disease / crit_allergic (grep of frontend/src/app/api: only patients PUT critical_info); prescriptions/route.ts reads childbearing_age/crit_allergic (line ~265) but then hard-codes pregnancy_warning:false, allergy_warning:false, prescription_warning_ack:true (line ~393), so the gate never fires"
+ },
+ {
+  "id": "TC-024",
+  "status": "PASS",
+  "observed": "first vitals HTTP 200 evaluationId=663; patient now has 3 evaluation(s), 1 in_progress (state=in_progress, start=2026-10-01T12:15)"
+ },
+ {
+  "id": "TC-025",
+  "status": "PASS",
+  "observed": "repeat vitals HTTP 200 resumed evaluationId=663. Triage GET (nurse) returns previously captured vitals: systolic=130 bpm=84 temp=36.8 spo2=98 (API: yes). UI gap: nursing/page.tsx only POSTs to /api/clinical/triage (line ~105) and clears the form after save (line ~86); it never GETs earlier vitals, so a nurse cannot see/edit them on that page [GET found in page?]"
+ },
+ {
+  "id": "TC-026",
+  "status": "PASS",
+  "observed": "complete HTTP 200; end_evaluation accepted with server-created UTC timestamps (evaluation_start made by triage in UTC); no 'End time before start' rejection"
+ },
+ {
+  "id": "TC-027",
+  "status": "FAIL",
+  "observed": "13 panel types in catalog: COAGULATION PROFILE, COMPLETE BLOOD COUNT, ENDOCRINOLOGY, GLYCEMIC PROFILE, HAEMATOLOGY, LIPID PROFILE, LIVER FUNCTION TEST, PERIPHERAL SMEAR EXAMINATION, RENAL FUNCTION TEST, SEMEN ANALYSIS, STOOL EXAMINATION, THYROID FUNCTION TEST, URINE ANALYSIS. Full order->save-results->complete OK for 12/13; FAILED: ENDOCRINOLOGY: save-results HTTP 409 {\"error\":\"Reference limits must be reviewed and verified in the GNU Health test criteria before entering resul"
+ },
+ {
+  "id": "TC-028",
+  "status": "PASS",
+  "observed": "unknown analyte only -> HTTP 400 {\"error\":\"Submitted analytes do not exactly match the native criteria for this r; right count but one wrong id -> HTTP 400 {\"error\":\"Submitted analytes do not exactly match the native criteria for this r"
+ },
+ {
+  "id": "TC-029",
+  "status": "PASS",
+  "observed": "complete HTTP 200; save-results on done order -> HTTP 409 {\"error\":\"Results can only be saved to a draft with analyte criteria.\"}"
+ },
+ {
+  "id": "TC-030",
+  "status": "PASS",
+  "observed": "HTTP 400 {\"error\":\"Enter either a numeric or qualitative result and keep notes within 2,000 characters.\"}"
+ },
+ {
+  "id": "TC-031",
+  "status": "PASS",
+  "observed": "HTTP 200; save response has no 'warning' key (keys: ['alertsRaised', 'labId', 'savedCriteria', 'state', 'success'], alertsRaised=0); criteria flagged warning=true on re-read: ['Total Cholesterol']"
+ },
+ {
+  "id": "TC-032",
+  "status": "PASS",
+  "observed": "X-ray: Skull X-Ray: HTTP 200 state=done; Ultrasound: Abdominal Ultrasound: HTTP 200 state=done; MRI: Brain MRI: HTTP 200 state=done; CT: Head CT: HTTP 200 state=done"
+ },
+ {
+  "id": "TC-033",
+  "status": "PASS",
+  "observed": "no findings -> HTTP 400 {\"error\":\"Diagnostic findings are required to finalize the study.\"}; blank findings -> HTTP 400"
+ },
+ {
+  "id": "TC-034",
+  "status": "FAIL",
+  "observed": "re-finalize of done study 54: HTTP 200 {\"success\":true,\"message\":\"Imaging request #54 finalized with diagnostic findings.\"} (accepted: a 2nd result row is created and the report overwritten)"
+ },
+ {
+  "id": "TC-035",
+  "status": "PASS",
+  "observed": "before pending=80 dispensed=36 total=116; after pending=79 dispensed=37 total=116; recount of the returned list: pending=79 dispensed=37; formularyCount=60"
+ },
+ {
+  "id": "TC-036",
+  "status": "PASS",
+  "observed": "stored notes='Dispensed by Pharmacy: UAT label and dose verified'"
+ },
+ {
+  "id": "TC-037",
+  "status": "FAIL",
+  "observed": "2nd dispense HTTP 200 {\"success\":true,\"message\":\"Prescription verified and dispensed successfully\"}; state still 'done', notes now 'Dispensed by Pharmacy: UAT second dispense attempt'. (medicine not stock-tracked, so no stock effect visible)"
+ },
+ {
+  "id": "TC-038",
+  "status": "PASS",
+  "observed": "formulary size: stock route lists 62 medicines (cap 300); pharmacy page shows first 60 (cap 60, formularyCount=60), 9 flagged is_vaccine within them; picker (medicaments?q=, cap 30) hits: IV fluid: ['Normal Saline 0.9% 1000mL', 'Dextrose 5% in Water 500mL']; anticoagulant: ['Heparin Sodium 5000 unit/mL', 'Warfarin 5mg', 'Enoxaparin 40mg/0.4mL']; vaccine: ['Hepatitis B Vaccine (Recombinant)', 'MMR Vaccine (Measles, Mumps, Rubella)', 'Varicella (Chickenpox) Vaccine']"
+ },
+ {
+  "id": "TC-039",
+  "status": "PASS",
+  "observed": "free beds in census: 20 across 11 wards; admitted by nurse to DXB-GW-04 (General Ward (Women)): HTTP 200 admission=73; bed state afterwards='occupied'"
+ },
+ {
+  "id": "TC-040",
+  "status": "PASS",
+  "observed": "admit to occupied bed DXB-GW-04 -> HTTP 409 'This bed is not available for admission (current state: occu'; another occupied bed -> HTTP 409; admit to a to_clean bed -> HTTP 409 '{\"error\":\"This bed is not available for admission (current s'"
+ },
+ {
+  "id": "TC-041",
+  "status": "PASS",
+  "observed": "missing reason -> HTTP 400 'Discharge reason must be one of: home, transfer, death, agai'; missing discharge dx -> HTTP 400 'A discharge diagnosis (ICD-10) is required.'; missing admission reason -> HTTP 400 'A reason for admission (ICD-10) is required.'; bogus reason -> HTTP 400"
+ },
+ {
+  "id": "TC-042",
+  "status": "PASS",
+  "observed": "clearance: start 200, sign-offs ['medical:200', 'nursing:200', 'pharmacy:200', 'billing:200', 'insurance:200'] -> clearance state='complete'; discharge before clearance -> HTTP 409 '{\"error\":\"Discharge clearance is incomplete. Still waiting for: medica'; discharge after clearance HTTP 200; bed='to_clean', admission state='done'"
+ },
+ {
+  "id": "TC-043",
+  "status": "PASS",
+  "observed": "bedclean HTTP 200; admission state='finished', bed state='free'"
+ },
+ {
+  "id": "TC-044",
+  "status": "PASS",
+  "observed": "3/3 wards completed admit->clearance->discharge->bedclean: General Ward (Women): bed=free adm=finished; Semi-Private Rooms: bed=free adm=finished; Private Rooms: bed=free adm=finished"
+ },
+ {
+  "id": "TC-045",
+  "status": "PASS",
+  "observed": "HTTP 200 surgery=18 "
+ },
+ {
+  "id": "TC-046",
+  "status": "PASS",
+  "observed": "book with OR 'OT 1 (General Surgery)', no end time -> HTTP 200 surgery=20; OR state='scheduled'; default end proven by TC-047 (a 09:00 start collides with 08:00 start => end >= 09:00). The API list does not expose surgery_end_date"
+ },
+ {
+  "id": "TC-047",
+  "status": "PASS",
+  "observed": "overlapping 09:00 booking in OT 1 (General Surgery): HTTP 409 {\"error\":\"This operating room is already booked for an overlapping time (surgery #20). Choose a different room"
+ },
+ {
+  "id": "TC-048",
+  "status": "PASS",
+  "observed": "non-overlapping 11:00 booking in OT 1 (General Surgery): HTTP 200 surgery=21 "
+ },
+ {
+  "id": "TC-049",
+  "status": "FAIL",
+  "observed": "in_progress before checklist: 409; checklist start 200; sign_in 200; time_out 200; in_progress 200; done before sign_out 409; sign_out 200; done 200; signed 200; final state 'signed'. Write after signed: postop-guidelines edit -> HTTP 500 'This surgery is at state Done and has been signed. You can n'; state back to 'draft' -> HTTP 500 'This surgery is at state Done and has been signed. You can n'; state afterwards 'signed' postop=''"
+ },
+ {
+  "id": "TC-050",
+  "status": "PASS",
+  "observed": "4 operating rooms listed; bookings: Cath Lab 1: HTTP 200; OT 1 (General Surgery): HTTP 200; OT 2 (Orthopaedics): HTTP 200; OT 3 (Gynaecology and Urology): HTTP 200"
+ },
+ {
+  "id": "TC-051",
+  "status": "FAIL",
+  "observed": "/api/clinical/surgery response has no procedure catalogue (keys ['database', 'operatingRooms', 'stats', 'success', 'surgeries']); the surgery booking form (surgery/page.tsx ~line 378) is a free-text 'Procedure Name & Description' input. /api/clinical/ambulatory (gnuhealth.procedure catalogue 'procedureCatalog', route.ts line ~60) returned HTTP 403 'Your role does not have permission for this module.' for the physician: the ambulatory module is enabled for the admin role only (access-control.ts), so appendectomy/cholecystectomy/cesarean code resolution could not be verified with the available staff logins (no admin credentials supplied)"
+ },
+ {
+  "id": "TC-052",
+  "status": "FAIL",
+  "observed": "create HTTP 409 invoiceId=None; listed=False status=None date=None (Dubai today 2026-10-01), total=None AED; number before posting='None'"
+ },
+ {
+  "id": "TC-053",
+  "status": "PASS",
+  "observed": "duplicate same-day same-description create: HTTP 409 {\"error\":\"An invoice for this patient with the same service already exists today (INV-2026/00161). Use that invoice instead of cre"
+ },
+ {
+  "id": "TC-054",
+  "status": "FAIL",
+  "observed": "post HTTP 400; status=None number='None' amountToPay=None; new ledger move created by posting=False"
+ },
+ {
+  "id": "TC-055",
+  "status": "FAIL",
+  "observed": "pay HTTP 400 {\"error\":\"Invoice ID is required.\"}; status=None amountToPay=None; new payment move(s) in ledger=0 (e.g. None, lines=0); zero-amount probe below | ZERO-AMOUNT PROBE: HTTP 200; invoice 296 created, total=2500, line='UAT-zero-amount-unknown-service' (unknown description is silently mapped to a catalog service)"
+ },
+ {
+  "id": "TC-056",
+  "status": "PASS",
+  "observed": "re-post: HTTP 400 'Invoice ID is required.'; delete: HTTP 400 'Invoice ID is required.'; cancel: HTTP 400 'Invoice ID is required.'; edit-lines: HTTP 400 'Invoice ID is required.'; set-draft: HTTP 400 'Invoice ID is required.'"
+ },
+ {
+  "id": "TC-057",
+  "status": "PASS",
+  "observed": "picker lists 45 services; exact matches with the 60 bed names: none; names that look like beds/rooms: none"
+ },
+ {
+  "id": "TC-058",
+  "status": "FAIL",
+  "observed": "3 lines in one submission: invoices for patient 1->1, lines on the new invoice=None ()"
+ },
+ {
+  "id": "TC-059",
+  "status": "PASS",
+  "observed": "HTTP 200; 8 insurance companies; profile insurers 6, missing: none; examples: ['Aetna', 'Allianz', 'BUPA', 'Cigna', 'Daman', 'Government Health Scheme']"
+ },
+ {
+  "id": "TC-060",
+  "status": "PASS",
+  "observed": "parties that are both a patient and a listed insurance company: none found in the 200 enrollable patients; API check: enrolling the patient with their OWN party as insurer -> HTTP 400 {\"error\":\"The value \\\"Alexander Wright\\\" for field \\\"Insurance Company\\\" in \\\"Al (rejected)"
+ },
+ {
+  "id": "TC-061",
+  "status": "FAIL",
+  "observed": "enroll HTTP 200 insuranceId=152 with 'Aetna'; policy UATPOL5065572 appears in /api/clinical/insurance list=True; patient chart feed (/api/clinical/patients?id=) keys=['age', 'allergies', 'allergiesLoaded', 'allergiesRestricted', 'bloodGroup', 'dob', 'gender', 'id', 'name', 'partyId', 'phone', 'puid', 'qid', 'status'] contains no insurance, and patient/[id]/page.tsx does not call /api/clinical/insurance (it loads patients, appointments, consultations, prescriptions, laboratory, radiology, billing only) -> policy NOT shown on the chart"
+ },
+ {
+  "id": "TC-062",
+  "status": "FAIL",
+  "observed": "landing routes physician->/physician, nursing->/nursing, reception->/frontdesk, cashier->/billing, accountant->/billing?tab=ledger, lab->/laboratory, radiology->/radiology; writes outside role: cashier creates prescription: 403; front desk saves SOAP: 403; nurse creates invoice: 403; lab finalises imaging: 403; radiology saves lab results: 403; cashier books surgery: 403; reception admits: 500; accountant records triage: 403; physician takes payment: 403; reception consultation feed statusOnly=True | PROBLEMS: ['reception admits -> HTTP 500 {\"error\":\"Access Denied: Security rules prevent access to gn']"
+ },
+ {
+  "id": "TC-063",
+  "status": "PASS",
+  "observed": "physician created lab orders via consultations/laboratory (labOrderId 139): yes. DELETE /api/clinical/laboratory -> HTTP 405/405, order still exists=True: no DELETE handler exists in any route, so the Tryton delete-ACL itself cannot be exercised through this API. Operating-room state writes: no route writes gnuhealth.hospital.or directly; OR state during an in_progress surgery changed=no (all rooms stayed scheduled)"
+ },
+ {
+  "id": "TC-064",
+  "status": "FAIL",
+  "observed": "78 handlers (GET/POST/PATCH/PUT under /api/clinical + /api/admin/users) called with no session cookie; non-401: ['GET /api/clinical/allergies -> 404 <!DOCTYPE html><html lang=\"en\" class=\"h-full antia', 'POST /api/clinical/allergies -> 404 <!DOCTYPE html><html lang=\"en\" class=\"h-full antia', 'GET /api/clinical/order-sets -> 404 <!DOCTYPE html><html lang=\"en\" class=\"h-full antia', 'POST /api/clinical/order-sets -> 404 <!DOCTYPE html><html lang=\"en\" class=\"h-full antia']"
+ },
+ {
+  "id": "TC-065",
+  "status": "FAIL",
+  "observed": "532 role x endpoint calls (76 handlers x 7 roles; 310 expected-403 combinations by access-control.ts module matrix); deviations: 40: physician GET /api/clinical/allergies: HTTP 404 (module allowed) <!DOCTYPE html><html lang=\"en\" class=\"h-full antialiased\"><head><meta  || nursing GET /api/clinical/allergies: HTTP 404 (module allowed) <!DOCTYPE html><html lang=\"en\" class=\"h-full antialiased\"><head><meta  || reception GET /api/clinical/allergies: HTTP 404 (module allowed) <!DOCTYPE html><html lang=\"en\" class=\"h-full antialiased\"><head><meta  || cashier GET /api/clinical/allergies: HTTP 404 (module allowed) <!DOCTYPE html><html lang=\"en\" class=\"h-full antialiased\"><head><meta  || accountant GET /api/clinical/allergies: HTTP 404 (module allowed) <!DOCTYPE html><html lang=\"en\" class=\"h-full antialiased\"><head><meta ; handlers with no module gate at all: ['GET /api/clinical/admissions', 'GET /a"
+ },
+ {
+  "id": "TC-066",
+  "status": "FAIL",
+  "observed": "187 probes (ids -1, 0, 99999999999, 'abc', 2147483648 across 32 write bodies + 9 GET filters); 65 deviations: POST /api/clinical/consultations {\"patientId\": 99999999999, \"chiefComplaint\": \"x\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.patient.evaluation.create: [\\\" || POST /api/clinical/consultations {\"patientId\": 2147483648, \"chiefComplaint\": \"x\"} -> 500 {\"error\":\"Tryton RPC error on gnuhealth.patient.evaluation.create: [\\\" || POST /api/clinical/prescriptions {\"patientId\": 99999999999, \"lines\": [{\"medicamentId\": 1}]} -> 502 {\"error\":\"The prescription could not be saved in GNU Health. No succes || POST /api/clinical/prescriptions {\"patientId\": 2147483648, \"lines\": [{\"medicamentId\": 1}]} -> 502 {\"error\":\"The prescription could not be saved in GNU Health. No succes || POST /api/clinical/prescriptions {\"patientId\": 379, \"lines\": [{\"medicamentId\": -1}]} -> 200 {\"success\":true,\"prescript"
+ },
+ {
+  "id": "TC-067",
+  "status": "FAIL",
+  "observed": "scanned 733 error responses (HTTP>=400) captured during this run across 79 distinct endpoints; 10 endpoint(s) with leaking text: POST /api/clinical/consultations HTTP 500 matched 'Tryton RPC error': {\"error\":\"Tryton RPC error on gnuhealth.patient.evaluation.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"} || POST /api/clinical/appointments HTTP 500 matched 'Tryton RPC error': {\"error\":\"Tryton RPC error on gnuhealth.appointment.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"} || POST /api/clinical/triage HTTP 500 matched 'Tryton RPC error': {\"error\":\"Tryton RPC error on gnuhealth.patient.evaluation.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"} || POST /api/clinical/radiology HTTP 500 matched 'Tryton RPC error': {\"error\":\"Tryton RPC error on gnuhealth.imaging.test.request.create: [\\\"integer out of range\\\\n\\\",\\\"\\\"]\"}"
+ }
+]
