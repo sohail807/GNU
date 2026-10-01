@@ -1,0 +1,1371 @@
+{
+ "astermedcity": {
+  "code": "astermedcity",
+  "database": "gnuhealth_h_astermedcity",
+  "name": "Aster Medcity (Synthetic Demo)",
+  "institution_code": "ASTMC",
+  "short": "mc",
+  "models": "Aster Medcity, Kochi",
+  "cluster": "Kerala",
+  "price_index": 1.0,
+  "alos": 3.1,
+  "occupancy": 0.69,
+  "operating_rooms": [
+   "OT 1 (General Surgery)",
+   "OT 2 (Orthopaedics and Robotics)",
+   "OT 3 (Neuro and Spine)",
+   "Cath Lab 1"
+  ],
+  "doctors": {
+   "General Medicine": 3,
+   "Cardiology": 3,
+   "Neurology": 2,
+   "Oncology": 2,
+   "Gastroenterology": 2,
+   "Orthopaedics": 2,
+   "Nephrology": 1,
+   "Urology": 1,
+   "Obstetrics and Gynaecology": 2,
+   "Paediatrics": 2,
+   "General Surgery": 2,
+   "Emergency Medicine": 2,
+   "Anaesthesiology": 2
+  },
+  "nurses": 6,
+  "frontdesk": 3,
+  "cashiers": 2,
+  "accountants": 1,
+  "lab": 2,
+  "radiology": 2,
+  "wards": [
+   {
+    "name": "General Ward (Men)",
+    "gender": "men",
+    "floor": 1,
+    "bed_type": "gatch",
+    "daily_rate": 1500,
+    "beds": [
+     "MC-GM-01",
+     "MC-GM-02",
+     "MC-GM-03",
+     "MC-GM-04",
+     "MC-GM-05",
+     "MC-GM-06",
+     "MC-GM-07"
+    ]
+   },
+   {
+    "name": "General Ward (Women)",
+    "gender": "women",
+    "floor": 1,
+    "bed_type": "gatch",
+    "daily_rate": 1500,
+    "beds": [
+     "MC-GW-01",
+     "MC-GW-02",
+     "MC-GW-03",
+     "MC-GW-04",
+     "MC-GW-05",
+     "MC-GW-06",
+     "MC-GW-07"
+    ]
+   },
+   {
+    "name": "Semi-Private Rooms",
+    "gender": "unisex",
+    "floor": 2,
+    "bed_type": "electric",
+    "daily_rate": 4000,
+    "beds": [
+     "MC-SP-01",
+     "MC-SP-02",
+     "MC-SP-03",
+     "MC-SP-04",
+     "MC-SP-05",
+     "MC-SP-06",
+     "MC-SP-07",
+     "MC-SP-08",
+     "MC-SP-09",
+     "MC-SP-10",
+     "MC-SP-11",
+     "MC-SP-12",
+     "MC-SP-13",
+     "MC-SP-14",
+     "MC-SP-15",
+     "MC-SP-16"
+    ]
+   },
+   {
+    "name": "Private Rooms",
+    "gender": "unisex",
+    "floor": 3,
+    "bed_type": "electric",
+    "daily_rate": 7000,
+    "beds": [
+     "MC-PR-01",
+     "MC-PR-02",
+     "MC-PR-03",
+     "MC-PR-04",
+     "MC-PR-05",
+     "MC-PR-06",
+     "MC-PR-07",
+     "MC-PR-08",
+     "MC-PR-09",
+     "MC-PR-10",
+     "MC-PR-11",
+     "MC-PR-12",
+     "MC-PR-13",
+     "MC-PR-14",
+     "MC-PR-15",
+     "MC-PR-16",
+     "MC-PR-17",
+     "MC-PR-18"
+    ]
+   },
+   {
+    "name": "Deluxe and Suite Rooms",
+    "gender": "unisex",
+    "floor": 4,
+    "bed_type": "electric",
+    "daily_rate": 15000,
+    "beds": [
+     "MC-DX-01",
+     "MC-DX-02",
+     "MC-DX-03",
+     "MC-DX-04",
+     "MC-DX-05"
+    ]
+   },
+   {
+    "name": "Intensive Care Unit",
+    "gender": "unisex",
+    "floor": 2,
+    "bed_type": "electric",
+    "daily_rate": 25000,
+    "beds": [
+     "MC-IC-01",
+     "MC-IC-02",
+     "MC-IC-03",
+     "MC-IC-04",
+     "MC-IC-05",
+     "MC-IC-06"
+    ]
+   },
+   {
+    "name": "High Dependency Unit",
+    "gender": "unisex",
+    "floor": 2,
+    "bed_type": "electric",
+    "daily_rate": 15000,
+    "beds": [
+     "MC-HD-01",
+     "MC-HD-02",
+     "MC-HD-03"
+    ]
+   },
+   {
+    "name": "Neonatal ICU",
+    "gender": "unisex",
+    "floor": 1,
+    "bed_type": "electric",
+    "daily_rate": 20000,
+    "beds": [
+     "MC-NI-01",
+     "MC-NI-02"
+    ]
+   },
+   {
+    "name": "Paediatric ICU",
+    "gender": "unisex",
+    "floor": 1,
+    "bed_type": "electric",
+    "daily_rate": 20000,
+    "beds": [
+     "MC-PI-01",
+     "MC-PI-02"
+    ]
+   },
+   {
+    "name": "Isolation Ward",
+    "gender": "unisex",
+    "floor": 1,
+    "bed_type": "electric",
+    "daily_rate": 8000,
+    "beds": [
+     "MC-IS-01",
+     "MC-IS-02"
+    ]
+   },
+   {
+    "name": "Maternity Ward",
+    "gender": "women",
+    "floor": 1,
+    "bed_type": "gatch",
+    "daily_rate": 6000,
+    "beds": [
+     "MC-MT-01",
+     "MC-MT-02"
+    ]
+   },
+   {
+    "name": "Day Care Unit",
+    "gender": "unisex",
+    "floor": 1,
+    "bed_type": "stretcher",
+    "daily_rate": 3000,
+    "beds": [
+     "MC-DC-01",
+     "MC-DC-02",
+     "MC-DC-03",
+     "MC-DC-04",
+     "MC-DC-05",
+     "MC-DC-06",
+     "MC-DC-07",
+     "MC-DC-08",
+     "MC-DC-09",
+     "MC-DC-10"
+    ]
+   }
+  ],
+  "total_beds": 80,
+  "services": [
+   {
+    "name": "Consultation - General Medicine",
+    "price": 700
+   },
+   {
+    "name": "Consultation - Cardiology",
+    "price": 1200
+   },
+   {
+    "name": "Consultation - Neurology",
+    "price": 1300
+   },
+   {
+    "name": "Consultation - Oncology",
+    "price": 1400
+   },
+   {
+    "name": "Consultation - Gastroenterology",
+    "price": 1100
+   },
+   {
+    "name": "Consultation - Orthopaedics",
+    "price": 1000
+   },
+   {
+    "name": "Consultation - Nephrology",
+    "price": 1100
+   },
+   {
+    "name": "Consultation - Urology",
+    "price": 1100
+   },
+   {
+    "name": "Consultation - Obstetrics and Gynaecology",
+    "price": 900
+   },
+   {
+    "name": "Consultation - Paediatrics",
+    "price": 800
+   },
+   {
+    "name": "Consultation - General Surgery",
+    "price": 900
+   },
+   {
+    "name": "Emergency Department Consultation",
+    "price": 900
+   },
+   {
+    "name": "Video Consultation",
+    "price": 600
+   },
+   {
+    "name": "ECG",
+    "price": 400
+   },
+   {
+    "name": "Echocardiogram",
+    "price": 2500
+   },
+   {
+    "name": "Chest X-Ray",
+    "price": 600
+   },
+   {
+    "name": "Ultrasound Abdomen",
+    "price": 1500
+   },
+   {
+    "name": "CT Scan",
+    "price": 6000
+   },
+   {
+    "name": "MRI Scan",
+    "price": 9000
+   },
+   {
+    "name": "PET-CT Scan",
+    "price": 30000
+   },
+   {
+    "name": "Complete Blood Count",
+    "price": 350
+   },
+   {
+    "name": "Lipid Profile",
+    "price": 700
+   },
+   {
+    "name": "HbA1c",
+    "price": 600
+   },
+   {
+    "name": "Liver Function Test",
+    "price": 700
+   },
+   {
+    "name": "Renal Function Test",
+    "price": 650
+   },
+   {
+    "name": "Thyroid Profile",
+    "price": 800
+   },
+   {
+    "name": "Executive Health Check",
+    "price": 6500
+   },
+   {
+    "name": "Cardiac Health Check",
+    "price": 9500
+   },
+   {
+    "name": "Dialysis Session",
+    "price": 2800
+   },
+   {
+    "name": "Chemotherapy Day-care Session",
+    "price": 15000
+   },
+   {
+    "name": "Coronary Angiography",
+    "price": 35000
+   },
+   {
+    "name": "PCI with Stent",
+    "price": 180000
+   },
+   {
+    "name": "Normal Delivery Package",
+    "price": 60000
+   },
+   {
+    "name": "Caesarean Section Package",
+    "price": 110000
+   },
+   {
+    "name": "Robotic Knee Replacement Package",
+    "price": 380000
+   },
+   {
+    "name": "Appendectomy Package",
+    "price": 90000
+   },
+   {
+    "name": "Cataract Surgery Package",
+    "price": 45000
+   },
+   {
+    "name": "Operation Theatre Charges",
+    "price": 25000
+   },
+   {
+    "name": "Anaesthesia Charges",
+    "price": 12000
+   },
+   {
+    "name": "ICU Nursing Charges (per day)",
+    "price": 6000
+   },
+   {
+    "name": "Pharmacy - Medicines and Consumables",
+    "price": 1500
+   },
+   {
+    "name": "Implants and Consumables",
+    "price": 20000
+   }
+  ],
+  "procedures": [
+   {
+    "code": "92928",
+    "description": "Percutaneous coronary intervention with stent"
+   },
+   {
+    "code": "93454",
+    "description": "Coronary angiography"
+   },
+   {
+    "code": "33533",
+    "description": "Coronary artery bypass graft (CABG)"
+   },
+   {
+    "code": "27447",
+    "description": "Total knee arthroplasty"
+   },
+   {
+    "code": "27130",
+    "description": "Total hip arthroplasty"
+   },
+   {
+    "code": "59510",
+    "description": "Cesarean delivery, obstetric care"
+   },
+   {
+    "code": "59400",
+    "description": "Vaginal delivery, obstetric care"
+   },
+   {
+    "code": "44970",
+    "description": "Laparoscopic appendectomy"
+   },
+   {
+    "code": "47562",
+    "description": "Laparoscopic cholecystectomy"
+   },
+   {
+    "code": "66984",
+    "description": "Cataract extraction with IOL insertion"
+   },
+   {
+    "code": "90935",
+    "description": "Haemodialysis, single evaluation"
+   },
+   {
+    "code": "96413",
+    "description": "Chemotherapy administration, IV infusion"
+   },
+   {
+    "code": "93000",
+    "description": "Electrocardiogram (ECG), routine"
+   },
+   {
+    "code": "45378",
+    "description": "Diagnostic colonoscopy"
+   },
+   {
+    "code": "43235",
+    "description": "Diagnostic upper GI endoscopy"
+   },
+   {
+    "code": "55866",
+    "description": "Robotic-assisted radical prostatectomy"
+   },
+   {
+    "code": "50543",
+    "description": "Laparoscopic partial nephrectomy"
+   },
+   {
+    "code": "61863",
+    "description": "Deep brain stimulation electrode implantation"
+   },
+   {
+    "code": "49505",
+    "description": "Repair of inguinal hernia"
+   },
+   {
+    "code": "29881",
+    "description": "Knee arthroscopy with meniscectomy"
+   }
+  ],
+  "insurers": [
+   "Meridian Health TPA (synthetic)",
+   "Sunrise General Insurance (synthetic)",
+   "Evergreen Mediclaim TPA (synthetic)"
+  ],
+  "other_payors": [
+   "Northwind Logistics (synthetic corporate)",
+   "CGHS-ECHS Scheme (synthetic)",
+   "State Health Scheme (synthetic)"
+  ]
+ },
+ "asterblr": {
+  "code": "asterblr",
+  "database": "gnuhealth_h_asterblr",
+  "name": "Aster CMI Bangalore (Synthetic Demo)",
+  "institution_code": "ASTCMI",
+  "short": "cm",
+  "models": "Aster CMI, Bangalore",
+  "cluster": "Karnataka and Maharashtra",
+  "price_index": 1.42,
+  "alos": 3.1,
+  "occupancy": 0.69,
+  "operating_rooms": [
+   "OT 1",
+   "OT 2 (Robotic)",
+   "Cath Lab 1"
+  ],
+  "doctors": {
+   "General Medicine": 2,
+   "Cardiology": 2,
+   "Neurology": 2,
+   "Oncology": 2,
+   "Gastroenterology": 1,
+   "Orthopaedics": 2,
+   "Nephrology": 1,
+   "Urology": 1,
+   "Obstetrics and Gynaecology": 1,
+   "Paediatrics": 1,
+   "General Surgery": 1,
+   "Emergency Medicine": 1,
+   "Anaesthesiology": 1
+  },
+  "nurses": 4,
+  "frontdesk": 2,
+  "cashiers": 2,
+  "accountants": 1,
+  "lab": 1,
+  "radiology": 1,
+  "wards": [
+   {
+    "name": "General Ward (Men)",
+    "gender": "men",
+    "floor": 1,
+    "bed_type": "gatch",
+    "daily_rate": 2130,
+    "beds": [
+     "CM-GM-01",
+     "CM-GM-02",
+     "CM-GM-03",
+     "CM-GM-04"
+    ]
+   },
+   {
+    "name": "General Ward (Women)",
+    "gender": "women",
+    "floor": 1,
+    "bed_type": "gatch",
+    "daily_rate": 2130,
+    "beds": [
+     "CM-GW-01",
+     "CM-GW-02",
+     "CM-GW-03",
+     "CM-GW-04",
+     "CM-GW-05"
+    ]
+   },
+   {
+    "name": "Semi-Private Rooms",
+    "gender": "unisex",
+    "floor": 2,
+    "bed_type": "electric",
+    "daily_rate": 5680,
+    "beds": [
+     "CM-SP-01",
+     "CM-SP-02",
+     "CM-SP-03",
+     "CM-SP-04",
+     "CM-SP-05",
+     "CM-SP-06",
+     "CM-SP-07",
+     "CM-SP-08",
+     "CM-SP-09",
+     "CM-SP-10"
+    ]
+   },
+   {
+    "name": "Private Rooms",
+    "gender": "unisex",
+    "floor": 3,
+    "bed_type": "electric",
+    "daily_rate": 9940,
+    "beds": [
+     "CM-PR-01",
+     "CM-PR-02",
+     "CM-PR-03",
+     "CM-PR-04",
+     "CM-PR-05",
+     "CM-PR-06",
+     "CM-PR-07",
+     "CM-PR-08",
+     "CM-PR-09",
+     "CM-PR-10",
+     "CM-PR-11"
+    ]
+   },
+   {
+    "name": "Deluxe and Suite Rooms",
+    "gender": "unisex",
+    "floor": 4,
+    "bed_type": "electric",
+    "daily_rate": 21300,
+    "beds": [
+     "CM-DX-01",
+     "CM-DX-02",
+     "CM-DX-03"
+    ]
+   },
+   {
+    "name": "Intensive Care Unit",
+    "gender": "unisex",
+    "floor": 2,
+    "bed_type": "electric",
+    "daily_rate": 35500,
+    "beds": [
+     "CM-IC-01",
+     "CM-IC-02",
+     "CM-IC-03",
+     "CM-IC-04"
+    ]
+   },
+   {
+    "name": "High Dependency Unit",
+    "gender": "unisex",
+    "floor": 2,
+    "bed_type": "electric",
+    "daily_rate": 21300,
+    "beds": [
+     "CM-HD-01",
+     "CM-HD-02"
+    ]
+   },
+   {
+    "name": "Neonatal ICU",
+    "gender": "unisex",
+    "floor": 1,
+    "bed_type": "electric",
+    "daily_rate": 28400,
+    "beds": [
+     "CM-NI-01",
+     "CM-NI-02"
+    ]
+   },
+   {
+    "name": "Paediatric ICU",
+    "gender": "unisex",
+    "floor": 1,
+    "bed_type": "electric",
+    "daily_rate": 28400,
+    "beds": [
+     "CM-PI-01"
+    ]
+   },
+   {
+    "name": "Isolation Ward",
+    "gender": "unisex",
+    "floor": 1,
+    "bed_type": "electric",
+    "daily_rate": 11360,
+    "beds": [
+     "CM-IS-01"
+    ]
+   },
+   {
+    "name": "Maternity Ward",
+    "gender": "women",
+    "floor": 1,
+    "bed_type": "gatch",
+    "daily_rate": 8520,
+    "beds": [
+     "CM-MT-01"
+    ]
+   },
+   {
+    "name": "Day Care Unit",
+    "gender": "unisex",
+    "floor": 1,
+    "bed_type": "stretcher",
+    "daily_rate": 4260,
+    "beds": [
+     "CM-DC-01",
+     "CM-DC-02",
+     "CM-DC-03",
+     "CM-DC-04",
+     "CM-DC-05",
+     "CM-DC-06"
+    ]
+   }
+  ],
+  "total_beds": 50,
+  "services": [
+   {
+    "name": "Consultation - General Medicine",
+    "price": 990
+   },
+   {
+    "name": "Consultation - Cardiology",
+    "price": 1700
+   },
+   {
+    "name": "Consultation - Neurology",
+    "price": 1850
+   },
+   {
+    "name": "Consultation - Oncology",
+    "price": 1990
+   },
+   {
+    "name": "Consultation - Gastroenterology",
+    "price": 1560
+   },
+   {
+    "name": "Consultation - Orthopaedics",
+    "price": 1420
+   },
+   {
+    "name": "Consultation - Nephrology",
+    "price": 1560
+   },
+   {
+    "name": "Consultation - Urology",
+    "price": 1560
+   },
+   {
+    "name": "Consultation - Obstetrics and Gynaecology",
+    "price": 1280
+   },
+   {
+    "name": "Consultation - Paediatrics",
+    "price": 1140
+   },
+   {
+    "name": "Consultation - General Surgery",
+    "price": 1280
+   },
+   {
+    "name": "Emergency Department Consultation",
+    "price": 1280
+   },
+   {
+    "name": "Video Consultation",
+    "price": 850
+   },
+   {
+    "name": "ECG",
+    "price": 570
+   },
+   {
+    "name": "Echocardiogram",
+    "price": 3550
+   },
+   {
+    "name": "Chest X-Ray",
+    "price": 850
+   },
+   {
+    "name": "Ultrasound Abdomen",
+    "price": 2130
+   },
+   {
+    "name": "CT Scan",
+    "price": 8520
+   },
+   {
+    "name": "MRI Scan",
+    "price": 12780
+   },
+   {
+    "name": "PET-CT Scan",
+    "price": 42600
+   },
+   {
+    "name": "Complete Blood Count",
+    "price": 500
+   },
+   {
+    "name": "Lipid Profile",
+    "price": 990
+   },
+   {
+    "name": "HbA1c",
+    "price": 850
+   },
+   {
+    "name": "Liver Function Test",
+    "price": 990
+   },
+   {
+    "name": "Renal Function Test",
+    "price": 920
+   },
+   {
+    "name": "Thyroid Profile",
+    "price": 1140
+   },
+   {
+    "name": "Executive Health Check",
+    "price": 9230
+   },
+   {
+    "name": "Cardiac Health Check",
+    "price": 13490
+   },
+   {
+    "name": "Dialysis Session",
+    "price": 3980
+   },
+   {
+    "name": "Chemotherapy Day-care Session",
+    "price": 21300
+   },
+   {
+    "name": "Coronary Angiography",
+    "price": 49700
+   },
+   {
+    "name": "PCI with Stent",
+    "price": 255600
+   },
+   {
+    "name": "Normal Delivery Package",
+    "price": 85200
+   },
+   {
+    "name": "Caesarean Section Package",
+    "price": 156200
+   },
+   {
+    "name": "Robotic Knee Replacement Package",
+    "price": 539600
+   },
+   {
+    "name": "Appendectomy Package",
+    "price": 127800
+   },
+   {
+    "name": "Cataract Surgery Package",
+    "price": 63900
+   },
+   {
+    "name": "Operation Theatre Charges",
+    "price": 35500
+   },
+   {
+    "name": "Anaesthesia Charges",
+    "price": 17040
+   },
+   {
+    "name": "ICU Nursing Charges (per day)",
+    "price": 8520
+   },
+   {
+    "name": "Pharmacy - Medicines and Consumables",
+    "price": 2130
+   },
+   {
+    "name": "Implants and Consumables",
+    "price": 28400
+   }
+  ],
+  "procedures": [
+   {
+    "code": "92928",
+    "description": "Percutaneous coronary intervention with stent"
+   },
+   {
+    "code": "93454",
+    "description": "Coronary angiography"
+   },
+   {
+    "code": "33533",
+    "description": "Coronary artery bypass graft (CABG)"
+   },
+   {
+    "code": "27447",
+    "description": "Total knee arthroplasty"
+   },
+   {
+    "code": "27130",
+    "description": "Total hip arthroplasty"
+   },
+   {
+    "code": "59510",
+    "description": "Cesarean delivery, obstetric care"
+   },
+   {
+    "code": "59400",
+    "description": "Vaginal delivery, obstetric care"
+   },
+   {
+    "code": "44970",
+    "description": "Laparoscopic appendectomy"
+   },
+   {
+    "code": "47562",
+    "description": "Laparoscopic cholecystectomy"
+   },
+   {
+    "code": "66984",
+    "description": "Cataract extraction with IOL insertion"
+   },
+   {
+    "code": "90935",
+    "description": "Haemodialysis, single evaluation"
+   },
+   {
+    "code": "96413",
+    "description": "Chemotherapy administration, IV infusion"
+   },
+   {
+    "code": "93000",
+    "description": "Electrocardiogram (ECG), routine"
+   },
+   {
+    "code": "45378",
+    "description": "Diagnostic colonoscopy"
+   },
+   {
+    "code": "43235",
+    "description": "Diagnostic upper GI endoscopy"
+   },
+   {
+    "code": "55866",
+    "description": "Robotic-assisted radical prostatectomy"
+   },
+   {
+    "code": "50543",
+    "description": "Laparoscopic partial nephrectomy"
+   },
+   {
+    "code": "61863",
+    "description": "Deep brain stimulation electrode implantation"
+   },
+   {
+    "code": "49505",
+    "description": "Repair of inguinal hernia"
+   },
+   {
+    "code": "29881",
+    "description": "Knee arthroscopy with meniscectomy"
+   }
+  ],
+  "insurers": [
+   "Meridian Health TPA (synthetic)",
+   "Sunrise General Insurance (synthetic)",
+   "Evergreen Mediclaim TPA (synthetic)"
+  ],
+  "other_payors": [
+   "Northwind Logistics (synthetic corporate)",
+   "CGHS-ECHS Scheme (synthetic)",
+   "State Health Scheme (synthetic)"
+  ]
+ },
+ "asterhyd": {
+  "code": "asterhyd",
+  "database": "gnuhealth_h_asterhyd",
+  "name": "Aster Prime Hyderabad (Synthetic Demo)",
+  "institution_code": "ASTPRM",
+  "short": "pr",
+  "models": "Aster Prime, Hyderabad",
+  "cluster": "Andhra and Telangana",
+  "price_index": 0.71,
+  "alos": 3.9,
+  "occupancy": 0.6,
+  "operating_rooms": [
+   "OT 1",
+   "Cath Lab 1"
+  ],
+  "doctors": {
+   "General Medicine": 2,
+   "Cardiology": 1,
+   "Orthopaedics": 1,
+   "Obstetrics and Gynaecology": 1,
+   "Paediatrics": 1,
+   "General Surgery": 1,
+   "Emergency Medicine": 1,
+   "Anaesthesiology": 1
+  },
+  "nurses": 3,
+  "frontdesk": 1,
+  "cashiers": 1,
+  "accountants": 1,
+  "lab": 1,
+  "radiology": 1,
+  "wards": [
+   {
+    "name": "General Ward (Men)",
+    "gender": "men",
+    "floor": 1,
+    "bed_type": "gatch",
+    "daily_rate": 1065,
+    "beds": [
+     "PR-GM-01",
+     "PR-GM-02"
+    ]
+   },
+   {
+    "name": "General Ward (Women)",
+    "gender": "women",
+    "floor": 1,
+    "bed_type": "gatch",
+    "daily_rate": 1065,
+    "beds": [
+     "PR-GW-01",
+     "PR-GW-02"
+    ]
+   },
+   {
+    "name": "Semi-Private Rooms",
+    "gender": "unisex",
+    "floor": 2,
+    "bed_type": "electric",
+    "daily_rate": 2840,
+    "beds": [
+     "PR-SP-01",
+     "PR-SP-02",
+     "PR-SP-03",
+     "PR-SP-04"
+    ]
+   },
+   {
+    "name": "Private Rooms",
+    "gender": "unisex",
+    "floor": 3,
+    "bed_type": "electric",
+    "daily_rate": 4970,
+    "beds": [
+     "PR-PR-01",
+     "PR-PR-02",
+     "PR-PR-03",
+     "PR-PR-04"
+    ]
+   },
+   {
+    "name": "Deluxe and Suite Rooms",
+    "gender": "unisex",
+    "floor": 4,
+    "bed_type": "electric",
+    "daily_rate": 10650,
+    "beds": [
+     "PR-DX-01"
+    ]
+   },
+   {
+    "name": "Intensive Care Unit",
+    "gender": "unisex",
+    "floor": 2,
+    "bed_type": "electric",
+    "daily_rate": 17750,
+    "beds": [
+     "PR-IC-01",
+     "PR-IC-02"
+    ]
+   },
+   {
+    "name": "High Dependency Unit",
+    "gender": "unisex",
+    "floor": 2,
+    "bed_type": "electric",
+    "daily_rate": 10650,
+    "beds": [
+     "PR-HD-01"
+    ]
+   },
+   {
+    "name": "Neonatal ICU",
+    "gender": "unisex",
+    "floor": 1,
+    "bed_type": "electric",
+    "daily_rate": 14200,
+    "beds": [
+     "PR-NI-01"
+    ]
+   },
+   {
+    "name": "Isolation Ward",
+    "gender": "unisex",
+    "floor": 1,
+    "bed_type": "electric",
+    "daily_rate": 5680,
+    "beds": [
+     "PR-IS-01"
+    ]
+   },
+   {
+    "name": "Maternity Ward",
+    "gender": "women",
+    "floor": 1,
+    "bed_type": "gatch",
+    "daily_rate": 4260,
+    "beds": [
+     "PR-MT-01"
+    ]
+   },
+   {
+    "name": "Day Care Unit",
+    "gender": "unisex",
+    "floor": 1,
+    "bed_type": "stretcher",
+    "daily_rate": 2130,
+    "beds": [
+     "PR-DC-01"
+    ]
+   }
+  ],
+  "total_beds": 20,
+  "services": [
+   {
+    "name": "Consultation - General Medicine",
+    "price": 500
+   },
+   {
+    "name": "Consultation - Cardiology",
+    "price": 850
+   },
+   {
+    "name": "Consultation - Neurology",
+    "price": 920
+   },
+   {
+    "name": "Consultation - Oncology",
+    "price": 990
+   },
+   {
+    "name": "Consultation - Gastroenterology",
+    "price": 780
+   },
+   {
+    "name": "Consultation - Orthopaedics",
+    "price": 710
+   },
+   {
+    "name": "Consultation - Nephrology",
+    "price": 780
+   },
+   {
+    "name": "Consultation - Urology",
+    "price": 780
+   },
+   {
+    "name": "Consultation - Obstetrics and Gynaecology",
+    "price": 640
+   },
+   {
+    "name": "Consultation - Paediatrics",
+    "price": 570
+   },
+   {
+    "name": "Consultation - General Surgery",
+    "price": 640
+   },
+   {
+    "name": "Emergency Department Consultation",
+    "price": 640
+   },
+   {
+    "name": "Video Consultation",
+    "price": 430
+   },
+   {
+    "name": "ECG",
+    "price": 280
+   },
+   {
+    "name": "Echocardiogram",
+    "price": 1780
+   },
+   {
+    "name": "Chest X-Ray",
+    "price": 430
+   },
+   {
+    "name": "Ultrasound Abdomen",
+    "price": 1060
+   },
+   {
+    "name": "CT Scan",
+    "price": 4260
+   },
+   {
+    "name": "MRI Scan",
+    "price": 6390
+   },
+   {
+    "name": "PET-CT Scan",
+    "price": 21300
+   },
+   {
+    "name": "Complete Blood Count",
+    "price": 250
+   },
+   {
+    "name": "Lipid Profile",
+    "price": 500
+   },
+   {
+    "name": "HbA1c",
+    "price": 430
+   },
+   {
+    "name": "Liver Function Test",
+    "price": 500
+   },
+   {
+    "name": "Renal Function Test",
+    "price": 460
+   },
+   {
+    "name": "Thyroid Profile",
+    "price": 570
+   },
+   {
+    "name": "Executive Health Check",
+    "price": 4620
+   },
+   {
+    "name": "Cardiac Health Check",
+    "price": 6740
+   },
+   {
+    "name": "Dialysis Session",
+    "price": 1990
+   },
+   {
+    "name": "Chemotherapy Day-care Session",
+    "price": 10650
+   },
+   {
+    "name": "Coronary Angiography",
+    "price": 24850
+   },
+   {
+    "name": "PCI with Stent",
+    "price": 127800
+   },
+   {
+    "name": "Normal Delivery Package",
+    "price": 42600
+   },
+   {
+    "name": "Caesarean Section Package",
+    "price": 78100
+   },
+   {
+    "name": "Robotic Knee Replacement Package",
+    "price": 269800
+   },
+   {
+    "name": "Appendectomy Package",
+    "price": 63900
+   },
+   {
+    "name": "Cataract Surgery Package",
+    "price": 31950
+   },
+   {
+    "name": "Operation Theatre Charges",
+    "price": 17750
+   },
+   {
+    "name": "Anaesthesia Charges",
+    "price": 8520
+   },
+   {
+    "name": "ICU Nursing Charges (per day)",
+    "price": 4260
+   },
+   {
+    "name": "Pharmacy - Medicines and Consumables",
+    "price": 1060
+   },
+   {
+    "name": "Implants and Consumables",
+    "price": 14200
+   }
+  ],
+  "procedures": [
+   {
+    "code": "92928",
+    "description": "Percutaneous coronary intervention with stent"
+   },
+   {
+    "code": "93454",
+    "description": "Coronary angiography"
+   },
+   {
+    "code": "33533",
+    "description": "Coronary artery bypass graft (CABG)"
+   },
+   {
+    "code": "27447",
+    "description": "Total knee arthroplasty"
+   },
+   {
+    "code": "27130",
+    "description": "Total hip arthroplasty"
+   },
+   {
+    "code": "59510",
+    "description": "Cesarean delivery, obstetric care"
+   },
+   {
+    "code": "59400",
+    "description": "Vaginal delivery, obstetric care"
+   },
+   {
+    "code": "44970",
+    "description": "Laparoscopic appendectomy"
+   },
+   {
+    "code": "47562",
+    "description": "Laparoscopic cholecystectomy"
+   },
+   {
+    "code": "66984",
+    "description": "Cataract extraction with IOL insertion"
+   },
+   {
+    "code": "90935",
+    "description": "Haemodialysis, single evaluation"
+   },
+   {
+    "code": "96413",
+    "description": "Chemotherapy administration, IV infusion"
+   },
+   {
+    "code": "93000",
+    "description": "Electrocardiogram (ECG), routine"
+   },
+   {
+    "code": "45378",
+    "description": "Diagnostic colonoscopy"
+   },
+   {
+    "code": "43235",
+    "description": "Diagnostic upper GI endoscopy"
+   },
+   {
+    "code": "55866",
+    "description": "Robotic-assisted radical prostatectomy"
+   },
+   {
+    "code": "50543",
+    "description": "Laparoscopic partial nephrectomy"
+   },
+   {
+    "code": "61863",
+    "description": "Deep brain stimulation electrode implantation"
+   },
+   {
+    "code": "49505",
+    "description": "Repair of inguinal hernia"
+   },
+   {
+    "code": "29881",
+    "description": "Knee arthroscopy with meniscectomy"
+   }
+  ],
+  "insurers": [
+   "Meridian Health TPA (synthetic)",
+   "Sunrise General Insurance (synthetic)",
+   "Evergreen Mediclaim TPA (synthetic)"
+  ],
+  "other_payors": [
+   "Northwind Logistics (synthetic corporate)",
+   "CGHS-ECHS Scheme (synthetic)",
+   "State Health Scheme (synthetic)"
+  ]
+ }
+}
