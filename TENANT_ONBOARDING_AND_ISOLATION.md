@@ -1,3 +1,5 @@
+> **Superseded for operations:** hospital onboarding is now a per-hospital-database, per-subdomain flow. Follow `docs/TENANT_ONBOARDING.md`. The text below is the original single-tenant analysis and release-gate list.
+
 # Tenant onboarding and isolation
 
 ## Current deployment status

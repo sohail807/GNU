@@ -3,7 +3,8 @@ import { execFile } from "child_process";
 import { promisify } from "util";
 import { getSession } from "@/lib/auth-session";
 import { isSuperAdmin } from "@/lib/platform";
-import { getTenantRegistry, saveTenantRegistry, DEFAULT_TENANT_ID, type TenantConfig } from "@/lib/tenant";
+import { APP_BASE_DOMAIN, getTenantRegistry, saveTenantRegistry, DEFAULT_TENANT_ID, type TenantConfig } from "@/lib/tenant";
+import { TrytonClient } from "@/lib/tryton-client";
 
 const execFileAsync = promisify(execFile);
 
@@ -58,26 +59,51 @@ export async function POST(req: NextRequest) {
     // script (which independently re-validates it against the same allow-list regardless).
     const database = `gnuhealth_${subdomain.replace(/-/g, "_")}`;
 
-    let scriptOutput = "";
     let adminUsername = "";
     let adminPassword = "";
-    try {
-      const { stdout } = await execFileAsync("sudo", ["-n", "/usr/local/bin/ist-provision-tenant.sh", database], {
-        timeout: 60_000,
-      });
-      scriptOutput = stdout;
-      // The script prints these on their own lines so the freshly-rotated, tenant-unique
-      // admin password never has to be baked into the template or shared across hospitals.
-      adminUsername = /^ADMIN_USERNAME=(.+)$/m.exec(stdout)?.[1]?.trim() || "";
-      adminPassword = /^ADMIN_PASSWORD=(.+)$/m.exec(stdout)?.[1]?.trim() || "";
-    } catch (err: unknown) {
-      const message = err && typeof err === "object" && "stderr" in err
-        ? String((err as { stderr?: unknown }).stderr || "")
-        : err instanceof Error ? err.message : "Unknown provisioning failure";
-      return NextResponse.json(
-        { error: `Database provisioning failed: ${message.trim() || "see server logs"}` },
-        { status: 500 }
-      );
+
+    if (process.env.TENANT_PROVISIONING === "manual") {
+      // Cloud Run can't reach the database server's provisioning script, so an operator creates
+      // the database on the VM first (docs/TENANT_ONBOARDING.md). Here we only confirm the
+      // backend actually serves that database before making the hospital routable: Tryton answers
+      // 401 for a database it serves and 404 for one it doesn't (no credentials are sent).
+      try {
+        const probe = await fetch(TrytonClient.getBaseUrl(database), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: 1, method: "common.db.login", params: ["__probe__", { password: "__probe__" }] }),
+          signal: AbortSignal.timeout(15_000),
+        });
+        if (probe.status === 404) {
+          return NextResponse.json(
+            { error: `Database "${database}" is not served by the backend yet. Create it on the VM and add it to TRYTOND_DATABASE_NAMES first (see docs/TENANT_ONBOARDING.md).` },
+            { status: 409 }
+          );
+        }
+        if (probe.status !== 401) {
+          return NextResponse.json({ error: `Backend check for "${database}" returned HTTP ${probe.status}.` }, { status: 502 });
+        }
+      } catch {
+        return NextResponse.json({ error: "Could not reach the backend to verify the hospital database." }, { status: 502 });
+      }
+    } else {
+      try {
+        const { stdout } = await execFileAsync("sudo", ["-n", "/usr/local/bin/ist-provision-tenant.sh", database], {
+          timeout: 60_000,
+        });
+        // The script prints these on their own lines so the freshly-rotated, tenant-unique
+        // admin password never has to be baked into the template or shared across hospitals.
+        adminUsername = /^ADMIN_USERNAME=(.+)$/m.exec(stdout)?.[1]?.trim() || "";
+        adminPassword = /^ADMIN_PASSWORD=(.+)$/m.exec(stdout)?.[1]?.trim() || "";
+      } catch (err: unknown) {
+        const message = err && typeof err === "object" && "stderr" in err
+          ? String((err as { stderr?: unknown }).stderr || "")
+          : err instanceof Error ? err.message : "Unknown provisioning failure";
+        return NextResponse.json(
+          { error: `Database provisioning failed: ${message.trim() || "see server logs"}` },
+          { status: 500 }
+        );
+      }
     }
 
     const newTenant: TenantConfig = {
@@ -101,7 +127,7 @@ export async function POST(req: NextRequest) {
       initialAdminCredentials: adminUsername && adminPassword
         ? { username: adminUsername, password: adminPassword }
         : null,
-      message: `Tenant "${name.trim()}" provisioned. Reachable once DNS + TLS for ${subdomain}.<your-domain> are set up.`,
+      message: `Tenant "${name.trim()}" registered. Reachable once ${subdomain}.${APP_BASE_DOMAIN || "<your-domain>"} is added as a custom domain (DNS + TLS).`,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to onboard tenant";

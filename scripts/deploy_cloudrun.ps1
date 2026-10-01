@@ -27,7 +27,9 @@ $envVars = @(
   "SUPER_ADMIN_USERNAMES=irisstar_admin",
   "SESSION_COOKIE_NAME=__session",                 # Firebase Hosting only forwards __session to Cloud Run
   "SESSION_REVOCATION_DIR=/mnt/state/tokens",
-  "TENANT_REGISTRY_DIR=/mnt/state/data"
+  "TENANT_REGISTRY_DIR=/mnt/state/data",
+  "APP_BASE_DOMAIN=isthealth.irisstar.tech",       # <hospital>.isthealth.irisstar.tech resolves to that hospital
+  "TENANT_PROVISIONING=manual"                     # databases are created by an operator on the VM (docs/TENANT_ONBOARDING.md)
 ) -join "@"
 
 Push-Location $frontend

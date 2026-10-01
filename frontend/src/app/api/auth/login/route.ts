@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { TrytonClient } from "@/lib/tryton-client";
 import { setSession } from "@/lib/auth-session";
 import { resolveRoleFromTrytonGroupNames } from "@/lib/access-control";
-import { resolveTenant } from "@/lib/tenant";
+import { APP_BASE_DOMAIN, resolveTenant } from "@/lib/tenant";
 import { clearLoginFailures, clientIp, loginRetryAfter, recordLoginFailure } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
@@ -28,7 +28,10 @@ export async function POST(req: NextRequest) {
     // once subdomain-per-tenant routing is live — a client can't override it via the POST body.
     // The body-supplied tenantId is only honored as a fallback for manual tenant selection
     // (bare-IP / pre-domain access, where there's no subdomain to resolve from).
-    const tenant = resolveTenant(req.headers.get("x-tenant-id") || tenantId);
+    // Once subdomain routing is configured (APP_BASE_DOMAIN), the hospital comes only from the
+    // address the user visited; a body-supplied tenantId is ignored so one hospital's login page
+    // can't be pointed at another hospital's database.
+    const tenant = resolveTenant(APP_BASE_DOMAIN ? req.headers.get("x-tenant-id") : req.headers.get("x-tenant-id") || tenantId);
 
     // The platform onboarding screen's "suspend tenant" action only ever flipped this flag in
     // the registry - nothing here ever read it back, so a suspended hospital's staff could

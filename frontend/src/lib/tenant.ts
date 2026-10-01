@@ -85,6 +85,15 @@ export const APP_BASE_DOMAIN = process.env.APP_BASE_DOMAIN || "";
  * a recognized tenant subdomain (bare IP access, the apex domain, or an unknown subdomain) so
  * callers can fall back to manual tenant selection.
  */
+/**
+ * The host the browser actually used. Behind Firebase Hosting the request reaches Cloud Run with
+ * the run.app host and the original one in X-Forwarded-Host. Only used to pick which hospital's
+ * login page to show -- authorization still comes from that hospital's own credentials.
+ */
+export function requestHost(headers: Headers): string | null {
+  return headers.get("x-forwarded-host")?.split(",")[0]?.trim() || headers.get("host");
+}
+
 export function resolveTenantFromHost(host?: string | null): TenantConfig | null {
   if (!host || !APP_BASE_DOMAIN) return null;
   const hostname = host.split(":")[0].toLowerCase();

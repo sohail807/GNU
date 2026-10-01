@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { resolveTenantFromHost } from "@/lib/tenant";
+import { requestHost, resolveTenantFromHost } from "@/lib/tenant";
 
 // The tenant registry lib/tenant.ts reads from now lives in a runtime-writable file (fs),
 // which isn't available in the default Edge middleware runtime -- this opts into the
@@ -12,7 +12,7 @@ export const runtime = "nodejs";
 // a recognized tenant subdomain — this keeps plain IP / staging access working unchanged
 // until the domain is live.
 export function middleware(req: NextRequest) {
-  const tenant = resolveTenantFromHost(req.headers.get("host"));
+  const tenant = resolveTenantFromHost(requestHost(req.headers));
 
   // Forward x-tenant-id on the request itself (not just the response) so downstream route
   // handlers like /api/auth/login, which read req.headers.get("x-tenant-id"), see it.

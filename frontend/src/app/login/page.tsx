@@ -23,7 +23,6 @@ import {
   HelpCircle,
   X,
   Sparkles,
-  ChevronDown,
   CheckCircle2,
 } from "lucide-react";
 interface PublicTenant {
@@ -51,30 +50,23 @@ const DEMO_STATIONS =
         { label: "Administrator", username: "demo_admin1", password: "DemoAdmin2026!", role: "admin", icon: Shield },
       ];
 
-function readCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
 export default function LoginPage() {
   const router = useRouter();
-  // When middleware resolves the tenant from the request's subdomain (once subdomain-per-tenant
-  // routing is live), it's locked in via this cookie and the manual picker below is hidden.
-  const [hostResolvedTenantId] = useState(() => readCookie("resolved_tenant_id"));
-  const [tenantId, setTenantId] = useState(() => readCookie("resolved_tenant_id") || "qatar-outpatient");
-  // The registry itself now lives server-side in a runtime-writable file (so new tenants can be
-  // onboarded without a rebuild) -- this pre-auth page can't read that file directly, so it
-  // fetches the public, name-only subset instead of importing it.
+  // The hospital is fixed by the address the user visited (middleware resolves it from the
+  // subdomain), so there is no picker: this page only ever learns about its own hospital.
+  const [tenantId, setTenantId] = useState("qatar-outpatient");
   const [tenants, setTenants] = useState<PublicTenant[]>([]);
   useEffect(() => {
     fetch("/api/tenants")
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data.tenants)) setTenants(data.tenants);
+        if (Array.isArray(data.tenants)) {
+          setTenants(data.tenants);
+          if (data.tenants[0]?.id) setTenantId(data.tenants[0].id);
+        }
       })
       .catch(() => {
-        // Leave the picker empty rather than show stale/fabricated facility names.
+        // Leave the facility name blank rather than show a stale or invented one.
       });
   }, []);
   const [username, setUsername] = useState(process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "production" ? "" : "demo_frontdesk1");
@@ -305,36 +297,11 @@ export default function LoginPage() {
           <div className="bg-slate-900/80 border border-slate-800/90 rounded-2xl p-4 sm:p-6 shadow-2xl backdrop-blur-xl">
             <form onSubmit={handleLogin} className="space-y-3 sm:space-y-3.5">
               
-              {/* Hospital Facility: locked to the subdomain's tenant once resolved, otherwise a manual picker */}
-              {hostResolvedTenantId ? (
-                <div className="flex items-center gap-2 px-3 h-10 rounded-xl bg-slate-950/70 border border-slate-800 text-xs sm:text-sm text-slate-200">
-                  <Building2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                  <span className="truncate">{tenants.find((t) => t.id === hostResolvedTenantId)?.name ?? "Your Facility"}</span>
-                </div>
-              ) : (
-                <div>
-                  <label htmlFor="login-tenant" className="text-xs font-semibold text-slate-300 block mb-1">
-                    Hospital Facility
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="login-tenant"
-                      name="database"
-                      value={tenantId}
-                      onChange={(e) => setTenantId(e.target.value)}
-                      className="w-full h-10 px-3 pl-9 pr-8 text-xs sm:text-sm bg-slate-950 border border-slate-700/80 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white transition-all appearance-none cursor-pointer truncate"
-                    >
-                      {tenants.map((t) => (
-                        <option key={t.id} value={t.id} className="bg-slate-900 text-white">
-                          {t.name}
-                        </option>
-                      ))}
-                    </select>
-                    <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3 pointer-events-none" />
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3 pointer-events-none" />
-                  </div>
-                </div>
-              )}
+              {/* Hospital Facility: fixed by the address the user visited */}
+              <div className="flex items-center gap-2 px-3 h-10 rounded-xl bg-slate-950/70 border border-slate-800 text-xs sm:text-sm text-slate-200">
+                <Building2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                <span className="truncate">{currentTenant?.name ?? "Your Facility"}</span>
+              </div>
 
               {/* Username Input */}
               <div>
