@@ -35,6 +35,18 @@ fi
 
 sudo -u postgres createdb -O gnuhealth "$DB_NAME"
 
+# From here on this script owns the new database. If anything below fails, drop it again: a half-built
+# database still carries the template's default admin password, so it must never be left routable.
+CREATED=1
+FINISHED=0
+cleanup_on_failure() {
+  if [[ "${CREATED:-0}" == "1" && "${FINISHED:-0}" != "1" ]]; then
+    echo "Provisioning failed; removing incomplete database $DB_NAME" >&2
+    sudo -u postgres dropdb --force --if-exists "$DB_NAME" || true
+  fi
+}
+trap cleanup_on_failure ERR
+
 # /var/backups/gnuhealth is 700 (postgres-only) so the gnuhealth OS user can't read the
 # template dump directly. Restoring as postgres with --no-owner instead would leave every
 # restored object owned by postgres, invisible to the gnuhealth role trytond connects as --
@@ -69,6 +81,7 @@ chmod 400 "$PASS_FILE"
 
 sudo -u gnuhealth env TRYTONPASSFILE="$PASS_FILE" "$TRYTOND_ADMIN" -c "$TRYTOND_CONF" -d "$DB_NAME" -p >/dev/null
 
+FINISHED=1
 echo "OK: provisioned $DB_NAME"
 echo "ADMIN_USERNAME=admin"
 echo "ADMIN_PASSWORD=$NEW_PASSWORD"

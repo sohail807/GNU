@@ -10,7 +10,8 @@ ExecStart=/usr/bin/python3 /usr/local/lib/ist-provisioner/ist-provisioner.py
 Restart=on-failure
 RestartSec=3
 PrivateTmp=true
-ProtectHome=true
+# read-only, NOT true: the provisioning script runs /home/gnuhealth/venv/bin/trytond-admin
+ProtectHome=read-only
 
 [Install]
 WantedBy=multi-user.target

@@ -58,3 +58,15 @@ that dump into a scratch database and compare tables/rows (done 2026-10-01 for t
 ## Known limits
 - Password recovery is disabled until SMTP exists: a forgotten hospital-admin password is reset by an operator.
 - One VM hosts every hospital's database: size it and keep testing restores as you add clients.
+
+## Verified on the live system (2026-10-01, synthetic `demohospital`)
+Created through the provisioning service (HTTP 200); the database became routable with **no backend restart**; a repeat of
+the same code is refused (409); sign-in works only with the right hospital code (blank/wrong/old codes get the same generic
+401); the hospital's admin sees only its own user and 0 foreign patients; the nightly backup picked the database up
+automatically and uploaded it off-site; a restore of that dump matched the source (306/306 tables, same users).
+
+Lessons from the first run, now fixed: the service unit must use `ProtectHome=read-only` (the script runs
+`/home/gnuhealth/venv/bin/trytond-admin`; `true` hides /home and provisioning fails), and `ist-provision-tenant.sh` now drops
+the database again (`dropdb --force`) if any step after creation fails, because a half-built database still carries the
+template's default admin password.
+
