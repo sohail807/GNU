@@ -138,5 +138,5 @@ Rotated 2026-09-26 after the previous key was found committed in git history (le
 - **Do not add** an `index.html` to `hosting-public/`: static files win over the Cloud Run rewrite and the site goes blank.
 - **State:** logout revocations and the tenant registry live on a GCS bucket mounted at `/mnt/state` (`ist-health-hmis-21722-state`, versioned). Secrets: `ist-session-key` in Secret Manager. Runtime identity: `ist-health-run@ist-health-hmis-21722.iam.gserviceaccount.com`.
 - **Protections:** failed-login throttle (per username + IP, `frontend/src/lib/rate-limit.ts`), security headers + conservative CSP + noindex (`frontend/next.config.ts`), password recovery disabled (503) until SMTP exists.
-- **Monitoring:** Cloud Monitoring uptime check on `/login` every 5 minutes (no alert channel yet).
+- **Monitoring:** Cloud Monitoring uptime checks every 5 minutes on `https://isthealth.irisstar.tech/login` and the `web.app` URL (project `ist-health-hmis-21722`); alert policy "IST Health: login page down" emails `sohail@irisstar.tech` when 2+ regions fail. A legacy check in `gnu-health-509307` probes the VM's `/login` (redirects to the live site).
 - **Backups:** VM `gnuhealth-backup.timer` runs daily 02:00 UTC (14-day retention, off-site copy to GCS).
