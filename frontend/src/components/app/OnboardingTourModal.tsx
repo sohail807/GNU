@@ -36,7 +36,7 @@ const TOUR_STEPS = [
     keyPoints: [
       "Single Source of Clinical Truth: Unified electronic medical records across all hospital departments.",
       "Strict Role-Based Access Control: 8 verified clinical staff personas with segregated departmental permissions.",
-      "Regulatory Compliance: Qatar Healthcare Data Governance & Law No. 13 compliant.",
+      "Regulatory Compliance: built for Gulf health-data protection requirements (UAE and Qatar).",
     ],
     route: "/admin",
     routeLabel: "Inspect Hospital Administration & Staff Directory",
@@ -48,10 +48,10 @@ const TOUR_STEPS = [
     icon: Users,
     color: "#0F766E",
     description:
-      "Receptionists manage the real-time outpatient queue, check in arriving patients, and record legal civil identities with strict QID (Qatar ID) and party uniqueness enforcement.",
+      "Receptionists manage the real-time outpatient queue, check in arriving patients, and record legal civil identities with strict national ID (Emirates ID / Qatar ID) and party uniqueness enforcement.",
     keyPoints: [
       "Real-Time Arrival Queue: 1-click Check-In advances patients directly to Nursing Triage.",
-      "Party Uniqueness: Automatic validation of 11-digit Qatar Civil IDs (QID).",
+      "Party Uniqueness: Automatic validation of national IDs (Qatar ID 11 digits, Emirates ID 15 digits).",
       "Auto-Sequenced PUID: Deterministic medical record numbering (e.g. P00088).",
     ],
     route: "/frontdesk",
@@ -112,7 +112,7 @@ const TOUR_STEPS = [
     icon: Receipt,
     color: "#0F766E",
     description:
-      "The billing desk aggregates consultation and diagnostic charges into a certified patient hospital invoice, processes payment in QAR, and posts balanced entries to the hospital General Ledger.",
+      "The billing desk aggregates consultation and diagnostic charges into a certified patient hospital invoice, processes payment in the hospital's own currency, and posts balanced entries to the hospital General Ledger.",
     keyPoints: [
       "Integrated Billing Engine: Itemized billing generation linking clinical encounters and diagnostic services.",
       "Financial Ledger Integrity: 1-click payment settlement executes verified General Ledger posting.",

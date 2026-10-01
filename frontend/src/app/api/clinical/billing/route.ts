@@ -215,7 +215,17 @@ export async function GET(req: NextRequest) {
       // Non-fatal: the receipt still prints, just without a facility line.
     }
 
-    return NextResponse.json({ success: true, invoices, services, hospitalName, hospitalAddress });
+    // The hospital's own currency (a group has AED and QAR hospitals), so the screens never assume one.
+    let currency = "";
+    try {
+      const company = await TrytonClient.execute<Array<Record<string, any>>>(
+        session.username, session.userId, session.sessionToken,
+        "company.company", "read", [[session.companyId], ["currency.code"]],
+        { company: session.companyId }, session.database
+      );
+      currency = company?.[0]?.["currency."]?.code || company?.[0]?.["currency.code"] || "";
+    } catch { /* leave blank */ }
+    return NextResponse.json({ success: true, invoices, services, hospitalName, hospitalAddress, currency });
   } catch (err: unknown) {
     const status = (err as any)?.status || 500;
     const message = err instanceof Error ? err.message : "Failed to load invoices";

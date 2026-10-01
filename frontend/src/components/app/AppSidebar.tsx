@@ -31,6 +31,8 @@ import {
   Building,
   HeartPulse,
   Cigarette,
+  Siren,
+  Send,
 } from "lucide-react";
 import { ClientSession } from "@/lib/auth-session";
 import { AppModule, hasModuleAccess } from "@/lib/access-control";
@@ -50,6 +52,8 @@ interface NavItem {
   href: string;
   icon: any;
   moduleKey: AppModule;
+  /** Shown when the role holds any of these modules (instead of just moduleKey). */
+  moduleAny?: AppModule[];
   badge?: string;
 }
 
@@ -72,9 +76,14 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         { label: "Patient Registration", href: "/frontdesk/register", icon: UserPlus, moduleKey: "patient_register", badge: "New" },
         { label: "Appointment Desk", href: "/frontdesk/appointments", icon: Calendar, moduleKey: "appointments" },
         { label: "Nursing Triage & Vitals", href: "/nursing", icon: Activity, moduleKey: "nursing", badge: "Vitals" },
+        { label: "Emergency Department", href: "/emergency", icon: Siren, moduleKey: "frontdesk", moduleAny: ["frontdesk", "nursing", "physician"], badge: "ED" },
+        { label: "Admission Planning", href: "/admissions", icon: ClipboardList, moduleKey: "inpatient", moduleAny: ["inpatient", "billing", "frontdesk"], badge: "Est." },
         { label: "Inpatient Care & Beds", href: "/inpatient", icon: Bed, moduleKey: "inpatient", badge: "Wards" },
+        { label: "Discharge Clearance", href: "/discharges", icon: ClipboardList, moduleKey: "inpatient", moduleAny: ["inpatient", "billing", "pharmacy", "physician", "nursing"], badge: "D/C" },
+        { label: "Referrals", href: "/referrals", icon: Send, moduleKey: "inpatient", moduleAny: ["frontdesk", "physician", "nursing", "inpatient"], badge: "Refer" },
         { label: "Operating Theatre", href: "/surgery", icon: Scissors, moduleKey: "surgery", badge: "OT" },
         { label: "Hospital Pharmacy", href: "/pharmacy", icon: Pill, moduleKey: "pharmacy", badge: "Rx" },
+        { label: "Pharmacy Stock", href: "/stock", icon: Pill, moduleKey: "pharmacy", badge: "Stock" },
         { label: "Physician Cockpit", href: "/physician", icon: Stethoscope, moduleKey: "physician", badge: "SOAP" },
         { label: "Diagnostic Lab", href: "/laboratory", icon: Microscope, moduleKey: "laboratory", badge: "CBC" },
         { label: "Digital Radiology", href: "/radiology", icon: Scan, moduleKey: "radiology", badge: "PACS" },
@@ -214,7 +223,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             .map((sec) => ({
               ...sec,
               items: sec.items.filter(
-                (item) => user.role === "admin" || hasModuleAccess(user.role, item.moduleKey)
+                (item) => user.role === "admin" || (item.moduleAny || [item.moduleKey]).some((m) => hasModuleAccess(user.role, m))
               ),
             }))
             .filter((sec) => sec.items.length > 0)

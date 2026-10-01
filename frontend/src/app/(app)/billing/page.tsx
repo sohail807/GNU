@@ -63,6 +63,7 @@ export default function CashierBillingPage() {
 
   // Invoices State (TC-UAT-07)
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [cur, setCur] = useState("");
   const [hospitalName, setHospitalName] = useState("");
   const [hospitalAddress, setHospitalAddress] = useState<string | null>(null);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
@@ -138,6 +139,7 @@ export default function CashierBillingPage() {
         }
       }
 
+      if (typeof invData.currency === "string") setCur(invData.currency);
       if (invData.success && Array.isArray(invData.invoices)) {
         setInvoices(invData.invoices);
         if (invData.invoices.length > 0 && !activeInvoice) {
@@ -352,7 +354,7 @@ export default function CashierBillingPage() {
       });
       setIsPayModalOpen(false);
       setFeedback(
-        `Payment of QAR ${paymentAmount} settled via ${paymentJournal} journal for ${activeInvoice.patient}. Invoice state is 'Paid' with QAR 0.00 Balance remaining.`
+        `Payment of ${cur} ${paymentAmount} settled via ${paymentJournal} journal for ${activeInvoice.patient}. Invoice state is 'Paid' with ${cur} 0.00 Balance remaining.`
       );
       // Refresh ledger moves
       fetch("/api/clinical/ledger")
@@ -448,7 +450,7 @@ export default function CashierBillingPage() {
               >
                 {invoices.map((inv) => (
                   <option key={inv.id} value={inv.id}>
-                    {inv.number} — {inv.patient} (QAR {inv.totalQar.toFixed(2)}) [{inv.status.toUpperCase()}]
+                    {inv.number} — {inv.patient} ({cur} {inv.totalQar.toFixed(2)}) [{inv.status.toUpperCase()}]
                   </option>
                 ))}
                 {invoices.length === 0 && <option value="">No Invoices Found</option>}
@@ -505,7 +507,7 @@ export default function CashierBillingPage() {
                   leftIcon={<Coins className="w-4 h-4" />}
                   className="bg-emerald-600 hover:bg-emerald-700 font-bold"
                 >
-                  PAY INVOICE (QAR {activeInvoice.amountToPay.toFixed(2)})
+                  PAY INVOICE ({cur} {activeInvoice.amountToPay.toFixed(2)})
                 </Button>
               )}
 
@@ -574,11 +576,11 @@ export default function CashierBillingPage() {
                 </div>
               </div>
 
-              {/* Balance Banner (Resolves S7.8: Verify invoice state is Paid and balance is QAR 0.00) */}
+              {/* Balance Banner (Resolves S7.8: Verify invoice state is Paid and balance is {cur} 0.00) */}
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-right">
                 <div className="text-[10px] font-mono uppercase text-slate-500">OUTSTANDING BALANCE</div>
                 <div className="font-mono text-lg font-semibold text-slate-900">
-                  QAR {activeInvoice.amountToPay.toFixed(2)}
+                  {cur} {activeInvoice.amountToPay.toFixed(2)}
                 </div>
               </div>
             </div>
@@ -589,7 +591,7 @@ export default function CashierBillingPage() {
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-tight">
                   Billable Services & Consultation Items
                 </h3>
-                <span className="text-[11px] font-mono text-slate-500">Currency: Qatari Riyal (QAR)</span>
+                <span className="text-[11px] font-mono text-slate-500">Currency: {cur}</span>
               </div>
 
               <div className="border border-slate-200/90 rounded-xl overflow-hidden">
@@ -609,9 +611,9 @@ export default function CashierBillingPage() {
                         <td className="py-3.5 px-4 font-mono text-slate-400">0{idx + 1}</td>
                         <td className="py-3.5 px-4 font-bold text-slate-900">{line.desc}</td>
                         <td className="py-3.5 px-4 font-mono text-slate-600">1.0</td>
-                        <td className="py-3.5 px-4 font-mono text-slate-800">QAR {line.amount.toFixed(2)}</td>
+                        <td className="py-3.5 px-4 font-mono text-slate-800">{cur} {line.amount.toFixed(2)}</td>
                         <td className="py-3.5 px-4 font-mono font-bold text-slate-900 text-right">
-                          QAR {line.amount.toFixed(2)}
+                          {cur} {line.amount.toFixed(2)}
                         </td>
                       </tr>
                     ))}
@@ -624,19 +626,19 @@ export default function CashierBillingPage() {
                 <div className="w-72 space-y-1.5 text-xs">
                   <div className="flex justify-between text-slate-500">
                     <span>Subtotal:</span>
-                    <span className="font-mono text-slate-800 font-semibold">QAR {activeInvoice.totalQar.toFixed(2)}</span>
+                    <span className="font-mono text-slate-800 font-semibold">{cur} {activeInvoice.totalQar.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-slate-500">
                     <span>Applicable Tax (0%):</span>
-                    <span className="font-mono text-slate-800 font-semibold">QAR 0.00</span>
+                    <span className="font-mono text-slate-800 font-semibold">{cur} 0.00</span>
                   </div>
                   <div className="flex justify-between font-bold text-sm text-slate-900 pt-2 border-t border-slate-200">
                     <span>Total Amount:</span>
-                    <span className="font-mono text-[#0F766E]">QAR {activeInvoice.totalQar.toFixed(2)}</span>
+                    <span className="font-mono text-[#0F766E]">{cur} {activeInvoice.totalQar.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-xs pt-1">
                     <span className="text-slate-600">Remaining to Pay:</span>
-                    <span className="font-mono text-emerald-700 font-semibold">QAR {activeInvoice.amountToPay.toFixed(2)}</span>
+                    <span className="font-mono text-emerald-700 font-semibold">{cur} {activeInvoice.amountToPay.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -656,12 +658,12 @@ export default function CashierBillingPage() {
                 )}
                 {activeInvoice.status === "posted" && (
                   <Button variant="primary" size="sm" onClick={handleLaunchPayWizard} className="bg-emerald-600 hover:bg-emerald-700 font-bold">
-                    PAY INVOICE WIZARD (QAR {activeInvoice.amountToPay.toFixed(2)})
+                    PAY INVOICE WIZARD ({cur} {activeInvoice.amountToPay.toFixed(2)})
                   </Button>
                 )}
                 {activeInvoice.status === "paid" && (
                   <Badge variant="green" size="md">
-                    Payment Reconciled (QAR 0.00 Balance)
+                    Payment Reconciled ({cur} 0.00 Balance)
                   </Badge>
                 )}
               </div>
@@ -708,19 +710,19 @@ export default function CashierBillingPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="p-4 bg-white border border-slate-200/90 rounded-xl shadow-2xs space-y-1">
                   <span className="kicker text-[10px] text-slate-500 block">TOTAL DEBIT AUDIT</span>
-                  <div className="font-mono text-xl font-semibold text-slate-900">QAR {totalDebit.toFixed(2)}</div>
+                  <div className="font-mono text-xl font-semibold text-slate-900">{cur} {totalDebit.toFixed(2)}</div>
                   <p className="text-[10px] text-slate-400 font-mono">Across {accountMoves.length} posted move(s)</p>
                 </div>
 
                 <div className="p-4 bg-white border border-slate-200/90 rounded-xl shadow-2xs space-y-1">
                   <span className="kicker text-[10px] text-slate-500 block">TOTAL CREDIT AUDIT</span>
-                  <div className="font-mono text-xl font-semibold text-slate-900">QAR {totalCredit.toFixed(2)}</div>
+                  <div className="font-mono text-xl font-semibold text-slate-900">{cur} {totalCredit.toFixed(2)}</div>
                   <p className="text-[10px] text-slate-400 font-mono">Across {accountMoves.length} posted move(s)</p>
                 </div>
 
                 <div className={`p-4 rounded-xl shadow-2xs space-y-1 border ${balanced ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"}`}>
                   <span className={`kicker text-[10px] block font-bold ${balanced ? "text-emerald-700" : "text-red-700"}`}>NET BALANCE</span>
-                  <div className={`font-mono text-xl font-semibold ${balanced ? "text-emerald-800" : "text-red-800"}`}>QAR {Math.abs(net).toFixed(2)}</div>
+                  <div className={`font-mono text-xl font-semibold ${balanced ? "text-emerald-800" : "text-red-800"}`}>{cur} {Math.abs(net).toFixed(2)}</div>
                   <p className={`text-[10px] font-mono font-bold ${balanced ? "text-emerald-700" : "text-red-700"}`}>
                     {balanced ? "Balanced & Reconciled" : "Out of Balance"}
                   </p>
@@ -768,8 +770,8 @@ export default function CashierBillingPage() {
                           <tr className="bg-slate-50/70 border-b border-slate-200/80 font-mono text-[10px] text-slate-500 uppercase">
                             <th className="py-2 px-3">Account Code</th>
                             <th className="py-2 px-3">Account Title</th>
-                            <th className="py-2 px-3 text-right">Debit (QAR)</th>
-                            <th className="py-2 px-3 text-right">Credit (QAR)</th>
+                            <th className="py-2 px-3 text-right">Debit ({cur})</th>
+                            <th className="py-2 px-3 text-right">Credit ({cur})</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 font-sans">
@@ -822,11 +824,11 @@ export default function CashierBillingPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Total Invoice Amount:</span>
-              <span className="font-mono font-bold text-slate-900">QAR {activeInvoice.totalQar.toFixed(2)}</span>
+              <span className="font-mono font-bold text-slate-900">{cur} {activeInvoice.totalQar.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Amount Due:</span>
-              <span className="font-mono font-bold text-[#0F766E]">QAR {activeInvoice.amountToPay.toFixed(2)}</span>
+              <span className="font-mono font-bold text-[#0F766E]">{cur} {activeInvoice.amountToPay.toFixed(2)}</span>
             </div>
           </div>
 
@@ -841,13 +843,13 @@ export default function CashierBillingPage() {
               <option value="Cash">Cash Journal (Main Reception Till)</option>
               <option value="Debit Card">Debit / POS Terminal (Direct Settlement)</option>
               <option value="Credit Card">Credit Card (Visa / Mastercard)</option>
-              <option value="Health Insurance">Qatar National Health Insurance</option>
+              <option value="Health Insurance">Health Insurance</option>
             </select>
           </div>
 
           {/* Payment Amount Input */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700">Payment Amount (QAR) *</label>
+            <label className="text-xs font-semibold text-slate-700">Payment Amount ({cur}) *</label>
             <input
               type="text"
               inputMode="decimal"
@@ -868,7 +870,7 @@ export default function CashierBillingPage() {
               isLoading={isProcessing}
               className="bg-emerald-600 hover:bg-emerald-700 font-bold"
             >
-              Confirm & Execute Payment (QAR {paymentAmount})
+              Confirm & Execute Payment ({cur} {paymentAmount})
             </Button>
           </div>
         </form>
@@ -917,7 +919,7 @@ export default function CashierBillingPage() {
                 >
                   {serviceCatalog.map((svc, idx) => (
                     <option key={svc.id} value={idx}>
-                      {svc.name} — QAR {svc.price.toFixed(2)}
+                      {svc.name} — {cur} {svc.price.toFixed(2)}
                     </option>
                   ))}
                 </select>
@@ -934,7 +936,7 @@ export default function CashierBillingPage() {
                 <div key={line.productId} className="flex items-center justify-between text-xs px-1.5 py-1">
                   <span className="font-medium text-slate-700">{line.desc}</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-600">QAR {line.price.toFixed(2)}</span>
+                    <span className="font-semibold text-slate-600">{cur} {line.price.toFixed(2)}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveInvoiceLine(line.productId)}
@@ -948,7 +950,7 @@ export default function CashierBillingPage() {
               ))}
               <div className="flex items-center justify-between text-xs px-1.5 pt-1 border-t border-slate-200 font-bold">
                 <span>Total</span>
-                <span>QAR {invoiceLinesTotal.toFixed(2)}</span>
+                <span>{cur} {invoiceLinesTotal.toFixed(2)}</span>
               </div>
             </div>
           )}
@@ -965,8 +967,8 @@ export default function CashierBillingPage() {
               disabled={isProcessing || !newInvPatientId || (invoiceLines.length === 0 && !selectedService)}
             >
               Save Invoice {invoiceLines.length > 0
-                ? `(QAR ${invoiceLinesTotal.toFixed(2)})`
-                : selectedService ? `(QAR ${selectedService.price.toFixed(2)})` : ""}
+                ? `(${cur} ${invoiceLinesTotal.toFixed(2)})`
+                : selectedService ? `(${cur} ${selectedService.price.toFixed(2)})` : ""}
             </Button>
           </div>
         </form>
@@ -1003,11 +1005,11 @@ export default function CashierBillingPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Amount Paid:</span>
-              <span className="font-bold text-emerald-700 text-sm">QAR {lastReceipt.amount}</span>
+              <span className="font-bold text-emerald-700 text-sm">{cur} {lastReceipt.amount}</span>
             </div>
             <div className="flex justify-between border-t border-slate-200 pt-1">
               <span className="text-slate-500">Remaining Balance:</span>
-              <span className="font-bold text-slate-900">QAR 0.00 (Settled)</span>
+              <span className="font-bold text-slate-900">{cur} 0.00 (Settled)</span>
             </div>
           </div>
 

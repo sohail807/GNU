@@ -298,7 +298,7 @@ export default function FacilitiesPage() {
               <option value="clinitron">Clinitron</option>
             </select>
           </div>
-          <Input label="Daily Rate (QAR)" type="number" min="0" step="0.01" value={bedRate} onChange={(e) => setBedRate(e.target.value)} />
+          <Input label="Daily Rate" type="number" min="0" step="0.01" value={bedRate} onChange={(e) => setBedRate(e.target.value)} />
           <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setIsBedModalOpen(false)}>Cancel</Button>
             <Button type="submit" variant="primary" isLoading={isSubmitting} className="bg-[#0F766E] font-bold">

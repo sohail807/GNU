@@ -404,7 +404,7 @@ export default function UnifiedPatientChartPage() {
                 <Badge variant="green" dot>GNU Health patient record</Badge>
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                QID: <span className="font-mono text-slate-700 font-bold">{patient.qid || "Not recorded"}</span> · DOB: {patient.dob || "Not recorded"} · Age: {patient.age || "Not recorded"} · Blood Group: {patient.bloodGroup || "Not recorded"}
+                National ID: <span className="font-mono text-slate-700 font-bold">{patient.qid || "Not recorded"}</span> · DOB: {patient.dob || "Not recorded"} · Age: {patient.age || "Not recorded"} · Blood Group: {patient.bloodGroup || "Not recorded"}
               </p>
             </div>
           </div>
@@ -763,7 +763,7 @@ export default function UnifiedPatientChartPage() {
             </h3>
             <div className="text-xs space-y-2 text-slate-600">
               <div className="flex justify-between"><span className="text-slate-400">Full Name:</span><span className="font-bold text-slate-900">{patient.name}</span></div>
-              <div className="flex justify-between"><span className="text-slate-400">Civil QID:</span><span className="font-mono font-bold text-slate-900">{patient.qid || "Not recorded"}</span></div>
+              <div className="flex justify-between"><span className="text-slate-400">National ID:</span><span className="font-mono font-bold text-slate-900">{patient.qid || "Not recorded"}</span></div>
               <div className="flex justify-between"><span className="text-slate-400">Date of Birth:</span><span>{patient.dob} ({patient.age} Years)</span></div>
               <div className="flex justify-between"><span className="text-slate-400">Biological Sex:</span><span>{patient.gender}</span></div>
               <div className="flex justify-between"><span className="text-slate-400">Blood Group:</span><span className="font-bold text-[#0F766E]">{patient.bloodGroup}</span></div>
@@ -832,5 +832,5 @@ function rxMedicationSummary(rx: any): string {
 
 function formatQar(value: number | string | null | undefined): string {
   if (value == null || value === "" || !Number.isFinite(Number(value))) return "Not available";
-  return new Intl.NumberFormat("en-QA", { style: "currency", currency: "QAR" }).format(Number(value));
+  return new Intl.NumberFormat(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value));
 }

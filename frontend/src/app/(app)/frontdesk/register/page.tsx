@@ -93,9 +93,9 @@ export default function PatientRegistrationPage() {
     setIsDuplicateError(false);
     setSuccessMessage(null);
 
-    // Validation for QID (11 digits required in Qatar)
-    if (!/^\d{11}$/.test(formData.qid.replace(/\s+/g, ""))) {
-      setErrorMessage("Qatar Civil ID (QID) must consist of exactly 11 digits.");
+    // National ID: Qatar ID is 11 digits, Emirates ID is 15 digits
+    if (!/^\d{11}$|^\d{15}$/.test(formData.qid.replace(/[\s-]+/g, ""))) {
+      setErrorMessage("The national ID must be 11 digits (Qatar ID) or 15 digits (Emirates ID).");
       setIsLoading(false);
       return;
     }
@@ -317,8 +317,8 @@ export default function PatientRegistrationPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Input
-                label="Qatar Civil ID (QID - 11 Digits) *"
-                placeholder="11 digit Qatar Civil ID"
+                label="National ID (Qatar ID 11 digits / Emirates ID 15 digits) *"
+                placeholder="11 or 15 digit national ID"
                 value={formData.qid}
                 onChange={(e) => setFormData({ ...formData, qid: e.target.value })}
                 required

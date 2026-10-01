@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { hasModuleAccess } from "@/lib/access-control";
+import { dischargeBlock } from "@/lib/ops-api";
 
 // Tryton datetime/date fields deserialize as { __class__, year, month, day, hour?, minute? }
 // objects, not strings - rendering one directly as a React child crashes the page.
@@ -337,6 +338,10 @@ export async function PATCH(req: NextRequest) {
     if (!admissionId) {
       return NextResponse.json({ error: "Admission ID is required" }, { status: 400 });
     }
+
+    // Every department must have signed off (medical, nursing, pharmacy, billing, insurance) before the patient leaves.
+    const blocked = await dischargeBlock(session, parseInt(admissionId, 10));
+    if (blocked) return NextResponse.json({ error: blocked }, { status: 409 });
 
     // GNU Health's own discharge validation (check_discharge_context) requires
     // discharge_reason, discharge_dx AND admission_reason to all be set before

@@ -78,7 +78,7 @@ export default function MasterPatientDirectoryPage() {
             Master Patient Registry & Charts
           </h1>
           <p className="text-xs text-slate-600 mt-1">
-            Authoritative GNU Health Patient Records Directory · Search by Name, PUID or Qatar ID.
+            Authoritative GNU Health Patient Records Directory · Search by Name, PUID or National ID.
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export default function MasterPatientDirectoryPage() {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search by Patient Name, PUID (e.g. P00088), or QID..."
+            placeholder="Search by Patient Name, PUID (e.g. P00088), or National ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-[#0F766E]"

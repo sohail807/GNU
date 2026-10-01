@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { hasModuleAccess } from "@/lib/access-control";
+import { consumeStock } from "@/lib/ops-api";
 
 // Tryton datetime/date fields deserialize as { __class__, year, month, day, hour?, minute? }
 // objects, not strings - rendering one directly as a React child crashes the page.
@@ -162,6 +163,10 @@ export async function POST(req: NextRequest) {
     }
 
     const context = { company: session.companyId };
+
+    // Take the medicines out of stock first (earliest expiry first); a shortage of a tracked medicine stops the dispense.
+    const shortage = await consumeStock(session, parseInt(prescriptionId, 10));
+    if (shortage) return NextResponse.json({ error: shortage }, { status: 409 });
 
     // Update prescription state to done (dispensed)
     await TrytonClient.execute(

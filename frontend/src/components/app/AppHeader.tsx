@@ -148,7 +148,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
         <input
           type="text"
-          placeholder="Quick search patient (PUID, QID, Name)..."
+          placeholder="Quick search patient (PUID, National ID, Name)..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full h-9 pl-9 pr-12 text-xs bg-slate-50 border border-slate-200/90 rounded-lg focus:outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:bg-white transition-all text-slate-800 placeholder:text-slate-400"
