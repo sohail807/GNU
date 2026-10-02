@@ -102,8 +102,8 @@ export async function GET(req: NextRequest) {
         [
           [],
           0,
-          50,
-          [["surgery_date", "DESC"]],
+          100,
+          [["id", "DESC"]],
           [
             "id",
             "code",

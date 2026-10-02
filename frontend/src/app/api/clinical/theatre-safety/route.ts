@@ -18,7 +18,7 @@ export async function GET() {
   if ("response" in g) return g.response;
   const { session } = g;
   try {
-    const surgeries = await rpc<Row[]>(session, "gnuhealth.surgery", "search_read", [[["state", "in", ["confirmed", "in_progress", "done", "signed"]]], 0, 100, [["surgery_date", "DESC"]],
+    const surgeries = await rpc<Row[]>(session, "gnuhealth.surgery", "search_read", [[["state", "in", ["confirmed", "in_progress", "done", "signed"]]], 0, 100, [["id", "DESC"]],
       ["id", "code", "description", "patient", "operating_room", "surgery_date", "state"]]);
     const sIds = surgeries.map((s) => s.id as number);
     const checks = sIds.length ? await rpc<Row[]>(session, M, "search_read", [[["surgery", "in", sIds]], 0, 200, null,
