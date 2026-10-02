@@ -16,8 +16,10 @@ interface HttpStatusError extends Error { status?: number }
 
 /** A backend business-rule message, cleaned of record ids, table names and field labels before it reaches a caller. */
 function cleanHumanMessage(human: string): HttpStatusError {
-  let message = human, status = 400;
-  if (/you are trying to (read|write)|does not exist|don't exist|do not exist/i.test(human)) { message = "The record was not found."; status = 404; }
+  // Backend message codes ("SM-CORE-0007: ...") and form/field labels are internal wording, never shown to a user.
+  let message = human.replace(/^[A-Z]{2,}-[A-Z]+-\d+:\s*/, ""), status = 400;
+  if (/not associated to a health professional/i.test(human)) { message = "Only a doctor or nurse registered as a health professional can do this. Sign in with a clinical account."; status = 403; }
+  else if (/you are trying to (read|write)|does not exist|don't exist|do not exist/i.test(human)) { message = "The record was not found."; status = 404; }
   else if (/a value is required|is required|required for field|the value .* for field/i.test(human)) { message = "A required value is missing or not valid."; }
   const error = new Error(message) as HttpStatusError;
   error.status = status;

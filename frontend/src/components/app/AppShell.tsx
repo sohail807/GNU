@@ -4,7 +4,10 @@ import React, { useState, useEffect } from "react";
 import { AppSidebar } from "./AppSidebar";
 import { AppHeader } from "./AppHeader";
 import { OnboardingTourModal } from "./OnboardingTourModal";
+import { usePathname } from "next/navigation";
+import { AccessDeniedCard } from "./AccessDeniedCard";
 import { ClientSession } from "@/lib/auth-session";
+import { deniedPageFor, landingFor } from "@/lib/access-control";
 
 interface AppShellProps {
   user: ClientSession;
@@ -13,7 +16,9 @@ interface AppShellProps {
 }
 
 export const AppShell: React.FC<AppShellProps> = ({ user, children, isSuperAdmin = false }) => {
-  const isTestInstance = process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "test";
+  const pathname = usePathname();
+  const deniedPage = deniedPageFor(user.role, pathname);
+  const isTestInstance =process.env.NEXT_PUBLIC_DEPLOYMENT_MODE === "test";
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
@@ -86,7 +91,11 @@ export const AppShell: React.FC<AppShellProps> = ({ user, children, isSuperAdmin
               Isolated test environment. Do not use for patient care, live billing, or production operations.
             </div>
           )}
-          {children}
+          {deniedPage ? (
+            <AccessDeniedCard moduleName={deniedPage} userRole={user.role} defaultPath={landingFor(user.role)} />
+          ) : (
+            children
+          )}
         </main>
       </div>
 

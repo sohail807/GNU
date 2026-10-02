@@ -356,6 +356,59 @@ export function hasModuleAccess(
   return !!rolePerms[moduleKey];
 }
 
+/**
+ * Page routes guarded in the app shell. Mirrors the sidebar: a page a role cannot see in the
+ * menu is also refused when its URL is typed in. The API routes stay the real enforcement.
+ */
+const ROUTE_MODULES: Array<{ prefix: string; label: string; modules: AppModule[] }> = [
+  { prefix: "/frontdesk/register", label: "Patient Registration", modules: ["patient_register"] },
+  { prefix: "/frontdesk/appointments", label: "Appointment Desk", modules: ["appointments"] },
+  { prefix: "/frontdesk", label: "Front Desk & Queue", modules: ["frontdesk"] },
+  { prefix: "/nursing", label: "Nursing Triage & Vitals", modules: ["nursing"] },
+  { prefix: "/physician", label: "Physician Cockpit", modules: ["physician"] },
+  { prefix: "/inpatient", label: "Inpatient Care & Beds", modules: ["inpatient"] },
+  { prefix: "/surgery", label: "Operating Theatre", modules: ["surgery"] },
+  { prefix: "/theatre-safety", label: "Theatre Safety Checklist", modules: ["surgery"] },
+  { prefix: "/pharmacy", label: "Hospital Pharmacy", modules: ["pharmacy"] },
+  { prefix: "/stock", label: "Pharmacy Stock", modules: ["pharmacy"] },
+  { prefix: "/laboratory", label: "Diagnostic Lab", modules: ["laboratory"] },
+  { prefix: "/radiology", label: "Digital Radiology", modules: ["radiology"] },
+  { prefix: "/billing", label: "Cashier & Invoicing", modules: ["billing", "ledger"] },
+  { prefix: "/emergency", label: "Emergency Department", modules: ["frontdesk", "nursing", "physician"] },
+  { prefix: "/admissions", label: "Admission Planning", modules: ["inpatient", "billing", "frontdesk"] },
+  { prefix: "/discharges", label: "Discharge Clearance", modules: ["inpatient", "billing", "pharmacy", "physician", "nursing"] },
+  { prefix: "/referrals", label: "Referrals", modules: ["frontdesk", "physician", "nursing", "inpatient"] },
+  { prefix: "/deliveries", label: "Deliveries & Newborns", modules: ["obstetrics", "physician", "nursing"] },
+  { prefix: "/lab-alerts", label: "Result Alerts", modules: ["laboratory", "physician", "nursing"] },
+  { prefix: "/reports", label: "Management Report", modules: ["ledger", "admin"] },
+  { prefix: "/obstetrics", label: "Obstetrics & Pregnancy", modules: ["obstetrics"] },
+  { prefix: "/womens-health", label: "Women's Health Screening", modules: ["womens_health"] },
+  { prefix: "/socioeconomics", label: "Socioeconomic Assessment", modules: ["socioeconomics"] },
+];
+
+const ROLE_LANDING: Record<string, string> = {
+  admin: "/admin",
+  reception: "/frontdesk",
+  nursing: "/nursing",
+  physician: "/physician",
+  lab: "/laboratory",
+  radiology: "/radiology",
+  cashier: "/billing",
+  accountant: "/billing?tab=ledger",
+};
+
+export function landingFor(userRole: string): string {
+  return ROLE_LANDING[userRole] || "/patient";
+}
+
+/** The guarded page a path belongs to, if the role has no access to it. Admins pass everywhere. */
+export function deniedPageFor(userRole: string, pathname: string): string | null {
+  if (userRole === "admin") return null;
+  const match = ROUTE_MODULES.find((r) => pathname === r.prefix || pathname.startsWith(`${r.prefix}/`));
+  if (!match) return null;
+  return match.modules.some((m) => hasModuleAccess(userRole, m)) ? null : match.label;
+}
+
 /** Resolve the UI persona from actual Tryton group names returned by the server. */
 export function resolveRoleFromTrytonGroupNames(groupNames: string[] = []): {
   role: HospitalRole;

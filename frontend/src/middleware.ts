@@ -11,7 +11,24 @@ export const runtime = "nodejs";
 // manual tenant picker. Falls back to unset (manual selection on /login) when the host isn't
 // a recognized tenant subdomain — this keeps plain IP / staging access working unchanged
 // until the domain is live.
-export function middleware(req: NextRequest) {
+const BODY_METHODS = new Set(["POST", "PUT", "PATCH"]);
+const MAX_JSON_CHECK_BYTES = 1_000_000;
+
+export async function middleware(req: NextRequest) {
+  // A request body that is not valid JSON used to reach the route and come back as a 500 with the parser's own wording.
+  // Refuse it once, here, with a plain 400 for every API route.
+  if (BODY_METHODS.has(req.method) && req.nextUrl.pathname.startsWith("/api/") && (req.headers.get("content-type") || "").includes("json")) {
+    const declared = Number(req.headers.get("content-length") || 0);
+    if (declared <= MAX_JSON_CHECK_BYTES) {
+      const text = await req.clone().text();
+      if (text.trim()) {
+        try { JSON.parse(text); } catch {
+          return NextResponse.json({ error: "The request was not valid JSON." }, { status: 400 });
+        }
+      }
+    }
+  }
+
   const tenant = resolveTenantFromHost(requestHost(req.headers));
 
   // Forward x-tenant-id on the request itself (not just the response) so downstream route

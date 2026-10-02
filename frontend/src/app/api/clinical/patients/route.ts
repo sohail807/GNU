@@ -169,11 +169,27 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    if (typeof name !== "string" || typeof qid !== "string" || name.length > 200 || qid.length > 32) {
+      return NextResponse.json({ error: "The name must be at most 200 characters and the civil ID at most 32." }, { status: 400 });
+    }
 
     // 1. Create party.party using user's session
     const genderCode = typeof gender === "string" && gender ? gender.toLowerCase().charAt(0) : undefined;
     if (genderCode && !["m", "f", "n", "o", "u"].includes(genderCode)) {
       return NextResponse.json({ error: "Gender must be a valid health records system selection." }, { status: 400 });
+    }
+    // Validate before anything is created: a date or blood type the backend rejects used to surface as a misleading
+    // "hospital system temporarily unavailable", and a blood type failure came after the person record already existed.
+    if (dob !== undefined && dob !== null && dob !== "") {
+      const m = typeof dob === "string" ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(dob) : null;
+      const real = m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])) : null;
+      if (!m || !real || real.getUTCFullYear() !== +m[1] || real.getUTCMonth() !== +m[2] - 1 || real.getUTCDate() !== +m[3]) {
+        return NextResponse.json({ error: "Enter the date of birth as a real date (YYYY-MM-DD)." }, { status: 400 });
+      }
+      if (real.getTime() > Date.now()) return NextResponse.json({ error: "The date of birth cannot be in the future." }, { status: 400 });
+    }
+    if (bloodType !== undefined && bloodType !== null && bloodType !== "" && !(typeof bloodType === "string" && /^(A|B|AB|O)[+-]?$/.test(bloodType))) {
+      return NextResponse.json({ error: "Choose a valid blood group (A, B, AB or O, with + or -)." }, { status: 400 });
     }
     const dobObj = dob
       ? {
@@ -216,16 +232,26 @@ export async function POST(req: NextRequest) {
       patientPayload.rh = bloodType.includes("-") ? "-" : "+";
     }
 
-    const patientRes = await TrytonClient.execute<number[]>(
-      session.username,
-      session.userId,
-      session.sessionToken,
-      "gnuhealth.patient",
-      "create",
-      [[patientPayload]],
-      { company: session.companyId },
-      session.database
-    );
+    let patientRes: number[];
+    try {
+      patientRes = await TrytonClient.execute<number[]>(
+        session.username,
+        session.userId,
+        session.sessionToken,
+        "gnuhealth.patient",
+        "create",
+        [[patientPayload]],
+        { company: session.companyId },
+        session.database
+      );
+    } catch (patientErr) {
+      // Do not leave a person record behind without its patient file.
+      await TrytonClient.execute(
+        session.username, session.userId, session.sessionToken, "party.party", "delete", [[partyId]],
+        { company: session.companyId }, session.database
+      ).catch(() => undefined);
+      throw patientErr;
+    }
     const patientId = patientRes[0];
 
     // 3. Read the created patient file

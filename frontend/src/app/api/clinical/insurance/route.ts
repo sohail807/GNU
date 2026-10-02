@@ -130,6 +130,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "A valid patient, insurance company, and policy number are required." }, { status: 400 });
     }
 
+    // A party that is both a patient and flagged as an insurer (a known data anomaly) must not insure itself.
+    if (partyId === companyId) {
+      return NextResponse.json({ error: "A patient cannot be their own insurance company. Choose the insurer." }, { status: 400 });
+    }
+
     const VALID_TYPES = ["state", "labour_union", "private"];
     if (body.insuranceType !== undefined && body.insuranceType !== "" && !VALID_TYPES.includes(body.insuranceType)) {
       return NextResponse.json(
