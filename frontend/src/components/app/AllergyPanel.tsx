@@ -5,7 +5,7 @@ import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 
-interface Allergy { id: number; code: string; name: string; kind: string; severity: string; active: boolean; note: string | null; unverified?: boolean }
+interface Allergy { id: number; code: string; name: string; kind: string; severity: string; active: boolean; note: string | null }
 const SEL = "w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:outline-none focus:border-[#0F766E]";
 
 /** Lists a patient's recorded allergies and lets a doctor or nurse add one (searching the diagnosis catalogue). */
@@ -65,7 +65,7 @@ export function AllergyPanel({ patientId, onChanged }: { patientId: number; onCh
         <ul className="space-y-1">
           {active.map((a) => (
             <li key={a.id} className="flex items-center justify-between text-xs">
-              <span><strong className={a.severity === "Severe" ? "text-red-600" : "text-slate-900"}>{a.name}</strong> <span className="text-slate-500">{a.kind}{a.severity ? ` · ${a.severity}` : ""}{a.note ? ` · ${a.note}` : ""}</span>{a.unverified && <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 font-semibold">Reported by patient - confirm</span>}</span>
+              <span><strong className={a.severity === "Severe" ? "text-red-600" : "text-slate-900"}>{a.name}</strong> <span className="text-slate-500">{a.kind}{a.severity ? ` · ${a.severity}` : ""}{a.note ? ` · ${a.note}` : ""}</span></span>
               <button className="text-slate-500 hover:underline" disabled={busy} onClick={() => call({ action: "resolve", id: a.id })}>Resolved</button>
             </li>
           ))}

@@ -23,36 +23,6 @@ export const text = (v: unknown, max = 500) => (typeof v === "string" && v.trim(
 export const positiveId = (v: unknown) => (Number.isSafeInteger(Number(v)) && Number(v) > 0 ? Number(v) : null);
 export const fail = (message: string, status = 400) => NextResponse.json({ error: message }, { status });
 
-// Allergies a patient tells reception at registration. They are stored as native allergy rows marked "unverified" in the
-// note (so the prescribing safety check, which reads the note, still flags matching medicines) until a doctor or nurse
-// confirms or replaces them. Severity is left unset on purpose: reception does not judge severity.
-export const REPORTED_PREFIX = "Patient-reported (unverified): ";
-export async function recordReportedAllergies(session: Session, patientId: number, raw: unknown): Promise<{ saved: number; warning?: string }> {
-  const items = (Array.isArray(raw) ? raw.slice(0, 5) : [])
-    .map((i: any) => ({ kind: ["da", "fa", "ma"].includes(i?.kind) ? String(i.kind) : "ma", text: typeof i?.text === "string" ? i.text.trim().slice(0, 120) : "" }))
-    .filter((i) => i.text);
-  if (items.length === 0) return { saved: 0 };
-  let saved = 0;
-  const failed: string[] = [];
-  try {
-    const paths = await rpc<Row[]>(session, "gnuhealth.pathology", "search_read", [[["code", "in", ["Z88", "Z91.0"]]], 0, 5, null, ["id", "code"]]);
-    const byCode = Object.fromEntries(paths.map((p) => [p.code, p.id]));
-    for (const it of items) {
-      const pathology = it.kind === "da" ? byCode["Z88"] : byCode["Z91.0"];
-      try {
-        if (!pathology) throw new Error("diagnosis catalogue entry missing");
-        await rpc(session, "gnuhealth.patient.disease", "create", [[{
-          patient: patientId, pathology, is_allergy: true, is_active: true, status: "c", allergy_type: it.kind, short_comment: REPORTED_PREFIX + it.text,
-        }]]);
-        saved += 1;
-      } catch { failed.push(it.text); }
-    }
-  } catch { failed.push(...items.map((i) => i.text)); }
-  return failed.length
-    ? { saved, warning: `The patient was registered, but these reported allergies could not be saved from this login: ${failed.join(", ")}. Tell the nurse or doctor so they can record them.` }
-    : { saved };
-}
-
 export function rpc<T>(session: Session, model: string, method: string, params: unknown[]) {
   return TrytonClient.execute<T>(
     session.username, session.userId, session.sessionToken, model, method, params,

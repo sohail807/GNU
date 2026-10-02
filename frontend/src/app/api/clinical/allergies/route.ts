@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { errorResponse, fail, guard, idOf, positiveId, rpc, text, Row, REPORTED_PREFIX } from "@/lib/ops-api";
+import { errorResponse, fail, guard, idOf, positiveId, rpc, text, Row } from "@/lib/ops-api";
 
 // Patient allergies, recorded the native way: a patient disease line flagged as an allergy (kind, severity, status).
 // A severe allergy also raises the patient's "critical allergy" flag, which the prescribing safety gate checks.
@@ -21,15 +21,10 @@ export async function GET(req: NextRequest) {
     const byId = Object.fromEntries(paths.map((p) => [p.id, p]));
     return NextResponse.json({
       success: true,
-      allergies: rows.map((r) => {
-        const reported = typeof r.short_comment === "string" && r.short_comment.startsWith(REPORTED_PREFIX);
-        return {
-          id: r.id, code: byId[idOf(r.pathology) as number]?.code || "", kind: KINDS[r.allergy_type] || "Allergy",
-          name: reported ? r.short_comment.slice(REPORTED_PREFIX.length) : byId[idOf(r.pathology) as number]?.name || "",
-          severity: SEVERITY[r.disease_severity] || "", active: !!r.is_active && !["h", "healed"].includes(String(r.status || "")),
-          note: reported ? null : r.short_comment || null, unverified: reported,
-        };
-      }),
+      allergies: rows.map((r) => ({
+        id: r.id, code: byId[idOf(r.pathology) as number]?.code || "", name: byId[idOf(r.pathology) as number]?.name || "", kind: KINDS[r.allergy_type] || "Allergy",
+        severity: SEVERITY[r.disease_severity] || "", active: !!r.is_active && !["h", "healed"].includes(String(r.status || "")), note: r.short_comment || null,
+      })),
     });
   } catch (err) {
     return errorResponse(err, "Failed to load allergies");

@@ -44,7 +44,6 @@ export default function PatientRegistrationPage() {
   };
 
   const [formData, setFormData] = useState(initialFormData);
-  const [reportedAllergies, setReportedAllergies] = useState<Array<{ kind: string; text: string }>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -82,7 +81,6 @@ export default function PatientRegistrationPage() {
 
   const handleClearForm = () => {
     setFormData(initialFormData);
-    setReportedAllergies([]);
     setErrorMessage(null);
     setIsDuplicateError(false);
     setSuccessMessage(null);
@@ -112,7 +110,6 @@ export default function PatientRegistrationPage() {
           dob: formData.dob,
           gender: formData.gender,
           bloodType: formData.bloodType,
-          reportedAllergies: reportedAllergies.filter((a) => a.text.trim()),
         }),
       });
 
@@ -125,10 +122,9 @@ export default function PatientRegistrationPage() {
       }
 
       const assignedPUID = data.patient?.puid;
-      if (data.warning) setErrorMessage(data.warning);
       setSuccessMessage(
         assignedPUID
-          ? `Patient ${formData.name} registered with GNU Health PUID ${assignedPUID}.${data.reportedAllergiesSaved ? ` ${data.reportedAllergiesSaved} reported allerg${data.reportedAllergiesSaved === 1 ? "y" : "ies"} saved for the nurse and doctor to confirm.` : ""}`
+          ? `Patient ${formData.name} registered with GNU Health PUID ${assignedPUID}.`
           : `Patient ${formData.name} registered. GNU Health did not return a PUID; verify the record before continuing.`
       );
 
@@ -367,31 +363,6 @@ export default function PatientRegistrationPage() {
                   { value: "AB-", label: "AB Negative (AB-)" },
                 ]}
               />
-            </div>
-
-            <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-semibold text-slate-800">Known allergies (as told by the patient)</div>
-                  <div className="text-[11px] text-slate-500">Optional. A nurse or doctor confirms these at triage.</div>
-                </div>
-                {reportedAllergies.length < 5 && (
-                  <Button type="button" variant="outline" size="sm" onClick={() => setReportedAllergies([...reportedAllergies, { kind: "da", text: "" }])}>Add allergy</Button>
-                )}
-              </div>
-              {reportedAllergies.map((a, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <select className="px-2 py-2 text-xs bg-white border border-slate-300 rounded-lg font-semibold" value={a.kind}
-                    onChange={(e) => setReportedAllergies(reportedAllergies.map((x, j) => (j === i ? { ...x, kind: e.target.value } : x)))}>
-                    <option value="da">Medicine</option>
-                    <option value="fa">Food</option>
-                    <option value="ma">Other</option>
-                  </select>
-                  <input className="flex-1 px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg" maxLength={120} placeholder="For example: penicillin, peanuts" value={a.text}
-                    onChange={(e) => setReportedAllergies(reportedAllergies.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))} />
-                  <button type="button" className="text-xs text-slate-500 hover:underline" onClick={() => setReportedAllergies(reportedAllergies.filter((_, j) => j !== i))}>Remove</button>
-                </div>
-              ))}
             </div>
 
             <p className="text-xs text-slate-600">This registration stores the demographic fields currently mapped to GNU Health. Contact details and Arabic name are not collected here.</p>
