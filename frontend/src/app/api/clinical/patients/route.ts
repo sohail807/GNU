@@ -112,6 +112,26 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // Allergy names: related fields come back as bare ids on this server, so the diagnosis names are looked up explicitly.
+    // (Reading the name from a [id, name] pair silently produced an empty list, hiding every recorded allergy.)
+    const relId = (v: unknown): number | null => (typeof v === "number" ? v : Array.isArray(v) && typeof v[0] === "number" ? v[0] : null);
+    const pathologyName: Record<number, string> = {};
+    if (allergiesLoaded && diseasesRaw.length > 0) {
+      const ids = [...new Set(diseasesRaw.filter((d) => d.is_allergy).map((d) => relId(d.pathology)).filter((x): x is number => x !== null))];
+      if (ids.length > 0) {
+        try {
+          const paths = await TrytonClient.execute<any[]>(
+            session.username, session.userId, session.sessionToken,
+            "gnuhealth.pathology", "search_read", [[["id", "in", ids]], 0, ids.length, null, ["id", "name", "code"]],
+            { company: session.companyId }, session.database
+          );
+          for (const pa of paths) pathologyName[pa.id] = pa.name || pa.code || "";
+        } catch {
+          // names unavailable: the allergy is still counted below under a generic label
+        }
+      }
+    }
+
     const patients = patientsRaw.map((p) => {
       const partyId = typeof p.party === "number" ? p.party : p.party?.[0];
       const party = partiesMap[partyId] || {};
@@ -137,7 +157,10 @@ export async function GET(req: NextRequest) {
         allergies: allergiesLoaded ? diseasesRaw
           .filter((disease) => disease.is_allergy && disease.is_active && !["h", "healed"].includes(String(disease.status || "")))
           .filter((disease) => Array.isArray(disease.patient) ? disease.patient[0] === p.id : disease.patient === p.id)
-          .map((disease) => Array.isArray(disease.pathology) ? disease.pathology[1] : "")
+          .map((disease) => {
+            const pid = relId(disease.pathology);
+            return (pid !== null && pathologyName[pid]) || (Array.isArray(disease.pathology) ? String(disease.pathology[1] || "") : "") || "Allergy recorded";
+          })
           .filter(Boolean) : null,
       };
     });

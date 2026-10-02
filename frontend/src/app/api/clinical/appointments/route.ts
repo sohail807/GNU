@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { ClinicalLookupService } from "@/lib/clinical-lookup";
 import { hasModuleAccess } from "@/lib/access-control";
+import { names, idOf } from "@/lib/ops-api";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -30,12 +31,13 @@ export async function GET(req: NextRequest) {
         { company: session.companyId },
         session.database
       );
+      const specialties = await names(session, "gnuhealth.specialty", [...new Set(hps.map((hp) => idOf(hp.main_specialty)).filter((x): x is number => x !== null))]);
       return NextResponse.json({
         success: true,
         physicians: hps.map((hp) => ({
           id: hp.id,
           name: hp.rec_name,
-          specialty: Array.isArray(hp.main_specialty) ? hp.main_specialty[1] : "",
+          specialty: specialties[idOf(hp.main_specialty) as number]?.name || (Array.isArray(hp.main_specialty) ? hp.main_specialty[1] : ""),
         })),
       });
     }

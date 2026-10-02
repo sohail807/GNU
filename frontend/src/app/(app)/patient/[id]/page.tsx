@@ -370,7 +370,7 @@ export default function UnifiedPatientChartPage() {
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">4. ICD-10 DIAGNOSIS</span>
             <span className="text-emerald-400 font-bold">
-              {latestEval?.diagnosis ? String(latestEval.diagnosis) : evaluationsStatusOnly ? "Not visible to your role" : "None Documented"}
+              {latestEval?.diagnosis ? (latestEval.diagnosisName ? `${latestEval.diagnosisCode ? latestEval.diagnosisCode + " " : ""}${latestEval.diagnosisName}` : "Recorded") : evaluationsStatusOnly ? "Not visible to your role" : "None Documented"}
             </span>
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
@@ -566,7 +566,7 @@ export default function UnifiedPatientChartPage() {
                   <div className="flex justify-between">
                     <span className="text-slate-500">Primary Diagnosis:</span>
                     <span className="font-bold text-slate-900">
-                      {ev.diagnosis ? (Array.isArray(ev.diagnosis) ? ev.diagnosis[1] : String(ev.diagnosis)) : "Not recorded"}
+                      {ev.diagnosis ? (ev.diagnosisName ? `${ev.diagnosisCode ? ev.diagnosisCode + " " : ""}${ev.diagnosisName}` : Array.isArray(ev.diagnosis) ? ev.diagnosis[1] : "Recorded") : "Not recorded"}
                     </span>
                   </div>
                   <div className="flex justify-between">

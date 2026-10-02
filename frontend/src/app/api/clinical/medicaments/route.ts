@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { hasModuleAccess } from "@/lib/access-control";
+import { names, idOf } from "@/lib/ops-api";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -64,6 +65,14 @@ export async function GET(req: NextRequest) {
       session.database
     );
 
+    const ids = (key: string) => [...new Set(meds.map((m) => idOf(m[key])).filter((x): x is number => x !== null))];
+    const [unitNames, routeNames, formNames] = await Promise.all([
+      names(session, "gnuhealth.dose.unit", ids("unit")),
+      names(session, "gnuhealth.drug.route", ids("route")),
+      names(session, "gnuhealth.drug.form", ids("form")),
+    ]);
+    const label = (map: Record<number, Record<string, any>>, v: unknown) => map[idOf(v) as number]?.name || (Array.isArray(v) ? String(v[1] || "") : "") || null;
+
     return NextResponse.json({
       success: true,
       medicaments: meds.map((m) => ({
@@ -72,11 +81,11 @@ export async function GET(req: NextRequest) {
         genericName: m.active_component || m.rec_name,
         strength: m.strength ?? null,
         doseUnitId: Array.isArray(m.unit) ? m.unit[0] : m.unit || null,
-        doseUnit: Array.isArray(m.unit) ? m.unit[1] : null,
+        doseUnit: label(unitNames, m.unit),
         routeId: Array.isArray(m.route) ? m.route[0] : m.route || null,
-        route: Array.isArray(m.route) ? m.route[1] : null,
+        route: label(routeNames, m.route),
         formId: Array.isArray(m.form) ? m.form[0] : m.form || null,
-        form: Array.isArray(m.form) ? m.form[1] : null,
+        form: label(formNames, m.form),
         pregnancyWarning: m.pregnancy_warning === true,
       })),
     });

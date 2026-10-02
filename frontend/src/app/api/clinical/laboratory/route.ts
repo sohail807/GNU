@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { hasModuleAccess } from "@/lib/access-control";
-import { raiseLabAlerts } from "@/lib/ops-api";
+import { raiseLabAlerts, names, idOf } from "@/lib/ops-api";
 
 // Tryton datetime/date fields deserialize as { __class__, year, month, day, hour?, minute? }
 // objects, not strings - rendering one directly as a React child crashes the page.
@@ -98,6 +98,7 @@ export async function GET(req: NextRequest) {
       { company: session.companyId }, session.database
     ) : [];
     const criteriaById = new Map(rawCriteria.map((item) => [item.id, item]));
+    const unitNames = await names(session, "gnuhealth.lab.test.units", [...new Set(rawCriteria.map((c) => idOf(c.units)).filter((x): x is number => x !== null))]);
     let patientsMap: Record<number, PatientRpcRecord> = {};
 
     if (patientIds.length > 0) {
@@ -161,7 +162,7 @@ export async function GET(req: NextRequest) {
         specimen: statusOnly ? "" : (lab.specimen_type || ""),
         criteria: statusOnly ? [] : lab.critearea.map((id) => criteriaById.get(id)).filter((item): item is CriterionRpcRecord => Boolean(item)).map((c) => ({
           id: c.id, name: c.name, code: c.code || "", result: c.result ?? null, resultText: c.result_text || "", remarks: c.remarks || "",
-          unit: Array.isArray(c.units) ? c.units[1] : "", normalRange: c.normal_range || "", lowerLimit: c.lower_limit ?? null,
+          unit: unitNames[idOf(c.units) as number]?.name || (Array.isArray(c.units) ? String(c.units[1] || "") : ""), normalRange: c.normal_range || "", lowerLimit: c.lower_limit ?? null,
           upperLimit: c.upper_limit ?? null, limitsVerified: c.limits_verified, warning: c.warning, excluded: c.excluded,
         })),
       };

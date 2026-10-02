@@ -99,7 +99,7 @@ export async function raiseLabAlerts(session: Session, labId: number): Promise<n
       if (c.excluded || c.result == null || done.has(c.id)) continue;
       const v = Number(c.result), lo = c.lower_limit == null ? null : Number(c.lower_limit), hi = c.upper_limit == null ? null : Number(c.upper_limit);
       const critical = (lo != null && v < lo - Math.abs(lo) * 0.3) || (hi != null && v > hi + Math.abs(hi) * 0.3);
-      const unit = Array.isArray(c.units) ? c.units[1] : "";
+      const unit = (await names(session, "gnuhealth.lab.test.units", [idOf(c.units)].filter((x): x is number => x !== null)))[idOf(c.units) as number]?.name || (Array.isArray(c.units) ? String(c.units[1] || "") : "");
       await rpc(session, "ist.ops.critical_alert", "create", [[{
         lab: labId, criterion: c.id, patient: patientId, company: session.companyId, institution: session.institutionId || undefined,
         analyte: String(c.name || "Analyte").slice(0, 80), value: `${v}${unit ? " " + unit : ""}`,

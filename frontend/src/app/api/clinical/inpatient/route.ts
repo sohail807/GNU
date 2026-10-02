@@ -128,6 +128,8 @@ export async function GET(req: NextRequest) {
       lookup("gnuhealth.hospital.bed", admissions.map((a) => idOf(a.bed)), ["id", "rec_name"]),
     ]);
 
+    const wardNames: Record<number, string> = Object.fromEntries(wards.map((w) => [w.id, String(w.name || "")]));
+
     return NextResponse.json({
       success: true,
       database: session.database,
@@ -143,8 +145,8 @@ export async function GET(req: NextRequest) {
       beds: beds.map((b) => ({
         id: b.id,
         name: b.rec_name || `Bed ${b.id}`,
-        wardId: Array.isArray(b.ward) ? b.ward[0] : b.ward,
-        wardName: Array.isArray(b.ward) ? b.ward[1] : null,
+        wardId: idOf(b.ward),
+        wardName: wardNames[idOf(b.ward) as number] || (Array.isArray(b.ward) ? b.ward[1] : null),
         bedType: b.bed_type || null,
         state: b.state || null,
         telephone: b.telephone_number || null,

@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { ClinicalLookupService } from "@/lib/clinical-lookup";
 import { hasModuleAccess } from "@/lib/access-control";
-import { courseUnits } from "@/lib/ops-api";
+import { courseUnits, names, idOf } from "@/lib/ops-api";
 
 // Tryton datetime/date fields deserialize as { __class__, year, month, day, hour?, minute? }
 // objects, not strings - rendering one directly as a React child crashes the page.
@@ -131,6 +131,13 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const lineRows = Object.values(linesMap);
+    const lineIds = (key: string) => [...new Set(lineRows.map((l) => idOf(l[key])).filter((x): x is number => x !== null))];
+    const [medNames, routeNames] = await Promise.all([
+      names(session, "gnuhealth.medicament", lineIds("medicament"), "rec_name"),
+      names(session, "gnuhealth.drug.route", lineIds("route")),
+    ]);
+
     const prescriptions = rawRx.map((rx) => {
       const pid = typeof rx.patient === "number" ? rx.patient : rx.patient?.[0];
       const pat = patientsMap[pid] || {};
@@ -138,12 +145,12 @@ export async function GET(req: NextRequest) {
         ? []
         : (rx.prescription_line || []).map((lid: number) => {
             const l = linesMap[lid] || {};
-            const medName = Array.isArray(l.medicament) ? l.medicament[1] : null;
+            const medName = medNames[idOf(l.medicament) as number]?.rec_name || (Array.isArray(l.medicament) ? String(l.medicament[1] || "") : null);
             return {
               id: l.id,
               medicament: medName,
               dose: l.dose == null ? null : String(l.dose),
-              route: Array.isArray(l.route) ? l.route[1] : null,
+              route: routeNames[idOf(l.route) as number]?.name || (Array.isArray(l.route) ? String(l.route[1] || "") : null),
               frequency: l.frequency == null ? null : String(l.frequency),
               duration: l.duration == null ? null : String(l.duration),
             };
