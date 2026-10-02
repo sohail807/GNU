@@ -6,7 +6,7 @@ import { errorResponse, fail, guard, idOf, positiveId, rpc, text, Row } from "@/
 
 const MODULES = ["physician", "nursing"] as const;
 const KINDS: Record<string, string> = { da: "Drug allergy", fa: "Food allergy", ma: "Other allergy", mc: "Contraindication" };
-const SEVERITY: Record<string, string> = { "1_mi": "Mild", "2_mo": "Moderate", "3_sev": "Severe" };
+const SEVERITY: Record<string, string> = { "1_mi": "Mild", "2_mo": "Moderate", "3_sv": "Severe" };
 
 export async function GET(req: NextRequest) {
   const g = await guard([...MODULES]);
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
       patient: patientId, pathology: path.id, is_allergy: true, is_active: true, status: "c", allergy_type: body.kind, disease_severity: body.severity,
       short_comment: text(body.note, 200), healthprof: session.healthprofId || undefined,
     }]]);
-    if (body.severity === "3_sev") await rpc(session, "gnuhealth.patient", "write", [[patientId], { crit_allergic: true }]).catch(() => undefined);
+    if (body.severity === "3_sv") await rpc(session, "gnuhealth.patient", "write", [[patientId], { crit_allergic: true }]).catch(() => undefined);
     return NextResponse.json({ success: true, allergyId: created[0], message: "Allergy recorded." });
   } catch (err) {
     return errorResponse(err, "Allergy transaction failed");

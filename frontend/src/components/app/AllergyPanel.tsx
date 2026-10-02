@@ -87,7 +87,7 @@ export function AllergyPanel({ patientId, onChanged }: { patientId: number; onCh
               <div className="space-y-1.5"><label className="text-xs font-semibold text-slate-700">Kind *</label>
                 <select className={SEL} value={kind} onChange={(e) => setKind(e.target.value)}><option value="da">Drug allergy</option><option value="fa">Food allergy</option><option value="ma">Other allergy</option><option value="mc">Contraindication</option></select></div>
               <div className="space-y-1.5"><label className="text-xs font-semibold text-slate-700">Severity *</label>
-                <select className={SEL} value={severity} onChange={(e) => setSeverity(e.target.value)}><option value="1_mi">Mild</option><option value="2_mo">Moderate</option><option value="3_sev">Severe</option></select></div>
+                <select className={SEL} value={severity} onChange={(e) => setSeverity(e.target.value)}><option value="1_mi">Mild</option><option value="2_mo">Moderate</option><option value="3_sv">Severe</option></select></div>
             </div>
             <div className="space-y-1.5"><label className="text-xs font-semibold text-slate-700">Reaction / note</label>
               <input className={SEL} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. rash and swelling" /></div>
