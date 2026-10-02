@@ -152,6 +152,7 @@ export async function GET(req: NextRequest) {
         patientId: pid,
         patientName: pat?.rec_name || null,
         puid: pat?.puid || null,
+        testId: typeof testId === "number" ? testId : null,
         testName,
         orderRef: String(lab.name || lab.id),
         dateRequested: formatTrytonDateTime(lab.date_requested),

@@ -141,6 +141,7 @@ export async function GET(req: NextRequest) {
         patientId: pid,
         patientName: pat.rec_name || null,
         puid: pat.puid || null,
+        testId: typeof tid === "number" ? tid : null,
         procedureName: testsMap[tid]?.name || null,
         orderRef: String(r.id),
         requestDate: dateStr,

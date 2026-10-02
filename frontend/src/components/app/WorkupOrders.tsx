@@ -16,7 +16,7 @@ type OrderSetItem =
   | { kind: "medicine"; id: number; name: string; dose: string; doseUnitId: number; doseUnit: string; routeId: number; route: string; frequency: string; frequencyUnit: string; duration: string; durationPeriod: string };
 type MedicineItem = Extract<OrderSetItem, { kind: "medicine" }>;
 interface OrderSet { id: number; name: string; shared: boolean; mine: boolean; items: OrderSetItem[] }
-interface Placed { key: string; kind: Kind; name: string; ref: string; state: string; when: string | null }
+interface Placed { key: string; kind: Kind; testId: number | null; name: string; ref: string; state: string; when: string | null }
 
 const SEL = "w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg font-semibold focus:outline-none focus:border-[#0F766E]";
 
@@ -38,6 +38,9 @@ export function WorkupOrders({ patientId, patientName, draftMedicines = [], onAd
   const [saveAs, setSaveAs] = useState("");
   const [shared, setShared] = useState(false);
   const [withDraft, setWithDraft] = useState(true);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [setName, setSetName] = useState("");
+  const [leftOut, setLeftOut] = useState<Record<string, boolean>>({});
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -53,8 +56,8 @@ export function WorkupOrders({ patientId, patientName, draftMedicines = [], onAd
         fetch(`/api/clinical/radiology?patientId=${patientId}`).then((x) => x.json()).catch(() => ({})),
       ]);
       const rows: Placed[] = [];
-      for (const o of (l.labOrders || []).filter((o: any) => o.patientId === patientId)) rows.push({ key: `l${o.id}`, kind: "lab", name: o.testName || "Laboratory test", ref: o.orderRef, state: o.state, when: o.dateRequested });
-      for (const o of (r.radiologyOrders || []).filter((o: any) => !o.patientId || o.patientId === patientId)) rows.push({ key: `r${o.id}`, kind: "imaging", name: o.procedureName || o.studyName || o.testName || "Imaging study", ref: String(o.orderRef || o.id), state: o.state, when: o.requestDate || o.dateRequested || o.date || null });
+      for (const o of (l.labOrders || []).filter((o: any) => o.patientId === patientId)) rows.push({ key: `l${o.id}`, kind: "lab", testId: o.testId ?? null, name: o.testName || "Laboratory test", ref: o.orderRef, state: o.state, when: o.dateRequested });
+      for (const o of (r.radiologyOrders || []).filter((o: any) => !o.patientId || o.patientId === patientId)) rows.push({ key: `r${o.id}`, kind: "imaging", testId: o.testId ?? null, name: o.procedureName || o.studyName || o.testName || "Imaging study", ref: String(o.orderRef || o.id), state: o.state, when: o.requestDate || o.dateRequested || o.date || null });
       rows.sort((a, b) => (b.when || "").localeCompare(a.when || ""));
       setPlaced(rows);
     } catch { setPlaced([]); }
@@ -121,6 +124,32 @@ export function WorkupOrders({ patientId, patientName, draftMedicines = [], onAd
     } catch (e) { setError(e instanceof Error ? e.message : "The order set could not be saved."); } finally { setBusy(false); }
   };
 
+  // Everything this patient has in the current work-up: the medicine draft plus the tests and studies already ordered.
+  const saveCandidates = useMemo<Array<{ key: string; label: string; item: OrderSetItem }>>(() => {
+    const out: Array<{ key: string; label: string; item: OrderSetItem }> = draftItems.map((m) => ({ key: `m:${m.id}`, label: `${m.name} - ${m.dose} ${m.doseUnit}, ${m.route}`, item: m }));
+    const seen = new Set<string>();
+    for (const p of placed) {
+      if (p.testId == null) continue;
+      const key = `${p.kind}:${p.testId}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({ key, label: p.name, item: { kind: p.kind, id: p.testId, name: p.name } });
+    }
+    return out;
+  }, [draftItems, placed]);
+  const chosenForSave = saveCandidates.filter((c) => !leftOut[c.key]);
+
+  const openSave = () => { setError(null); setMessage(null); setSetName(""); setShared(false); setLeftOut({}); setSaveOpen(true); };
+  const saveFromWorkup = async () => {
+    setBusy(true); setError(null);
+    try {
+      const res = await fetch("/api/clinical/order-sets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: setName, shared, items: chosenForSave.map((c) => c.item) }) });
+      const d = await res.json();
+      if (!res.ok || !d.success) throw new Error(d.error || "The order set could not be saved.");
+      setSaveOpen(false); setMessage(d.message); await loadSets();
+    } catch (e) { setError(e instanceof Error ? e.message : "The order set could not be saved."); } finally { setBusy(false); }
+  };
+
   const applySet = sets.find((s) => String(s.id) === setId);
 
   return (
@@ -150,7 +179,12 @@ export function WorkupOrders({ patientId, patientName, draftMedicines = [], onAd
       {error && !open && <p className="text-xs text-red-600 font-medium">{error}</p>}
 
       <div>
-        <div className="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">Ordered for this patient ({placed.length})</div>
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-[11px] font-mono uppercase tracking-wider text-slate-500">Ordered for this patient ({placed.length})</div>
+          <Button type="button" variant="outline" size="sm" disabled={!patientId || saveCandidates.length === 0} onClick={openSave}>
+            <Layers className="w-3.5 h-3.5 mr-1" />Save as order set
+          </Button>
+        </div>
         {placed.length === 0 ? <p className="text-xs text-slate-500">Nothing ordered yet.</p> : (
           <div className="max-h-56 overflow-y-auto divide-y divide-slate-100 border border-slate-200 rounded-lg">
             {placed.map((p) => (
@@ -162,6 +196,36 @@ export function WorkupOrders({ patientId, patientName, draftMedicines = [], onAd
           </div>
         )}
       </div>
+
+      {saveOpen && (
+        <Modal isOpen onClose={() => setSaveOpen(false)} title="Save as order set" kicker={`WORK-UP - ${patientName}`} size="md">
+          <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); if (setName.trim() && chosenForSave.length && !busy) void saveFromWorkup(); }}>
+            <div>
+              <label className="text-xs font-semibold text-slate-800 block mb-1">Order set name</label>
+              <input className={SEL} autoFocus maxLength={80} placeholder="For example: Fever work-up" value={setName} onChange={(e) => setSetName(e.target.value)} />
+            </div>
+            <div>
+              <div className="text-xs font-semibold text-slate-800 mb-1">Included ({chosenForSave.length} of {saveCandidates.length})</div>
+              <div className="max-h-56 overflow-y-auto border border-slate-200 rounded-xl p-2 bg-slate-50 space-y-1">
+                {saveCandidates.map((c) => (
+                  <label key={c.key} className="flex items-center gap-2 p-2 rounded-lg border border-slate-200 bg-white cursor-pointer text-xs font-semibold">
+                    <input type="checkbox" checked={!leftOut[c.key]} onChange={() => setLeftOut((p) => ({ ...p, [c.key]: !p[c.key] }))} />
+                    {c.item.kind === "medicine" ? <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-800">Medicine</span> : c.item.kind === "lab" ? <Microscope className="w-3.5 h-3.5 text-[#0F766E]" /> : <Scan className="w-3.5 h-3.5 text-[#0F766E]" />}
+                    {c.label}
+                  </label>
+                ))}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">Untick anything that should not be part of the set. Next time, choose the set under Order set to add everything in one step.</p>
+            </div>
+            <label className="text-xs text-slate-600 flex items-center gap-1"><input type="checkbox" checked={shared} onChange={(e) => setShared(e.target.checked)} /> Share with all doctors</label>
+            {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
+            <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setSaveOpen(false)}>Cancel</Button>
+              <Button type="submit" variant="primary" className="bg-[#0F766E] font-bold" disabled={!setName.trim() || chosenForSave.length === 0 || busy} isLoading={busy}>Save order set</Button>
+            </div>
+          </form>
+        </Modal>
+      )}
 
       {open && (
         <Modal isOpen onClose={() => setOpen(false)} title="Order tests and studies" kicker={`DIAGNOSTIC WORKUP - ${patientName}`} size="lg">
