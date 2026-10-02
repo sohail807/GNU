@@ -45,3 +45,14 @@ Notes
 
 Notes
 - The doctor's evaluation is left in progress; it is completed after the lab and radiology results come back.
+
+## 4. Laboratory (demo_lab1)
+
+| Step | Result | Evidence |
+| :--- | :--- | :--- |
+| Doctor's order reaches the lab | PASS | TEST096 COMPLETE BLOOD COUNT for Alexander Wright Final 1002 listed first, state draft, 26 analytes with units, reference ranges and verified limits |
+| Enter results on the screen and save | PASS | All 26 analytes entered (HGB 9.2 low, WBC 13.5 high, the rest mid-range); "Save draft results" saved 26 of 26; HGB flagged as outside its range (warning true) |
+| Mark done | PASS | State done |
+| Abnormal results raise alerts | PASS | CR-000003 HGB 9.2 g/dL (limits 11 - 16) and CR-000004 WBC 13.5 10^3/uL (limits 4.5 - 11), severity abnormal, state open |
+| Guard re-complete and re-save | PASS | complete again 409; save-results on the done order 409 |
+| Role isolation (API) | PASS | pharmacy, prescriptions, radiology, surgery, stock, triage, allergies, consultations, order-sets all 403; billing restricted |
