@@ -1,0 +1,50 @@
+scope,metric,value,unit,period,tag,source
+Aster India,Hospitals,19,count (incl. 4 O&M),30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,Capacity beds,4994,beds,30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,Operational beds (census),3689,beds,30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,Operational beds (non-census),1124,beds,30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,Occupancy,69,%,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,ALOS,3.2,days,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,ARPOB,43600,INR per occupied bed-day (plus),H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,Inpatient admissions,140970,count,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,Outpatient visits,1.7,million,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,Average occupied beds,2491,beds,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,Clinics,13,count,30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,Labs and Patient Experience Centres,232,count,30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,Pharmacies,212,"count (Alfaone, brand licence)",30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,Transplants (trailing 12 months),500,count (plus),TTM Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Aster India,Robotic surgeries (trailing 12 months),1600,count (plus),TTM Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Kerala cluster,Capacity beds,2501,beds,30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Kerala cluster,Census beds,1898,beds,30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Kerala cluster,ARPOB,41200,INR (plus),H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Kerala cluster,ALOS,3.1,days,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Kerala cluster,Average occupied beds,1418,beds,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Kerala cluster,Inpatient admissions,82900,count (plus),H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Kerala cluster,Outpatient visits,1.1,million,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Karnataka and Maharashtra cluster,Capacity beds,1446,beds,30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Karnataka and Maharashtra cluster,Census beds,1010,beds,30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Karnataka and Maharashtra cluster,ARPOB,58600,INR (plus),H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Karnataka and Maharashtra cluster,ALOS,3.1,days,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Karnataka and Maharashtra cluster,Average occupied beds,642,beds,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Karnataka and Maharashtra cluster,Inpatient admissions,37980,count (plus),H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Karnataka and Maharashtra cluster,Outpatient visits,0.39,million,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Andhra and Telangana cluster,Capacity beds,1047,beds,30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Andhra and Telangana cluster,Census beds,781,beds,30 Sep 2024,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Andhra and Telangana cluster,ARPOB,29100,INR (plus),H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Andhra and Telangana cluster,ALOS,3.9,days,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Andhra and Telangana cluster,Average occupied beds,431,beds,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Andhra and Telangana cluster,Inpatient admissions,20130,count (plus),H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Andhra and Telangana cluster,Outpatient visits,0.19,million,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Hospitals older than 6 years,Occupancy,69,%,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Hospitals 3-6 years,Occupancy,85,%,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Hospitals 0-3 years,Occupancy,60,%,H1 FY25,S,"Q2 FY25 investor deck (NSE, 23 Oct 2024)"
+Cost structure,Material cost share of revenue,22,%,H1 FY25,S,derived: 466 / 2088 INR cr
+Cost structure,Doctors cost share of revenue,22,%,H1 FY25,S,derived: 462 / 2088 INR cr
+Cost structure,Employee cost share of revenue,18,%,H1 FY25,S,derived: 384 / 2088 INR cr
+Process,Discharge duration,2-6,hours,published,S,asterhospitals.in/admission-discharge
+Process,TPA response after discharge summary and final bill,>=4,hours,published,S,asterhospitals.in/admission-discharge
+Process,Cash conversion cycle,10,days,Q1 FY26,P,"HDFC Securities, Sep 2025"
+Merged group,Hospitals,39,count,2026,S,asterqualitycare.com
+Merged group,Beds,10600,beds (plus),2026,S,asterqualitycare.com
+Merged group,Doctors,7400,count (plus),2026,S,asterqualitycare.com
+Merged group,Patients served,7.7,million per year (plus),2026,S,asterqualitycare.com

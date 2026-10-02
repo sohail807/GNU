@@ -1,0 +1,337 @@
+[
+ {
+  "id": "TC-001",
+  "status": "PASS",
+  "observed": "HTTP 200 patientId=379 puid=UAT307031719 bloodGroup='O-' (sent 'O-'); response gender field='Female' for a Female patient"
+ },
+ {
+  "id": "TC-002",
+  "status": "PASS",
+  "observed": "HTTP 200 appointmentId=318; listed for patient=True state=confirmed physician='Farah Khan' time=10:15"
+ },
+ {
+  "id": "TC-003",
+  "status": "PASS",
+  "observed": "checkin HTTP 200; the appointment is in the roster feed=True with state='checked_in', which is the state the front-desk arrival roster lists"
+ },
+ {
+  "id": "TC-004",
+  "status": "PASS",
+  "observed": "second vitals HTTP 200 evaluationId=688 (first was 688); evaluations for patient 15->15, in_progress=1; vitals updated systolic=124"
+ },
+ {
+  "id": "TC-005",
+  "status": "PASS",
+  "observed": "HTTP 200 state=done evaluation=688 now 'done' dx=4215; labOrderId=258 with 26 analytes (HGB, RBC, HCT, MCV...); radiologyOrderId=94 listed=True state=draft"
+ },
+ {
+  "id": "TC-006",
+  "status": "PASS",
+  "observed": "HTTP 200 prescriptionId=235 state='draft' reference=PRES 2026/000235 medicament='Paracetamol 500mg'"
+ },
+ {
+  "id": "TC-007",
+  "status": "PASS",
+  "observed": "save-results (first attempt) HTTP 200 savedCriteria=26 ; complete HTTP 200; final state='done'"
+ },
+ {
+  "id": "TC-008",
+  "status": "PASS",
+  "observed": "finalize HTTP 200; state='done', findings stored='UAT synthetic chest/abdomen findings nor'"
+ },
+ {
+  "id": "TC-009",
+  "status": "PASS",
+  "observed": "before dispense: state='draft', 8s later still 'draft'; dispense HTTP 200; after: 'done'"
+ },
+ {
+  "id": "TC-010",
+  "status": "PASS",
+  "observed": "invoice 307 (consultation+lab+imaging): create -> post (number 'INV-2026/00173') -> pay: final status=paid, amountToPay=0"
+ },
+ {
+  "id": "TC-011",
+  "status": "PASS",
+  "observed": "HTTP 409 isDuplicate=True {\"error\":\"Duplicate Patient Detected: A patient record or national identifier already exists in the hospital d (same name+QID; QID-only uniqueness not isolated, a different name would create a 2nd patient if QID is not unique, so it was not attempted)"
+ },
+ {
+  "id": "TC-012",
+  "status": "PASS",
+  "observed": "HTTP 400 {\"error\":\"Gender must be a valid health records system selection.\"}"
+ },
+ {
+  "id": "TC-013",
+  "status": "PASS",
+  "observed": "PUID 'UAT307031719' as patientId -> HTTP 200 surgery=78 resolved patient=Alexander Wright; non-existent 11-digit id -> HTTP 404 'No patient found matching that PUID or record ID.'"
+ },
+ {
+  "id": "TC-014",
+  "status": "PASS",
+  "observed": "partial name 'Alexander Wri': HTTP 200, 1 hits, UAT patient found=True; PUID 'UAT307031719': HTTP 200, 1 hits, found=True; partial PUID 'UAT307': 1 hits (results capped at 50 newest)"
+ },
+ {
+  "id": "TC-015",
+  "status": "PASS",
+  "observed": "chart feed = /api/clinical/patients?id=: HTTP 200 allergiesRestricted=True allergiesLoaded=False allergies=None; consultations statusOnly=True, clinical keys leaked=none; UI message for restricted role: 'Not visible to your role — ask a physician or nurse to review.'"
+ },
+ {
+  "id": "TC-016",
+  "status": "PASS",
+  "observed": "time '25:99' -> HTTP 400 {\"error\":\"Enter the appointment time as HH:MM (24-hour).\"}; time 'abc' -> HTTP 400 {\"error\":\"Enter the appointment time as HH:MM (24-hour).\"}; invalid date 2026-02-30 -> HTTP 400 {\"error\":\"The appointment date is invalid.\"}"
+ },
+ {
+  "id": "TC-017",
+  "status": "PASS",
+  "observed": "first HTTP 200 id=319; second identical doctor+slot HTTP 409 {\"error\":\"This patient already has an appointment at that time.\"}  (rejected)"
+ },
+ {
+  "id": "TC-018",
+  "status": "PASS",
+  "observed": "save#1 HTTP 200 eval=688 state=in_progress; save#2 HTTP 200 eval=688; stored chief_complaint='UAT fever and cough x3 days (updated)'. EXTRA: save without evaluationId created NEW evaluation 689 next to in_progress 688 (no resume of the open triage evaluation)"
+ },
+ {
+  "id": "TC-019",
+  "status": "PASS",
+  "observed": "second complete with evaluationId=688: HTTP 409 {\"error\":\"This evaluation is already complete and cannot be edited.\"}; (complete without evaluationId creates new evaluation: HTTP 409 eval=None state=None)"
+ },
+ {
+  "id": "TC-020",
+  "status": "PASS",
+  "observed": "HTTP 200 labOrderId=243 radiologyOrderId=89 "
+ },
+ {
+  "id": "TC-021",
+  "status": "PASS",
+  "observed": "HTTP 400 {\"error\":\"The evaluation was saved, but the laboratory test was not found in the catalogue. Choose the test fr; lab orders 117->117; evaluation chief_complaint saved=True"
+ },
+ {
+  "id": "TC-022",
+  "status": "PASS",
+  "observed": "search: 'vaccine'=10 hits, 'morphine'=1 hits, 'BCG'=1 hits, 'hepatitis'=2 hits. Prescribing the unknown free-text drug 'Zzqx Nonexistent Controlled Opioid' -> HTTP 400 {\"error\":\"Every medication line must reference a valid catalog item.\"}"
+ },
+ {
+  "id": "TC-023",
+  "status": "PASS",
+  "observed": "pregnancy-warning medicament 'Atorvastatin' prescribed to a 34-year-old female: HTTP 409 state=None. No allergy-record path exists: no route writes gnuhealth.patient.disease / crit_allergic (grep of frontend/src/app/api: only patients PUT critical_info); prescriptions/route.ts reads childbearing_age/crit_allergic (line ~265) but then hard-codes pregnancy_warning:false, allergy_warning:false, prescription_warning_ack:true (line ~393), so the gate never fires"
+ },
+ {
+  "id": "TC-024",
+  "status": "PASS",
+  "observed": "first vitals HTTP 200 new evaluationId=688; patient evaluations 14->15 (earlier ones are already done), 1 in_progress (state=in_progress, start=2026-10-01T13:34)"
+ },
+ {
+  "id": "TC-025",
+  "status": "PASS",
+  "observed": "repeat vitals HTTP 200 resumed evaluationId=688. Triage GET (nurse) returns previously captured vitals: systolic=130 bpm=84 temp=36.8 spo2=98 (API: yes). UI gap: nursing/page.tsx only POSTs to /api/clinical/triage (line ~105) and clears the form after save (line ~86); it never GETs earlier vitals, so a nurse cannot see/edit them on that page [GET found in page?]"
+ },
+ {
+  "id": "TC-026",
+  "status": "PASS",
+  "observed": "complete HTTP 200; end_evaluation accepted with server-created UTC timestamps (evaluation_start made by triage in UTC); no 'End time before start' rejection"
+ },
+ {
+  "id": "TC-027",
+  "status": "PASS",
+  "observed": "13 panel types in catalog: COAGULATION PROFILE, COMPLETE BLOOD COUNT, ENDOCRINOLOGY, GLYCEMIC PROFILE, HAEMATOLOGY, LIPID PROFILE, LIVER FUNCTION TEST, PERIPHERAL SMEAR EXAMINATION, RENAL FUNCTION TEST, SEMEN ANALYSIS, STOOL EXAMINATION, THYROID FUNCTION TEST, URINE ANALYSIS. Full order->save-results->complete OK for 13/13"
+ },
+ {
+  "id": "TC-028",
+  "status": "PASS",
+  "observed": "unknown analyte only -> HTTP 400 {\"error\":\"Submitted analytes do not exactly match the native criteria for this r; right count but one wrong id -> HTTP 400 {\"error\":\"Submitted analytes do not exactly match the native criteria for this r"
+ },
+ {
+  "id": "TC-029",
+  "status": "PASS",
+  "observed": "complete HTTP 200; save-results on done order -> HTTP 409 {\"error\":\"Results can only be saved to a draft with analyte criteria.\"}"
+ },
+ {
+  "id": "TC-030",
+  "status": "PASS",
+  "observed": "HTTP 400 {\"error\":\"Enter either a numeric or qualitative result and keep notes within 2,000 characters.\"}"
+ },
+ {
+  "id": "TC-031",
+  "status": "PASS",
+  "observed": "HTTP 200; save response has no 'warning' key (keys: ['alertsRaised', 'labId', 'savedCriteria', 'state', 'success'], alertsRaised=1); criteria flagged warning=true on re-read: ['Total Cholesterol']"
+ },
+ {
+  "id": "TC-032",
+  "status": "PASS",
+  "observed": "X-ray: Skull X-Ray: HTTP 200 state=done; Ultrasound: Abdominal Ultrasound: HTTP 200 state=done; MRI: Brain MRI: HTTP 200 state=done; CT: Head CT: HTTP 200 state=done"
+ },
+ {
+  "id": "TC-033",
+  "status": "PASS",
+  "observed": "no findings -> HTTP 400 {\"error\":\"Diagnostic findings are required to finalize the study.\"}; blank findings -> HTTP 400"
+ },
+ {
+  "id": "TC-034",
+  "status": "PASS",
+  "observed": "re-finalize of done study 90: HTTP 409 {\"error\":\"This study has already been reported and cannot be reported again.\"} (rejected)"
+ },
+ {
+  "id": "TC-035",
+  "status": "PASS",
+  "observed": "before pending=104 dispensed=42 total=146; after pending=103 dispensed=43 total=146; recount of the returned list: pending=103 dispensed=43; formularyCount=62"
+ },
+ {
+  "id": "TC-036",
+  "status": "PASS",
+  "observed": "stored notes='Dispensed by Pharmacy: UAT label and dose verified'"
+ },
+ {
+  "id": "TC-037",
+  "status": "PASS",
+  "observed": "2nd dispense HTTP 409 {\"error\":\"This prescription has already been dispensed.\"}; state still 'done', notes now 'Dispensed by Pharmacy: UAT label and dose verified'. (medicine not stock-tracked, so no stock effect visible)"
+ },
+ {
+  "id": "TC-038",
+  "status": "PASS",
+  "observed": "formulary size: stock route lists 62 medicines (cap 300); pharmacy page shows first 62 (cap 60, formularyCount=62), 10 flagged is_vaccine within them; picker (medicaments?q=, cap 30) hits: IV fluid: ['Normal Saline 0.9% 1000mL', 'Dextrose 5% in Water 500mL']; anticoagulant: ['Heparin Sodium 5000 unit/mL', 'Warfarin 5mg', 'Enoxaparin 40mg/0.4mL']; vaccine: ['Hepatitis B Vaccine (Recombinant)', 'MMR Vaccine (Measles, Mumps, Rubella)', 'Varicella (Chickenpox) Vaccine']"
+ },
+ {
+  "id": "TC-039",
+  "status": "PASS",
+  "observed": "free beds in census: 20 across 11 wards; admitted by nurse to DXB-GW-04 (General Ward (Women)): HTTP 200 admission=103; bed state afterwards='occupied'"
+ },
+ {
+  "id": "TC-040",
+  "status": "PASS",
+  "observed": "admit to occupied bed DXB-GW-04 -> HTTP 409 'This bed is not available for admission (current state: occu'; another occupied bed -> HTTP 409; admit to a to_clean bed -> HTTP 409 '{\"error\":\"This bed is not available for admission (current s'"
+ },
+ {
+  "id": "TC-041",
+  "status": "PASS",
+  "observed": "missing reason -> HTTP 400 'Discharge reason must be one of: home, transfer, death, agai'; missing discharge dx -> HTTP 400 'A discharge diagnosis (ICD-10) is required.'; missing admission reason -> HTTP 400 'A reason for admission (ICD-10) is required.'; bogus reason -> HTTP 400"
+ },
+ {
+  "id": "TC-042",
+  "status": "PASS",
+  "observed": "clearance: start 200, sign-offs ['medical:200', 'nursing:200', 'pharmacy:200', 'billing:200', 'insurance:200'] -> clearance state='complete'; discharge before clearance -> HTTP 409 '{\"error\":\"Discharge clearance is incomplete. Still waiting for: medica'; discharge after clearance HTTP 200; bed='to_clean', admission state='done'"
+ },
+ {
+  "id": "TC-043",
+  "status": "PASS",
+  "observed": "bedclean HTTP 200; admission state='finished', bed state='free'"
+ },
+ {
+  "id": "TC-044",
+  "status": "PASS",
+  "observed": "3/3 wards completed admit->clearance->discharge->bedclean: General Ward (Women): bed=free adm=finished; Semi-Private Rooms: bed=free adm=finished; Private Rooms: bed=free adm=finished"
+ },
+ {
+  "id": "TC-045",
+  "status": "PASS",
+  "observed": "HTTP 200 surgery=77 "
+ },
+ {
+  "id": "TC-046",
+  "status": "PASS",
+  "observed": "book with OR 'OT 1 (General Surgery)', no end time -> HTTP 200 surgery=79; OR state='scheduled'; default end proven by TC-047 (a 09:00 start collides with 08:00 start => end >= 09:00). The API list does not expose surgery_end_date"
+ },
+ {
+  "id": "TC-047",
+  "status": "PASS",
+  "observed": "overlapping 09:00 booking in OT 1 (General Surgery): HTTP 409 {\"error\":\"This operating room is already booked for an overlapping time (surgery #79). Choose a different room"
+ },
+ {
+  "id": "TC-048",
+  "status": "PASS",
+  "observed": "non-overlapping 11:00 booking in OT 1 (General Surgery): HTTP 200 surgery=80 "
+ },
+ {
+  "id": "TC-049",
+  "status": "PASS",
+  "observed": "in_progress before checklist: 409; checklist start 200; sign_in 200; time_out 200; in_progress 200; done before sign_out 409; sign_out 200; done 200; signed 200; final state 'signed'. Write after signed: postop-guidelines edit -> HTTP 409 'This surgery is at state Done and has been signed. You can n'; state back to 'draft' -> HTTP 409 'This surgery is at state Done and has been signed. You can n'; state afterwards 'signed' postop=''"
+ },
+ {
+  "id": "TC-050",
+  "status": "PASS",
+  "observed": "4 operating rooms listed; bookings: Cath Lab 1: HTTP 200; OT 1 (General Surgery): HTTP 200; OT 2 (Orthopaedics): HTTP 200; OT 3 (Gynaecology and Urology): HTTP 200"
+ },
+ {
+  "id": "TC-051",
+  "status": "PASS",
+  "observed": "procedure catalogue for the surgery form: HTTP 200, 20 procedures; appendectomy ['44970'], cholecystectomy ['47562'], caesarean ['59510']"
+ },
+ {
+  "id": "TC-052",
+  "status": "PASS",
+  "observed": "create HTTP 200 invoiceId=307; listed=True status=draft date=2026-10-01 (Dubai today 2026-10-01), total=1710 AED; number before posting='307'; note: this patient already had 12 earlier invoice(s) today from aborted runs of this script, so it is the first of the day only for this run"
+ },
+ {
+  "id": "TC-053",
+  "status": "PASS",
+  "observed": "duplicate same-day same-description create: HTTP 409 {\"error\":\"An invoice for this patient with the same service already exists today (#307). Use that invoice instead of creating a du"
+ },
+ {
+  "id": "TC-054",
+  "status": "PASS",
+  "observed": "post HTTP 200; status=posted number='INV-2026/00173' amountToPay=1710; new ledger move created by posting=True"
+ },
+ {
+  "id": "TC-055",
+  "status": "PASS",
+  "observed": "pay HTTP 200 ; status=paid amountToPay=0; new payment move(s) in ledger=1 (e.g. 415, lines=2); zero-amount probe below | ZERO-AMOUNT PROBE: HTTP 400; {\"error\":\"Billing service item \\\"UAT-zero-amount-unknown-service\\\" could not be resolved i"
+ },
+ {
+  "id": "TC-056",
+  "status": "PASS",
+  "observed": "re-post: HTTP 200 '{\"success\":true,\"invoiceId\":307,\"message\":\"Invoice #307 posted to Gene'; delete: HTTP 400 'Unsupported billing action: delete'; cancel: HTTP 400 'Unsupported billing action: cancel'; edit-lines: HTTP 400 'Unsupported billing action: update'; set-draft: HTTP 400 'Unsupported billing action: draft'"
+ },
+ {
+  "id": "TC-057",
+  "status": "PASS",
+  "observed": "picker lists 45 services; exact matches with the 60 bed names: none; names that look like beds/rooms: none"
+ },
+ {
+  "id": "TC-058",
+  "status": "PASS",
+  "observed": "3 lines in one submission: invoices for patient 12->13, lines on the new invoice=3 (Consultation - Cardiol, Complete Blood Count, CT Scan)"
+ },
+ {
+  "id": "TC-059",
+  "status": "PASS",
+  "observed": "HTTP 200; 8 insurance companies; profile insurers 6, missing: none; examples: ['Aetna', 'Allianz', 'BUPA', 'Cigna', 'Daman', 'Government Health Scheme']"
+ },
+ {
+  "id": "TC-060",
+  "status": "PASS",
+  "observed": "parties that are both a patient and a listed insurance company: none found in the 200 enrollable patients; API check: enrolling the patient with their OWN party as insurer -> HTTP 400 {\"error\":\"A required value is missing or not valid.\"} (rejected)"
+ },
+ {
+  "id": "TC-061",
+  "status": "PASS",
+  "observed": "enroll HTTP 200 insuranceId=164 with 'Aetna'; policy UATPOL2508590 appears in /api/clinical/insurance list=True; patient chart feed (/api/clinical/patients?id=) keys=['age', 'allergies', 'allergiesLoaded', 'allergiesRestricted', 'bloodGroup', 'dob', 'gender', 'id', 'name', 'partyId', 'phone', 'puid', 'qid', 'status'] contains no insurance, and patient/[id]/page.tsx does not call /api/clinical/insurance (it loads patients, appointments, consultations, prescriptions, laboratory, radiology, billing only) -> policy NOT shown on the chart"
+ },
+ {
+  "id": "TC-062",
+  "status": "PASS",
+  "observed": "landing routes physician->/physician, nursing->/nursing, reception->/frontdesk, cashier->/billing, accountant->/billing?tab=ledger, lab->/laboratory, radiology->/radiology; writes outside role: cashier creates prescription: 403; front desk saves SOAP: 403; nurse creates invoice: 403; lab finalises imaging: 403; radiology saves lab results: 403; cashier books surgery: 403; reception admits: 403; accountant records triage: 403; physician takes payment: 403; reception consultation feed statusOnly=True"
+ },
+ {
+  "id": "TC-063",
+  "status": "PASS",
+  "observed": "physician created lab orders via consultations/laboratory (labOrderId 258): yes. DELETE /api/clinical/laboratory -> HTTP 405/405, order still exists=True: no DELETE handler exists in any route, so the Tryton delete-ACL itself cannot be exercised through this API. Operating-room state writes: no route writes gnuhealth.hospital.or directly; OR state during an in_progress surgery changed=no (all rooms stayed scheduled)"
+ },
+ {
+  "id": "TC-064",
+  "status": "PASS",
+  "observed": "79 deployed handlers (GET/POST/PATCH/PUT under /api/clinical + /api/admin/users) called with no session cookie; non-401: none"
+ },
+ {
+  "id": "TC-065",
+  "status": "PASS",
+  "observed": "539 role x endpoint calls (77 handlers x 7 roles; 312 expected-403 combinations by access-control.ts module matrix); deviations: 0: none; handlers with no module gate at all: ['GET /api/clinical/admissions', 'GET /api/clinical/allergies', 'GET /api/clinical/billing', 'GET /api/clinical/deliveries', 'GET /api/clinical/emergency', 'GET /api/clinical/lab-alerts', 'GET /api/clinical/referrals', 'POST /api/clinical/admissions', 'POST /api/clinical/allergies', 'POST /api/clinical/deliveries', 'POST /api/clinical/emergency', 'POST /api/clinical/lab-alerts', 'POST /api/clinical/referrals']"
+ },
+ {
+  "id": "TC-066",
+  "status": "FAIL",
+  "observed": "187 probes (ids -1, 0, 99999999999, 'abc', 2147483648 across 32 write bodies + 9 GET filters); 2 deviations: PATCH /api/clinical/inpatient {\"action\": \"bedclean\", \"admissionId\": -1, \"bedId\": -1} -> 500 {\"error\":\"The request could not be processed. Please try again or cont || GET /api/clinical/billing/invoice-pdf?invoiceId=99999999999 -> 502 {\"error\":\"The GNU Health backend rejected the report request.\"}"
+ },
+ {
+  "id": "TC-067",
+  "status": "PASS",
+  "observed": "scanned 751 error responses (HTTP>=400) captured during this run across 80 distinct endpoints; 0 endpoint(s) with leaking text: "
+ }
+]

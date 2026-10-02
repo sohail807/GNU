@@ -1,0 +1,39 @@
+{
+  "login_ms": {
+    "min": 785.95,
+    "avg": 1026.28,
+    "max": 1586.6
+  },
+  "models": {
+    "Patient Search/Read": {
+      "min_ms": 469.29,
+      "avg_ms": 679.37,
+      "max_ms": 1024.58
+    },
+    "Appointment Search/Read": {
+      "min_ms": 402.08,
+      "avg_ms": 624.58,
+      "max_ms": 941.59
+    },
+    "Evaluation Search/Read": {
+      "min_ms": 401.19,
+      "avg_ms": 761.86,
+      "max_ms": 1265.04
+    },
+    "Prescription Search/Read": {
+      "min_ms": 292.32,
+      "avg_ms": 486.07,
+      "max_ms": 834.0
+    },
+    "Lab Search/Read": {
+      "min_ms": 274.5,
+      "avg_ms": 300.21,
+      "max_ms": 341.29
+    },
+    "Radiology Search/Read": {
+      "min_ms": 307.95,
+      "avg_ms": 562.95,
+      "max_ms": 1255.81
+    }
+  }
+}

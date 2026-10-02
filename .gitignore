@@ -14,9 +14,18 @@ id_ecdsa*
 id_dsa*
 *.pub
 .env*
+!.env.example
 *token*
 *secret*
 *password*
+# The three broad patterns above are meant to catch credential-shaped files (dumped tokens,
+# secret configs), but they also match source files that merely mention the word in their
+# name -- frontend/src/lib/reset-tokens.ts is real, imported application code, not a secret,
+# and was silently never committed to git until this was caught. Un-ignore source code
+# explicitly rather than narrowing the patterns, so a new *.ts/*.tsx file is never silently
+# dropped the same way again.
+!frontend/src/**/*.ts
+!frontend/src/**/*.tsx
 *.credentials
 credentials.db
 access_tokens.db
@@ -62,8 +71,28 @@ test_output.docx
 ~$*.xlsx
 ~$*.pptx
 
+# Mail Spool & Scratch Files
+reports/mail_spool/
+scripts/scratch_*.py
+.claude/
+
 # OS Metadata
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 .DS_Store
+
+# Firebase CLI local cache
+.firebase/
+firebase-debug.log
+
+# Auth API routes whose folder names contain "password" (source code, not secrets)
+!frontend/src/app/api/auth/forgot-password/
+!frontend/src/app/api/auth/forgot-password/route.ts
+!frontend/src/app/api/auth/reset-password/
+!frontend/src/app/api/auth/reset-password/route.ts
+
+# local runtime state and private demo logins
+frontend/data/
+reports/security_audit_log.json
+docs/aster-demo/private/

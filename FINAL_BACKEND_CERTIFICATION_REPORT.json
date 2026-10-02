@@ -1,0 +1,148 @@
+{
+  "audit_id": "GH-AUDIT-FINAL-2026-09-24",
+  "timestamp": "2026-09-24T06:55:00Z",
+  "environment": {
+    "host": "gnuhealth-srv",
+    "ip": "34.7.237.8",
+    "internal_ip": "10.164.0.2",
+    "gcp_project": "gnu-health-509307",
+    "gcp_zone": "europe-west4-a",
+    "os": "Debian GNU/Linux 12 (bookworm)",
+    "kernel": "6.1.0-53-cloud-amd64",
+    "tryton_version": "7.0.57",
+    "gnuhealth_version": "5.0.6",
+    "postgresql_version": "15.19",
+    "nginx_version": "1.22.1",
+    "python_version": "3.11.2",
+    "chrome_version": "153.0.8010.53",
+    "database_name": "gnuhealth",
+    "database_size": "125 MB",
+    "table_count": 306
+  },
+  "technical_status": "TECHNICALLY COMPLETE — MINOR FINDINGS",
+  "production_status": "BLOCKED PENDING BUSINESS INPUTS & INSTITUTIONAL PREREQUISITES",
+  "domains": {
+    "repository": "PASS WITH MINOR FINDING",
+    "configuration": "PASS",
+    "database": "PASS",
+    "clinical_workflow": "PASS",
+    "accounting": "PASS",
+    "rbac": "PASS",
+    "security": "PASS WITH MINOR FINDING",
+    "api": "PASS",
+    "browser_e2e": "PASS",
+    "backup_restore": "PASS",
+    "atomicity": "PASS",
+    "infrastructure": "PASS",
+    "documentation": "PASS",
+    "frontend_handover": "PASS"
+  },
+  "scoring_summary": {
+    "total_domains": 14,
+    "pass_count": 12,
+    "pass_with_minor_finding_count": 2,
+    "not_verified_count": 0,
+    "blocked_count": 0,
+    "fail_count": 0
+  },
+  "critical_findings": [],
+  "high_findings": [],
+  "medium_findings": [],
+  "low_findings": [
+    {
+      "id": "F-01",
+      "area": "infrastructure_security",
+      "title": "Deployment SSH key retained with restricted local ACLs",
+      "description": "Non-interactive deployment key (~/.ssh/gnuhealth_deploy) is retained to allow automated agent execution until human operator handover.",
+      "remediation": "Test interactive passphrase key (google_compute_engine) and decommission deployment key after handover."
+    }
+  ],
+  "informational_findings": [
+    {
+      "id": "F-02",
+      "area": "code_cleanliness",
+      "title": "Untracked test output artifacts and scratch scripts",
+      "description": "Exploratory test artifacts and scripts present in workspace root and scripts directory.",
+      "remediation": "Move non-essential scratch scripts into an archive directory."
+    }
+  ],
+  "not_verified": [],
+  "production_dependencies": [
+    {
+      "id": "PR-01",
+      "area": "tls_networking",
+      "description": "Official clinic FQDN and DNS A-record pointing to 34.7.237.8 for Port 443 TLS issuance via Certbot.",
+      "status": "BLOCKED FOR PRODUCTION TLS"
+    },
+    {
+      "id": "PR-02",
+      "area": "regulatory_licensing",
+      "description": "Official facility registration and establishment code from Qatar Ministry of Public Health (MoPH).",
+      "status": "PENDING REGULATORY INPUT"
+    },
+    {
+      "id": "PR-03",
+      "area": "human_resources",
+      "description": "Real clinical and operational staff roster replacing synthetic DEMO/UAT users.",
+      "status": "PENDING HR ROSTER"
+    },
+    {
+      "id": "PR-04",
+      "area": "financial_governance",
+      "description": "Approved production clinic service tariffs and insurance contracts replacing demo prices.",
+      "status": "PENDING TARIFF SIGN-OFF"
+    },
+    {
+      "id": "PR-05",
+      "area": "disaster_recovery",
+      "description": "Off-site multi-region cloud backup replication bucket (GCS/S3).",
+      "status": "PENDING CLOUD PROVISIONING"
+    }
+  ],
+  "evidence": [
+    {
+      "type": "database_integrity",
+      "description": "Zero foreign key orphans across 12 relational chains",
+      "result": 0,
+      "status": "VERIFIED"
+    },
+    {
+      "type": "general_ledger",
+      "description": "Strict balance: Total Debits (11,700.00 QAR) == Total Credits (11,700.00 QAR)",
+      "net_diff": 0.0,
+      "status": "VERIFIED"
+    },
+    {
+      "type": "accounts_receivable",
+      "description": "Net customer receivable balance settled to exactly 0.00 QAR across 13 reconciliations",
+      "balance": 0.0,
+      "status": "VERIFIED"
+    },
+    {
+      "type": "browser_e2e_screenshots",
+      "description": "20 visual screenshots verifying outpatient lifecycle in Chrome",
+      "count": 20,
+      "directory": "reports/final_backend_audit/screenshots/",
+      "status": "VERIFIED"
+    },
+    {
+      "type": "backup_restore_drill",
+      "description": "Isolated sandbox restore drill completed in 11 seconds with 100% data fidelity",
+      "duration_sec": 11,
+      "status": "VERIFIED"
+    },
+    {
+      "type": "native_jsonrpc_api",
+      "description": "Live authenticated model dispatch and session management over HTTP gateway",
+      "endpoint": "http://34.7.237.8/gnuhealth/",
+      "status": "VERIFIED"
+    },
+    {
+      "type": "negative_testing",
+      "description": "16 defensive constraint and RBAC abuse tests",
+      "passed": 16,
+      "failed": 0,
+      "status": "VERIFIED"
+    }
+  ]
+}

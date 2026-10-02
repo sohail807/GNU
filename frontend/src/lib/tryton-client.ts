@@ -1,0 +1,520 @@
+/**
+ * IST Health — Native Tryton JSON-RPC 2.0 Integration Client
+ * Directly interfaces with the authoritative GNU Health backend.
+ * Strictly enforces session token headers and mandatory company context.
+ */
+
+const RPC_TIMEOUT_MS = 15_000;
+
+export interface TrytonLoginResult {
+  userId: number;
+  sessionToken: string;
+}
+
+interface HttpStatusError extends Error { status?: number }
+
+
+/** A backend business-rule message, cleaned of record ids, table names and field labels before it reaches a caller. */
+function cleanHumanMessage(human: string): HttpStatusError {
+  // Backend message codes ("SM-CORE-0007: ...") and form/field labels are internal wording, never shown to a user.
+  let message = human.replace(/^[A-Z]{2,}-[A-Z]+-\d+:\s*/, ""), status = 400;
+  if (/not associated to a health professional/i.test(human)) { message = "Only a doctor or nurse registered as a health professional can do this. Sign in with a clinical account."; status = 403; }
+  else if (/you are trying to (read|write)|does not exist|don't exist|do not exist/i.test(human)) { message = "The record was not found."; status = 404; }
+  else if (/a value is required|is required|required for field|the value .* for field/i.test(human)) { message = "A required value is missing or not valid."; }
+  const error = new Error(message) as HttpStatusError;
+  error.status = status;
+  return error;
+}
+
+export type TrytonWorkflowWizard = "gnuhealth.lab.test.create" | "account.invoice.pay";
+
+/**
+ * Hospital scoping for group customers (one database, several hospitals).
+ *
+ * getSession() records the signed-in user's active hospital (institution) against their backend session token;
+ * every Tryton call made with that token is then scoped here, in one place, so no route can forget:
+ *   - reads of hospital-owned records get an institution filter added (wards, beds, theatres, admissions,
+ *     appointments, surgeries, clinicians), and
+ *   - new records of hospital-owned types are stamped with the institution.
+ * Users with no active institution (every single-hospital customer, e.g. IST Central) are never touched.
+ * Patients, evaluations and orders stay shared across the group on purpose (one patient record per group).
+ */
+const ACTIVE_INSTITUTION = new Map<string, number>();
+const MAX_TRACKED_SESSIONS = 5_000;
+const INSTITUTION_FILTERED = new Set([
+  "gnuhealth.hospital.ward", "gnuhealth.hospital.bed", "gnuhealth.hospital.or", "gnuhealth.inpatient.registration",
+  "gnuhealth.appointment", "gnuhealth.surgery", "gnuhealth.healthprofessional",
+]);
+const INSTITUTION_STAMPED = new Set([...INSTITUTION_FILTERED, "gnuhealth.patient.evaluation"]);
+// Records with no institution of their own are scoped through the clinician who requested them (a doctor belongs
+// to a hospital). Orders with no requesting clinician stay visible so nothing a lab or imaging user enters is hidden.
+const CLINICIAN_FIELD: Record<string, string> = {
+  "gnuhealth.lab": "requestor",
+  "gnuhealth.patient.lab.test": "doctor_id",
+  "gnuhealth.imaging.test.request": "doctor",
+  "gnuhealth.imaging.test.result": "doctor",
+  "gnuhealth.prescription.order": "healthprof",
+};
+
+export function setActiveInstitution(sessionToken: string, institutionId: number | undefined): void {
+  if (!institutionId) {
+    ACTIVE_INSTITUTION.delete(sessionToken);
+    return;
+  }
+  if (ACTIVE_INSTITUTION.size > MAX_TRACKED_SESSIONS) ACTIVE_INSTITUTION.clear();
+  ACTIVE_INSTITUTION.set(sessionToken, institutionId);
+}
+
+// Each hospital of a group is its own Tryton company with its own books. Tryton's record rules only require the
+// company to be one of the user's companies, so a user in both would see both hospitals' invoices and ledger;
+// reads are therefore pinned to the active company here.
+const COMPANY_FILTERED = new Set(["account.invoice", "account.move", "account.move.line", "account.account"]);
+
+function scopeParams(model: string, method: string, params: unknown[], institution: number, company?: number): unknown[] {
+  if (company && COMPANY_FILTERED.has(model) && ["search_read", "search", "search_count"].includes(method)) {
+    const domain = Array.isArray(params[0]) ? (params[0] as unknown[]) : [];
+    return [domain.length > 0 ? [["company", "=", company], domain] : [["company", "=", company]], ...params.slice(1)];
+  }
+  if (["search_read", "search", "search_count"].includes(method) && INSTITUTION_FILTERED.has(model)) {
+    const domain = Array.isArray(params[0]) ? (params[0] as unknown[]) : [];
+    const scoped = domain.length > 0 ? [["institution", "=", institution], domain] : [["institution", "=", institution]];
+    return [scoped, ...params.slice(1)];
+  }
+  // Visit lists are per hospital, but one patient's own history spans the group (their chart shows every hospital).
+  if (model === "gnuhealth.patient.evaluation" && ["search_read", "search", "search_count"].includes(method)) {
+    const domain = Array.isArray(params[0]) ? (params[0] as unknown[]) : [];
+    if (!JSON.stringify(domain).includes('"patient"')) {
+      return [domain.length > 0 ? [["institution", "=", institution], domain] : [["institution", "=", institution]], ...params.slice(1)];
+    }
+    return params;
+  }
+  const clinician = CLINICIAN_FIELD[model];
+  if (clinician && ["search_read", "search", "search_count"].includes(method)) {
+    const domain = Array.isArray(params[0]) ? (params[0] as unknown[]) : [];
+    const mine = ["OR", [`${clinician}.institution`, "=", institution], [clinician, "=", null]];
+    return [domain.length > 0 ? [mine, domain] : [mine], ...params.slice(1)];
+  }
+  if (method === "create" && INSTITUTION_STAMPED.has(model) && Array.isArray(params[0])) {
+    const records = (params[0] as Array<Record<string, unknown>>).map((r) =>
+      r && typeof r === "object" && r.institution === undefined ? { ...r, institution } : r
+    );
+    return [records, ...params.slice(1)];
+  }
+  return params;
+}
+
+export class TrytonClient {
+  private static encodeBase64(str: string): string {
+    return Buffer.from(str, "utf-8").toString("base64");
+  }
+
+  /**
+   * Resolves the target Tryton backend endpoint dynamically for a specific tenant database.
+   */
+  static getBaseUrl(database?: string): string {
+    const rawHost = process.env.GNUHEALTH_HOST;
+    if (!rawHost) throw new Error("GNUHEALTH_HOST is required.");
+    const host = new URL(rawHost);
+    if (host.username || host.password || host.search || host.hash) {
+      throw new Error("GNUHEALTH_HOST must not contain credentials, query parameters, or fragments.");
+    }
+    const isLoopback = ["localhost", "127.0.0.1", "::1"].includes(host.hostname.replace(/^\[|\]$/g, ""));
+    if (process.env.NODE_ENV === "production" && host.protocol !== "https:" && !(host.protocol === "http:" && isLoopback)) {
+      throw new Error("GNU Health backend connections must use HTTPS in production, except for a loopback-only backend connection.");
+    }
+    if (host.protocol !== "https:" && host.protocol !== "http:") {
+      throw new Error("GNUHEALTH_HOST must use HTTP or HTTPS.");
+    }
+    const dbName = database || process.env.GNUHEALTH_DATABASE;
+    if (!dbName || !/^[A-Za-z0-9_-]+$/.test(dbName)) {
+      throw new Error("A valid GNUHEALTH_DATABASE is required.");
+    }
+    return new URL(`${encodeURIComponent(dbName)}/`, host.toString().replace(/\/?$/, "/")).toString();
+  }
+
+  /**
+   * Performs primary authentication via common.db.login against the tenant's dedicated database
+   */
+  static async login(username: string, password: string, database?: string): Promise<TrytonLoginResult> {
+    const authHeader = `Basic ${this.encodeBase64(`${username}:${password}`)}`;
+    const payload = {
+      id: Date.now(),
+      method: "common.db.login",
+      params: [username, { password }],
+    };
+
+    const targetUrl = this.getBaseUrl(database);
+    const res = await fetch(targetUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authHeader,
+      },
+      body: JSON.stringify(payload),
+      cache: "no-store",
+      signal: AbortSignal.timeout(RPC_TIMEOUT_MS),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Authentication failed (${res.status}): ${errText}`);
+    }
+
+    const data = await res.json();
+    if (data.error) {
+      throw new Error(`Tryton login error: ${JSON.stringify(data.error)}`);
+    }
+
+    const [userId, sessionToken] = data.result !== undefined ? data.result : data;
+    if (!userId || !sessionToken) {
+      throw new Error("Invalid response received from common.db.login");
+    }
+
+    return { userId, sessionToken };
+  }
+
+  static async logout(
+    username: string,
+    userId: number,
+    sessionToken: string,
+    database?: string
+  ): Promise<void> {
+    const res = await fetch(this.getBaseUrl(database), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Session ${this.encodeBase64(`${username}:${userId}:${sessionToken}`)}`,
+      },
+      body: JSON.stringify({ id: Date.now(), method: "common.db.logout", params: [] }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(RPC_TIMEOUT_MS),
+    });
+    if (!res.ok) throw new Error(`Tryton logout failed (${res.status}).`);
+    const data = await res.json();
+    if (data.error) throw new Error("Tryton rejected the logout request.");
+  }
+
+  /**
+   * Executes an authenticated model method via JSON-RPC 2.0 against the tenant's dedicated database
+   */
+  static async execute<T = unknown>(
+    username: string,
+    userId: number,
+    sessionToken: string,
+    model: string,
+    method: string,
+    params: unknown[] = [],
+    context: Record<string, unknown> = {},
+    database?: string,
+    options: { unscoped?: boolean } = {}
+  ): Promise<T> {
+    const sessionAuth = `Session ${this.encodeBase64(`${username}:${userId}:${sessionToken}`)}`;
+
+    const fullContext = { language: "en", ...context };
+
+    // Tryton model calls expect context as the final parameter
+    const institution = options.unscoped ? undefined : ACTIVE_INSTITUTION.get(sessionToken);
+    const scopedParams = institution ? scopeParams(model, method, params, institution, typeof context.company === "number" ? context.company : undefined) : params;
+    const callParams = [...scopedParams, fullContext];
+
+    const payload = {
+      id: Date.now(),
+      method: `model.${model}.${method}`,
+      params: callParams,
+    };
+
+    const targetUrl = this.getBaseUrl(database);
+    const res = await fetch(targetUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: sessionAuth,
+      },
+      body: JSON.stringify(payload),
+      cache: "no-store",
+      signal: AbortSignal.timeout(RPC_TIMEOUT_MS),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      if (res.status === 400 && errText.includes("not allowed to access")) {
+        console.warn(`Tryton access refused on ${model}.${method}: ${errText.slice(0, 300)}`);
+        const error = new Error("You do not have permission for this action.") as HttpStatusError;
+        error.status = 403;
+        throw error;
+      }
+      // Never pass the backend's own error text to a caller: it can hold SQL, Python or server details.
+      console.error(`Tryton RPC failed (${res.status}) on ${model}.${method}: ${errText.slice(0, 500)}`);
+      const error = new Error(
+        res.status === 401 ? "Your session has expired. Please sign in again."
+          : res.status >= 500 ? "The hospital system is temporarily unavailable. Please try again."
+            : "The request could not be completed."
+      ) as HttpStatusError;
+      error.status = res.status === 401 ? 401 : res.status >= 500 ? 502 : res.status;
+      throw error;
+    }
+
+    const data = await res.json() as { error?: unknown; result?: T };
+    if (data.error) {
+      const errStr = JSON.stringify(data.error);
+      if (errStr.includes("not allowed to access") || errStr.includes("AccessError")) {
+        console.warn(`Tryton access refused on ${model}.${method}: ${errStr.slice(0, 300)}`);
+        const error = new Error("You do not have permission for this action.") as HttpStatusError;
+        error.status = 403;
+        throw error;
+      }
+      if (errStr.includes("unique") || errStr.includes("duplicate key") || errStr.includes("IntegrityError")) {
+        const error = new Error(`Data Integrity Error: Duplicate record or constraint violation on ${model}.`) as HttpStatusError;
+        error.status = 409;
+        throw error;
+      }
+      // Tryton's model layer normally rejects a delete that would orphan a reference with its
+      // own UserError before the database is even touched (verified live: deleting a
+      // base-config-protected or cross-referenced record both come back as a clean UserError,
+      // not a raw DB error). This is a safety net for the rare case a raw Postgres foreign-key
+      // violation slips through uncaught instead.
+      if (errStr.includes("violates foreign key constraint") || errStr.includes("ForeignKeyError") || errStr.includes("is still referenced")) {
+        const error = new Error(`This ${model} record is still referenced elsewhere and can't be deleted.`) as HttpStatusError;
+        error.status = 409;
+        throw error;
+      }
+      // Tryton's JSON-RPC shape for a business-rule rejection is
+      // [errorType, [humanMessage, description, domain]] -- e.g.
+      // ["UserError", ["You can not have two users with the same login!", "", null]].
+      // Extract just the human message instead of dumping the raw array to the client. This
+      // covers every UserError/UserWarning/ConcurrencyException the backend can raise -- not
+      // just the specific ones we've happened to hit and special-cased above -- so a new kind
+      // of validation rejection (an invoice in the wrong state, a required field, a blocked
+      // discharge, a name already in use, ...) reads as a normal message instead of leaking
+      // raw JSON-RPC text into the UI.
+      if (
+        Array.isArray(data.error) &&
+        typeof data.error[0] === "string" &&
+        ["UserError", "UserWarning", "ConcurrencyException"].includes(data.error[0]) &&
+        Array.isArray(data.error[1]) &&
+        typeof data.error[1][0] === "string" &&
+        data.error[1][0].trim()
+      ) {
+        throw cleanHumanMessage(String(data.error[1][0]));
+      }
+      // A feature whose backend module is not installed in this hospital's database.
+      if (model.startsWith("ist.") && errStr.startsWith(`["'${model}'`)) {
+        const error = new Error("This feature is not enabled for this hospital yet. Ask the administrator to install the IST workflow modules.") as HttpStatusError;
+        error.status = 503;
+        throw error;
+      }
+      // Anything else is unexpected: keep the detail in the server log only, and answer with a clean message.
+      console.error(`Tryton RPC error on ${model}.${method}: ${errStr.slice(0, 500)}`);
+      const badInput = /out of range|invalid input syntax|could not convert|invalid literal|int\(\)|has no attribute|is not a valid|KeyError|TypeError|ValueError|AttributeError/.test(errStr);
+      const error = new Error(badInput ? "One of the values sent is not valid. Check the record references and try again." : "The request could not be processed. Please try again or contact support.") as HttpStatusError;
+      error.status = badInput ? 400 : 500;
+      throw error;
+    }
+
+    return (data.result !== undefined ? data.result : data) as T;
+  }
+
+  /**
+   * Runs the GNU Health lab-result creation wizard for existing patient lab
+   * request records. The wizard allowlist intentionally stays narrow: callers
+   * cannot dispatch arbitrary Tryton wizards.
+   */
+  static async createLabResultFromRequests(
+    username: string,
+    userId: number,
+    sessionToken: string,
+    requestIds: number[],
+    context: Record<string, unknown> = {},
+    database?: string
+  ): Promise<void> {
+    if (requestIds.length < 1 || requestIds.length > 20 || requestIds.some((id) => !Number.isSafeInteger(id) || id < 1)) {
+      throw new Error("A valid set of laboratory request IDs is required.");
+    }
+
+    const wizardName: TrytonWorkflowWizard = "gnuhealth.lab.test.create";
+    const auth = `Session ${this.encodeBase64(`${username}:${userId}:${sessionToken}`)}`;
+    const fullContext = { language: "en", ...context, active_model: "gnuhealth.patient.lab.test", active_ids: requestIds, active_id: requestIds[0] };
+    const call = async <T>(method: "create" | "execute" | "delete", params: unknown[]): Promise<T> => {
+      const res = await fetch(this.getBaseUrl(database), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: auth },
+        body: JSON.stringify({ id: Date.now(), method: `wizard.${wizardName}.${method}`, params: [...params, fullContext] }),
+        cache: "no-store",
+        signal: AbortSignal.timeout(RPC_TIMEOUT_MS),
+      });
+      if (!res.ok) {
+        const error = new Error(`Tryton wizard request failed (${res.status}).`);
+        (error as Error & { status?: number }).status = res.status;
+        throw error;
+      }
+      const data = await res.json();
+      if (data.error) {
+        const errText = JSON.stringify(data.error);
+        const status = errText.includes("AccessError") || errText.includes("not allowed to access") ? 403 : 502;
+        const error = new Error(status === 403 ? "Access denied while running the laboratory workflow." : "The GNU Health rejected the laboratory workflow.");
+        (error as Error & { status?: number }).status = status;
+        throw error;
+      }
+      return (data.result !== undefined ? data.result : data) as T;
+    };
+
+    const created = await call<[number | string, string, string]>("create", []);
+    const wizardSessionId = created?.[0];
+    const startingState = created?.[1];
+    if (!((typeof wizardSessionId === "number" && Number.isSafeInteger(wizardSessionId) && wizardSessionId > 0) || (typeof wizardSessionId === "string" && wizardSessionId.length > 0)) || startingState !== "start" || created?.[2] !== "end") {
+      throw new Error("The GNU Health returned an unsupported laboratory wizard state.");
+    }
+    try {
+      await call("execute", [wizardSessionId, {}, "create_lab_test"]);
+    } finally {
+      await call("delete", [wizardSessionId]).catch(() => undefined);
+    }
+  }
+
+  /**
+   * Runs GNU Health's real account.invoice.pay wizard for a full settlement
+   * (the invoice's entire amount_to_pay, paid in one go). This is the only
+   * safe automated case: the wizard's own transition_choice() takes the
+   * "ask" branch (partial payment / write-off / overpayment resolution)
+   * whenever the amount doesn't exactly clear the balance, and this method
+   * deliberately does not attempt to guess a resolution for that - it
+   * surfaces a clear error instead so a human handles the reconciliation.
+   */
+  static async payInvoiceFull(
+    username: string,
+    userId: number,
+    sessionToken: string,
+    invoiceId: number,
+    paymentMethodId: number,
+    description: string,
+    context: Record<string, unknown> = {},
+    database?: string
+  ): Promise<void> {
+    const wizardName: TrytonWorkflowWizard = "account.invoice.pay";
+    const auth = `Session ${this.encodeBase64(`${username}:${userId}:${sessionToken}`)}`;
+    const fullContext = { language: "en", ...context, active_model: "account.invoice", active_ids: [invoiceId], active_id: invoiceId };
+    const call = async <T>(method: "create" | "execute" | "delete", params: unknown[]): Promise<T> => {
+      const res = await fetch(this.getBaseUrl(database), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: auth },
+        body: JSON.stringify({ id: Date.now(), method: `wizard.${wizardName}.${method}`, params: [...params, fullContext] }),
+        cache: "no-store",
+        signal: AbortSignal.timeout(RPC_TIMEOUT_MS),
+      });
+      if (!res.ok) {
+        const error = new Error(`Tryton payment wizard request failed (${res.status}).`);
+        (error as Error & { status?: number }).status = res.status;
+        throw error;
+      }
+      const data = await res.json();
+      if (data.error) {
+        if (Array.isArray(data.error) && typeof data.error[0] === "string" &&
+          ["UserError", "UserWarning", "ConcurrencyException"].includes(data.error[0]) &&
+          Array.isArray(data.error[1]) && typeof data.error[1][0] === "string" && data.error[1][0].trim()) {
+          throw cleanHumanMessage(String(data.error[1][0]));
+        }
+        const errText = JSON.stringify(data.error);
+        const status = errText.includes("AccessError") || errText.includes("not allowed to access") ? 403 : 502;
+        const error = new Error(status === 403 ? "Access denied while running the payment workflow." : "The GNU Health backend rejected the payment workflow.") as HttpStatusError;
+        error.status = status;
+        throw error;
+      }
+      return (data.result !== undefined ? data.result : data) as T;
+    };
+
+    const created = await call<[number | string, string, string]>("create", []);
+    const wizardSessionId = created?.[0];
+    if (!((typeof wizardSessionId === "number" && Number.isSafeInteger(wizardSessionId) && wizardSessionId > 0) || (typeof wizardSessionId === "string" && wizardSessionId.length > 0)) || created?.[1] !== "start" || created?.[2] !== "end") {
+      throw new Error("The GNU Health backend returned an unsupported invoice-payment wizard state.");
+    }
+
+    try {
+      // First execute on 'start' just fetches the server-computed defaults
+      // (payee, amount = amount_to_pay, currency, company, invoice_account,
+      // date) - it doesn't submit anything yet.
+      const startResult = await call<{ view?: { defaults?: Record<string, unknown> } }>(
+        "execute", [wizardSessionId, {}, "start"]
+      );
+      const rawDefaults = startResult?.view?.defaults;
+      if (!rawDefaults || typeof rawDefaults.amount === "undefined" || !rawDefaults.payee) {
+        throw new Error("Could not resolve the invoice payment defaults (payee/amount) from GNU Health.");
+      }
+      // Tryton's wizard view response mixes real field values with
+      // "field." display-helper keys (e.g. "payee." -> {rec_name: "..."})
+      // meant only for client rendering - echoing those back as record
+      // fields isn't valid, so strip anything not a real field name.
+      const defaults = Object.fromEntries(
+        Object.entries(rawDefaults).filter(([key]) => !key.includes("."))
+      );
+
+      // Submit the start form (server defaults + our resolved payment method).
+      // "description" has no default_description() on the server, so the
+      // wizard's in-memory record never gets that attribute at all unless we
+      // set it explicitly - reading it later (as Tryton itself does while
+      // processing the transition) then raises "has no attribute
+      // 'description'" instead of just treating it as blank.
+      // Then trigger the "choice" transition, the wizard's own OK button.
+      const choiceResult = await call<{ view?: { state?: string } }>(
+        "execute",
+        [wizardSessionId, { start: { ...defaults, payment_method: paymentMethodId, description } }, "choice"]
+      );
+
+      // Reaching "end" returns an empty result. Landing on the "ask" view
+      // instead means the wizard needs partial/write-off/overpayment
+      // resolution - never happens for an exact full-balance payment unless
+      // there's a currency-rounding remainder, and this method refuses to
+      // guess that resolution.
+      if (choiceResult?.view?.state === "ask") {
+        throw new Error("This invoice cannot be auto-settled for its exact balance (a partial payment, write-off, or overpayment reconciliation is required) - resolve it directly in GNU Health.");
+      }
+    } finally {
+      await call("delete", [wizardSessionId]).catch(() => undefined);
+    }
+  }
+
+  /**
+   * Runs one of Tryton's native report definitions (e.g. "account.invoice")
+   * against a record and returns the raw rendered document. GNU Health's
+   * report templates are ODT (OpenDocument) - Tryton only converts to PDF
+   * itself if the report action's own "extension" field is configured to
+   * "pdf", which is a persistent admin config change, not something a
+   * caller can request per-call. Callers that need PDF do their own
+   * ODT->PDF conversion (see /api/clinical/billing/invoice-pdf) rather than
+   * mutating that shared Tryton config.
+   */
+  static async executeReport(
+    username: string,
+    userId: number,
+    sessionToken: string,
+    reportName: string,
+    ids: number[],
+    context: Record<string, unknown> = {},
+    database?: string
+  ): Promise<{ extension: string; data: Buffer; directPrint: boolean; name: string | false }> {
+    const auth = `Session ${this.encodeBase64(`${username}:${userId}:${sessionToken}`)}`;
+    const fullContext = { language: "en", ...context };
+    const res = await fetch(this.getBaseUrl(database), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: auth },
+      body: JSON.stringify({ id: Date.now(), method: `report.${reportName}.execute`, params: [ids, {}, fullContext] }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(30_000),
+    });
+    if (!res.ok) {
+      const error = new Error(`Tryton report request failed (${res.status}).`) as HttpStatusError;
+      error.status = res.status;
+      throw error;
+    }
+    const json = await res.json();
+    if (json.error) {
+      const errText = JSON.stringify(json.error);
+      const status = errText.includes("AccessError") || errText.includes("not allowed to access") ? 403 : 502;
+      const error = new Error(status === 403 ? "Access denied while generating the report." : "The GNU Health backend rejected the report request.") as HttpStatusError;
+      error.status = status;
+      throw error;
+    }
+    const [extension, docBytes, directPrint, name] = json.result as [string, { base64: string }, boolean, string | false];
+    return { extension, data: Buffer.from(docBytes.base64, "base64"), directPrint, name };
+  }
+
+}

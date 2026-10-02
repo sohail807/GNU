@@ -1,0 +1,24 @@
+[Unit]
+Description=GNU Health / Tryton Application Server (Multi-Tenant SaaS)
+After=syslog.target network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=gnuhealth
+Group=gnuhealth
+WorkingDirectory=/home/gnuhealth
+Environment=TRYTOND_CONFIG=/home/gnuhealth/trytond.conf
+Environment=TRYTOND_DATABASE_NAMES=gnuhealth
+ExecStart=/home/gnuhealth/venv/bin/gunicorn --workers 4 --timeout 300 --graceful-timeout 30 --bind 127.0.0.1:8000 trytond.application:app
+Restart=always
+RestartSec=5
+
+# Security Sandboxing
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/home/gnuhealth /var/log
+
+[Install]
+WantedBy=multi-user.target

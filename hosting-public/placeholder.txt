@@ -1,0 +1,1 @@
+Static placeholder; all requests are rewritten to Cloud Run.

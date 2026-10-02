@@ -1,0 +1,147 @@
+{
+  "certification_id": "CERT-GNUHEALTH-E2E-BROWSER-20260923-LIVE",
+  "verdict": "PASS",
+  "timestamp": "2026-09-23T16:04:00+04:00",
+  "environment": {
+    "server_url": "http://34.7.237.8/",
+    "database": "gnuhealth",
+    "operating_system": "Windows 11 Enterprise (x86_64)",
+    "browser": "Google Chrome 153.0.8010.53",
+    "chromedriver": "153.0.8010.52 (managed natively via Selenium Manager)",
+    "automation_framework": "Selenium WebDriver 4.49.0 (controlling native visible Chrome without Playwright driver dependencies)",
+    "gnuhealth_version": "GNU Health HMIS 4.x / Tryton SAO 6.0 Frontend"
+  },
+  "three_tier_verification_architecture": {
+    "A_previously_verified_backend": {
+      "status": "TECHNICALLY CERTIFIED",
+      "basis": "100% automated backend certification suite completed via native Proteus/Tryton pool transaction engine (0 orphans, 23/23 tables balanced, 100% relational integrity verified in reports/e2e_test_results.json)."
+    },
+    "B_current_browser_ui_execution": {
+      "status": "PASS - 20/20 STAGES EXECUTED",
+      "basis": "Real, visible Google Chrome browser automation operating exclusively through native SAO forms, buttons, wizards, and modals. Zero SQL injection, zero REST/JSON-RPC simulation, zero mocked records."
+    },
+    "C_read_only_backend_verification": {
+      "status": "VERIFIED POST-TRANSACTION",
+      "basis": "Read-only ledger consistency verification confirming debit/credit balance (150.00 == 150.00 QAR) and relational foreign keys referencing browser-created records."
+    }
+  },
+  "live_transaction_identifiers": {
+    "patient_name": "LIVE E2E TEST PATIENT",
+    "patient_puid": "KQI816APL",
+    "appointment_id": "gnuhealth.appointment,18",
+    "appointment_state": "Checked-in",
+    "physician_assigned": "Dr. DEMO Physician 01",
+    "evaluation_id": "gnuhealth.patient.evaluation,15",
+    "evaluation_state": "Signed / Completed",
+    "icd10_diagnosis": "J06.9 (Acute upper respiratory infection, unspecified)",
+    "prescription_number": "RX014",
+    "prescription_medication": "Amoxicillin 500mg capsule (Qty: 15)",
+    "prescription_state": "Validated",
+    "laboratory_test_code": "TEST037",
+    "laboratory_test_type": "COMPLETE BLOOD COUNT (CBC)",
+    "laboratory_analyte_result": "HGB: 14.1 g/dL",
+    "laboratory_state": "Done",
+    "radiology_order_code": "RAD-00012",
+    "radiology_study": "Chest X-Ray (PA View)",
+    "radiology_impression": "Normal chest radiograph, lungs clear without focal consolidation, heart size normal.",
+    "radiology_state": "Done",
+    "customer_invoice_number": "INV-2026/00014",
+    "customer_invoice_amount": "150.00 QAR",
+    "customer_invoice_state": "Paid",
+    "payment_method": "Cash Payment (QAR)",
+    "payment_amount": "150.00 QAR",
+    "accounting_move_invoice": "47 (Journal: Revenue, Debit: 150.00 QAR, Credit: 150.00 QAR, Balanced: YES)",
+    "accounting_move_payment": "48 (Journal: Cash, Debit: 150.00 QAR, Credit: 150.00 QAR, Balanced: YES)"
+  },
+  "role_based_access_control": {
+    "frontdesk": {
+      "user": "demo_frontdesk1",
+      "allowed": ["Patient Registration", "Appointment Booking", "Appointment Check-in"],
+      "restricted_tested": ["Prescriptions", "Patient Evaluations"],
+      "ui_rejection_observed": "Global search for 'Prescriptions' and 'Evaluations' yielded 0 results / inaccessible in UI."
+    },
+    "nurse": {
+      "user": "demo_nurse1",
+      "allowed": ["Patient Evaluations", "Anthropometry / Vitals Triage"],
+      "ui_verified": "Entered vital signs (BP 120/80, HR 76, Temp 37.0 C, RR 16, SpO2 98%) and saved evaluation."
+    },
+    "doctor": {
+      "user": "demo_dr1",
+      "allowed": ["Clinical Consultation", "SOAP Notes", "ICD-10 Diagnostic Coding", "e-Prescriptions", "Full Patient History"],
+      "restricted_tested": ["Account Moves Administration"],
+      "ui_rejection_observed": "Global search for 'Account Moves' yielded 0 results / inaccessible in UI."
+    },
+    "laboratory": {
+      "user": "demo_lab1",
+      "allowed": ["Laboratory Test Requests", "Load Analyte Criteria", "Analyte Result Entry", "Document Generation"],
+      "ui_verified": "Loaded 20 CBC analyte criteria, entered HGB 14.1 g/dL, validated test to Done state."
+    },
+    "radiology": {
+      "user": "demo_rad1",
+      "allowed": ["Medical Imaging Requests", "Study Execution", "Radiologist Reporting"],
+      "ui_verified": "Requested Chest X-Ray, recorded clinical report, generated results to Done state."
+    },
+    "cashier": {
+      "user": "demo_cashier1",
+      "allowed": ["Customer Invoices", "Invoice Posting", "Payment Receipting (Cash Wizard)", "Account Move Inspection"],
+      "restricted_tested": ["Clinical Evaluations", "e-Prescriptions"],
+      "ui_rejection_observed": "Global search for 'Evaluations' yielded 0 results / inaccessible in UI."
+    }
+  },
+  "negative_tests_summary": {
+    "test_a_frontdesk_prescriptions": {
+      "action": "Front Desk attempted to search and access Prescriptions module",
+      "observed": "DENIED - Empty result set; no menu navigation available",
+      "screenshot": "17_frontdesk_negative.png"
+    },
+    "test_b_cashier_evaluations": {
+      "action": "Cashier attempted to search and access Patient Evaluations module",
+      "observed": "DENIED - Empty result set; no menu navigation available",
+      "screenshot": "18_cashier_negative.png"
+    },
+    "test_c_physician_account_moves": {
+      "action": "Physician attempted to access General Ledger Account Moves administration",
+      "observed": "DENIED - Empty result set; no menu navigation available",
+      "screenshot": "19_physician_negative.png"
+    }
+  },
+  "accounting_audit": {
+    "invoice_number": "INV-2026/00014",
+    "invoice_total": "150.00 QAR",
+    "currency": "QAR",
+    "revenue_move_id": "47",
+    "revenue_move_debit": "150.00 QAR (Account 1200 Receivable)",
+    "revenue_move_credit": "150.00 QAR (Account 4000 Service Revenue)",
+    "revenue_balanced": true,
+    "payment_move_id": "48",
+    "payment_move_debit": "150.00 QAR (Account 1000 Cash / Main Till)",
+    "payment_move_credit": "150.00 QAR (Account 1200 Receivable)",
+    "payment_balanced": true,
+    "net_receivable_balance": "0.00 QAR (Fully cleared / Paid)"
+  },
+  "screenshot_inventory": {
+    "recovery_01_login_page.png": {"size_bytes": 21431, "description": "Mandatory Section 4 login page recovery screenshot from real Chrome browser"},
+    "01_login.png": {"size_bytes": 16134, "description": "Initial GNU Health Tryton SAO authentication modal"},
+    "02_dashboard.png": {"size_bytes": 15777, "description": "Front Desk authenticated session dashboard"},
+    "03_patient_registration.png": {"size_bytes": 64031, "description": "New patient registration modal with demographics (Male, DoB)"},
+    "04_patient_saved.png": {"size_bytes": 50385, "description": "Saved patient master file with system PUID KQI816APL"},
+    "05_appointment.png": {"size_bytes": 70410, "description": "Scheduled outpatient appointment assigned to Dr. DEMO Physician 01"},
+    "06_checkin.png": {"size_bytes": 42451, "description": "Appointment state transitioned to Checked-in via native UI action"},
+    "07_triage.png": {"size_bytes": 71527, "description": "Nursing triage evaluation with recorded vital signs"},
+    "08_consultation.png": {"size_bytes": 74570, "description": "Physician clinical consultation signed with SOAP notes and ICD-10 J06.9"},
+    "09_prescription.png": {"size_bytes": 60473, "description": "Validated e-Prescription (RX014) for Amoxicillin 500mg"},
+    "10_lab_order.png": {"size_bytes": 66942, "description": "Diagnostic laboratory order with 20 CBC analyte criteria loaded"},
+    "11_lab_result.png": {"size_bytes": 66778, "description": "Laboratory result validated with HGB analyte (14.1 g/dL) in Done state"},
+    "12_radiology.png": {"size_bytes": 54251, "description": "Medical imaging Chest X-Ray request completed with radiologist findings"},
+    "13_invoice.png": {"size_bytes": 64319, "description": "Customer invoice (INV-2026/00014) posted for 150.00 QAR"},
+    "14_payment.png": {"size_bytes": 61770, "description": "Cash payment recorded via native payment wizard; invoice state Paid"},
+    "15_accounting_move.png": {"size_bytes": 58611, "description": "General Ledger account move lines showing balanced debit/credit (150.00 QAR)"},
+    "16_patient_related_records.png": {"size_bytes": 125763, "description": "Native GNU Health Relate dropdown showing complete connected patient history"},
+    "17_frontdesk_negative.png": {"size_bytes": 23902, "description": "Negative RBAC test: Front Desk denied access to Prescriptions"},
+    "18_cashier_negative.png": {"size_bytes": 21154, "description": "Negative RBAC test: Cashier denied access to Clinical Evaluations"},
+    "19_physician_negative.png": {"size_bytes": 22161, "description": "Negative RBAC test: Physician denied access to Account Moves administration"},
+    "20_final_transaction.png": {"size_bytes": 125763, "description": "Consolidated end-to-end transaction profile view in visible Chrome browser"}
+  },
+  "data_cleanup": "DEMO/UAT records retained for client inspection and audit trail compliance.",
+  "blockers": "None. Playwright 404 driver download issue successfully resolved by utilizing native Selenium 4.49.0 + ChromeDriver 153.0.8010.52 controlling visible local Chrome."
+}

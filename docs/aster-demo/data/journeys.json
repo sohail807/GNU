@@ -1,0 +1,192 @@
+{
+  "_readme": "Ten scripted SYNTHETIC patient journeys for the Aster demo. All people are fictitious. Every step names the GNU Health model it should create or change, so a loader or a tester can verify it. Prices are intentionally absent; any amounts must be invented and labelled illustrative. Tags: S = published by Aster, I = standard practice (not published), GAP = not native in GNU Health.",
+  "version": "2026-10-01",
+  "journeys": [
+    {
+      "id": "J01",
+      "title": "OPD cardiology consult, self-pay, with video follow-up",
+      "payor": "Walk-in (self-pay)",
+      "service_line": "Cardiac sciences",
+      "patient": {"name": "Rahul Menon (synthetic)", "sex": "M", "age": 52},
+      "personas": ["reception", "nursing", "physician", "lab", "cashier"],
+      "steps": [
+        {"n": 1, "actor": "Patient / appointment desk", "action": "Books via app or phone", "record": "gnuhealth.appointment (state: confirmed)", "tag": "S"},
+        {"n": 2, "actor": "Registration", "action": "Creates UHID, captures ID proof", "record": "party.party + gnuhealth.patient (PUID = UHID)", "tag": "S"},
+        {"n": 3, "actor": "Triage nurse", "action": "Vitals and complaint (chest discomfort on exertion)", "record": "gnuhealth.patient.evaluation (signs/symptoms)", "tag": "I"},
+        {"n": 4, "actor": "Cardiologist", "action": "Consult, diagnosis (stable angina, ICD-10 I20.8), orders ECG and lipid profile", "record": "gnuhealth.patient.evaluation + gnuhealth.pathology; gnuhealth.patient.ecg; gnuhealth.patient.lab.test", "tag": "I"},
+        {"n": 5, "actor": "Lab", "action": "Lipid profile resulted", "record": "gnuhealth.lab (criteria values)", "tag": "I"},
+        {"n": 6, "actor": "Cardiologist", "action": "Prescription", "record": "gnuhealth.prescription.order + lines (gnuhealth.medicament)", "tag": "I"},
+        {"n": 7, "actor": "Cashier", "action": "Invoice: consult + ECG + lab; paid by card", "record": "account.invoice (paid via account.invoice.pay)", "tag": "I"},
+        {"n": 8, "actor": "Appointment desk", "action": "Books video follow-up in 4 weeks", "record": "gnuhealth.appointment (type: follow-up)", "tag": "S"}
+      ],
+      "gaps": [],
+      "expected": "One paid invoice; one evaluation with ICD-10; two orders resulted; follow-up appointment exists.",
+      "calibrates_to": "OPD volume (about 12 OPD visits per admission)"
+    },
+    {
+      "id": "J02",
+      "title": "Emergency chest pain to cath lab, ICU and cashless discharge",
+      "payor": "TPA / insurance",
+      "service_line": "Cardiac sciences",
+      "patient": {"name": "Alexander Wright (synthetic)", "sex": "M", "age": 61},
+      "personas": ["reception", "nursing", "physician", "lab", "cashier", "accountant"],
+      "steps": [
+        {"n": 1, "actor": "ED triage", "action": "Arrival by ambulance, red-priority chest pain, ECG within minutes", "record": "gnuhealth.patient.evaluation (urgency: emergency); gnuhealth.patient.ecg", "tag": "S"},
+        {"n": 2, "actor": "ED physician", "action": "Rapid Access Chest Pain pathway: troponin, diagnosis STEMI (I21.x), activates cath lab", "record": "gnuhealth.patient.lab.test + gnuhealth.lab; gnuhealth.pathology", "tag": "S"},
+        {"n": 3, "actor": "Insurance desk", "action": "Cashless pre-authorisation sent; authority letter received", "record": "gnuhealth.insurance (policy); pre-auth status: GAP (note on registration)", "tag": "S"},
+        {"n": 4, "actor": "Interventional cardiologist", "action": "Primary PCI with stent", "record": "gnuhealth.surgery (hospital.or: cath lab) + gnuhealth.patient.procedure", "tag": "I"},
+        {"n": 5, "actor": "Admission", "action": "Admit to CCU, then step-down to ward", "record": "gnuhealth.inpatient.registration (bed in CCU ward) then bed transfer", "tag": "S"},
+        {"n": 6, "actor": "Consultant", "action": "Advises discharge on day 3", "record": "gnuhealth.inpatient.registration (discharge date, reason)", "tag": "S"},
+        {"n": 7, "actor": "Patient Relations / billing", "action": "Final bill and summary to TPA; clearance; patient pays non-covered items", "record": "account.invoice (party: insurer) + account.invoice (party: patient for non-covered); TPA clearance tracking: GAP", "tag": "S"}
+      ],
+      "gaps": ["TPA pre-authorisation, authority-letter amount and claim status are not native"],
+      "expected": "Discharge within 2-6 hours of consultant advice (published range); two invoices; CCU bed released.",
+      "calibrates_to": "ED to admission pathway; discharge timing 2-6 hours; payor TPA 30%"
+    },
+    {
+      "id": "J03",
+      "title": "Planned robotic knee replacement with TPA pre-authorisation",
+      "payor": "TPA / insurance",
+      "service_line": "Orthopaedics",
+      "patient": {"name": "Meera Iyer (synthetic)", "sex": "F", "age": 66},
+      "personas": ["reception", "physician", "nursing", "cashier"],
+      "steps": [
+        {"n": 1, "actor": "Orthopaedic surgeon", "action": "OPD consult advises robotic total knee replacement", "record": "gnuhealth.patient.evaluation", "tag": "I"},
+        {"n": 2, "actor": "Financial counsellor", "action": "Explains room tariff, gives estimate", "record": "estimate documented (note); no native estimate model: GAP", "tag": "S"},
+        {"n": 3, "actor": "Insurance desk", "action": "Pre-authorisation and guarantee-of-payment letter", "record": "gnuhealth.insurance; pre-auth: GAP", "tag": "S"},
+        {"n": 4, "actor": "Admission desk", "action": "Admit day before surgery, minimal advance, semi-private room", "record": "gnuhealth.inpatient.registration (bed class semi-private)", "tag": "S"},
+        {"n": 5, "actor": "Surgeon + anaesthetist", "action": "Surgery in OT; implant consumables billed", "record": "gnuhealth.surgery (hospital.or) + gnuhealth.procedure", "tag": "I"},
+        {"n": 6, "actor": "Ward nurses", "action": "Post-op care, physiotherapy", "record": "gnuhealth.patient.evaluation (rounds); nursing charts if module installed", "tag": "I"},
+        {"n": 7, "actor": "Discharge", "action": "Discharge on day 4 with medicines and follow-up", "record": "gnuhealth.inpatient.registration + gnuhealth.prescription.order", "tag": "S"},
+        {"n": 8, "actor": "Billing", "action": "Final bill to TPA", "record": "account.invoice (party: insurer)", "tag": "S"}
+      ],
+      "gaps": ["Estimate, pre-auth and claim lifecycle"],
+      "expected": "Length of stay about 4 days for an elective joint case (group mean is 3.2); implants appear as invoice lines.",
+      "calibrates_to": "Orthopaedics 7% of revenue; robotic surgery volumes"
+    },
+    {
+      "id": "J04",
+      "title": "Maternity: antenatal visits, caesarean delivery, newborn observation",
+      "payor": "Corporate",
+      "service_line": "Women's health",
+      "patient": {"name": "Sneha Kapoor (synthetic)", "sex": "F", "age": 29},
+      "personas": ["reception", "nursing", "physician", "lab", "cashier"],
+      "steps": [
+        {"n": 1, "actor": "Obstetrician", "action": "Antenatal visits with scans and labs", "record": "gnuhealth.patient.pregnancy + gnuhealth.patient.evaluation; gnuhealth.imaging.test.request; gnuhealth.patient.lab.test", "tag": "I"},
+        {"n": 2, "actor": "Admission", "action": "Admitted in labour; corporate letter on file", "record": "gnuhealth.inpatient.registration (maternity ward)", "tag": "I"},
+        {"n": 3, "actor": "Obstetrician + anaesthetist", "action": "Lower-segment caesarean section", "record": "gnuhealth.surgery + gnuhealth.procedure", "tag": "I"},
+        {"n": 4, "actor": "Paediatrician", "action": "Newborn assessed; routine care; vaccination at birth", "record": "party.party + gnuhealth.patient (newborn); gnuhealth.vaccination", "tag": "I"},
+        {"n": 5, "actor": "Discharge", "action": "Discharge day 3 with postnatal advice", "record": "gnuhealth.inpatient.registration", "tag": "I"},
+        {"n": 6, "actor": "Billing", "action": "Corporate credit invoice", "record": "account.invoice (party: corporate)", "tag": "I"}
+      ],
+      "gaps": ["Newborn registration linked to mother is a convention, not enforced"],
+      "expected": "Two patients created (mother, baby); pregnancy outcome recorded; corporate invoice outstanding until paid.",
+      "calibrates_to": "Women's health 6%, child and adolescent 6%; corporate payor 2%"
+    },
+    {
+      "id": "J05",
+      "title": "Oncology day-care chemotherapy cycles, central government scheme",
+      "payor": "ESI / ECHS / CGHS",
+      "service_line": "Oncology",
+      "patient": {"name": "Col. Vikram Rao (retd) (synthetic)", "sex": "M", "age": 68},
+      "personas": ["reception", "nursing", "physician", "lab", "cashier"],
+      "steps": [
+        {"n": 1, "actor": "Medical oncologist", "action": "Plan: six 3-weekly cycles; scheme referral on file", "record": "gnuhealth.patient.evaluation; gnuhealth.patient.disease (cancer diagnosis)", "tag": "I"},
+        {"n": 2, "actor": "Scheme desk", "action": "Package approval documents", "record": "gnuhealth.insurance (scheme card); approval: GAP", "tag": "I"},
+        {"n": 3, "actor": "Day-care nurse", "action": "Each cycle: pre-chemo labs, drug administration in day-care chair", "record": "gnuhealth.patient.lab.test; gnuhealth.prescription.order; day-care ward bed (short stay registration)", "tag": "S"},
+        {"n": 4, "actor": "Billing", "action": "Scheme package-rate invoice per cycle", "record": "account.invoice (party: scheme; lower tariff)", "tag": "S"}
+      ],
+      "gaps": ["Scheme package approval tracking"],
+      "expected": "Six short-stay registrations, same-day discharge; lower average invoice than self-pay.",
+      "calibrates_to": "Oncology 10%; day care about 12.5% of beds (Medcity); ESI/ECHS/CGHS 3%"
+    },
+    {
+      "id": "J06",
+      "title": "International patient: cardiac surgery package",
+      "payor": "Medical value travel (MVT)",
+      "service_line": "Cardiac sciences",
+      "patient": {"name": "Omar Haddad (synthetic)", "sex": "M", "age": 57},
+      "personas": ["reception", "physician", "nursing", "cashier"],
+      "steps": [
+        {"n": 1, "actor": "International coordinator", "action": "Enquiry with reports; experts review; treatment plan and cost estimate sent", "record": "party.party (nationality); estimate note: GAP", "tag": "S"},
+        {"n": 2, "actor": "Coordinator", "action": "Medical visa letter; airport pickup arranged; FRRO registration within 14 days", "record": "visa and FRRO dates as notes: GAP", "tag": "S"},
+        {"n": 3, "actor": "Cardiac surgeon", "action": "Work-up in OPD, then CABG", "record": "gnuhealth.patient.evaluation; gnuhealth.surgery; gnuhealth.inpatient.registration", "tag": "I"},
+        {"n": 4, "actor": "Billing", "action": "Advance, package invoice in foreign currency, receipts", "record": "account.invoice (currency per company; multi-currency check)", "tag": "I"},
+        {"n": 5, "actor": "Coordinator", "action": "Discharge, return travel, video follow-up booked", "record": "gnuhealth.appointment (video follow-up)", "tag": "S"}
+      ],
+      "gaps": ["Visa, FRRO and estimate tracking; foreign-currency invoicing needs configuration"],
+      "expected": "MVT invoice flagged separately from domestic classes; follow-up appointment booked.",
+      "calibrates_to": "MVT 4% of revenue"
+    },
+    {
+      "id": "J07",
+      "title": "Corporate health-check camp (30 employees)",
+      "payor": "Corporate",
+      "service_line": "Multi-speciality",
+      "patient": {"name": "Batch of 30 synthetic employees of 'Northwind Logistics (synthetic)'", "sex": "mixed", "age": "25-55"},
+      "personas": ["reception", "nursing", "lab", "radiology", "cashier"],
+      "steps": [
+        {"n": 1, "actor": "Corporate desk", "action": "Contract and schedule", "record": "party.party (corporate)", "tag": "S"},
+        {"n": 2, "actor": "Registration", "action": "Bulk registration of employees", "record": "gnuhealth.patient x30", "tag": "I"},
+        {"n": 3, "actor": "Lab and imaging", "action": "Package tests: blood panel, ECG, chest X-ray", "record": "gnuhealth.patient.lab.test, gnuhealth.lab; gnuhealth.patient.ecg; gnuhealth.imaging.test.request/result", "tag": "S"},
+        {"n": 4, "actor": "Physician", "action": "Report review and advice", "record": "gnuhealth.patient.evaluation", "tag": "I"},
+        {"n": 5, "actor": "Billing", "action": "One monthly corporate invoice", "record": "account.invoice (party: corporate) with package product lines", "tag": "I"}
+      ],
+      "gaps": ["Package as a bundle product (partial)"],
+      "expected": "30 patients, 90 orders resulted, one corporate invoice.",
+      "calibrates_to": "Health-check packages; corporate payor"
+    },
+    {
+      "id": "J08",
+      "title": "Home sample collection, lab report in app, tele-consult",
+      "payor": "Walk-in (self-pay)",
+      "service_line": "Multi-speciality",
+      "patient": {"name": "Kavya Nair (synthetic)", "sex": "F", "age": 44},
+      "personas": ["reception", "lab", "physician", "cashier"],
+      "steps": [
+        {"n": 1, "actor": "Patient", "action": "Books home collection in the app", "record": "gnuhealth.patient.lab.test (source: home collection)", "tag": "S"},
+        {"n": 2, "actor": "Phlebotomist", "action": "Collects sample at home; accessioned at lab", "record": "collection location note: GAP", "tag": "S"},
+        {"n": 3, "actor": "Lab (NABL)", "action": "Analysis and validation; PDF report available in app", "record": "gnuhealth.lab", "tag": "S"},
+        {"n": 4, "actor": "Doctor", "action": "Video consultation reviewing results", "record": "gnuhealth.appointment (video) + gnuhealth.patient.evaluation", "tag": "S"},
+        {"n": 5, "actor": "Billing", "action": "Online payment", "record": "account.invoice (paid)", "tag": "I"}
+      ],
+      "gaps": ["Home-collection routing and location tracking"],
+      "expected": "Report released only after validation; video consult recorded.",
+      "calibrates_to": "Aster Labs (232 labs and PECs) and tele-consultation"
+    },
+    {
+      "id": "J09",
+      "title": "Recurring dialysis (thrice weekly), state scheme",
+      "payor": "State / central schemes",
+      "service_line": "Nephrology and urology",
+      "patient": {"name": "Joseph Thomas (synthetic)", "sex": "M", "age": 58},
+      "personas": ["nursing", "physician", "lab", "cashier"],
+      "steps": [
+        {"n": 1, "actor": "Nephrologist", "action": "Dialysis plan: 3 sessions per week", "record": "gnuhealth.patient.evaluation; gnuhealth.patient.disease", "tag": "I"},
+        {"n": 2, "actor": "Dialysis nurse", "action": "Each session in a dialysis chair; monthly labs", "record": "short-stay bed registration (day-care ward); gnuhealth.patient.lab.test", "tag": "S"},
+        {"n": 3, "actor": "Billing", "action": "Scheme-rate invoice per session or per month", "record": "account.invoice (party: scheme)", "tag": "S"}
+      ],
+      "gaps": ["Recurring session scheduling is a convention (appointments series)"],
+      "expected": "About 13 sessions a month recorded and billed at the scheme rate.",
+      "calibrates_to": "Nephrology 7%; subsidised dialysis in Kerala; state schemes 2%"
+    },
+    {
+      "id": "J10",
+      "title": "Preterm newborn in NICU with insurer enhancement",
+      "payor": "TPA / insurance",
+      "service_line": "Child and adolescent health",
+      "patient": {"name": "Baby of Anita Joseph (synthetic)", "sex": "F", "age": "0"},
+      "personas": ["nursing", "physician", "lab", "cashier", "accountant"],
+      "steps": [
+        {"n": 1, "actor": "Neonatologist", "action": "Admit preterm baby to NICU", "record": "gnuhealth.inpatient.registration (NICU ward)", "tag": "S"},
+        {"n": 2, "actor": "Insurance desk", "action": "Pre-authorisation, then enhancement as stay extends to 9 days", "record": "pre-auth and enhancement: GAP", "tag": "S"},
+        {"n": 3, "actor": "NICU team", "action": "Daily evaluations, labs, medications", "record": "gnuhealth.patient.evaluation; gnuhealth.lab; gnuhealth.prescription.order", "tag": "I"},
+        {"n": 4, "actor": "Discharge", "action": "Discharge with follow-up", "record": "gnuhealth.inpatient.registration", "tag": "S"},
+        {"n": 5, "actor": "Billing", "action": "Final bill to TPA; part disallowance follow-up", "record": "account.invoice (party: insurer); disallowance tracking: GAP", "tag": "I"}
+      ],
+      "gaps": ["Enhancement and disallowance handling"],
+      "expected": "Long-stay outlier (9 days) that lifts the distribution tail above the 3.1-day mean.",
+      "calibrates_to": "ALOS distribution tail; NICU share of beds"
+    }
+  ]
+}

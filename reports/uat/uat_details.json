@@ -1,0 +1,552 @@
+{
+ "lab_panels_ok": [
+  "COAGULATION PROFILE(3)",
+  "COMPLETE BLOOD COUNT(26)",
+  "ENDOCRINOLOGY(5)",
+  "GLYCEMIC PROFILE(2)",
+  "HAEMATOLOGY(1)",
+  "LIPID PROFILE(4)",
+  "LIVER FUNCTION TEST(11)",
+  "PERIPHERAL SMEAR EXAMINATION(4)",
+  "RENAL FUNCTION TEST(3)",
+  "SEMEN ANALYSIS(17)",
+  "STOOL EXAMINATION(10)",
+  "THYROID FUNCTION TEST(3)",
+  "URINE ANALYSIS(22)"
+ ],
+ "lab_panels_failed": [],
+ "wards_with_free_beds": {
+  "General Ward (Men)": 2,
+  "General Ward (Women)": 2,
+  "Semi-Private Rooms": 4,
+  "Private Rooms": 4,
+  "Deluxe and Suite Rooms": 1,
+  "Intensive Care Unit": 1,
+  "High Dependency Unit": 1,
+  "Neonatal ICU": 1,
+  "Isolation Ward": 1,
+  "Maternity Ward": 1,
+  "Day Care Unit": 2
+ },
+ "or_states_before": {
+  "4": "scheduled",
+  "1": "scheduled",
+  "2": "scheduled",
+  "3": "scheduled"
+ },
+ "or_states_in_progress": {
+  "4": "scheduled",
+  "1": "scheduled",
+  "2": "scheduled",
+  "3": "scheduled"
+ },
+ "routes_enumerated": 92,
+ "tc064_bad": [],
+ "tc065_odd": [],
+ "tc065_ungated": [
+  "GET /api/clinical/admissions",
+  "GET /api/clinical/allergies",
+  "GET /api/clinical/billing",
+  "GET /api/clinical/deliveries",
+  "GET /api/clinical/emergency",
+  "GET /api/clinical/lab-alerts",
+  "GET /api/clinical/referrals",
+  "POST /api/clinical/admissions",
+  "POST /api/clinical/allergies",
+  "POST /api/clinical/deliveries",
+  "POST /api/clinical/emergency",
+  "POST /api/clinical/lab-alerts",
+  "POST /api/clinical/referrals"
+ ],
+ "tc066_tidy": {
+  "surgeries_cancelled": [],
+  "admissions_released": 0
+ },
+ "tc066_bad": [
+  "PATCH /api/clinical/inpatient {\"action\": \"bedclean\", \"admissionId\": -1, \"bedId\": -1} -> 500 {\"error\":\"The request could not be processed. Please try again or cont",
+  "GET /api/clinical/billing/invoice-pdf?invoiceId=99999999999 -> 502 {\"error\":\"The GNU Health backend rejected the report request.\"}"
+ ],
+ "tc067_leaks": [],
+ "error_log_sample": [
+  {
+   "who": "nursing",
+   "method": "PATCH",
+   "path": "/api/clinical/inpatient",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"The record was not found.\"}"
+  },
+  {
+   "who": "nursing",
+   "method": "PATCH",
+   "path": "/api/clinical/inpatient",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
+  },
+  {
+   "who": "nursing",
+   "method": "PATCH",
+   "path": "/api/clinical/inpatient",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"The record was not found.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/surgery",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"No patient found matching that PUID or record ID.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/surgery",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Patient ID and procedure description are required\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/surgery",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"No patient found matching that PUID or record ID.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/surgery",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"No patient found matching that PUID or record ID.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/surgery",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"No patient found matching that PUID or record ID.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/surgery",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose a valid operating theatre.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/surgery",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose a valid operating theatre.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/surgery",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose a valid operating theatre.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/surgery",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose a valid operating theatre.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/surgery",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose a valid operating theatre.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "PATCH",
+   "path": "/api/clinical/surgery",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "PATCH",
+   "path": "/api/clinical/surgery",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Surgery ID is required\"}"
+  },
+  {
+   "who": "physician",
+   "method": "PATCH",
+   "path": "/api/clinical/surgery",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"The record was not found.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "PATCH",
+   "path": "/api/clinical/surgery",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "PATCH",
+   "path": "/api/clinical/surgery",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"The record was not found.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/theatre-safety",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose the surgery.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/theatre-safety",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose the surgery.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/theatre-safety",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Surgery not found in this hospital.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/theatre-safety",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose the surgery.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/theatre-safety",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Surgery not found in this hospital.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/theatre-safety",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose the checklist phase.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/theatre-safety",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose the checklist phase.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/theatre-safety",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Checklist not found in this hospital.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/theatre-safety",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose the checklist phase.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/theatre-safety",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Checklist not found in this hospital.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/discharges",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose the admitted patient.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/discharges",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose the admitted patient.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/discharges",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"That patient is not currently admitted in this hospital.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/discharges",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose the admitted patient.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "POST",
+   "path": "/api/clinical/discharges",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"That patient is not currently admitted in this hospital.\"}"
+  },
+  {
+   "who": "cashier",
+   "method": "POST",
+   "path": "/api/clinical/discharges",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose the clearance to update.\"}"
+  },
+  {
+   "who": "cashier",
+   "method": "POST",
+   "path": "/api/clinical/discharges",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose the clearance to update.\"}"
+  },
+  {
+   "who": "cashier",
+   "method": "POST",
+   "path": "/api/clinical/discharges",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Clearance not found in this hospital.\"}"
+  },
+  {
+   "who": "cashier",
+   "method": "POST",
+   "path": "/api/clinical/discharges",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Choose the clearance to update.\"}"
+  },
+  {
+   "who": "cashier",
+   "method": "POST",
+   "path": "/api/clinical/discharges",
+   "status": 404,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Clearance not found in this hospital.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient, insurance company, and policy number are required.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient, insurance company, and policy number are required.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient, insurance company, and policy number are required.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient, insurance company, and policy number are required.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient, insurance company, and policy number are required.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient, insurance company, and policy number are required.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "POST",
+   "path": "/api/clinical/insurance",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "PUT",
+   "path": "/api/clinical/patients",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient ID and clinical critical information are required.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "PUT",
+   "path": "/api/clinical/patients",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Patient ID is required.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "PUT",
+   "path": "/api/clinical/patients",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient ID and clinical critical information are required.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "PUT",
+   "path": "/api/clinical/patients",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient ID and clinical critical information are required.\"}"
+  },
+  {
+   "who": "reception",
+   "method": "PUT",
+   "path": "/api/clinical/patients",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient ID and clinical critical information are required.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "GET",
+   "path": "/api/clinical/consultations?patientId=-1",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient ID is required.\"}"
+  },
+  {
+   "who": "physician",
+   "method": "GET",
+   "path": "/api/clinical/consultations?patientId=abc",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid patient ID is required.\"}"
+  },
+  {
+   "who": "lab",
+   "method": "GET",
+   "path": "/api/clinical/laboratory?patientId=-1",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Invalid patient ID.\"}"
+  },
+  {
+   "who": "lab",
+   "method": "GET",
+   "path": "/api/clinical/laboratory?patientId=abc",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"Invalid patient ID.\"}"
+  },
+  {
+   "who": "cashier",
+   "method": "GET",
+   "path": "/api/clinical/billing/invoice-pdf?invoiceId=-1",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid invoice ID is required.\"}"
+  },
+  {
+   "who": "cashier",
+   "method": "GET",
+   "path": "/api/clinical/billing/invoice-pdf?invoiceId=99999999999",
+   "status": 502,
+   "ctype": "application/json",
+   "body": "{\"error\":\"The GNU Health backend rejected the report request.\"}"
+  },
+  {
+   "who": "cashier",
+   "method": "GET",
+   "path": "/api/clinical/billing/invoice-pdf?invoiceId=abc",
+   "status": 400,
+   "ctype": "application/json",
+   "body": "{\"error\":\"A valid invoice ID is required.\"}"
+  }
+ ]
+}

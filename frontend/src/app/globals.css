@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* Enterprise Hospital Tier-1 Design System Tokens */
+  --bg-canvas: #F8FAFC;             /* Clinical Slate 50 Porcelain */
+  --bg-surface: #FFFFFF;            /* Pure White Card Surface */
+  --bg-subtle: #F1F5F9;             /* Slate 100 for Table Headers & Wells */
+  --bg-sidebar: #0F172A;            /* Executive Midnight Slate 900 */
+  --bg-sidebar-hover: #1E293B;      /* Slate 800 */
+  --bg-sidebar-active: rgba(15, 118, 110, 0.15); /* Tinted Active Accent */
+  
+  /* High-Contrast Typography */
+  --text-primary: #0F172A;          /* Slate 900 */
+  --text-secondary: #334155;        /* Slate 700 */
+  --text-tertiary: #64748B;         /* Slate 500 */
+  --text-muted: #94A3B8;            /* Slate 400 */
+  
+  /* Primary Clinical Identity (Executive Medical Teal & Forest Jade) */
+  --accent: #0F766E;                /* Teal 700 */
+  --accent-hover: #115E59;          /* Teal 800 */
+  --accent-light: #F0FDFA;          /* Teal 50 */
+  --accent-border: #99F6E4;         /* Teal 200 */
+  --accent-vibrant: #0D9488;        /* Teal 600 */
+  
+  /* Clinical Status Semantics */
+  --status-success: #047857;        /* Emerald 700 */
+  --status-success-bg: #ECFDF5;     /* Emerald 50 */
+  --status-success-border: #A7F3D0; /* Emerald 200 */
+  
+  --status-warning: #B45309;        /* Amber 700 */
+  --status-warning-bg: #FFFBEB;     /* Amber 50 */
+  --status-warning-border: #FDE68A; /* Amber 200 */
+  
+  --status-danger: #B91C1C;         /* Red 700 */
+  --status-danger-bg: #FEF2F2;      /* Red 50 */
+  --status-danger-border: #FECACA;  /* Red 200 */
+  
+  --status-info: #1D4ED8;           /* Blue 700 */
+  --status-info-bg: #EFF6FF;        /* Blue 50 */
+  --status-info-border: #BFDBFE;    /* Blue 200 */
+  
+  --status-neutral: #475569;        /* Slate 600 */
+  --status-neutral-bg: #F1F5F9;     /* Slate 100 */
+  --status-neutral-border: #E2E8F0; /* Slate 200 */
+
+  /* Borders & Elevating Shadows */
+  --border-subtle: #E2E8F0;         /* Slate 200 */
+  --border-strong: #CBD5E1;         /* Slate 300 */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+}
+
+@theme {
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-subtle: var(--bg-subtle);
+  --color-sidebar: var(--bg-sidebar);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-muted: var(--text-muted);
+  
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-light: var(--accent-light);
+  --color-accent-vibrant: var(--accent-vibrant);
+  
+  --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+  --font-arabic: "Noto Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar for Clinical Data Tables */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Micro Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.15);
+  }
+}
+
+.pulse-beacon {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Quiet eyebrow label - a small section cue, not a shout. Sans, not mono;
+   modest weight and tracking so it reads as a caption, not a badge. */
+.kicker {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-tertiary);
+}
+
+/* Glassmorphism for Modals and Floating Panels */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
