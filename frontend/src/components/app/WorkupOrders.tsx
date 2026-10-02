@@ -181,8 +181,8 @@ export function WorkupOrders({ patientId, patientName, draftMedicines = [], onAd
       <div>
         <div className="flex items-center justify-between mb-1">
           <div className="text-[11px] font-mono uppercase tracking-wider text-slate-500">Ordered for this patient ({placed.length})</div>
-          <Button type="button" variant="outline" size="sm" disabled={!patientId || saveCandidates.length === 0} onClick={openSave}>
-            <Layers className="w-3.5 h-3.5 mr-1" />Save as order set
+          <Button type="button" variant="outline" size="sm" className="whitespace-nowrap shrink-0" disabled={!patientId || saveCandidates.length === 0} onClick={openSave}>
+            <span className="inline-flex items-center gap-1"><Layers className="w-3.5 h-3.5" />Save as order set</span>
           </Button>
         </div>
         {placed.length === 0 ? <p className="text-xs text-slate-500">Nothing ordered yet.</p> : (
