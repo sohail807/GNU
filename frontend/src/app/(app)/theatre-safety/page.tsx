@@ -46,7 +46,7 @@ export default function TheatreSafetyPage() {
                 <tbody className="divide-y divide-slate-100">
                   {data.surgeries.map((r) => (
                     <tr key={r.surgeryId} className="hover:bg-slate-50/80">
-                      <td className="py-3 px-4"><div className="font-semibold text-slate-900">{r.procedure}</div><div className="text-slate-500">{r.room || "No room"} · {clock(r.when)}</div></td>
+                      <td className="py-3 px-4"><div className="font-semibold text-slate-900">{r.procedure}</div><div className="text-slate-500">{r.room || "No room"} · {r.when || "—"}</div></td>
                       <td className="py-3 px-4"><div className="font-semibold">{r.patientName}</div><div className="text-slate-500 font-mono">{r.puid}</div></td>
                       <td className="py-3 px-4">{STATE_LABEL[r.state] || r.state}</td>
                       {PHASES.map(([k, , when], i) => {

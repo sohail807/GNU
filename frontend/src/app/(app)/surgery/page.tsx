@@ -69,6 +69,7 @@ export default function SurgeryPage() {
   const [surgeryDate, setSurgeryDate] = useState("");
   const [surgeryEndDate, setSurgeryEndDate] = useState("");
   const [bookError, setBookError] = useState<string | null>(null);
+  const [statusError, setStatusError] = useState<string | null>(null);
   const [procedures, setProcedures] = useState<Array<{ id: number; code: string; description: string }>>([]);
   const [procedureIds, setProcedureIds] = useState<number[]>([]);
   const [anesthesiaType, setAnesthesiaType] = useState("general");
@@ -152,10 +153,14 @@ export default function SurgeryPage() {
         body: JSON.stringify({ surgeryId, state: newState }),
       });
       if (res.ok) {
+        setStatusError(null);
         fetchData();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setStatusError(data.error || "The status could not be changed.");
       }
     } catch (e) {
-      console.error("Status update failed:", e);
+      setStatusError("The status could not be changed. Please try again.");
     }
   };
 
@@ -284,7 +289,8 @@ export default function SurgeryPage() {
       {/* Surgical Case Registry */}
       <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
+          {statusError && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800 font-medium">{statusError}</div>}
+      <div>
             <h2 className="text-sm font-bold text-slate-900">Surgical Procedure Registry</h2>
             <p className="text-xs text-slate-500">Scheduled operative procedures, sterile theatre logs, and team sign-offs.</p>
           </div>

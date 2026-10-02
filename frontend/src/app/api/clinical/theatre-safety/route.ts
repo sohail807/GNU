@@ -31,7 +31,7 @@ export async function GET() {
       const c = byS[s.id];
       return {
         surgeryId: s.id, code: s.code, procedure: s.description, state: s.state, patientName: pats[idOf(s.patient) as number]?.name || "", puid: pats[idOf(s.patient) as number]?.puid || null,
-        room: rooms[idOf(s.operating_room) as number]?.name || null, when: stamp(s.surgery_date), checklistId: c?.id || null,
+        room: rooms[idOf(s.operating_room) as number]?.name || null, when: s.surgery_date && s.surgery_date.year ? `${s.surgery_date.year}-${String(s.surgery_date.month).padStart(2, "0")}-${String(s.surgery_date.day).padStart(2, "0")} ${String(s.surgery_date.hour || 0).padStart(2, "0")}:${String(s.surgery_date.minute || 0).padStart(2, "0")}` : null, checklistId: c?.id || null,
         phases: Object.fromEntries(PHASES.map((p) => [p, { done: !!c?.[`${p}_done`], at: stamp(c?.[`${p}_at`]), note: c?.[`${p}_note`] || null }])),
       };
     });
