@@ -27,6 +27,10 @@ WORK = {
 # dispense (and stock is taken out per medicine line) without being allowed to edit the doctor's prescription.
 READ_ONLY = {
     'gnuhealth.prescription.line': [AC, ACA],
+    # A triage nurse must see a patient's recorded allergies (and the diagnosis names behind them) before treating.
+    # The app already allows nursing to read allergies; without these rules the backend refused and the screen said "restricted".
+    'gnuhealth.patient.disease': [N],
+    'gnuhealth.pathology': [N],
 }
 
 out = ['<?xml version="1.0"?>', '<tryton>', '    <data>',
