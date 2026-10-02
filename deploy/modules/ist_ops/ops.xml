@@ -416,20 +416,20 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
-        <record model="ir.model.access" id="access_patient_disease_group_health_nursing_read">
-            <field name="model" search="[('model', '=', 'gnuhealth.patient.disease')]"/>
-            <field name="group" ref="health.group_health_nursing"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_delete" eval="False"/>
-        </record>
         <record model="ir.model.access" id="access_pathology_group_health_nursing_read">
             <field name="model" search="[('model', '=', 'gnuhealth.pathology')]"/>
             <field name="group" ref="health.group_health_nursing"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_patient_disease_group_health_nursing_work">
+            <field name="model" search="[('model', '=', 'gnuhealth.patient.disease')]"/>
+            <field name="group" ref="health.group_health_nursing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="False"/>
         </record>
     </data>

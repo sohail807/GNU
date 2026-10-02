@@ -29,8 +29,13 @@ READ_ONLY = {
     'gnuhealth.prescription.line': [AC, ACA],
     # A triage nurse must see a patient's recorded allergies (and the diagnosis names behind them) before treating.
     # The app already allows nursing to read allergies; without these rules the backend refused and the screen said "restricted".
-    'gnuhealth.patient.disease': [N],
     'gnuhealth.pathology': [N],
+}
+
+# Nurses record allergies at triage (the app allows it) and mark them resolved, so they need to create and change patient
+# disease lines. They cannot delete them.
+WRITE_NO_DELETE = {
+    'gnuhealth.patient.disease': [N],
 }
 
 out = ['<?xml version="1.0"?>', '<tryton>', '    <data>',
@@ -62,6 +67,17 @@ for model, groups in READ_ONLY.items():
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>''')
+for model, groups in WRITE_NO_DELETE.items():
+    slug = '_'.join(model.split('.')[-2:])
+    for g in groups:
+        out.append(f'''        <record model="ir.model.access" id="access_{slug}_{g.split('.')[-1]}_work">
+            <field name="model" search="[('model', '=', '{model}')]"/>
+            <field name="group" ref="{g}"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="False"/>
         </record>''')
 out += ['    </data>', '</tryton>']
