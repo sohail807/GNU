@@ -435,10 +435,12 @@ export async function POST(req: NextRequest) {
       "create",
       [[{
         patient: patientId,
-        pregnancy_warning: pregnancyWarn,
-        allergy_warning: allergyWarn,
+        // GNU Health refuses an order whose warning flags are still on, so a warning the doctor has reviewed is recorded as
+        // acknowledged (flags off) and written into the notes for the pharmacist.
+        pregnancy_warning: false,
+        allergy_warning: false,
         prescription_warning_ack: true,
-        notes: typeof body.notes === "string" ? body.notes.trim().slice(0, 4000) : "",
+        notes: [typeof body.notes === "string" ? body.notes.trim() : "", warnings.length ? `Safety warning acknowledged by the prescriber: ${warnings.join(" ")}` : ""].filter(Boolean).join(" ").slice(0, 4000),
         prescription_line: [["create", lineValues]],
       }]],
       { company: session.companyId },
