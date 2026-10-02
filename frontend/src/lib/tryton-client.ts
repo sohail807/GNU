@@ -238,6 +238,7 @@ export class TrytonClient {
     if (!res.ok) {
       const errText = await res.text();
       if (res.status === 400 && errText.includes("not allowed to access")) {
+        console.warn(`Tryton access refused on ${model}.${method}: ${errText.slice(0, 300)}`);
         const error = new Error("You do not have permission for this action.") as HttpStatusError;
         error.status = 403;
         throw error;
@@ -257,6 +258,7 @@ export class TrytonClient {
     if (data.error) {
       const errStr = JSON.stringify(data.error);
       if (errStr.includes("not allowed to access") || errStr.includes("AccessError")) {
+        console.warn(`Tryton access refused on ${model}.${method}: ${errStr.slice(0, 300)}`);
         const error = new Error("You do not have permission for this action.") as HttpStatusError;
         error.status = 403;
         throw error;
