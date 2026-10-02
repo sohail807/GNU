@@ -63,59 +63,24 @@
   "admissions_released": 0
  },
  "tc066_bad": [
-  "POST /api/clinical/consultations {\"patientId\": 379, \"evaluationId\": 99999999999, \"chiefComplaint\": \"x\"} -> 400 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Patient ",
-  "POST /api/clinical/consultations {\"patientId\": 379, \"evaluationId\": 2147483648, \"chiefComplaint\": \"x\"} -> 400 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Patient E",
-  "POST /api/clinical/prescriptions {\"patientId\": 99999999999, \"lines\": [{\"medicamentId\": 1}]} -> 502 {\"error\":\"The prescription could not be saved in GNU Health. No succes",
-  "POST /api/clinical/prescriptions {\"patientId\": 2147483648, \"lines\": [{\"medicamentId\": 1}]} -> 502 {\"error\":\"The prescription could not be saved in GNU Health. No succes",
-  "POST /api/clinical/prescriptions {\"action\": \"issue\", \"prescriptionId\": 99999999999} -> 502 {\"error\":\"The prescription could not be saved in GNU Health. No succes",
-  "POST /api/clinical/prescriptions {\"action\": \"issue\", \"prescriptionId\": 2147483648} -> 502 {\"error\":\"The prescription could not be saved in GNU Health. No succes",
-  "POST /api/clinical/appointments {\"action\": \"checkin\", \"appointmentId\": 99999999999} -> 400 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Patient ",
-  "POST /api/clinical/appointments {\"action\": \"checkin\", \"appointmentId\": 2147483648} -> 400 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Patient A",
-  "POST /api/clinical/laboratory {\"action\": \"create\", \"patientId\": 99999999999, \"testId\": 1} -> 502 {\"error\":\"The laboratory action failed in GNU Health. Check the saved ",
-  "POST /api/clinical/laboratory {\"action\": \"create\", \"patientId\": 2147483648, \"testId\": 1} -> 502 {\"error\":\"The laboratory action failed in GNU Health. Check the saved ",
-  "POST /api/clinical/laboratory {\"action\": \"save-results\", \"labId\": 99999999999, \"criteria\": [{\"id\": 1 -> 502 {\"error\":\"The laboratory action failed in GNU Health. Check the saved ",
-  "POST /api/clinical/laboratory {\"action\": \"save-results\", \"labId\": 2147483648, \"criteria\": [{\"id\": 1, -> 502 {\"error\":\"The laboratory action failed in GNU Health. Check the saved ",
-  "POST /api/clinical/laboratory {\"action\": \"complete\", \"labId\": 99999999999} -> 502 {\"error\":\"The laboratory action failed in GNU Health. Check the saved ",
-  "POST /api/clinical/laboratory {\"action\": \"complete\", \"labId\": 2147483648} -> 502 {\"error\":\"The laboratory action failed in GNU Health. Check the saved ",
-  "POST /api/clinical/radiology {\"action\": \"finalize\", \"requestId\": 99999999999, \"findings\": \"x\"} -> 400 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Medical ",
-  "POST /api/clinical/radiology {\"action\": \"finalize\", \"requestId\": 2147483648, \"findings\": \"x\"} -> 400 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Medical I",
-  "POST /api/clinical/billing {\"action\": \"post\", \"invoiceId\": 99999999999} -> 400 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Invoice\\",
-  "POST /api/clinical/billing {\"action\": \"post\", \"invoiceId\": 2147483648} -> 400 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Invoice\\\"",
-  "POST /api/clinical/billing {\"action\": \"pay\", \"invoiceId\": 99999999999} -> 400 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Invoice\\",
-  "POST /api/clinical/billing {\"action\": \"pay\", \"invoiceId\": 2147483648} -> 400 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Invoice\\\"",
   "PATCH /api/clinical/inpatient {\"action\": \"bedclean\", \"admissionId\": -1, \"bedId\": -1} -> 500 {\"error\":\"The request could not be processed. Please try again or cont",
-  "PATCH /api/clinical/inpatient {\"action\": \"bedclean\", \"admissionId\": 99999999999, \"bedId\": 9999999999 -> 500 {\"error\":\"You are trying to write to records \\\"99999999999\\\" of \\\"Pati",
-  "PATCH /api/clinical/inpatient {\"action\": \"bedclean\", \"admissionId\": \"abc\", \"bedId\": \"abc\"} -> 500 {\"error\":\"One of the values sent is not valid. Check the record refere",
-  "PATCH /api/clinical/inpatient {\"action\": \"bedclean\", \"admissionId\": 2147483648, \"bedId\": 2147483648} -> 500 {\"error\":\"You are trying to write to records \\\"2147483648\\\" of \\\"Patie",
-  "PATCH /api/clinical/surgery {\"surgeryId\": 99999999999, \"state\": \"confirmed\"} -> 400 {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Surgery\\",
-  "PATCH /api/clinical/surgery {\"surgeryId\": 2147483648, \"state\": \"confirmed\"} -> 400 {\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Surgery\\\"",
   "GET /api/clinical/billing/invoice-pdf?invoiceId=99999999999 -> 502 {\"error\":\"The GNU Health backend rejected the report request.\"}"
  ],
- "tc067_leaks": [
-  "POST /api/clinical/consultations HTTP 400 matched 'Select a laboratory test from': {\"error\":\"Select a laboratory test from the health records system catalogue.\"}",
-  "GET /api/clinical/prescriptions HTTP 403 matched 'Access Denied:': {\"error\":\"Access Denied: Security rules prevent access to gnuhealth.prescription.order.\"}",
-  "GET /api/clinical/radiology HTTP 403 matched 'Access Denied:': {\"error\":\"Access Denied: Security rules prevent access to gnuhealth.imaging.test.request.\"}",
-  "POST /api/clinical/appointments HTTP 400 matched 'You are trying to read': {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Patient Appointments\\\" that don't exist.\"}",
-  "POST /api/clinical/triage HTTP 400 matched 'does not exist': {\"error\":\"The value \\\"-1\\\" for field \\\"Patient\\\" in \\\"Patient Evaluation\\\" does not exist.\"}",
-  "POST /api/clinical/radiology HTTP 400 matched 'You are trying to read': {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Medical Imaging Study Request\\\" that don't exist",
-  "POST /api/clinical/billing HTTP 400 matched 'You are trying to read': {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Invoice\\\" that don't exist.\"}",
-  "PATCH /api/clinical/inpatient HTTP 500 matched 'You are trying to write': {\"error\":\"You are trying to write to records \\\"99999999999\\\" of \\\"Patient admission History\\\" that don't exist",
-  "PATCH /api/clinical/surgery HTTP 400 matched 'You are trying to read': {\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Surgery\\\" that don't exist.\"}"
- ],
+ "tc067_leaks": [],
  "error_log_sample": [
   {
    "who": "nursing",
    "method": "PATCH",
    "path": "/api/clinical/inpatient",
-   "status": 500,
+   "status": 404,
    "ctype": "application/json",
-   "body": "{\"error\":\"You are trying to write to records \\\"99999999999\\\" of \\\"Patient admission History\\\" that don't exist.\"}"
+   "body": "{\"error\":\"The record was not found.\"}"
   },
   {
    "who": "nursing",
    "method": "PATCH",
    "path": "/api/clinical/inpatient",
-   "status": 500,
+   "status": 400,
    "ctype": "application/json",
    "body": "{\"error\":\"One of the values sent is not valid. Check the record references and try again.\"}"
   },
@@ -123,9 +88,9 @@
    "who": "nursing",
    "method": "PATCH",
    "path": "/api/clinical/inpatient",
-   "status": 500,
+   "status": 404,
    "ctype": "application/json",
-   "body": "{\"error\":\"You are trying to write to records \\\"2147483648\\\" of \\\"Patient admission History\\\" that don't exist.\"}"
+   "body": "{\"error\":\"The record was not found.\"}"
   },
   {
    "who": "physician",
@@ -227,9 +192,9 @@
    "who": "physician",
    "method": "PATCH",
    "path": "/api/clinical/surgery",
-   "status": 400,
+   "status": 404,
    "ctype": "application/json",
-   "body": "{\"error\":\"You are trying to read records \\\"99999999999\\\" of \\\"Surgery\\\" that don't exist.\"}"
+   "body": "{\"error\":\"The record was not found.\"}"
   },
   {
    "who": "physician",
@@ -243,9 +208,9 @@
    "who": "physician",
    "method": "PATCH",
    "path": "/api/clinical/surgery",
-   "status": 400,
+   "status": 404,
    "ctype": "application/json",
-   "body": "{\"error\":\"You are trying to read records \\\"2147483648\\\" of \\\"Surgery\\\" that don't exist.\"}"
+   "body": "{\"error\":\"The record was not found.\"}"
   },
   {
    "who": "physician",
