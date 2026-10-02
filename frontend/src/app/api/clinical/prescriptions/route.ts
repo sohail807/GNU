@@ -351,8 +351,14 @@ export async function POST(req: NextRequest) {
       ) : [];
       const tokens = [...paths.map((p) => p.name), ...allergies.map((a) => a.short_comment || "")]
         .join(" ").toLowerCase().split(/[^a-z]+/).filter((t) => t.length >= 5 && !["allergy", "allergic", "history", "status", "other", "without", "unspecified"].includes(t));
+      // Drug families: an allergy to the family name must flag every member (a penicillin allergy flags amoxicillin).
+      const FAMILIES: Record<string, RegExp> = {
+        penicillin: /cillin|clavulan/, cephalosporin: /cef|ceph/, sulfa: /sulfa|sulpha|cotrimoxazole|co-trimoxazole/, sulfonamide: /sulfa|sulpha|cotrimoxazole|co-trimoxazole/,
+        nsaid: /ibuprofen|diclofenac|naproxen|aspirin|ketorolac|indomethacin/, aspirin: /aspirin|acetylsalicylic/, macrolide: /mycin(?!.*(clinda|lin))|azithro|clarithro/, quinolone: /floxacin/,
+      };
       for (const m of medicaments) {
-        const hit = tokens.find((t) => String(m.rec_name || "").toLowerCase().includes(t));
+        const name = String(m.rec_name || "").toLowerCase();
+        const hit = tokens.find((t) => name.includes(t) || (FAMILIES[t] && FAMILIES[t].test(name)));
         if (hit) { allergyWarn = true; warnings.push(`${m.rec_name}: matches the recorded allergy "${hit}".`); }
       }
     } catch {

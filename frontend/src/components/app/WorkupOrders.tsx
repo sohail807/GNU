@@ -44,7 +44,7 @@ export function WorkupOrders({ patientId, patientName }: { patientId: number; pa
       ]);
       const rows: Placed[] = [];
       for (const o of (l.labOrders || []).filter((o: any) => o.patientId === patientId)) rows.push({ key: `l${o.id}`, kind: "lab", name: o.testName || "Laboratory test", ref: o.orderRef, state: o.state, when: o.dateRequested });
-      for (const o of (r.radiologyOrders || []).filter((o: any) => !o.patientId || o.patientId === patientId)) rows.push({ key: `r${o.id}`, kind: "imaging", name: o.studyName || o.testName || "Imaging study", ref: String(o.orderRef || o.id), state: o.state, when: o.dateRequested || o.date || null });
+      for (const o of (r.radiologyOrders || []).filter((o: any) => !o.patientId || o.patientId === patientId)) rows.push({ key: `r${o.id}`, kind: "imaging", name: o.procedureName || o.studyName || o.testName || "Imaging study", ref: String(o.orderRef || o.id), state: o.state, when: o.requestDate || o.dateRequested || o.date || null });
       rows.sort((a, b) => (b.when || "").localeCompare(a.when || ""));
       setPlaced(rows);
     } catch { setPlaced([]); }
