@@ -153,6 +153,112 @@ function unitsToDispense(l: Row): number {
 }
 
 /**
+ * What a patient still owes: posted invoices with an amount left to pay, plus draft invoices that were never posted.
+ * Used by the discharge billing sign-off so a patient cannot be cleared to leave with money outstanding.
+ */
+export async function outstandingBalance(session: Session, patientId: number): Promise<{ due: number; invoices: string[] }> {
+  const patient = (await rpc<Row[]>(session, "gnuhealth.patient", "read", [[patientId], ["party"]]))[0];
+  const partyId = idOf(patient?.party);
+  if (!partyId) return { due: 0, invoices: [] };
+  const rows = await rpc<Row[]>(session, "account.invoice", "search_read", [[["party", "=", partyId], ["type", "=", "out"], ["state", "in", ["draft", "validated", "posted"]]], 0, 200, null,
+    ["id", "number", "state", "total_amount", "amount_to_pay"]]);
+  let due = 0;
+  const invoices: string[] = [];
+  for (const r of rows) {
+    const owed = r.state === "posted" ? num(r.amount_to_pay) : num(r.total_amount);
+    if (owed > 0) { due += owed; invoices.push(`${r.number || `draft #${r.id}`} (${owed.toFixed(2)})`); }
+  }
+  return { due: Math.round(due * 100) / 100, invoices };
+}
+
+// ---- Admission advances in the ledger ---------------------------------------------------------------------------
+// An advance is cash received before the bill exists. It is booked as: debit Main Cash, credit "Customer Advances"
+// (account 230000, per patient). When the final invoice is posted, applying the advance moves it from Customer Advances
+// to the patient's receivable and reconciles it with that invoice, so cash and books agree at every step.
+const ADVANCE_ACCOUNT_CODE = "230000";
+const utcDate = () => { const n = new Date(); return { __class__: "date", year: n.getUTCFullYear(), month: n.getUTCMonth() + 1, day: n.getUTCDate() }; };
+
+async function advanceAccountId(session: Session): Promise<number | null> {
+  const rows = await rpc<Row[]>(session, "account.account", "search_read", [[["code", "=", ADVANCE_ACCOUNT_CODE], ["company", "=", session.companyId]], 0, 1, null, ["id"]]);
+  return rows[0]?.id ?? null;
+}
+
+async function openPeriodId(session: Session, date: ReturnType<typeof utcDate>): Promise<number | null> {
+  const rows = await rpc<Row[]>(session, "account.period", "search_read", [[["company", "=", session.companyId], ["start_date", "<=", date], ["end_date", ">=", date], ["state", "=", "open"], ["type", "=", "standard"]], 0, 1, null, ["id"]]);
+  return rows[0]?.id ?? null;
+}
+
+/** Book an advance receipt in the ledger. Never throws: the advance record is already saved, so a failure is returned as a warning. */
+export async function postAdvanceReceipt(session: Session, patientId: number, amount: number, reference: string): Promise<{ posted: boolean; moveId?: number; warning?: string }> {
+  try {
+    const patient = (await rpc<Row[]>(session, "gnuhealth.patient", "read", [[patientId], ["party"]]))[0];
+    const party = idOf(patient?.party);
+    const advance = await advanceAccountId(session);
+    if (!party) return { posted: false, warning: "The advance is recorded but not in the ledger: the patient has no party record." };
+    if (!advance) return { posted: false, warning: "The advance is recorded but not yet in the ledger: the Customer Advances account (230000) has not been created." };
+    const method = (await rpc<Row[]>(session, "account.invoice.payment.method", "search_read", [[["company", "=", session.companyId]], 0, 1, null, ["id", "journal", "debit_account"]]))[0];
+    const cash = idOf(method?.debit_account), journal = idOf(method?.journal);
+    if (!cash || !journal) return { posted: false, warning: "The advance is recorded but not in the ledger: no cash payment method is configured." };
+    const date = utcDate();
+    const period = await openPeriodId(session, date);
+    if (!period) return { posted: false, warning: "The advance is recorded but not in the ledger: there is no open accounting period for today." };
+    const created = await rpc<number[]>(session, "account.move", "create", [[{
+      journal, period, date, description: `Admission advance ${reference}`,
+      lines: [["create", [
+        { account: cash, debit: money(amount), credit: money(0) },
+        { account: advance, party, debit: money(0), credit: money(amount) },
+      ]]],
+    }]]);
+    await rpc(session, "account.move", "post", [[created[0]]]);
+    return { posted: true, moveId: created[0] };
+  } catch (err) {
+    const why = err instanceof Error ? err.message : "";
+    return { posted: false, warning: `The advance is recorded but could not be posted to the ledger${why ? ` (${why.slice(0, 120)})` : ""}. Ask accounting to post it.` };
+  }
+}
+
+/** What a patient has paid in advance and not yet applied: credits minus debits on Customer Advances for their party. */
+export async function advanceBalance(session: Session, partyId: number): Promise<number> {
+  const advance = await advanceAccountId(session);
+  if (!advance) return 0;
+  const lines = await rpc<Row[]>(session, "account.move.line", "search_read", [[["account", "=", advance], ["party", "=", partyId], ["move.state", "=", "posted"]], 0, 500, null, ["debit", "credit"]]);
+  return Math.round(lines.reduce((t, l) => t + num(l.credit) - num(l.debit), 0) * 100) / 100;
+}
+
+/** Apply a patient's advance to a posted invoice it fully covers: Dr Customer Advances, Cr receivable, reconciled with the invoice. */
+export async function applyAdvanceToInvoice(session: Session, invoiceId: number): Promise<{ applied: number; remainingAdvance: number }> {
+  const inv = (await rpc<Row[]>(session, "account.invoice", "read", [[invoiceId], ["id", "state", "party", "account", "amount_to_pay", "lines_to_pay"]]))[0];
+  if (!inv) throw Object.assign(new Error("The record was not found."), { status: 404 });
+  const due = num(inv.amount_to_pay);
+  if (inv.state !== "posted" || due <= 0) throw Object.assign(new Error("Only a posted invoice with an amount still due can take an advance."), { status: 409 });
+  const party = idOf(inv.party), receivable = idOf(inv.account);
+  const advance = await advanceAccountId(session);
+  if (!party || !receivable || !advance) throw Object.assign(new Error("The advance cannot be applied: the Customer Advances account or the patient account is missing."), { status: 409 });
+  const balance = await advanceBalance(session, party);
+  if (balance + 0.0001 < due) {
+    throw Object.assign(new Error(`The patient's advance (${balance.toFixed(2)}) does not cover the amount due (${due.toFixed(2)}). Take the payment normally.`), { status: 409 });
+  }
+  const journal = (await rpc<Row[]>(session, "account.journal", "search_read", [[["type", "=", "general"]], 0, 1, null, ["id"]]))[0]?.id;
+  const date = utcDate();
+  const period = await openPeriodId(session, date);
+  if (!journal || !period) throw Object.assign(new Error("No general journal or open period is available to apply the advance."), { status: 409 });
+  const created = await rpc<number[]>(session, "account.move", "create", [[{
+    journal, period, date, description: `Advance applied to invoice ${invoiceId}`,
+    lines: [["create", [
+      { account: advance, party, debit: money(due), credit: money(0) },
+      { account: receivable, party, debit: money(0), credit: money(due) },
+    ]]],
+  }]]);
+  await rpc(session, "account.move", "post", [[created[0]]]);
+  const move = (await rpc<Row[]>(session, "account.move", "read", [[created[0]], ["lines"]]))[0];
+  const lineRows = await rpc<Row[]>(session, "account.move.line", "read", [move.lines as number[], ["id", "account", "credit"]]);
+  const receivableCredit = lineRows.find((l) => idOf(l.account) === receivable && num(l.credit) > 0);
+  if (!receivableCredit) throw new Error("The advance move was posted but its receivable line was not found.");
+  await rpc(session, "account.move.line", "reconcile", [[receivableCredit.id as number, ...((inv.lines_to_pay as number[]) || [])]]);
+  return { applied: due, remainingAdvance: Math.round((balance - due) * 100) / 100 };
+}
+
+/**
  * Take the medicines of a prescription out of pharmacy stock, earliest expiry first. Medicines the hospital does not
  * track in stock are dispensed as before; for tracked ones a shortage refuses the dispense. Returns the reason to
  * refuse, or null when it went through (or stock tracking is not installed).

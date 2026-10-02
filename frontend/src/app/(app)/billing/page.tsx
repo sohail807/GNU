@@ -310,6 +310,31 @@ export default function CashierBillingPage() {
     }
   };
 
+  // APPLY ADMISSION ADVANCE: settle a posted invoice from the patient's advance when it covers the whole amount due.
+  const handleApplyAdvance = async () => {
+    if (!activeInvoice) return;
+    setIsProcessing(true);
+    setFeedback(null);
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/clinical/billing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "apply-advance", invoiceId: activeInvoice.id }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "Could not apply the advance.");
+      setInvoices((prev) => prev.map((i) => (i.id === activeInvoice.id ? { ...i, status: "paid", amountToPay: 0.0 } : i)));
+      setActiveInvoice((prev) => (prev ? { ...prev, status: "paid", amountToPay: 0.0 } : null));
+      setFeedback(`${data.message} Advance left for this patient: ${cur} ${Number(data.remainingAdvance || 0).toFixed(2)}.`);
+      fetch("/api/clinical/ledger").then((r) => r.json()).then((d) => d.success && setAccountMoves(d.moves)).catch(() => {});
+    } catch (err: any) {
+      setErrorMessage(err.message || "Could not apply the advance.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   // LAUNCH PAY INVOICE WIZARD (Resolves S7.6)
   const handleLaunchPayWizard = () => {
     if (!activeInvoice) return;
@@ -510,6 +535,19 @@ export default function CashierBillingPage() {
                   className="bg-emerald-600 hover:bg-emerald-700 font-bold"
                 >
                   PAY INVOICE ({cur} {activeInvoice.amountToPay.toFixed(2)})
+                </Button>
+              )}
+
+              {/* APPLY THE PATIENT'S ADMISSION ADVANCE (only offered while something is still due) */}
+              {activeInvoice?.status === "posted" && activeInvoice.amountToPay > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleApplyAdvance}
+                  isLoading={isProcessing}
+                  className="font-bold"
+                >
+                  APPLY ADVANCE
                 </Button>
               )}
 

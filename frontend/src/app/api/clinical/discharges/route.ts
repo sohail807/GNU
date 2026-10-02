@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { errorResponse, fail, guard, idOf, patientInfo, positiveId, rpc, stamp, text, Row } from "@/lib/ops-api";
+import { errorResponse, fail, guard, idOf, outstandingBalance, patientInfo, positiveId, rpc, stamp, text, Row } from "@/lib/ops-api";
 
 // Discharge clearance: after the doctor orders discharge, five departments sign off (medical, nursing, pharmacy,
 // billing, insurance). The inpatient discharge refuses to run until all are done (see dischargeBlock in ops-api).
@@ -86,6 +86,17 @@ export async function POST(req: NextRequest) {
       if (!SIGNERS[dept].includes(session.role)) return fail(`Your role cannot sign off the ${dept} clearance.`, 403);
       const rec = await rpc<number[]>(session, M, "search", [[["id", "=", id], ["company", "=", session.companyId]]]);
       if (!rec.length) return fail("Clearance not found in this hospital.", 404);
+      // Billing may only be signed off (cleared or not applicable) when the patient owes nothing: every posted invoice paid
+      // and no draft invoice left unposted.
+      if (dept === "billing" && outcome !== "pending") {
+        const row = (await rpc<Row[]>(session, M, "read", [[id], ["patient"]]))[0];
+        const patientId = idOf(row?.patient);
+        if (!patientId) return fail("The discharge has no patient to check billing for.", 409);
+        const owed = await outstandingBalance(session, patientId);
+        if (owed.due > 0) {
+          return fail(`Billing cannot be cleared: ${owed.due.toFixed(2)} is still due. Settle ${owed.invoices.join(", ")} first.`, 409);
+        }
+      }
       await rpc(session, M, "write", [[id], { [`${dept}_state`]: outcome }]);
       return NextResponse.json({ success: true, message: `${dept[0].toUpperCase()}${dept.slice(1)} clearance updated.` });
     }

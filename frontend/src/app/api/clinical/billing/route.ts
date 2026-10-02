@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { ClinicalLookupService } from "@/lib/clinical-lookup";
+import { applyAdvanceToInvoice } from "@/lib/ops-api";
 import { hasModuleAccess } from "@/lib/access-control";
 
 export async function GET(req: NextRequest) {
@@ -479,6 +480,17 @@ export async function POST(req: NextRequest) {
         if (inv.state === "draft") {
           return NextResponse.json({ error: "Post the invoice to the ledger before taking payment." }, { status: 409 });
         }
+      }
+    }
+
+    // Apply the patient's admission advance to a posted invoice it fully covers.
+    if (action === "apply-advance") {
+      try {
+        const result = await applyAdvanceToInvoice(session, invId);
+        return NextResponse.json({ success: true, invoiceId: invId, applied: result.applied, remainingAdvance: result.remainingAdvance, message: `Advance of ${result.applied.toFixed(2)} applied. The invoice is settled.` });
+      } catch (applyErr) {
+        const status = (applyErr as { status?: number })?.status || 502;
+        return NextResponse.json({ error: applyErr instanceof Error ? applyErr.message : "Could not apply the advance." }, { status });
       }
     }
 

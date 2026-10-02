@@ -45,7 +45,7 @@ export function useOps<T extends Record<string, any>>(path: string) {
       const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const body = await res.json();
       if (!res.ok || !body.success) throw new Error(body.error || "The action failed");
-      setFeedback(body.message || "Done.");
+      setFeedback(`${body.message || "Done."}${body.warning ? ` ${body.warning}` : ""}`);
       await load();
       return true;
     } catch (e) {

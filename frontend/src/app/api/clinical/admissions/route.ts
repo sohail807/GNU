@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { dateValue, errorResponse, fail, guard, idOf, money, names, num, patientInfo, positiveId, recentPatients, rpc, stamp, text, Row } from "@/lib/ops-api";
+import { dateValue, errorResponse, fail, guard, idOf, money, names, num, patientInfo, positiveId, recentPatients, rpc, stamp, text, Row, postAdvanceReceipt } from "@/lib/ops-api";
 
 // Admission planning: the financial counsellor's step before a bed is allocated. Cost estimate -> advance deposit
 // (self-pay / corporate / scheme) or insurer pre-authorization (cashless) -> ready -> admitted to a bed.
@@ -80,7 +80,11 @@ export async function POST(req: NextRequest) {
       const values: Row = { advance_received: money(total) };
       if (plan.state === "estimate" && total >= num(plan.advance_required)) values.state = "deposit_paid";
       await rpc(session, M, "write", [[id], values]);
-      return NextResponse.json({ success: true, message: values.state ? "Advance received in full." : "Part of the advance received." });
+      // The cash is also booked in the ledger (Cash against Customer Advances, per patient).
+      const planRow = (await rpc<Row[]>(session, M, "read", [[id], ["patient", "reference"]]))[0];
+      const posting = await postAdvanceReceipt(session, idOf(planRow?.patient) as number, amount, String(planRow?.reference || id));
+      const base = values.state ? "Advance received in full." : "Part of the advance received.";
+      return NextResponse.json({ success: true, message: posting.posted ? `${base} Booked in the ledger.` : base, ledgerPosted: posting.posted, ...(posting.warning ? { warning: posting.warning } : {}) });
     }
     if (action === "ready") { await rpc(session, M, "write", [[id], { state: "ready" }]); return NextResponse.json({ success: true, message: "Cleared for admission." }); }
     if (action === "cancel") { await rpc(session, M, "write", [[id], { state: "cancelled" }]); return NextResponse.json({ success: true, message: "Plan cancelled." }); }
