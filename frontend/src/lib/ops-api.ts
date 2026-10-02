@@ -45,9 +45,9 @@ export async function recordReportedAllergies(session: Session, patientId: numbe
           patient: patientId, pathology, is_allergy: true, is_active: true, status: "c", allergy_type: it.kind, short_comment: REPORTED_PREFIX + it.text,
         }]]);
         saved += 1;
-      } catch { failed.push(it.text); }
+      } catch (e) { console.error("reported allergy create failed:", e instanceof Error ? e.message.slice(0, 400) : e); failed.push(it.text); }
     }
-  } catch { failed.push(...items.map((i) => i.text)); }
+  } catch (e) { console.error("reported allergy lookup failed:", e instanceof Error ? e.message.slice(0, 400) : e); failed.push(...items.map((i) => i.text)); }
   return failed.length
     ? { saved, warning: `The patient was registered, but these reported allergies could not be saved from this login: ${failed.join(", ")}. Tell the nurse or doctor so they can record them.` }
     : { saved };

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { errorResponse, fail, guard, idOf, positiveId, rpc, text, Row, REPORTED_PREFIX } from "@/lib/ops-api";
+import { errorResponse, fail, guard, idOf, positiveId, rpc, text, Row, REPORTED_PREFIX, recordReportedAllergies } from "@/lib/ops-api";
+import { hasModuleAccess } from "@/lib/access-control";
 
 // Patient allergies, recorded the native way: a patient disease line flagged as an allergy (kind, severity, status).
 // A severe allergy also raises the patient's "critical allergy" flag, which the prescribing safety gate checks.
@@ -37,12 +38,21 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const g = await guard([...MODULES]);
+  // Reception may only pass on what a patient reports ("report"); everything else stays with doctors and nurses.
+  const g = await guard([...MODULES, "patient_register"]);
   if ("response" in g) return g.response;
   const { session } = g;
   try {
     const body = await req.json();
     const action = String(body.action || "add");
+    if (action === "report") {
+      const patientId = positiveId(body.patientId);
+      if (!patientId) return fail("A valid patient is required.");
+      const result = await recordReportedAllergies(session, patientId, body.items);
+      if (result.saved === 0) return fail(result.warning || "Enter at least one allergy.", result.warning ? 502 : 400);
+      return NextResponse.json({ success: true, saved: result.saved, warning: result.warning, message: "Reported allergy saved for the nurse and doctor to confirm." });
+    }
+    if (!MODULES.some((m) => hasModuleAccess(session.role, m))) return fail("Your role does not have permission for this module.", 403);
     if (action === "resolve") {
       const id = positiveId(body.id);
       if (!id) return fail("Allergy is required.");
