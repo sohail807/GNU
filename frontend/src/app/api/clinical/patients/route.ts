@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { ClinicalLookupService } from "@/lib/clinical-lookup";
 import { hasModuleAccess } from "@/lib/access-control";
+import { recordReportedAllergies, REPORTED_PREFIX } from "@/lib/ops-api";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -103,7 +104,7 @@ export async function GET(req: NextRequest) {
         diseasesRaw = await TrytonClient.execute<any[]>(
           session.username, session.userId, session.sessionToken,
           "gnuhealth.patient.disease", "search_read",
-          [[ ["patient", "in", patientIds] ], 0, 500, [["id", "ASC"]], ["id", "patient", "pathology", "is_allergy", "is_active", "status"]],
+          [[ ["patient", "in", patientIds] ], 0, 500, [["id", "ASC"]], ["id", "patient", "pathology", "is_allergy", "is_active", "status", "short_comment"]],
           { company: session.companyId }, session.database
         );
         allergiesLoaded = true;
@@ -158,6 +159,9 @@ export async function GET(req: NextRequest) {
           .filter((disease) => disease.is_allergy && disease.is_active && !["h", "healed"].includes(String(disease.status || "")))
           .filter((disease) => Array.isArray(disease.patient) ? disease.patient[0] === p.id : disease.patient === p.id)
           .map((disease) => {
+            if (typeof disease.short_comment === "string" && disease.short_comment.startsWith(REPORTED_PREFIX)) {
+              return `${disease.short_comment.slice(REPORTED_PREFIX.length)} (reported by patient, unverified)`;
+            }
             const pid = relId(disease.pathology);
             return (pid !== null && pathologyName[pid]) || (Array.isArray(disease.pathology) ? String(disease.pathology[1] || "") : "") || "Allergy recorded";
           })
@@ -277,6 +281,9 @@ export async function POST(req: NextRequest) {
     }
     const patientId = patientRes[0];
 
+    // Allergies the patient reports at the desk (kept as unverified notes for clinicians to confirm).
+    const reported = await recordReportedAllergies(session, patientId, body.reportedAllergies);
+
     // 3. Read the created patient file
     const created = await TrytonClient.execute<any[]>(
       session.username,
@@ -294,6 +301,8 @@ export async function POST(req: NextRequest) {
       success: true,
       patientId: pat.id,
       puid: pat.puid,
+      reportedAllergiesSaved: reported.saved,
+      warning: reported.warning,
       patient: {
         id: pat.id,
         puid: pat.puid,
