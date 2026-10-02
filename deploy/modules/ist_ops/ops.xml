@@ -432,5 +432,13 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="False"/>
         </record>
+        <record model="ir.model.access" id="access_gnuhealth_pol_group_health_nursing_work">
+            <field name="model" search="[('model', '=', 'gnuhealth.pol')]"/>
+            <field name="group" ref="health.group_health_nursing"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
     </data>
 </tryton>

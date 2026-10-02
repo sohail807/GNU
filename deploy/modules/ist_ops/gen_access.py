@@ -34,8 +34,10 @@ READ_ONLY = {
 
 # Nurses record allergies at triage (the app allows it) and mark them resolved, so they need to create and change patient
 # disease lines. They cannot delete them.
+# Saving a disease line also writes the patient's "Page of Life" timeline entry, so nursing needs that table too.
 WRITE_NO_DELETE = {
     'gnuhealth.patient.disease': [N],
+    'gnuhealth.pol': [N],
 }
 
 out = ['<?xml version="1.0"?>', '<tryton>', '    <data>',
