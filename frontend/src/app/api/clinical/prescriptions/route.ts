@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { ClinicalLookupService } from "@/lib/clinical-lookup";
 import { hasModuleAccess } from "@/lib/access-control";
+import { courseUnits } from "@/lib/ops-api";
 
 // Tryton datetime/date fields deserialize as { __class__, year, month, day, hour?, minute? }
 // objects, not strings - rendering one directly as a React child crashes the page.
@@ -188,6 +189,12 @@ export async function POST(req: NextRequest) {
   };
   const safeFailure = (err: unknown) => {
     const status = (err as { status?: number } | null)?.status;
+    if (err instanceof Error && /not associated to a health professional/i.test(err.message)) {
+      return NextResponse.json(
+        { error: "Only a doctor registered as a health professional can issue a prescription. Sign in with a physician account." },
+        { status: 403 }
+      );
+    }
     if (status === 401 || status === 403 || status === 409) {
       return NextResponse.json(
         { error: status === 403 ? "You do not have permission to prescribe this medication." : "The prescription could not be completed in its current state." },
@@ -423,6 +430,8 @@ export async function POST(req: NextRequest) {
         frequency_unit: frequencyUnit,
         duration,
         duration_period: durationPeriod,
+        // What the pharmacy hands out (and takes from stock): one unit per dose over the course.
+        quantity: courseUnits(frequency, frequencyUnit, duration, durationPeriod) ?? 1,
         add_to_history: false,
       });
     }

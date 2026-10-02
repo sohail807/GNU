@@ -43,6 +43,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // Billable catalog: services and priced goods (medicines). A product with no price set is left out, never given a made-up price.
     // Billable service catalog, resolved live from the tenant's own product catalog
     // (never a hardcoded name list) so the UI can only ever bill for a product that
     // actually exists, at its actual configured price.
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
         session.sessionToken,
         "product.product",
         "search_read",
-        [[["type", "=", "service"], ["is_bed", "!=", true]], 0, 100, [["name", "ASC"]], ["id", "name", "list_price"]],
+        [[["type", "in", ["service", "goods"]], ["is_bed", "!=", true]], 0, 200, [["name", "ASC"]], ["id", "name", "list_price"]],
         { company: session.companyId },
         session.database
       );
@@ -454,6 +455,31 @@ export async function POST(req: NextRequest) {
     const invId = parseInt(invoiceId, 10);
     if (!Number.isSafeInteger(invId) || invId <= 0) {
       return NextResponse.json({ error: "Invoice ID must be a valid positive integer." }, { status: 400 });
+    }
+
+    // Posting or paying twice used to return 200 as a silent no-op. A posted or paid invoice is closed by Tryton's own
+    // accounting rules, so say so plainly instead of pretending the action ran.
+    if (action === "post" || action === "pay" || action === "settle") {
+      const current = await TrytonClient.execute<Array<{ id: number; state: string; amount_to_pay: unknown }>>(
+        session.username, session.userId, session.sessionToken,
+        "account.invoice", "read", [[invId], ["id", "state", "amount_to_pay"]],
+        { company: session.companyId }, session.database
+      ).catch(() => []);
+      const inv = current[0];
+      if (!inv) return NextResponse.json({ error: "The record was not found." }, { status: 404 });
+      if (action === "post" && inv.state !== "draft") {
+        return NextResponse.json({ error: `This invoice is already ${inv.state} and cannot be posted again. Posted invoices cannot be edited or deleted.` }, { status: 409 });
+      }
+      if (action !== "post") {
+        const raw = inv.amount_to_pay as { decimal?: string } | number | string | null;
+        const due = typeof raw === "object" && raw !== null ? parseFloat(raw.decimal || "0") : Number(raw || 0);
+        if (inv.state === "paid" || inv.state === "cancelled" || (inv.state === "posted" && due <= 0)) {
+          return NextResponse.json({ error: `This invoice is already ${inv.state === "posted" ? "settled" : inv.state}; nothing is left to pay.` }, { status: 409 });
+        }
+        if (inv.state === "draft") {
+          return NextResponse.json({ error: "Post the invoice to the ledger before taking payment." }, { status: 409 });
+        }
+      }
     }
 
     // Action 2: Post invoice to General Ledger

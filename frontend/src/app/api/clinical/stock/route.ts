@@ -14,8 +14,10 @@ export async function GET() {
   try {
     const rows = await rpc<Row[]>(session, M, "search_read", [[["company", "=", session.companyId]], 0, 500, [["expiry", "ASC"]],
       ["id", "medicament", "batch", "expiry", "quantity", "reorder_level", "supplier"]]);
-    const meds = await rpc<Row[]>(session, "gnuhealth.medicament", "search_read", [[], 0, 300, [["active_component", "ASC"]], ["id", "active_component", "presentation"]]).catch(() => []);
-    const medName = Object.fromEntries(meds.map((m) => [m.id, `${m.active_component || `Medicine ${m.id}`}${m.presentation ? ` (${m.presentation})` : ""}`]));
+    const meds = await rpc<Row[]>(session, "gnuhealth.medicament", "search_read", [[], 0, 300, [["active_component", "ASC"]], ["id", "rec_name", "active_component", "presentation"]]).catch(() => []);
+    // The product name ("Amoxicillin 500mg") is what doctors prescribe, so stock is labelled the same way. Labelling by active
+    // ingredient alone let stock be received against the syrup while the 500mg capsules were prescribed, and nothing was deducted.
+    const medName = Object.fromEntries(meds.map((m) => [m.id, `${m.rec_name || m.active_component || `Medicine ${m.id}`}${m.presentation ? ` (${m.presentation})` : ""}`]));
     const today = new Date().toISOString().slice(0, 10);
     const soon = new Date(Date.now() + 90 * 864e5).toISOString().slice(0, 10);
     const batches = rows.map((r) => {

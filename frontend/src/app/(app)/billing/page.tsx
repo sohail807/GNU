@@ -692,8 +692,7 @@ export default function CashierBillingPage() {
                   <Badge variant="teal" size="sm">RBAC Certified</Badge>
                 </div>
                 <p className="text-[11px] text-slate-600 leading-relaxed max-w-2xl">
-                  <strong>Role Segregation Rule:</strong> Cashiers (<code className="font-mono text-teal-900">demo_cashier1</code>) are restricted from accessing or creating General Ledger journal entries. Only authorized Financial Auditors (<code className="font-mono text-teal-900">demo_auditor1</code>) and Administrators possess accounting move clearance.
-                </p>
+                  <strong>Role Segregation Rule:</strong> The general ledger is open only to accounting and administrator roles. Nobody creates journal entries here: every move below comes from a posted invoice or a recorded payment.</p>
               </div>
             </div>
 

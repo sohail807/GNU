@@ -131,27 +131,53 @@ export async function checklistBlock(session: Session, surgeryId: number, newSta
   }
 }
 
+// Hours in each unit the prescription form offers. "wr" (when required) and "indefinite" cannot be counted.
+const FREQUENCY_HOURS: Record<string, number> = { seconds: 1 / 3600, minutes: 1 / 60, hours: 1, days: 24, weeks: 168 };
+const DURATION_HOURS: Record<string, number> = { minutes: 1 / 60, hours: 1, days: 24, months: 720, years: 8760 };
+
+/** Doses in a course: one per interval over the whole duration (every 8 hours for 5 days = 15). Null when it cannot be counted. */
+export function courseUnits(frequency: unknown, frequencyUnit: unknown, duration: unknown, durationPeriod: unknown): number | null {
+  const every = Number(frequency) * (FREQUENCY_HOURS[String(frequencyUnit)] || 0);
+  const course = Number(duration) * (DURATION_HOURS[String(durationPeriod)] || 0);
+  if (!(every > 0) || !(course > 0)) return null;
+  return Math.max(1, Math.ceil(course / every));
+}
+
+/**
+ * Units to take out of stock for one prescription line: the quantity stored on the line (set when the doctor issues the
+ * prescription), otherwise the course count, and a single unit when neither is known.
+ */
+function unitsToDispense(l: Row): number {
+  if (Number(l.quantity) > 0) return Number(l.quantity);
+  return courseUnits(l.frequency, l.frequency_unit, l.duration, l.duration_period) ?? 1;
+}
+
 /**
  * Take the medicines of a prescription out of pharmacy stock, earliest expiry first. Medicines the hospital does not
  * track in stock are dispensed as before; for tracked ones a shortage refuses the dispense. Returns the reason to
  * refuse, or null when it went through (or stock tracking is not installed).
  */
-export async function consumeStock(session: Session, prescriptionId: number): Promise<string | null> {
+export async function consumeStock(session: Session, prescriptionId: number): Promise<{ refusal: string | null; summary: string }> {
+  const taken: string[] = [];
+  const untracked: string[] = [];
   try {
-    const lines = await rpc<Row[]>(session, "gnuhealth.prescription.line", "search_read", [[["name", "=", prescriptionId]], 0, 50, null, ["id", "medicament", "quantity"]]);
+    const order = (await rpc<Row[]>(session, "gnuhealth.prescription.order", "read", [[prescriptionId], ["prescription_line"]]))[0];
+    const lineIds: number[] = Array.isArray(order?.prescription_line) ? order.prescription_line : [];
+    const lines = lineIds.length ? await rpc<Row[]>(session, "gnuhealth.prescription.line", "read", [lineIds, ["id", "medicament", "quantity", "frequency", "frequency_unit", "duration", "duration_period"]]) : [];
     const needs = new Map<number, number>();
     for (const l of lines) {
       const med = idOf(l.medicament);
-      if (med) needs.set(med, (needs.get(med) || 0) + (Number(l.quantity) > 0 ? Number(l.quantity) : 1));
+      if (med) needs.set(med, (needs.get(med) || 0) + unitsToDispense(l));
     }
-    if (needs.size === 0) return null;
+    if (needs.size === 0) return { refusal: null, summary: "No medicine lines were found on this prescription, so no stock was taken." };
     const today = new Date().toISOString().slice(0, 10);
     const plan: Array<{ id: number; take: number }> = [];
     for (const [med, qty] of needs) {
       const batches = await rpc<Row[]>(session, "ist.ops.stock", "search_read", [[["medicament", "=", med], ["company", "=", session.companyId], ["quantity", ">", 0]], 0, 100,
         [["expiry", "ASC"]], ["id", "quantity", "expiry"]]);
       const tracked = batches.length > 0 || (await rpc<number>(session, "ist.ops.stock", "search_count", [[["medicament", "=", med], ["company", "=", session.companyId]]])) > 0;
-      if (!tracked) continue;
+      const medName = async () => { const m = (await rpc<Row[]>(session, "gnuhealth.medicament", "read", [[med], ["rec_name", "active_component"]]))[0]; return m?.rec_name || m?.active_component || `medicine ${med}`; };
+      if (!tracked) { untracked.push(await medName()); continue; }
       let left = qty;
       for (const b of batches) {
         const exp = day(b.expiry);
@@ -161,17 +187,23 @@ export async function consumeStock(session: Session, prescriptionId: number): Pr
         if (left <= 0) break;
       }
       if (left > 0) {
-        const m = (await rpc<Row[]>(session, "gnuhealth.medicament", "read", [[med], ["active_component"]]))[0];
-        return `Not enough stock of ${m?.active_component || "this medicine"}: ${qty - left} in date, ${qty} needed.`;
+        const m = (await rpc<Row[]>(session, "gnuhealth.medicament", "read", [[med], ["rec_name", "active_component"]]))[0];
+        return { refusal: `Not enough stock of ${m?.rec_name || m?.active_component || "this medicine"}: ${qty - left} in date, ${qty} needed.`, summary: "" };
       }
+      taken.push(`${await medName()} x${qty}`);
     }
     for (const p of plan) {
       const cur = (await rpc<Row[]>(session, "ist.ops.stock", "read", [[p.id], ["quantity"]]))[0];
       await rpc(session, "ist.ops.stock", "write", [[p.id], { quantity: Math.max(0, (cur?.quantity || 0) - p.take) }]);
     }
-    return null;
-  } catch {
-    return null;
+    const parts = [taken.length ? `Stock taken: ${taken.join(", ")}.` : "", untracked.length ? `Not tracked in stock: ${untracked.join(", ")}.` : ""];
+    return { refusal: null, summary: parts.filter(Boolean).join(" ") };
+  } catch (err) {
+    // Only "stock tracking is not installed" lets the dispense go ahead. Anything else (for instance a login without
+    // access to pharmacy stock) used to be swallowed here, so medicines left the pharmacy without the stock going down.
+    const raw = err instanceof Error ? err.message : "";
+    if (/Tryton RPC error on ist\.[a-z_.]+\.[a-z_]+: \["'ist\./.test(raw)) return { refusal: null, summary: "" };
+    return { refusal: "Pharmacy stock could not be updated, so nothing was dispensed. Dispense from a pharmacy or cashier account, or ask the administrator.", summary: "" };
   }
 }
 

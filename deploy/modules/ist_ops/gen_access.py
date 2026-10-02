@@ -23,6 +23,12 @@ WORK = {
     'ist.ops.order_set': [D, N, A],
 }
 
+# Native GNU Health models the app reads for pharmacy and billing staff. Read only: the pharmacist must see what to
+# dispense (and stock is taken out per medicine line) without being allowed to edit the doctor's prescription.
+READ_ONLY = {
+    'gnuhealth.prescription.line': [AC, ACA],
+}
+
 out = ['<?xml version="1.0"?>', '<tryton>', '    <data>',
        '        <!-- everyone may read; the groups below may work with the records -->']
 for model, groups in WORK.items():
@@ -42,6 +48,17 @@ for model, groups in WORK.items():
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="{g == A or model == 'ist.ops.order_set'}"/>
+        </record>''')
+for model, groups in READ_ONLY.items():
+    slug = model.split('.')[-1] if model.count('.') < 2 else '_'.join(model.split('.')[-2:])
+    for g in groups:
+        out.append(f'''        <record model="ir.model.access" id="access_{slug}_{g.split('.')[-1]}_read">
+            <field name="model" search="[('model', '=', '{model}')]"/>
+            <field name="group" ref="{g}"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
         </record>''')
 out += ['    </data>', '</tryton>']
 open('ops.xml', 'w', encoding='utf-8').write('\n'.join(out) + '\n')

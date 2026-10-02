@@ -100,6 +100,47 @@ export async function GET(req: NextRequest) {
       lookup("gnuhealth.healthprofessional", prescriptions.map((rx) => idOf(rx.healthprof)), ["id", "rec_name"]),
     ]);
 
+    // What the pharmacist dispenses: one readable line per medicine, e.g. "Paracetamol 500mg · 500 mg · Oral · every 8 hours for 5 days".
+    // Read separately from the orders: an account without access to the lines still gets its queue, just without this text.
+    const orderIds = prescriptions.map((rx) => rx.id);
+    const lineText: Record<number, string[]> = {};
+    if (orderIds.length > 0) {
+      try {
+        const orderRows = await TrytonClient.execute<any[]>(
+          session.username, session.userId, session.sessionToken,
+          "gnuhealth.prescription.order", "read", [orderIds, ["id", "prescription_line"]], context, session.database
+        );
+        const lineIds = orderRows.flatMap((o) => (Array.isArray(o.prescription_line) ? o.prescription_line : []));
+        const orderOfLine: Record<number, number> = {};
+        for (const o of orderRows) for (const lid of o.prescription_line || []) orderOfLine[lid] = o.id;
+        const lineRows = lineIds.length === 0 ? [] : await TrytonClient.execute<any[]>(
+          session.username, session.userId, session.sessionToken,
+          "gnuhealth.prescription.line", "search_read",
+          [[["id", "in", lineIds]], 0, lineIds.length, null, ["id", "medicament", "dose", "dose_unit", "route", "frequency", "frequency_unit", "duration", "duration_period", "quantity"]],
+          context, session.database
+        );
+        // Related fields come back as bare ids here, so the names are looked up the same way as the patient and doctor above.
+        const [medNames, unitNames, routeNames] = await Promise.all([
+          lookup("gnuhealth.medicament", lineRows.map((l) => idOf(l.medicament)), ["id", "rec_name"]),
+          lookup("gnuhealth.dose.unit", lineRows.map((l) => idOf(l.dose_unit)), ["id", "rec_name"]),
+          lookup("gnuhealth.drug.route", lineRows.map((l) => idOf(l.route)), ["id", "rec_name"]),
+        ]);
+        for (const l of lineRows) {
+          const parts = [
+            medNames[idOf(l.medicament) as number]?.rec_name || "",
+            l.dose != null ? `${l.dose} ${unitNames[idOf(l.dose_unit) as number]?.rec_name || ""}`.trim() : "",
+            routeNames[idOf(l.route) as number]?.rec_name || "",
+            l.frequency != null ? `every ${l.frequency} ${l.frequency_unit || ""}`.trim() : "",
+            l.duration != null ? `for ${l.duration} ${l.duration_period || ""}`.trim() : "",
+            Number(l.quantity) > 0 ? `qty ${l.quantity}` : "",
+          ].filter(Boolean);
+          (lineText[orderOfLine[l.id]] ||= []).push(parts.join(" · "));
+        }
+      } catch (e) {
+        console.warn("Could not fetch prescription lines:", e);
+      }
+    }
+
     // Counts come from the database, not from the newest page of prescriptions, so they stay right as the list grows.
     const count = (domain: unknown[]) => TrytonClient.execute<number>(
       session.username, session.userId, session.sessionToken, "gnuhealth.prescription.order", "search_count", [domain], context, session.database
@@ -122,6 +163,7 @@ export async function GET(req: NextRequest) {
           prescriptionDate: formatTrytonDateTime(rx.prescription_date),
           state: rx.state || "draft",
           notes: rx.notes || null,
+          medicines: lineText[rx.id] || [],
         };
       }),
       // Medicament catalog fields reflect exactly what's configured - a blank
@@ -185,8 +227,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Take the medicines out of stock first (earliest expiry first); a shortage of a tracked medicine stops the dispense.
-    const shortage = await consumeStock(session, parseInt(prescriptionId, 10));
-    if (shortage) return NextResponse.json({ error: shortage }, { status: 409 });
+    const stock = await consumeStock(session, parseInt(prescriptionId, 10));
+    if (stock.refusal) return NextResponse.json({ error: stock.refusal }, { status: 409 });
 
     // Update prescription state to done (dispensed)
     await TrytonClient.execute(
@@ -208,7 +250,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Prescription verified and dispensed successfully",
+      message: `Prescription verified and dispensed successfully.${stock.summary ? ` ${stock.summary}` : ""}`,
     });
   } catch (error: any) {
     console.error("Error dispensing prescription:", error);

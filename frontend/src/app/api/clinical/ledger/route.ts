@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       session.sessionToken,
       "account.move",
       "search_read",
-      [[], 0, 20, [["id", "DESC"]], ["id", "number", "date", "description", "state", "lines"]],
+      [[], 0, 200, [["id", "DESC"]], ["id", "number", "date", "description", "state", "lines"]],
       { company: session.companyId },
       session.database
     );

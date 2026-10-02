@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       // rec_name is a computed field on this model, not a real column -- ordering by it makes
       // the underlying SQL query fail with an opaque, empty Tryton error. `null` lets Tryton
       // apply the model's own default _order instead of a column that can't be sorted on.
-      [domain, 0, 30, null, ["id", "rec_name", "active_component", "strength", "unit", "route", "form", "pregnancy_warning"]],
+      [domain, 0, 200, null, ["id", "rec_name", "active_component", "strength", "unit", "route", "form", "pregnancy_warning"]],
       { company: session.companyId },
       session.database
     );

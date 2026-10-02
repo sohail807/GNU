@@ -28,6 +28,7 @@ interface Prescription {
   prescriptionDate: string;
   state: string;
   notes: string;
+  medicines?: string[];
 }
 
 interface Medicament {
@@ -66,6 +67,7 @@ export default function PharmacyPage() {
   const [targetRx, setTargetRx] = useState<Prescription | null>(null);
   const [pharmacistNotes, setPharmacistNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dispenseNotice, setDispenseNotice] = useState<{ ok: boolean; text: string } | null>(null);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -112,14 +114,21 @@ export default function PharmacyPage() {
         }),
       });
 
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
+        setDispenseNotice({ ok: true, text: `${targetRx.orderNumber}: ${data.message || "Dispensed."}` });
         setIsDispenseModalOpen(false);
         setTargetRx(null);
         setPharmacistNotes("");
         fetchData();
+      } else {
+        // Stays open so the pharmacist can read the reason (for example a stock shortage) next to the prescription.
+        setDispenseNotice({ ok: false, text: data.error || "The prescription could not be dispensed." });
+        setIsDispenseModalOpen(false);
       }
     } catch (e) {
       console.error("Dispense failed:", e);
+      setDispenseNotice({ ok: false, text: "The prescription could not be dispensed. Check the connection and try again." });
     } finally {
       setIsSubmitting(false);
     }
@@ -174,6 +183,13 @@ export default function PharmacyPage() {
           </Button>
         </div>
       </div>
+
+      {dispenseNotice && (
+        <div className={`p-4 rounded-xl border text-xs font-medium flex items-center justify-between gap-3 ${dispenseNotice.ok ? "bg-emerald-50 border-emerald-200 text-emerald-900" : "bg-red-50 border-red-200 text-red-800"}`}>
+          <span>{dispenseNotice.text}</span>
+          <button type="button" onClick={() => setDispenseNotice(null)} className="text-[11px] underline">Dismiss</button>
+        </div>
+      )}
 
       {accessError && (
         <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800 flex items-center gap-2 font-medium">
@@ -295,7 +311,10 @@ export default function PharmacyPage() {
                       <td className="py-3 px-4 font-mono text-[11px]">
                         {rx.prescriptionDate ? rx.prescriptionDate.slice(0, 16) : "—"}
                       </td>
-                      <td className="py-3 px-4 text-slate-700">{rx.notes}</td>
+                      <td className="py-3 px-4 text-slate-700">
+                        {rx.medicines?.length ? rx.medicines.map((m) => <div key={m}>{m}</div>) : null}
+                        {rx.notes && <div className={rx.medicines?.length ? "text-slate-400" : ""}>{rx.notes}</div>}
+                      </td>
                       <td className="py-3 px-4">
                         <span
                           className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
@@ -420,7 +439,9 @@ export default function PharmacyPage() {
             <div className="font-semibold text-[#0F766E]">{targetRx?.patientName}</div>
             <div className="text-slate-500 mt-1">Prescribed by: {targetRx?.prescribingDoctor}</div>
             <div className="text-slate-700 mt-2 p-2 bg-white rounded border border-slate-200 font-mono text-[11px]">
+              {targetRx?.medicines?.length ? targetRx.medicines.map((m) => <div key={m}>{m}</div>) : null}
               {targetRx?.notes}
+              {!targetRx?.medicines?.length && !targetRx?.notes && "No medicine lines were returned for this prescription."}
             </div>
           </div>
 
