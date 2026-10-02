@@ -195,7 +195,8 @@ export async function POST(req: NextRequest) {
       );
     }
     if (status === 400 || status === 404) {
-      return NextResponse.json({ error: status === 404 ? "The patient or prescription was not found." : "One of the values sent is not valid." }, { status });
+      const reason = err instanceof Error && err.message && !/^One of the values|^The request could not/.test(err.message) ? err.message : "";
+      return NextResponse.json({ error: status === 404 ? "The patient or prescription was not found." : reason || "One of the values sent is not valid." }, { status });
     }
     return NextResponse.json(
       { error: "The prescription could not be saved in GNU Health. No success was recorded." },
