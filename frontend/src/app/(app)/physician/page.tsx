@@ -107,6 +107,7 @@ export default function PhysicianConsultationPage() {
   const [routeOptions, setRouteOptions] = useState<CatalogOption[]>([]);
   const [doseUnitOptions, setDoseUnitOptions] = useState<CatalogOption[]>([]);
   const [acknowledgeWarnings, setAcknowledgeWarnings] = useState(false);
+  const [safetyWarnings, setSafetyWarnings] = useState<string[]>([]);
   const [isOrderingWorkup, setIsOrderingWorkup] = useState<"lab" | "radiology" | null>(null);
 
   // Diagnostic Workup catalogs, loaded live from GNU Health so the physician can order any
@@ -451,9 +452,11 @@ export default function PhysicianConsultationPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
+        if (data.requiresAcknowledgement && Array.isArray(data.warnings)) { setSafetyWarnings(data.warnings); setAcknowledgeWarnings(false); }
         if (data.prescriptionId) setPendingPrescriptionId(Number(data.prescriptionId));
         throw new Error(data.error || "Failed to persist prescription in GNU Health");
       }
+      setSafetyWarnings([]);
       const ref = data.reference || String(data.prescriptionId || "");
       setPendingPrescriptionId(null);
       setPrescriptionRef(ref);
@@ -931,11 +934,15 @@ export default function PhysicianConsultationPage() {
               ))}
             </div>
 
-            {prescriptions.length > 0 && (
-              <label className="flex items-start gap-2 text-xs text-slate-700">
-                <input type="checkbox" checked={acknowledgeWarnings} onChange={(event) => setAcknowledgeWarnings(event.target.checked)} className="mt-0.5 accent-[#0F766E]" />
-                <span>I reviewed the patient allergy/clinical warnings and each medication’s safety information before issuing this prescription.</span>
-              </label>
+            {safetyWarnings.length > 0 && (
+              <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-xs text-red-900 space-y-2">
+                <div className="font-bold">Safety warning</div>
+                <ul className="list-disc pl-4">{safetyWarnings.map((w) => <li key={w}>{w}</li>)}</ul>
+                <label className="flex items-start gap-2">
+                  <input type="checkbox" checked={acknowledgeWarnings} onChange={(event) => setAcknowledgeWarnings(event.target.checked)} className="mt-0.5 accent-[#0F766E]" />
+                  <span>I have reviewed this warning and want to prescribe anyway.</span>
+                </label>
+              </div>
             )}
             {patient.allergies.length > 0 && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900"><strong>Recorded allergies:</strong> {patient.allergies.join(", ")}. Verify these clinically before prescribing.</div>
@@ -954,7 +961,7 @@ export default function PhysicianConsultationPage() {
                 variant="primary"
                 size="sm"
                 onClick={handleCreatePrescription}
-                disabled={!patient.id || prescriptions.length === 0 || !acknowledgeWarnings || Boolean(pendingPrescriptionId) || isSaving}
+                disabled={!patient.id || prescriptions.length === 0 || (safetyWarnings.length > 0 && !acknowledgeWarnings) || Boolean(pendingPrescriptionId) || isSaving}
                 isLoading={isSaving}
                 leftIcon={<FileCheck className="w-4 h-4" />}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
