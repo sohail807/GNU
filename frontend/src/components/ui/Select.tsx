@@ -47,8 +47,9 @@ export const Select: React.FC<SelectProps> = ({
           {...props}
         >
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
+            // One oversized value (a pasted ID, a very long name) must never stretch the list: show a short form, keep the full text on hover.
+            <option key={opt.value} value={opt.value} title={opt.label}>
+              {opt.label.length > 90 ? `${opt.label.slice(0, 87)}...` : opt.label}
             </option>
           ))}
         </select>

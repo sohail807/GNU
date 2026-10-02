@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth-session";
 import { TrytonClient } from "@/lib/tryton-client";
 import { ClinicalLookupService } from "@/lib/clinical-lookup";
-import { applyAdvanceToInvoice } from "@/lib/ops-api";
+import { applyAdvanceToInvoice, reverseStrayAdvanceMoves } from "@/lib/ops-api";
 import { hasModuleAccess } from "@/lib/access-control";
 
 export async function GET(req: NextRequest) {
@@ -480,6 +480,20 @@ export async function POST(req: NextRequest) {
         if (inv.state === "draft") {
           return NextResponse.json({ error: "Post the invoice to the ledger before taking payment." }, { status: 409 });
         }
+      }
+    }
+
+    // One-off repair: undo unreconciled advance moves left by an earlier failed attempt (accounting or admin only).
+    if (action === "reverse-stray-advance-moves") {
+      if (!["admin", "accountant", "cashier"].includes(session.role)) {
+        return NextResponse.json({ error: "Your role cannot repair accounting entries." }, { status: 403 });
+      }
+      try {
+        const result = await reverseStrayAdvanceMoves(session, invId);
+        return NextResponse.json({ success: true, invoiceId: invId, reversed: result.reversed, message: result.reversed.length ? `Reversed ${result.reversed.length} stray advance move(s).` : "Nothing to reverse." });
+      } catch (repairErr) {
+        const status = (repairErr as { status?: number })?.status || 502;
+        return NextResponse.json({ error: repairErr instanceof Error ? repairErr.message : "Could not reverse the moves." }, { status });
       }
     }
 

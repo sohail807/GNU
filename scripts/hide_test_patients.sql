@@ -35,6 +35,12 @@ WHERE name !~* '(ALEXANDER WRIGHT|E2E|QA|TEST|DEMO|FE-UAT|WORKFLOW CHAIN|FINAL-V
 
 UPDATE party_party SET active = false WHERE id IN (SELECT party_id FROM test_patients);
 
+-- Junk left by an over-long input test: a patient whose national ID or name is absurdly long (for example "A" with a
+-- 100,000-character ID) stretches every patient dropdown. Preview first; these are hidden, not deleted.
+SELECT pa.id AS party_id, left(pa.name, 40) AS name, length(pa.ref) AS ref_length FROM party_party pa
+WHERE pa.is_patient AND (length(pa.ref) > 64 OR length(pa.name) > 200);
+UPDATE party_party SET active = false WHERE is_patient AND (length(ref) > 64 OR length(name) > 200);
+
 SELECT count(*) AS hidden_patients FROM party_party WHERE id IN (SELECT party_id FROM test_patients) AND active = false;
 
 ROLLBACK;  -- change to COMMIT; for step 2

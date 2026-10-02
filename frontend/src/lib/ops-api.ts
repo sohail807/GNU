@@ -44,7 +44,7 @@ export async function patientInfo(session: Session, ids: number[]) {
   if (ids.length === 0) return out;
   const pts = await rpc<Row[]>(session, "gnuhealth.patient", "search_read", [[["id", "in", ids]], 0, ids.length, null, ["id", "puid", "party"]]).catch(() => []);
   const parties = await names(session, "party.party", pts.map((p) => idOf(p.party)).filter((x): x is number => !!x));
-  for (const p of pts) out[p.id] = { name: parties[idOf(p.party) as number]?.name || "", puid: p.puid || null };
+  for (const p of pts) out[p.id] = { name: String(parties[idOf(p.party) as number]?.name || "").slice(0, 120), puid: p.puid ? String(p.puid).slice(0, 64) : null };
   return out;
 }
 
@@ -52,7 +52,7 @@ export async function patientInfo(session: Session, ids: number[]) {
 export async function recentPatients(session: Session, limit = 200) {
   const pts = await rpc<Row[]>(session, "gnuhealth.patient", "search_read", [[], 0, limit, [["id", "DESC"]], ["id", "puid", "party"]]).catch(() => []);
   const parties = await names(session, "party.party", pts.map((p) => idOf(p.party)).filter((x): x is number => !!x));
-  return pts.map((p) => ({ id: p.id as number, puid: (p.puid as string) || null, name: parties[idOf(p.party) as number]?.name || "" }));
+  return pts.map((p) => ({ id: p.id as number, puid: p.puid ? String(p.puid).slice(0, 64) : null, name: String(parties[idOf(p.party) as number]?.name || "").slice(0, 120) }));
 }
 
 /** Staff of the signed-in role may use a route when they hold any of the listed modules. */
@@ -225,37 +225,59 @@ export async function advanceBalance(session: Session, partyId: number): Promise
   return Math.round(lines.reduce((t, l) => t + num(l.credit) - num(l.debit), 0) * 100) / 100;
 }
 
-/** Apply a patient's advance to a posted invoice it fully covers: Dr Customer Advances, Cr receivable, reconciled with the invoice. */
+const ADVANCE_PAYMENT_METHOD_NAME = "Patient Advance (QAR)";
+
+/**
+ * Apply a patient's advance to a posted invoice it fully covers. This is a normal invoice payment through Tryton's own
+ * payment wizard, using the "Patient Advance" payment method whose account is Customer Advances: it debits Customer
+ * Advances, credits the patient's receivable and reconciles it with the invoice, with the same rights as taking cash.
+ */
 export async function applyAdvanceToInvoice(session: Session, invoiceId: number): Promise<{ applied: number; remainingAdvance: number }> {
-  const inv = (await rpc<Row[]>(session, "account.invoice", "read", [[invoiceId], ["id", "state", "party", "account", "amount_to_pay", "lines_to_pay"]]))[0];
+  const inv = (await rpc<Row[]>(session, "account.invoice", "read", [[invoiceId], ["id", "state", "party", "amount_to_pay"]]))[0];
   if (!inv) throw Object.assign(new Error("The record was not found."), { status: 404 });
   const due = num(inv.amount_to_pay);
   if (inv.state !== "posted" || due <= 0) throw Object.assign(new Error("Only a posted invoice with an amount still due can take an advance."), { status: 409 });
-  const party = idOf(inv.party), receivable = idOf(inv.account);
-  const advance = await advanceAccountId(session);
-  if (!party || !receivable || !advance) throw Object.assign(new Error("The advance cannot be applied: the Customer Advances account or the patient account is missing."), { status: 409 });
+  const party = idOf(inv.party);
+  const method = (await rpc<Row[]>(session, "account.invoice.payment.method", "search_read", [[["company", "=", session.companyId], ["name", "=", ADVANCE_PAYMENT_METHOD_NAME]], 0, 1, null, ["id"]]))[0];
+  if (!party || !method) throw Object.assign(new Error("Applying an advance is not set up yet: the Patient Advance payment method has not been created."), { status: 409 });
   const balance = await advanceBalance(session, party);
   if (balance + 0.0001 < due) {
     throw Object.assign(new Error(`The patient's advance (${balance.toFixed(2)}) does not cover the amount due (${due.toFixed(2)}). Take the payment normally.`), { status: 409 });
   }
-  const journal = (await rpc<Row[]>(session, "account.journal", "search_read", [[["type", "=", "general"]], 0, 1, null, ["id"]]))[0]?.id;
-  const date = utcDate();
-  const period = await openPeriodId(session, date);
-  if (!journal || !period) throw Object.assign(new Error("No general journal or open period is available to apply the advance."), { status: 409 });
-  const created = await rpc<number[]>(session, "account.move", "create", [[{
-    journal, period, date, description: `Advance applied to invoice ${invoiceId}`,
-    lines: [["create", [
-      { account: advance, party, debit: money(due), credit: money(0) },
-      { account: receivable, party, debit: money(0), credit: money(due) },
-    ]]],
-  }]]);
-  await rpc(session, "account.move", "post", [[created[0]]]);
-  const move = (await rpc<Row[]>(session, "account.move", "read", [[created[0]], ["lines"]]))[0];
-  const lineRows = await rpc<Row[]>(session, "account.move.line", "read", [move.lines as number[], ["id", "account", "credit"]]);
-  const receivableCredit = lineRows.find((l) => idOf(l.account) === receivable && num(l.credit) > 0);
-  if (!receivableCredit) throw new Error("The advance move was posted but its receivable line was not found.");
-  await rpc(session, "account.move.line", "reconcile", [[receivableCredit.id as number, ...((inv.lines_to_pay as number[]) || [])]]);
-  return { applied: due, remainingAdvance: Math.round((balance - due) * 100) / 100 };
+  await TrytonClient.payInvoiceFull(
+    session.username, session.userId, session.sessionToken, invoiceId, method.id as number,
+    `Advance applied to invoice ${invoiceId}`, { company: session.companyId }, session.database
+  );
+  return { applied: due, remainingAdvance: await advanceBalance(session, party) };
+}
+
+/**
+ * Undo unreconciled "Advance applied to invoice N" moves left by the earlier direct-reconcile approach: each is offset by a
+ * reversing move (debit receivable, credit Customer Advances), so the patient's advance and receivable return to where they
+ * were. Safe to repeat: a move that already has its reversal is skipped.
+ */
+export async function reverseStrayAdvanceMoves(session: Session, invoiceId: number): Promise<{ reversed: number[] }> {
+  const description = `Advance applied to invoice ${invoiceId}`;
+  const stray = await rpc<Row[]>(session, "account.move", "search_read", [[["description", "=", description], ["state", "=", "posted"]], 0, 50, [["id", "ASC"]], ["id", "journal", "lines"]]);
+  const advance = await advanceAccountId(session);
+  if (!advance) throw Object.assign(new Error("The Customer Advances account does not exist."), { status: 409 });
+  const reversed: number[] = [];
+  for (const m of stray) {
+    const already = await rpc<number[]>(session, "account.move", "search", [[["description", "=", `Reversal of advance move ${m.id}`]]]);
+    if (already.length) continue;
+    const lines = await rpc<Row[]>(session, "account.move.line", "read", [m.lines as number[], ["account", "party", "debit", "credit", "reconciliation"]]);
+    if (lines.some((l) => idOf(l.reconciliation))) continue; // reconciled moves are real payments, never touched
+    const date = utcDate();
+    const period = await openPeriodId(session, date);
+    if (!period) throw Object.assign(new Error("There is no open accounting period for today."), { status: 409 });
+    const created = await rpc<number[]>(session, "account.move", "create", [[{
+      journal: idOf(m.journal), period, date, description: `Reversal of advance move ${m.id}`,
+      lines: [["create", lines.map((l) => ({ account: idOf(l.account), party: idOf(l.party) || undefined, debit: money(num(l.credit)), credit: money(num(l.debit)) }))]],
+    }]]);
+    await rpc(session, "account.move", "post", [[created[0]]]);
+    reversed.push(m.id as number);
+  }
+  return { reversed };
 }
 
 /**

@@ -123,8 +123,8 @@ export async function GET(req: NextRequest) {
       return {
         id: p.id,
         partyId: partyId || null,
-        puid: p.puid || "",
-        name: party.name || p.rec_name || "",
+        puid: String(p.puid || "").slice(0, 64),
+        name: String(party.name || p.rec_name || "").slice(0, 120),
         qid: party.ref || "",
         phone: (partyId && phoneByParty[partyId]) || null,
         gender: p.gender || "",
