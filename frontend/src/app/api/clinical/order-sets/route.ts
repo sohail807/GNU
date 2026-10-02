@@ -9,7 +9,7 @@ import { errorResponse, fail, guard, idOf, positiveId, rpc, text, Row } from "@/
 const M = "ist.ops.order_set";
 type Item = { kind: "lab" | "imaging"; id: number; name: string }
   | { kind: "medicine"; id: number; name: string; dose: string; doseUnitId: number; doseUnit: string; routeId: number; route: string; frequency: string; frequencyUnit: string; duration: string; durationPeriod: string };
-const FREQ_UNITS = ["seconds", "minutes", "hours", "days", "weeks", "months", "years"];
+const FREQ_UNITS = ["seconds", "minutes", "hours", "days", "weeks", "wr"]; // "wr" = when required
 const DURATION_UNITS = ["minutes", "hours", "days", "months", "years", "indefinite"];
 
 export async function GET() {

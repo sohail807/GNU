@@ -950,7 +950,7 @@ export default function PhysicianConsultationPage() {
                     <Badge variant="amber" size="sm">Draft</Badge>
                   </div>
                   <div className="text-[11px] font-mono text-slate-500">
-                    Dose: <strong className="text-slate-700">{rx.dose} {rx.doseUnit}</strong> · Route: {rx.route || routeOptions.find((item) => item.id === rx.routeId)?.name || "Oral"} · Every {rx.frequency} {rx.frequencyUnit} · Duration: {rx.duration} {rx.durationPeriod}
+                    Dose: <strong className="text-slate-700">{rx.dose} {rx.doseUnit}</strong> · Route: {rx.route || routeOptions.find((item) => item.id === rx.routeId)?.name || "Oral"} · {rx.frequencyUnit === "wr" ? "As needed (when required)" : `Every ${rx.frequency} ${rx.frequencyUnit}`} · Duration: {rx.duration} {rx.durationPeriod}
                   </div>
                 </div>
               ))}
@@ -1157,7 +1157,7 @@ export default function PhysicianConsultationPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Select label="Interval unit" value={newRx.frequencyUnit} onChange={(e) => setNewRx({ ...newRx, frequencyUnit: e.target.value })} options={["seconds", "minutes", "hours", "days", "weeks", "wr"].map((value) => ({ value, label: value }))} required />
+              <Select label="Interval unit" value={newRx.frequencyUnit} onChange={(e) => setNewRx({ ...newRx, frequencyUnit: e.target.value })} options={["seconds", "minutes", "hours", "days", "weeks", "wr"].map((value) => ({ value, label: value === "wr" ? "when required (as needed)" : value }))} required />
               <Select label="Duration unit" value={newRx.durationPeriod} onChange={(e) => setNewRx({ ...newRx, durationPeriod: e.target.value })} options={["minutes", "hours", "days", "months", "years", "indefinite"].map((value) => ({ value, label: value }))} required />
             </div>
             {selectedDrug?.pregnancyWarning && <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">This medication has a pregnancy warning in the clinical formulary. Review patient status and clinical guidance before prescribing.</p>}
