@@ -24,14 +24,17 @@ WHERE p.id IN (
     93, 94, 95, 96, 97, 98, 99, 100,           -- ALEXANDER WRIGHT ACCEPTANCE ...
     107, 109,                                  -- Workflow Chain Test Patient, Workflow Chain Test Patient Two
     114, 117                                   -- QA RETEST PATIENT ONE / TWO (created during the 2026-10-02 retest)
-);
+)
+-- Priya Allergytest: registered while testing a front desk allergy field that was later removed (matched by her
+-- synthetic national ID because her patient id was not recorded).
+OR pa.ref = '29900000123';
 
 -- What is about to be hidden. Read this list before applying.
 SELECT patient_id, party_id, name FROM test_patients ORDER BY patient_id;
 
 -- Safety check: nothing real-looking is in the list.
 SELECT 'UNEXPECTED NAME' AS warning, name FROM test_patients
-WHERE name !~* '(ALEXANDER WRIGHT|E2E|QA|TEST|DEMO|FE-UAT|WORKFLOW CHAIN|FINAL-VALIDATION)';
+WHERE name !~* '(ALEXANDER WRIGHT|E2E|QA|TEST|DEMO|FE-UAT|WORKFLOW CHAIN|FINAL-VALIDATION|ALLERGYTEST)';
 
 UPDATE party_party SET active = false WHERE id IN (SELECT party_id FROM test_patients);
 
