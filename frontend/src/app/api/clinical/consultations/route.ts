@@ -133,9 +133,22 @@ export async function POST(req: NextRequest) {
     };
     if (pathologyId) evaluationPayload.diagnosis = pathologyId;
 
+    // Saving again without naming the evaluation resumes the patient's open one (as triage does) instead of leaving a
+    // second, orphaned in-progress evaluation behind.
+    let requestedEvaluationId: unknown = body.evaluationId;
+    if (requestedEvaluationId === undefined || requestedEvaluationId === null || requestedEvaluationId === "") {
+      const open = await TrytonClient.execute<Array<{ id: number }>>(
+        session.username, session.userId, session.sessionToken,
+        "gnuhealth.patient.evaluation", "search_read",
+        [[["patient", "=", patientId], ["state", "=", "in_progress"]], 0, 1, [["id", "DESC"]], ["id"]],
+        { company: session.companyId }, session.database
+      );
+      if (open[0]) requestedEvaluationId = open[0].id;
+    }
+
     let evaluationId: number;
-    if (body.evaluationId !== undefined && body.evaluationId !== null && body.evaluationId !== "") {
-      evaluationId = Number(body.evaluationId);
+    if (requestedEvaluationId !== undefined && requestedEvaluationId !== null && requestedEvaluationId !== "") {
+      evaluationId = Number(requestedEvaluationId);
       if (!Number.isSafeInteger(evaluationId) || evaluationId <= 0) {
         return NextResponse.json({ error: "A valid evaluation ID is required." }, { status: 400 });
       }

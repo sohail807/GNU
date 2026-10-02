@@ -161,6 +161,25 @@ export async function GET(req: NextRequest) {
       lookup("gnuhealth.hospital.or", orIds, ["id", "name"]),
     ]);
 
+    // Procedure codes attached to each surgery (its operation lines), shown as "CODE description".
+    const procedureText: Record<number, string[]> = {};
+    if (surgeries.length > 0) {
+      try {
+        const ops = await TrytonClient.execute<any[]>(
+          session.username, session.userId, session.sessionToken, "gnuhealth.operation", "search_read",
+          [[["surgery", "in", surgeries.map((x) => x.id)]], 0, 500, null, ["id", "surgery", "procedure"]], context, session.database
+        );
+        const procMap = await lookup("gnuhealth.procedure", ops.map((o) => idOf(o.procedure)).filter(Boolean), ["id", "name", "description"]);
+        for (const o of ops) {
+          const sid = idOf(o.surgery);
+          const pr = procMap[idOf(o.procedure) as number];
+          if (sid && pr) (procedureText[sid] ||= []).push([pr.name, pr.description].filter(Boolean).join(" "));
+        }
+      } catch {
+        // procedure lines are an extra: the surgery list still loads without them
+      }
+    }
+
     return NextResponse.json({
       success: true,
       database: session.database,
@@ -190,11 +209,14 @@ export async function GET(req: NextRequest) {
           classification: (s.classification && TRYTON_TO_CLASSIFICATION[s.classification]) || s.classification || null,
           state: s.state || "draft",
           postopGuidelines: s.postoperative_guidelines || null,
+          procedures: procedureText[s.id] || [],
         };
       }),
       stats: {
         totalTheatres: operatingRooms.length,
-        scheduledToday: surgeries.length,
+        scheduledToday: surgeries.filter(
+          (s) => formatTrytonDateTime(s.surgery_date)?.slice(0, 10) === new Date().toLocaleDateString("en-CA")
+        ).length,
         inProgress: surgeries.filter((s) => s.state === "in_progress").length,
         completed: surgeries.filter((s) => s.state === "done").length,
       },
@@ -315,17 +337,23 @@ export async function POST(req: NextRequest) {
 
     // Procedure codes chosen from the catalogue become the surgery's operation lines.
     const procIds: number[] = Array.isArray(procedureIds) ? procedureIds.map(Number).filter((n) => Number.isSafeInteger(n) && n > 0 && n < 2147483647).slice(0, 10) : [];
+    let procedureWarning: string | null = null;
     if (procIds.length) {
-      await TrytonClient.execute(
-        session.username, session.userId, session.sessionToken, "gnuhealth.operation", "create",
-        [procIds.map((procedure) => ({ surgery: newSurgeries[0], procedure }))], context, session.database
-      ).catch(() => undefined);
+      try {
+        await TrytonClient.execute(
+          session.username, session.userId, session.sessionToken, "gnuhealth.operation", "create",
+          [procIds.map((procedure) => ({ surgery: newSurgeries[0], procedure }))], context, session.database
+        );
+      } catch {
+        procedureWarning = "The surgery was booked, but the chosen procedure codes could not be saved. Add them again from the surgery record.";
+      }
     }
 
     return NextResponse.json({
       success: true,
       surgery: newSurgeries[0],
-      message: "Surgical procedure booked and scheduled successfully",
+      message: procedureWarning ? `Surgical procedure booked. ${procedureWarning}` : "Surgical procedure booked and scheduled successfully",
+      ...(procedureWarning ? { warning: procedureWarning } : {}),
     });
   } catch (error: any) {
     console.error("Error booking surgery:", error);

@@ -333,7 +333,12 @@ export default function SurgeryPage() {
                 filteredSurgeries.map((surg) => (
                   <tr key={surg.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="py-3 px-4 font-mono font-semibold text-[#0F766E]">{surg.code}</td>
-                    <td className="py-3 px-4 font-semibold text-slate-900">{surg.description}</td>
+                    <td className="py-3 px-4 font-semibold text-slate-900">
+                      {surg.description}
+                      {Array.isArray((surg as { procedures?: string[] }).procedures) && (surg as { procedures?: string[] }).procedures!.map((pr) => (
+                        <span key={pr} className="mt-0.5 block text-[11px] font-normal text-slate-500">{pr}</span>
+                      ))}
+                    </td>
                     <td className="py-3 px-4 font-medium">{surg.patientName}</td>
                     <td className="py-3 px-4 font-mono text-slate-700">{surg.operatingRoomName}</td>
                     <td className="py-3 px-4">{surg.surgeon}</td>

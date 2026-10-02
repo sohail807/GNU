@@ -135,6 +135,10 @@ export default function PhysicianConsultationPage() {
 
   const [isSaving, setIsSaving] = useState(false);
   const [resumedEval, setResumedEval] = useState<number | null>(null);
+  // The evaluation id just completed here, so the banner and badge stop calling it "in progress".
+  const [completedEval, setCompletedEval] = useState<number | null>(null);
+  // The patient's latest evaluation is already done or signed (so the header does not claim a consultation is active).
+  const [lastEvalDone, setLastEvalDone] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -314,8 +318,10 @@ export default function PhysicianConsultationPage() {
           },
         }));
         setEvaluationId(latest.state === "in_progress" ? latest.id : 0);
+        setLastEvalDone(["done", "signed"].includes(latest.state));
       } else {
         setEvaluationId(0);
+        setLastEvalDone(false);
       }
       // Show the assessment already saved for this visit (so the doctor sees it again instead of a blank form).
       try {
@@ -414,7 +420,7 @@ export default function PhysicianConsultationPage() {
       doseUnitId: newRx.doseUnitId,
       doseUnit: newRx.doseUnit,
       routeId: newRx.routeId,
-      route: newRx.route,
+      route: newRx.route || routeOptions.find((item) => item.id === newRx.routeId)?.name || "",
       frequency: newRx.frequency,
       frequencyUnit: newRx.frequencyUnit,
       duration: newRx.duration,
@@ -604,6 +610,8 @@ export default function PhysicianConsultationPage() {
         throw new Error(data.error || "Failed to complete evaluation in GNU Health");
       }
       setFeedback(`GNU Health evaluation ${data.evaluationId || evaluationId || ""} completed.`);
+      setCompletedEval(Number(data.evaluationId || evaluationId) || null);
+      setLastEvalDone(true);
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to complete evaluation in GNU Health");
     } finally {
@@ -667,7 +675,7 @@ export default function PhysicianConsultationPage() {
         </div>
       </div>
 
-      {resumedEval && (
+      {resumedEval && completedEval !== resumedEval && (
         <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium">
           An assessment for this patient is already in progress (evaluation #{resumedEval}). It has been reopened below with what was saved; saving again updates that same assessment instead of starting a second one.
         </div>
@@ -708,7 +716,11 @@ export default function PhysicianConsultationPage() {
                 <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-teal-50 border border-teal-200 text-[#0F766E] font-bold">
                   PUID: {patient.puid}
                 </span>
-                <Badge variant="blue" dot>Consultation Active</Badge>
+                {lastEvalDone ? (
+                  <Badge variant="green" dot>Consultation Completed</Badge>
+                ) : (
+                  <Badge variant="blue" dot>Consultation Active</Badge>
+                )}
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
                 {[patient.age, patient.gender, patient.bloodGroup].filter(Boolean).join(" · ")}
@@ -928,7 +940,7 @@ export default function PhysicianConsultationPage() {
                     <Badge variant="amber" size="sm">Draft</Badge>
                   </div>
                   <div className="text-[11px] font-mono text-slate-500">
-                    Dose: <strong className="text-slate-700">{rx.dose} {rx.doseUnit}</strong> · Route: {rx.route} · Frequency: {rx.frequency} per {rx.frequencyUnit} · Duration: {rx.duration} {rx.durationPeriod}
+                    Dose: <strong className="text-slate-700">{rx.dose} {rx.doseUnit}</strong> · Route: {rx.route || routeOptions.find((item) => item.id === rx.routeId)?.name || "Oral"} · Every {rx.frequency} {rx.frequencyUnit} · Duration: {rx.duration} {rx.durationPeriod}
                   </div>
                 </div>
               ))}
@@ -1115,7 +1127,7 @@ export default function PhysicianConsultationPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <Input
-                label="Doses per interval"
+                label="Repeat every"
                 type="number"
                 min="1"
                 step="1"
@@ -1135,7 +1147,7 @@ export default function PhysicianConsultationPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Select label="Frequency interval" value={newRx.frequencyUnit} onChange={(e) => setNewRx({ ...newRx, frequencyUnit: e.target.value })} options={["seconds", "minutes", "hours", "days", "weeks", "wr"].map((value) => ({ value, label: value }))} required />
+              <Select label="Interval unit" value={newRx.frequencyUnit} onChange={(e) => setNewRx({ ...newRx, frequencyUnit: e.target.value })} options={["seconds", "minutes", "hours", "days", "weeks", "wr"].map((value) => ({ value, label: value }))} required />
               <Select label="Duration unit" value={newRx.durationPeriod} onChange={(e) => setNewRx({ ...newRx, durationPeriod: e.target.value })} options={["minutes", "hours", "days", "months", "years", "indefinite"].map((value) => ({ value, label: value }))} required />
             </div>
             {selectedDrug?.pregnancyWarning && <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">This medication has a pregnancy warning in the clinical formulary. Review patient status and clinical guidance before prescribing.</p>}

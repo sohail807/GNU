@@ -28,13 +28,12 @@ export async function GET() {
     const authRows = await rpc<Row[]>(session, "ist.claims.authorization", "search_read", [[["company", "=", session.companyId], ["state", "in", ["approved", "partial"]]], 0, 200, [["id", "DESC"]],
       ["id", "reference", "patient", "service", "approved_amount"]]).catch(() => []);
     const authPats = await patientInfo(session, [...new Set(authRows.map((a) => idOf(a.patient)).filter((x): x is number => !!x))]);
-    const bedRows = await rpc<Row[]>(session, "gnuhealth.hospital.bed", "search_read", [[["state", "=", "free"]], 0, 200, [["id", "ASC"]], ["id", "name", "ward"]]).catch(() => []);
-    const products = await names(session, "product.product", bedRows.map((b) => idOf(b.name)).filter((x): x is number => !!x));
+    const bedRows = await rpc<Row[]>(session, "gnuhealth.hospital.bed", "search_read", [[["state", "=", "free"]], 0, 200, [["id", "ASC"]], ["id", "rec_name", "ward"]]);
     const wards = await names(session, "gnuhealth.hospital.ward", bedRows.map((b) => idOf(b.ward)).filter((x): x is number => !!x));
     return NextResponse.json({
       success: true, plans, patients: await recentPatients(session),
       authorizations: authRows.map((a) => ({ id: a.id, label: `${a.reference} - ${authPats[idOf(a.patient) as number]?.name || ""} - ${a.service}`, approved: num(a.approved_amount) })),
-      freeBeds: bedRows.map((b) => ({ id: b.id, label: `${wards[idOf(b.ward) as number]?.name || "Ward"} / ${products[idOf(b.name) as number]?.name || `Bed ${b.id}`}` })),
+      freeBeds: bedRows.map((b) => ({ id: b.id, label: `${wards[idOf(b.ward) as number]?.name || "Ward"} / ${b.rec_name || `Bed ${b.id}`}` })),
       summary: {
         open: plans.filter((p) => ["estimate", "deposit_paid", "ready"].includes(p.state)).length,
         awaitingDeposit: plans.filter((p) => p.state === "estimate" && p.payor !== "insurance").length,

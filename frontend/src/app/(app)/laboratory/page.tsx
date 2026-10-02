@@ -82,6 +82,13 @@ export default function LaboratoryPage() {
     }
   }, []);
 
+  // Floating notices fade out by themselves.
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = window.setTimeout(() => setFeedback(null), 8000);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
   useEffect(() => {
     const timer = window.setTimeout(() => { void loadData(); }, 0);
     return () => window.clearTimeout(timer);
@@ -226,14 +233,15 @@ export default function LaboratoryPage() {
         </div>
       </header>
 
-      {error && <div role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><AlertCircle className="h-5 w-5 shrink-0" />{error}</div>}
-      {feedback && <div role="status" className="flex gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900"><CheckCircle2 className="h-5 w-5 shrink-0" />{feedback}</div>}
+      {/* Floating, so a message appearing never pushes the form (and the Save / Mark done buttons) down under the cursor. */}
+      {error && <div role="alert" className="fixed right-6 top-20 z-50 flex max-w-md gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 shadow-lg"><AlertCircle className="h-5 w-5 shrink-0" />{error}</div>}
+      {feedback && <div role="status" className="fixed right-6 top-20 z-50 flex max-w-md gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 shadow-lg"><CheckCircle2 className="h-5 w-5 shrink-0" />{feedback}</div>}
       {pendingRequestId && <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950"><span>Saved native request {pendingRequestId} has no confirmed result record yet.</span><Button variant="outline" size="sm" onClick={() => void retryCreateResult()} isLoading={isSaving}>Retry result creation</Button></div>}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(260px,0.8fr)_minmax(0,2fr)]">
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <h2 className="mb-3 font-semibold text-slate-900">Laboratory results</h2>
-          {isLoading && <p className="p-4 text-sm text-slate-500">Loading native records…</p>}
+          {isLoading && orders.length === 0 && <p className="p-4 text-sm text-slate-500">Loading native records…</p>}
           {!isLoading && orders.length === 0 && <div className="rounded-xl bg-slate-50 p-5 text-sm text-slate-600">No laboratory result records were returned for this company.</div>}
           <div className="space-y-2">
             {orders.map((order) => <button key={order.id} type="button" onClick={() => setSelectedOrderId(order.id)} className={`w-full rounded-xl border p-3 text-left ${selectedOrderId === order.id ? "border-teal-600 bg-teal-50" : "border-slate-200 hover:bg-slate-50"}`}>

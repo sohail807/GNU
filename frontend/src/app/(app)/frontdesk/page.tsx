@@ -25,6 +25,7 @@ interface PatientQueueItem {
   phone?: string;
   doctor: string;
   appointmentTime: string;
+  date: string;
   state: "draft" | "confirmed" | "checked_in" | "in_consultation" | "done";
   readyToBill: boolean;
 }
@@ -35,6 +36,8 @@ export default function FrontDeskPage() {
   const [isActionLoading, setIsActionLoading] = useState<number | null>(null);
   const [searchFilter, setSearchFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  // The roster is today's queue by default; earlier days are still one click away.
+  const [showAllDates, setShowAllDates] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -55,6 +58,7 @@ export default function FrontDeskPage() {
             phone: a.patientPhone || undefined,
             doctor: a.physicianName || "Attending Physician",
             appointmentTime: a.time,
+            date: a.date || "",
             state: a.state,
             readyToBill: Boolean(a.readyToBill),
           }))
@@ -103,7 +107,10 @@ export default function FrontDeskPage() {
     }
   };
 
-  const filteredPatients = patients.filter((p) => {
+  const today = new Date().toLocaleDateString("en-CA");
+  const scopedPatients = showAllDates ? patients : patients.filter((p) => p.date === today);
+
+  const filteredPatients = scopedPatients.filter((p) => {
     const q = searchFilter.toLowerCase().trim();
     const matchesSearch =
       !q ||
@@ -118,10 +125,10 @@ export default function FrontDeskPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const totalPatients = patients.length;
-  const pendingCount = patients.filter((p) => p.state === "confirmed" || p.state === "draft").length;
-  const triageCount = patients.filter((p) => p.state === "checked_in").length;
-  const doneCount = patients.filter((p) => p.state === "done").length;
+  const totalPatients = scopedPatients.length;
+  const pendingCount = scopedPatients.filter((p) => p.state === "confirmed" || p.state === "draft").length;
+  const triageCount = scopedPatients.filter((p) => p.state === "checked_in").length;
+  const doneCount = scopedPatients.filter((p) => p.state === "done").length;
 
   return (
     <div className="max-w-7xl mx-auto space-y-7 animate-fade-in">
@@ -266,6 +273,13 @@ export default function FrontDeskPage() {
                 In Triage
               </button>
             </div>
+
+            <button
+              onClick={() => setShowAllDates((v) => !v)}
+              className="h-8 px-3 text-xs font-medium rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+            >
+              {showAllDates ? "Today only" : "Show all dates"}
+            </button>
 
             {/* Quick Filter Search */}
             <div className="relative w-64 max-w-full">

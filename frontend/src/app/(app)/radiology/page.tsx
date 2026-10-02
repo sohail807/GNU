@@ -45,6 +45,13 @@ export default function RadiologyPage() {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Floating notices (so a message never pushes the form down) fade out by themselves.
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = window.setTimeout(() => setFeedback(null), 8000);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
   // New Request Modal (Resolves S6.3)
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [newPatientId, setNewPatientId] = useState<number>(0);
@@ -227,7 +234,7 @@ export default function RadiologyPage() {
       </div>
 
       {feedback && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center justify-between shadow-2xs font-medium">
+        <div role="status" className="fixed right-6 top-20 z-50 max-w-md p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center justify-between gap-4 shadow-lg font-medium">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{feedback}</span>
@@ -243,7 +250,7 @@ export default function RadiologyPage() {
       )}
 
       {errorMessage && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800 flex items-center gap-2 shadow-2xs font-medium">
+        <div role="alert" className="fixed right-6 top-20 z-50 max-w-md p-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800 flex items-center gap-2 shadow-lg font-medium">
           <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
           <span>{errorMessage}</span>
         </div>

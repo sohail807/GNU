@@ -314,16 +314,27 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "complete" || action === "certify") {
+      // A report can only be completed while it is a draft and every analyte has a result (or is excluded). Without this the
+      // page's disabled button was the only thing stopping an empty lab report from being marked done.
+      if (lab.state !== "draft") return NextResponse.json({ error: "This laboratory result is already complete and cannot be completed again." }, { status: 409 });
+      const critIds = Array.isArray(lab.critearea) ? lab.critearea.map(Number) : [];
+      const critRows = critIds.length ? await TrytonClient.execute<Array<{ id: number; result: number | null; result_text: string | null; excluded: boolean }>>(
+        session.username, session.userId, session.sessionToken, "gnuhealth.lab.test.critearea", "read", [critIds, ["id", "result", "result_text", "excluded"]], context, session.database
+      ) : [];
+      if (critRows.length === 0 || critRows.some((c) => !c.excluded && c.result === null && !c.result_text)) {
+        return NextResponse.json({ error: "Enter and save a result for every analyte before completing this laboratory result." }, { status: 409 });
+      }
       if (typeof body.results === "string") {
         await TrytonClient.execute(session.username, session.userId, session.sessionToken, "gnuhealth.lab", "write", [[labId], { results: body.results.slice(0, 10000) }], context, session.database).catch(() => undefined);
       }
+      // Use GNU Health's own completion step. A raw write of state "done" skips its business rules, so there is no such fallback.
       try {
         await TrytonClient.execute(session.username, session.userId, session.sessionToken, "gnuhealth.lab", "done", [[labId]], context, session.database);
       } catch {
         try {
           await TrytonClient.execute(session.username, session.userId, session.sessionToken, "gnuhealth.lab", "generate_document", [[labId]], context, session.database);
         } catch {
-          await TrytonClient.execute(session.username, session.userId, session.sessionToken, "gnuhealth.lab", "write", [[labId], { state: "done" }], context, session.database).catch(() => undefined);
+          return NextResponse.json({ error: "GNU Health did not complete this laboratory result. Nothing was marked done; check the results and try again." }, { status: 502 });
         }
       }
       const completed = await TrytonClient.execute<Array<{ id: number; state: string; name: string }>>(

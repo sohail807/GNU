@@ -316,6 +316,20 @@ export async function PATCH(req: NextRequest) {
       if (!admissionId || !bedId) {
         return NextResponse.json({ error: "Admission ID and bed ID are required" }, { status: 400 });
       }
+      // Only a discharged admission whose bed is waiting for cleaning can be released. Without this, cleaning an occupied
+      // bed would free it while the patient is still admitted.
+      const [bedRow] = await TrytonClient.execute<Array<{ state: string }>>(
+        session.username, session.userId, session.sessionToken,
+        "gnuhealth.hospital.bed", "read", [[parseInt(bedId, 10)], ["state"]], context, session.database
+      );
+      const [admRow] = await TrytonClient.execute<Array<{ state: string }>>(
+        session.username, session.userId, session.sessionToken,
+        "gnuhealth.inpatient.registration", "read", [[parseInt(admissionId, 10)], ["state"]], context, session.database
+      );
+      if (!bedRow || !admRow) return NextResponse.json({ error: "The admission or bed was not found." }, { status: 404 });
+      if (bedRow.state !== "to_clean" || admRow.state !== "done") {
+        return NextResponse.json({ error: "Only a bed marked as needing cleaning after a discharge can be released." }, { status: 409 });
+      }
       await TrytonClient.execute(
         session.username, session.userId, session.sessionToken,
         "gnuhealth.inpatient.registration", "write",
@@ -337,10 +351,6 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Admission ID is required" }, { status: 400 });
     }
 
-    // Every department must have signed off (medical, nursing, pharmacy, billing, insurance) before the patient leaves.
-    const blocked = await dischargeBlock(session, parseInt(admissionId, 10));
-    if (blocked) return NextResponse.json({ error: blocked }, { status: 409 });
-
     // GNU Health's own discharge validation (check_discharge_context) requires
     // discharge_reason, discharge_dx AND admission_reason to all be set before
     // the registration can move to state "done" - reject early with a clear
@@ -360,6 +370,20 @@ export async function PATCH(req: NextRequest) {
     if (!admissionReason) {
       return NextResponse.json({ error: "A reason for admission (ICD-10) is required." }, { status: 400 });
     }
+
+    // Already discharged or finished admissions cannot be discharged again.
+    const [current] = await TrytonClient.execute<Array<{ state: string }>>(
+      session.username, session.userId, session.sessionToken,
+      "gnuhealth.inpatient.registration", "read", [[parseInt(admissionId, 10)], ["state"]], context, session.database
+    );
+    if (!current) return NextResponse.json({ error: "The admission was not found." }, { status: 404 });
+    if (["done", "finished", "cancelled"].includes(current.state)) {
+      return NextResponse.json({ error: `This admission is already ${current.state === "done" ? "discharged" : current.state}.` }, { status: 409 });
+    }
+
+    // Every department must have signed off (medical, nursing, pharmacy, billing, insurance) before the patient leaves.
+    const blocked = await dischargeBlock(session, parseInt(admissionId, 10));
+    if (blocked) return NextResponse.json({ error: blocked }, { status: 409 });
 
     // Discharge patient - GNU Health state "done" means "Discharged - needs
     // cleaning" (there is no "discharged" state in the health_inpatient module).

@@ -58,6 +58,8 @@ export default function UnifiedPatientChartPage() {
   const [radiologyStatusOnly, setRadiologyStatusOnly] = useState(false);
   const [invoices, setInvoices] = useState<any[]>([]);
   const [policies, setPolicies] = useState<any[]>([]);
+  // Billing is not open to every role: say "not visible" instead of claiming no invoice exists.
+  const [invoicesRestricted, setInvoicesRestricted] = useState(false);
 
   // Load all live patient data from GNU Health backend via API routes
   useEffect(() => {
@@ -156,8 +158,10 @@ export default function UnifiedPatientChartPage() {
         }
 
         // 7. Invoices
+        if (billRes.status === "fulfilled" && billRes.value.status === 403) setInvoicesRestricted(true);
         if (billRes.status === "fulfilled" && billRes.value.ok) {
           const billData = await billRes.value.json();
+          if (billData.accessRestricted) setInvoicesRestricted(true);
           if (billData.success && Array.isArray(billData.invoices)) {
             setInvoices(billData.invoices);
           }
@@ -366,7 +370,7 @@ export default function UnifiedPatientChartPage() {
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">4. ICD-10 DIAGNOSIS</span>
             <span className="text-emerald-400 font-bold">
-              {latestEval?.diagnosis ? String(latestEval.diagnosis) : "None Documented"}
+              {latestEval?.diagnosis ? String(latestEval.diagnosis) : evaluationsStatusOnly ? "Not visible to your role" : "None Documented"}
             </span>
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
@@ -383,11 +387,11 @@ export default function UnifiedPatientChartPage() {
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">8. INVOICE</span>
-            <span className="text-emerald-400 font-bold">{latestInv ? latestInv.number || `INV #${latestInv.id}` : "None Issued"}</span>
+            <span className="text-emerald-400 font-bold">{latestInv ? latestInv.number || `INV #${latestInv.id}` : invoicesRestricted ? "Not visible to your role" : "None Issued"}</span>
           </div>
           <div className="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
             <span className="text-[10px] text-slate-400 block">9. SETTLEMENT</span>
-            <span className="text-emerald-400 font-bold">{latestInv ? (latestInv.amountToPay == null ? "Balance unavailable" : formatQar(latestInv.amountToPay)) : "No invoice"}</span>
+            <span className="text-emerald-400 font-bold">{latestInv ? (latestInv.amountToPay == null ? "Balance unavailable" : formatQar(latestInv.amountToPay)) : invoicesRestricted ? "Not visible to your role" : "No invoice"}</span>
           </div>
           <div className="p-2.5 bg-emerald-950/70 rounded-lg border border-emerald-500/40">
             <span className="text-[10px] text-emerald-300 block">RECORD HEALTH</span>
@@ -844,7 +848,7 @@ export default function UnifiedPatientChartPage() {
               <div className="flex justify-between">
                 <span className="text-slate-400">Accounts Balance:</span>
                 <span className="font-mono font-bold text-emerald-700">
-                  {latestInv ? (latestInv.amountToPay == null ? "Balance unavailable" : formatQar(latestInv.amountToPay)) : "No invoice"}
+                  {latestInv ? (latestInv.amountToPay == null ? "Balance unavailable" : formatQar(latestInv.amountToPay)) : invoicesRestricted ? "Not visible to your role" : "No invoice"}
                 </span>
               </div>
             </div>
