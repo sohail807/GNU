@@ -29,3 +29,19 @@ Notes
 | Record allergy (Z88.0, severe) | FAIL twice, then PASS | Save was refused with "You do not have permission". Two backend access gaps, found from the server log (the refusal named the table): nursing had read-only access to patient disease lines (commit 467975e), and saving an allergy also writes a Page of Life entry that nursing could not access (commit d521b84). After both module updates: add 200 (allergy 15), duplicate 409, list and patient list show it, triage screen shows the red allergy alert and the card (Drug allergy, Severe, note) and the banner that evaluation 118 is in progress |
 | Role isolation (API) | PASS | pharmacy, stock, surgery, prescriptions, order-sets, radiology, claims, purchases, ledger, laboratory all 403; billing 200 empty (accessRestricted true); triage, immunizations, inpatient, emergency, discharges, referrals, lab-alerts, consultations 200 |
 | Validation | PASS | triage for unknown patient 404; triage without patient 400 |
+
+## 3. Doctor, consultation and orders (demo_dr1)
+
+| Step | Result | Evidence |
+| :--- | :--- | :--- |
+| Patient and allergy visible | PASS | Cockpit opened on Alexander Wright Final 1002; allergy alert "Personal history of allergy to penicillin"; prescription header shows "Recorded allergies ... Verify these clinically before prescribing" |
+| Triage notes carried into the consultation | PASS | Subjective history pre-filled from the nurse's chief complaint |
+| Save SOAP notes with ICD-10 diagnosis | PASS | Objective, plan and A01.0 Typhoid fever saved; the same evaluation (118) was updated, not a second one |
+| Prescribing safety check | PASS | Amoxicillin 500mg for the penicillin-allergic patient returned 409 requiresAcknowledgement: "matches the recorded allergy penicillin" |
+| Prescribe paracetamol through the screen | PASS | Prescription 71 saved with Paracetamol 500mg, Oral, every 8 hours for 3 days; screen says it was sent to pharmacy |
+| Order lab and imaging together | PASS | "2 of 2 test order(s) placed": COMPLETE BLOOD COUNT TEST096 and Chest X-Ray 78, both draft |
+| Save as order set pop-up | PASS | Pop-up listed both orders; "Fever work-up" saved (set 5) and appears in the Order set dropdown |
+| Role isolation (API) | PASS | claims, ledger 403; billing 200 empty (accessRestricted true); stock, purchases, emergency and triage return 200 because the doctor role holds the pharmacy, emergency and triage-reading modules in the role matrix (by design) |
+
+Notes
+- The doctor's evaluation is left in progress; it is completed after the lab and radiology results come back.
