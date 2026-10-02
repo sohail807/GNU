@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { errorResponse, fail, guard, idOf, positiveId, rpc, text, Row } from "@/lib/ops-api";
 
-// Diagnostic order sets: a doctor saves a group of laboratory tests and imaging studies under a name (for example
-// "Admission work-up") and orders the whole group in one step. Sets are private to the doctor unless shared.
+// Order sets: a doctor saves a group of laboratory tests, imaging studies and medicines under a name (for example
+// "Admission work-up") and applies the whole group in one step. Tests are ordered at once; medicines only fill the
+// prescription draft, so the doctor reviews them before anything is issued. Sets are private to the doctor unless shared.
 // Records are native Tryton ist.ops.order_set rows.
 
 const M = "ist.ops.order_set";
-type Item = { kind: "lab" | "imaging"; id: number; name: string };
+type Item = { kind: "lab" | "imaging"; id: number; name: string }
+  | { kind: "medicine"; id: number; name: string; dose: string; doseUnitId: number; doseUnit: string; routeId: number; route: string; frequency: string; frequencyUnit: string; duration: string; durationPeriod: string };
+const FREQ_UNITS = ["seconds", "minutes", "hours", "days", "weeks", "months", "years"];
+const DURATION_UNITS = ["minutes", "hours", "days", "months", "years", "indefinite"];
 
 export async function GET() {
   const g = await guard(["physician"]);
@@ -50,10 +54,24 @@ export async function POST(req: NextRequest) {
     const items: Item[] = [];
     for (const it of raw as Array<Record<string, unknown>>) {
       const id = positiveId(it?.id);
-      if (!id || (it.kind !== "lab" && it.kind !== "imaging") || typeof it.name !== "string") return fail("The order set contains an invalid test.");
+      if (!id || typeof it.name !== "string") return fail("The order set contains an invalid item.");
+      if (it.kind === "medicine") {
+        const dose = Number(it.dose), doseUnitId = positiveId(it.doseUnitId), routeId = positiveId(it.routeId);
+        const frequency = Number(it.frequency), duration = Number(it.duration);
+        if (!(dose > 0) || !doseUnitId || !routeId || !Number.isSafeInteger(frequency) || frequency <= 0 || !Number.isSafeInteger(duration) || duration <= 0
+          || !FREQ_UNITS.includes(String(it.frequencyUnit)) || !DURATION_UNITS.includes(String(it.durationPeriod))) {
+          return fail(`The medicine "${it.name.slice(0, 60)}" needs a dose, unit, route, frequency and duration.`);
+        }
+        if (!items.some((x) => x.kind === "medicine" && x.id === id)) {
+          items.push({ kind: "medicine", id, name: it.name.slice(0, 120), dose: String(dose), doseUnitId, doseUnit: String(it.doseUnit || "").slice(0, 40), routeId, route: String(it.route || "").slice(0, 40),
+            frequency: String(frequency), frequencyUnit: String(it.frequencyUnit), duration: String(duration), durationPeriod: String(it.durationPeriod) });
+        }
+        continue;
+      }
+      if (it.kind !== "lab" && it.kind !== "imaging") return fail("The order set contains an invalid item.");
       if (!items.some((x) => x.kind === it.kind && x.id === id)) items.push({ kind: it.kind, id, name: it.name.slice(0, 120) });
     }
-    if (items.length === 0 || items.length > 40) return fail("Choose between 1 and 40 tests for the order set.");
+    if (items.length === 0 || items.length > 40) return fail("Choose between 1 and 40 items for the order set.");
     const dup = await rpc<number[]>(session, M, "search", [[["company", "=", session.companyId], ["owner", "=", session.userId], ["name", "=", name]]]);
     if (dup.length) return fail("You already have an order set with that name.", 409);
     const created = await rpc<number[]>(session, M, "create", [[{ name, company: session.companyId, owner: session.userId, shared: !!body.shared, items: JSON.stringify(items) }]]);

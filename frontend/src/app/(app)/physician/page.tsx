@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { AllergyPanel } from "@/components/app/AllergyPanel";
-import { WorkupOrders } from "@/components/app/WorkupOrders";
+import { WorkupOrders, type DraftMedicine } from "@/components/app/WorkupOrders";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -400,6 +400,16 @@ export default function PhysicianConsultationPage() {
       duration: "",
       durationPeriod: "days",
     });
+  };
+
+  // Medicines from an order set go into the draft only; the doctor reviews them and presses Create Prescription.
+  const addMedicinesFromSet = (lines: DraftMedicine[]): number => {
+    const have = new Set(prescriptions.map((p) => p.medicamentId));
+    const fresh = lines.filter((l) => !have.has(l.medicamentId));
+    if (fresh.length) {
+      setPrescriptions((prev) => [...prev, ...fresh.map((l, i): PrescriptionLine => ({ ...l, id: prev.length + i + 1, status: "draft" }))]);
+    }
+    return fresh.length;
   };
 
   // Add Prescription Line (Resolves S4.7)
@@ -984,7 +994,7 @@ export default function PhysicianConsultationPage() {
           </div>
 
           {/* Diagnostic Investigation Orders */}
-          <WorkupOrders patientId={patient.id} patientName={patient.name} />
+          <WorkupOrders patientId={patient.id} patientName={patient.name} draftMedicines={prescriptions} onAddMedicines={addMedicinesFromSet} />
         </div>
       </div>
 

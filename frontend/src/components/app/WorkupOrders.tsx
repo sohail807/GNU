@@ -7,7 +7,14 @@ import { Modal } from "@/components/ui/Modal";
 
 type Kind = "lab" | "imaging";
 interface Test { id: number; name: string }
-interface OrderSetItem { kind: Kind; id: number; name: string }
+export interface DraftMedicine {
+  medicamentId: number; medicament: string; dose: string; doseUnitId: number; doseUnit: string; routeId: number; route: string;
+  frequency: string; frequencyUnit: string; duration: string; durationPeriod: string;
+}
+type OrderSetItem =
+  | { kind: Kind; id: number; name: string }
+  | { kind: "medicine"; id: number; name: string; dose: string; doseUnitId: number; doseUnit: string; routeId: number; route: string; frequency: string; frequencyUnit: string; duration: string; durationPeriod: string };
+type MedicineItem = Extract<OrderSetItem, { kind: "medicine" }>;
 interface OrderSet { id: number; name: string; shared: boolean; mine: boolean; items: OrderSetItem[] }
 interface Placed { key: string; kind: Kind; name: string; ref: string; state: string; when: string | null }
 
@@ -17,7 +24,9 @@ const SEL = "w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounde
  * Diagnostic workup for the consulting patient: pick several laboratory tests and imaging studies at once, order a saved
  * order set in one step, save the current choice as an order set, and see every order placed for this patient.
  */
-export function WorkupOrders({ patientId, patientName }: { patientId: number; patientName: string }) {
+export function WorkupOrders({ patientId, patientName, draftMedicines = [], onAddMedicines }: {
+  patientId: number; patientName: string; draftMedicines?: DraftMedicine[]; onAddMedicines?: (lines: DraftMedicine[]) => number;
+}) {
   const [labs, setLabs] = useState<Test[]>([]);
   const [imaging, setImaging] = useState<Test[]>([]);
   const [sets, setSets] = useState<OrderSet[]>([]);
@@ -28,6 +37,7 @@ export function WorkupOrders({ patientId, patientName }: { patientId: number; pa
   const [setId, setSetId] = useState("");
   const [saveAs, setSaveAs] = useState("");
   const [shared, setShared] = useState(false);
+  const [withDraft, setWithDraft] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,12 +75,24 @@ export function WorkupOrders({ patientId, patientName }: { patientId: number; pa
     if (n[k]) delete n[k]; else n[k] = { kind, id: t.id, name: t.name };
     return n;
   });
+  const draftItems = useMemo<MedicineItem[]>(() => draftMedicines.map((m) => ({
+    kind: "medicine", id: m.medicamentId, name: m.medicament, dose: m.dose, doseUnitId: m.doseUnitId, doseUnit: m.doseUnit, routeId: m.routeId, route: m.route,
+    frequency: m.frequency, frequencyUnit: m.frequencyUnit, duration: m.duration, durationPeriod: m.durationPeriod,
+  })), [draftMedicines]);
   const pickedList = useMemo(() => Object.values(picked), [picked]);
+  const saveList = useMemo<OrderSetItem[]>(() => [...pickedList, ...(withDraft ? draftItems : [])], [pickedList, withDraft, draftItems]);
 
   const orderAll = async (items: OrderSetItem[]) => {
     setBusy(true); setError(null); setMessage(null);
     let ok = 0; const failed: string[] = [];
-    for (const it of items) {
+    const meds = items.filter((i): i is MedicineItem => i.kind === "medicine");
+    const tests = items.filter((i): i is Extract<OrderSetItem, { kind: Kind }> => i.kind !== "medicine");
+    let addedMeds = 0;
+    if (meds.length && onAddMedicines) {
+      addedMeds = onAddMedicines(meds.map((m) => ({ medicamentId: m.id, medicament: m.name, dose: m.dose, doseUnitId: m.doseUnitId, doseUnit: m.doseUnit, routeId: m.routeId, route: m.route,
+        frequency: m.frequency, frequencyUnit: m.frequencyUnit, duration: m.duration, durationPeriod: m.durationPeriod })));
+    }
+    for (const it of tests) {
       try {
         const res = it.kind === "lab"
           ? await fetch("/api/clinical/laboratory", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ patientId, testId: it.id }) })
@@ -80,7 +102,10 @@ export function WorkupOrders({ patientId, patientName }: { patientId: number; pa
       } catch { failed.push(`${it.name}: failed`); }
     }
     setBusy(false);
-    setMessage(`${ok} of ${items.length} order(s) placed for ${patientName}.`);
+    const parts: string[] = [];
+    if (tests.length) parts.push(`${ok} of ${tests.length} test order(s) placed for ${patientName}`);
+    if (meds.length) parts.push(`${addedMeds} of ${meds.length} medicine line(s) added to the prescription draft for review (not yet issued)`);
+    setMessage(`${parts.join("; ")}.`);
     if (failed.length) setError(failed.join(" | "));
     await loadPlaced();
     if (!failed.length) { setPicked({}); setOpen(false); setSetId(""); }
@@ -89,7 +114,7 @@ export function WorkupOrders({ patientId, patientName }: { patientId: number; pa
   const saveSet = async () => {
     setBusy(true); setError(null);
     try {
-      const res = await fetch("/api/clinical/order-sets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: saveAs, shared, items: pickedList }) });
+      const res = await fetch("/api/clinical/order-sets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: saveAs, shared, items: saveList }) });
       const d = await res.json();
       if (!res.ok || !d.success) throw new Error(d.error || "The order set could not be saved.");
       setMessage(d.message); setSaveAs(""); await loadSets();
@@ -111,11 +136,11 @@ export function WorkupOrders({ patientId, patientName }: { patientId: number; pa
         </button>
         <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1.5">
           <div className="flex items-center gap-2"><Layers className="w-4 h-4 text-[#0F766E]" /><span className="text-xs font-bold text-slate-900">Order set</span></div>
-          <select className={SEL} value={setId} onChange={(e) => setSetId(e.target.value)} disabled={!patientId}>
+          <select className={SEL} value={setId} onChange={(e) => { setSetId(e.target.value); setMessage(null); setError(null); }} disabled={!patientId}>
             <option value="">{sets.length ? "Choose a saved set" : "No saved sets yet"}</option>
             {sets.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.items.length}){s.shared ? " - shared" : ""}</option>)}
           </select>
-          <Button variant="primary" size="sm" disabled={!applySet || busy} isLoading={busy && !open} className="bg-[#0F766E] font-bold" onClick={() => applySet && orderAll(applySet.items)}>
+          <Button variant="primary" size="sm" disabled={!applySet || busy || (applySet.items.every((i) => i.kind === "medicine") && !onAddMedicines)} isLoading={busy && !open} className="bg-[#0F766E] font-bold" onClick={() => applySet && orderAll(applySet.items)}>
             Order {applySet ? `all ${applySet.items.length}` : "set"}
           </Button>
         </div>
@@ -159,13 +184,19 @@ export function WorkupOrders({ patientId, patientName }: { patientId: number; pa
             </div>
             <div className="border border-slate-200 rounded-xl p-3 space-y-2 bg-white">
               <div className="text-xs font-semibold text-slate-800">Selected ({pickedList.length})</div>
+              {draftItems.length > 0 && (
+                <label className="text-xs text-slate-600 flex items-center gap-1.5">
+                  <input type="checkbox" checked={withDraft} onChange={(e) => setWithDraft(e.target.checked)} />
+                  When saving as an order set, include the {draftItems.length} medicine line(s) in the prescription draft ({draftItems.map((d) => d.name).join(", ")})
+                </label>
+              )}
               {pickedList.length === 0 ? <p className="text-xs text-slate-500">Tick the tests and studies to order.</p> : (
                 <div className="flex flex-wrap gap-1.5">{pickedList.map((p) => <span key={`${p.kind}${p.id}`} className="text-[11px] px-2 py-0.5 rounded bg-teal-50 text-teal-800 font-semibold">{p.name}</span>)}</div>
               )}
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <input className={`${SEL} !w-48`} placeholder="Save as order set..." value={saveAs} onChange={(e) => setSaveAs(e.target.value)} />
                 <label className="text-xs text-slate-600 flex items-center gap-1"><input type="checkbox" checked={shared} onChange={(e) => setShared(e.target.checked)} /> Share with all doctors</label>
-                <Button type="button" variant="outline" size="sm" disabled={!saveAs.trim() || pickedList.length === 0 || busy} onClick={saveSet}>Save set</Button>
+                <Button type="button" variant="outline" size="sm" disabled={!saveAs.trim() || saveList.length === 0 || busy} onClick={saveSet}>Save set</Button>
               </div>
             </div>
             {message && <p className="text-xs text-emerald-700 font-semibold">{message}</p>}
