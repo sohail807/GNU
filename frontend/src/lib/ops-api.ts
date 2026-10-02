@@ -52,7 +52,9 @@ export async function patientInfo(session: Session, ids: number[]) {
 export async function recentPatients(session: Session, limit = 200) {
   const pts = await rpc<Row[]>(session, "gnuhealth.patient", "search_read", [[], 0, limit, [["id", "DESC"]], ["id", "puid", "party"]]).catch(() => []);
   const parties = await names(session, "party.party", pts.map((p) => idOf(p.party)).filter((x): x is number => !!x));
-  return pts.map((p) => ({ id: p.id as number, puid: p.puid ? String(p.puid).slice(0, 64) : null, name: String(parties[idOf(p.party) as number]?.name || "").slice(0, 120) }));
+  // People hidden as test records do not come back from the party lookup; leave them out of the pickers.
+  const anyParty = Object.keys(parties).length > 0;
+  return pts.filter((p) => !anyParty || parties[idOf(p.party) as number]).map((p) => ({ id: p.id as number, puid: p.puid ? String(p.puid).slice(0, 64) : null, name: String(parties[idOf(p.party) as number]?.name || "").slice(0, 120) }));
 }
 
 /** Staff of the signed-in role may use a route when they hold any of the listed modules. */

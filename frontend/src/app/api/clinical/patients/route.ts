@@ -29,22 +29,25 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const patientsRaw = await TrytonClient.execute<any[]>(
+    let patientsRaw = await TrytonClient.execute<any[]>(
       session.username,
       session.userId,
       session.sessionToken,
       "gnuhealth.patient",
       "search_read",
-      [domain, 0, 50, [["id", "DESC"]], ["id", "puid", "rec_name", "party", "dob", "age", "gender", "blood_type", "rh", "active"]],
+      [domain, 0, 120, [["id", "DESC"]], ["id", "puid", "rec_name", "party", "dob", "age", "gender", "blood_type", "rh", "active"]],
       { company: session.companyId },
       session.database
     );
+    // Hiding a test patient marks the person record inactive (the patient file itself stays active), and Tryton leaves
+    // inactive people out of a normal search. Fetch a little extra so the lists below still fill after those are dropped.
 
     // Retrieve party metadata for each patient
     const partyIds = patientsRaw
       .map((p) => (typeof p.party === "number" ? p.party : p.party?.[0]))
       .filter(Boolean);
     let partiesMap: Record<number, any> = {};
+    let partiesLoaded = false;
 
     if (partyIds.length > 0) {
       try {
@@ -62,10 +65,21 @@ export async function GET(req: NextRequest) {
           acc[party.id] = party;
           return acc;
         }, {} as Record<number, any>);
+        partiesLoaded = true;
       } catch {
         // Continue with available patient data
       }
     }
+    // A person that did not come back was hidden. Pickers (no search text, no id) leave them out; an exact search or id
+    // still finds them so their records stay reachable.
+    const hiddenPatientIds = new Set<number>();
+    if (partiesLoaded) {
+      for (const p of patientsRaw) {
+        const pr = typeof p.party === "number" ? p.party : p.party?.[0];
+        if (pr && !partiesMap[pr]) hiddenPatientIds.add(p.id);
+      }
+    }
+    patientsRaw = (!idParam && !query ? patientsRaw.filter((p) => !hiddenPatientIds.has(p.id)) : patientsRaw).slice(0, 50);
 
     // Resolve real phone numbers from each party's contact mechanisms. Never
     // fabricated - a patient with no phone on file returns null, not a fake number.
@@ -151,7 +165,7 @@ export async function GET(req: NextRequest) {
         dob: dobStr,
         age: p.age || null,
         bloodGroup: p.blood_type ? `${p.blood_type}${p.rh || ""}` : "",
-        status: p.active === true ? "active" : p.active === false ? "inactive" : "unknown",
+        status: hiddenPatientIds.has(p.id) || p.active === false ? "inactive" : p.active === true ? "active" : "unknown",
         allergiesLoaded,
         allergiesRestricted,
         allergies: allergiesLoaded ? diseasesRaw
